@@ -15,7 +15,7 @@ export function ConfirmAction({ label, title, description, confirmLabel, onConfi
 }) {
   const dialog = useRef<HTMLDialogElement>(null), heading = useId();
   return <><button type="button" disabled={disabled} onClick={() => dialog.current?.showModal()}>{label}</button>
-    <dialog className="procedure-card" ref={dialog} aria-labelledby={heading}>
+    <dialog className="procedure-card procedure-confirmation" ref={dialog} aria-labelledby={heading}>
       <h2 id={heading}>{title}</h2><p>{description}</p>
       <div className="procedure-actions"><button type="button" autoFocus onClick={() => dialog.current?.close()}>Cancel</button>
         <button type="button" onClick={() => { dialog.current?.close(); onConfirm(); }}>{confirmLabel}</button></div>

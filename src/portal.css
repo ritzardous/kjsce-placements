@@ -45,6 +45,8 @@
 .area-nav a[aria-current="page"]{color:var(--accent);}
 .soon-dot{color:var(--ink-faint);}
 .portal-main{width:100%;max-width:1240px;padding:50px 32px 64px;margin:auto;flex:1;}
+/* Main is a programmatic route/skip-link target, rather than an interactive control. */
+.portal-main:focus{outline:none;}
 .portal-welcome{margin-bottom:44px;}
 .portal-welcome h1{font:600 clamp(32px,4vw,46px)/1.15 var(--font-display);letter-spacing:-.045em;margin:0 0 16px;}
 .portal-welcome p{font-size:15px;color:var(--ink-soft);max-width:650px;line-height:1.8;}

@@ -1,14 +1,14 @@
 # Company Procedures: frontend and UX redesign
 
-Status: UX flow improvements implemented locally · 11 October 2026
+Status: UX flow improvements pushed in `9d59f5c` · 11 October 2026
 
-**Implementation constraint:** retain the current visual style and leave changes uncommitted. The implementation reuses the existing CSS, fonts, colors and components; there is no new theme, visual design system or mobile bottom-navigation styling. Navigation hierarchy, dedicated contributions, contextual headers, URL filters, persistent comparisons, validation/focus, notification handling, moderation recovery and destructive-action confirmations are implemented. Notifications remain in-app. The supporting notification API uses existing private collections and requires no new indexes, secrets or billing setup. Deploy the frontend and API together when this work is eventually released; it has not been pushed or deployed.
+**Implementation:** the existing fonts, colors and overall design are retained. Navigation hierarchy, dedicated contributions, contextual headers, URL filters, persistent comparisons, validation/focus, notification handling, moderation recovery and destructive-action confirmations are implemented. Notifications remain in-app. The supporting notification API uses existing private collections and requires no new indexes, secrets or billing setup. The frontend and API are released together through the normal Vercel build. The local follow-up aligns search fields, filters, secondary buttons, expandable sections and mobile controls with the existing visual style. The viewer layout now leads with the page title, uses a consistent Browse experiences / Saved for prep / My contributions navigation bar, groups notifications and sharing as utility actions, and separates discovery filters from approved results. The page-wide programmatic focus outline is removed while keyboard indicators on interactive controls and skip-link focus remain available. These follow-up changes are uncommitted.
 
 ## 1. Product direction
 
 Make Company Procedures feel like a dependable recruitment community: easy to explore, comfortable to read, safe to contribute to, and efficient to moderate. Production quality means predictable navigation, clear priorities, polished states and reliable recovery throughout the journey.
 
-Keep the existing KJSCE identity, working community features, verified Google access, approval workflow and Firebase Spark/Vercel architecture. Notifications remain entirely in-app. This document plans the redesign; it does not change the running app.
+Keep the existing KJSCE identity, working community features, verified Google access, approval workflow and Firebase Spark/Vercel architecture. Notifications remain entirely in-app. This document records the UX plan and its implementation scope.
 
 ### Current problems to address
 
