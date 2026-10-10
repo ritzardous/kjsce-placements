@@ -99,6 +99,7 @@ test('draft recovery, revision approval, voting and unpublishing work across con
     await adminPage.locator(`button[data-submission-id="${id}"]`).click();
     await adminPage.getByLabel('Review feedback / unpublish reason').fill('Procedure needs further correction.');
     await adminPage.getByRole('button', { name: 'Unpublish approved version', exact: true }).click();
+    await adminPage.getByRole('dialog').getByRole('button',{name:'Confirm unpublish',exact:true}).click();
     await expect(readerPage.getByRole('alert')).toContainText(/unavailable|unpublished/);
     await setClaims(adminUid, {});
     const revoked = await adminPage.evaluate(async postId => {

@@ -19,6 +19,7 @@ test('discovery, saved prep, comparison and moderated discussion work together',
   try{
     await signInGoogle(reader);await reader.goto('/#procedures');
     await reader.getByRole('searchbox',{name:'Search experiences'}).fill(tag);
+    await reader.locator('summary').filter({hasText:'More filters'}).click();
     await reader.getByLabel('Round',{exact:true}).selectOption('Coding');
     await expect(reader.locator('.procedure-card h3').filter({hasText:tag})).toHaveCount(2);
     for (const index of [0,1]) {
@@ -35,6 +36,7 @@ test('discovery, saved prep, comparison and moderated discussion work together',
     await expect(reader.getByRole('heading',{name:'Barclays procedure hub'})).toBeVisible();
     await expect(reader.getByRole('link',{name:'2025 placement statistics',exact:false})).toBeVisible();
     await reader.goto(`/#procedures/${ids[0]}`);
+    await reader.locator('summary').filter({hasText:'On this page'}).click();
     await expect(reader.getByRole('navigation',{name:'Experience sections'}).getByRole('button',{name:'Preparation'})).toBeVisible();
     await reader.getByRole('button',{name:'Save for prep',exact:true}).click();
     await expect(reader.getByRole('button',{name:'Saved for prep ✓'})).toBeVisible();
@@ -49,6 +51,7 @@ test('discovery, saved prep, comparison and moderated discussion work together',
     const adminUid=await signInGoogle(admin);await getAuth(app).setCustomUserClaims(adminUid,{role:'admin'});
     await admin.evaluate(`(async()=>{const {getFirebase}=await import('/src/firebase.ts');await getFirebase().auth.currentUser.getIdToken(true);})()`);
     await admin.goto('/#admin/procedures');
+    await admin.locator('summary').filter({hasText:'Moderation overview'}).click();
     await expect(admin.getByText('All notifications are delivered in the app.', {exact:false})).toBeVisible();
     await expect(admin.getByRole('button',{name:'Retry failed emails'})).toHaveCount(0);
     await admin.getByRole('button',{name:'Reports and discussions',exact:true}).click();

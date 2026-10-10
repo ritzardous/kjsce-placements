@@ -95,7 +95,7 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
     }
     case 'contributions': {
       const data = parse(pageInput, value);
-      return page(db.collection('procedureSubmissions').where('ownerUid', '==', actor.uid), ['updatedAt'], 'desc', data.cursor, row => !value.status || row.status === value.status);
+      return page(db.collection('procedureSubmissions').where('ownerUid', '==', actor.uid), ['updatedAt'], 'desc', data.cursor, row => value.status === 'published' ? row.hasPublished === true : value.status === 'attention' ? ['changes_requested','rejected'].includes(row.status) : !value.status || row.status === value.status);
     }
     case 'impact': {
       const submissions = db.collection('procedureSubmissions').where('ownerUid', '==', actor.uid);
@@ -114,7 +114,17 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
       const events = await db.collection('procedureModeration').where('submissionId', '==', data.submissionId).orderBy('createdAt', 'desc').limit(50).get();
       return events.docs.map(doc => { const row = doc.data(); return { id: doc.id, action: row.action, revision: row.revision || 0, feedback: row.feedback || '', createdAt: row.createdAt }; });
     }
-    case 'notifications': return page(db.collection(`procedureNotifications/${actor.uid}/items`), ['createdAt'], 'desc', parse(pageInput, value).cursor);
+    case 'notifications': return page(db.collection(`procedureNotifications/${actor.uid}/items`), ['createdAt'], 'desc', parse(pageInput, value).cursor, row => !value.unread || row.read === false);
+    case 'notificationSummary': {
+      parse(z.object({}).strict(), value);
+      return { unread: (await db.collection(`procedureNotifications/${actor.uid}/items`).where('read', '==', false).count().get()).data().count };
+    }
+    case 'readNotifications': {
+      const data = parse(z.object({ ids: z.array(id).min(1).max(50) }).strict(), value);
+      const batch = db.batch();
+      for (const item of new Set(data.ids)) batch.update(db.doc(`procedureNotifications/${actor.uid}/items/${item}`), { read: true });
+      await batch.commit(); return { read: true };
+    }
     case 'readNotification': {
       const data = parse(z.object({ id }).strict(), value);
       await db.doc(`procedureNotifications/${actor.uid}/items/${data.id}`).update({ read: true }); return { read: true };

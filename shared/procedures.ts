@@ -23,7 +23,7 @@ export const procedureDraftSchema = z.object({
   body: z.string().max(20_000),
 }).strict();
 export type ProcedureDraft = z.infer<typeof procedureDraftSchema>;
-export const submissionSchema = procedureDraftSchema.refine(d => d.companyKey.length > 0, 'Choose a company.').refine(d => meaningfulBody(d.body).length >= 60, 'Write at least 60 characters about your experience beyond the starter headings.');
+export const submissionSchema = procedureDraftSchema.refine(d => d.companyKey.length > 0, {message:'Choose a company.',path:['companyKey']}).refine(d => meaningfulBody(d.body).length >= 60, {message:'Write at least 60 characters about your experience beyond the starter headings.',path:['body']});
 export function meaningfulBody(body: string) { return body.replace(/<!--[\s\S]*?-->/g, '').replace(/^#{1,6}.*$/gm, '').replace(/\s+/g, ' ').trim(); }
 export type ProcedureStatus = 'draft' | 'pending' | 'approved' | 'changes_requested' | 'rejected';
 export type ProcedureCompany = { key: string; name: string; years: number[] };

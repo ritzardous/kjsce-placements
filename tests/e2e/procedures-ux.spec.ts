@@ -1,0 +1,71 @@
+import { test, expect as baseExpect } from '@playwright/test';
+import { randomUUID } from 'node:crypto';
+import { initializeApp } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
+import { signInGoogle } from './auth-helper';
+const expect=baseExpect.configure({timeout:20000});
+const app=initializeApp({projectId:'demo-placementstats'},'ux-browser-tests'),db=getFirestore(app);
+test.beforeEach(()=>{if(process.env.E2E_FIREBASE!=='true')throw new Error('Emulators required.');});
+
+test('navigation, field validation and device-copy discard are clear and keyboard accessible',async({page})=>{
+  const uid=await signInGoogle(page);
+  await page.goto('/#procedures');
+  const navigation=page.getByRole('navigation',{name:'Company procedures views'});
+  await expect(navigation.getByRole('link')).toHaveCount(3);
+  await navigation.getByRole('link',{name:'My contributions',exact:true}).click();
+  await expect(page).toHaveURL(/#procedures\/contributions/);
+  await expect(page.locator('.account-details')).toHaveCount(0);
+  await page.screenshot({path:`artifacts/ux-contributions-${test.info().project.name}.png`,fullPage:true});
+  await page.getByRole('link',{name:'Share an experience',exact:false}).click();
+  await expect(page.getByRole('heading',{level:1})).toHaveText('Share an experience');
+  await page.getByRole('button',{name:'Submit for review',exact:true}).click();
+  await expect(page.getByLabel('Company',{exact:true})).toBeFocused();
+  await expect(page.getByLabel('Company',{exact:true})).toHaveAttribute('aria-invalid','true');
+  await expect(page.getByRole('alert')).toContainText('Check these details');
+  await page.getByRole('button',{name:/Your experience: Write at least/}).click();
+  await expect(page.getByLabel('Your experience',{exact:true})).toBeFocused();
+  await page.evaluate(account=>localStorage.setItem(`procedure-backup:${account}:new:ux-copy`,JSON.stringify({draft:{body:'A recoverable device-only draft',title:'Device-only copy'},updatedAt:Date.now()})),uid);
+  await page.goto('/#procedures/contributions');
+  await page.getByRole('button',{name:'Discard device copy',exact:true}).click();
+  const dialog=page.getByRole('dialog',{name:'Discard this device copy?'});
+  await expect(dialog.getByRole('button',{name:'Cancel',exact:true})).toBeFocused();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await page.screenshot({path:`artifacts/ux-confirmation-${test.info().project.name}.png`});
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
+  await page.getByRole('button',{name:'Discard device copy',exact:true}).click();
+  await dialog.getByRole('button',{name:'Discard copy',exact:true}).click();
+  await expect(page.getByRole('link',{name:/Device-only copy/})).toHaveCount(0);
+});
+
+test('filter URLs survive a reload, return links and a reset without changing the visual theme',async({page})=>{
+  await signInGoogle(page);
+  await page.goto('/#procedures?company=barclays&round=Coding&search=ux-filter&sort=helpful');
+  await expect(page.getByRole('searchbox',{name:'Search experiences'})).toHaveValue('ux-filter');
+  await expect(page.getByLabel('Round',{exact:true})).toHaveValue('Coding');
+  await expect(page.getByLabel('Sort',{exact:true})).toHaveValue('helpful');
+  await page.reload();
+  await expect(page.getByRole('searchbox',{name:'Search experiences'})).toHaveValue('ux-filter');
+  await page.getByRole('button',{name:'Remove round filter'}).click();
+  await expect(page.getByLabel('Round',{exact:true})).toHaveValue('');
+  await expect(page).not.toHaveURL(/round=/);
+  await page.getByRole('button',{name:'Reset filters',exact:true}).click();
+  await expect(page).toHaveURL(/#procedures$/);
+  await expect(page.getByLabel('Company',{exact:true})).toHaveValue('');
+});
+
+test('unread notifications can be marked in place and the exact badge count updates',async({page})=>{
+  const uid=await signInGoogle(page),ids=[randomUUID(),randomUUID()];
+  for(const [index,id] of ids.entries())await db.doc(`procedureNotifications/${uid}/items/${id}`).set({title:`UX review update ${index}`,message:'Your experience received review feedback.',submissionId:'ux-test',createdAt:Date.now()+index,read:false});
+  await page.goto('/#procedures/notifications');
+  await expect(page.getByRole('link',{name:'Notifications (2)',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Unread notifications',exact:true}).click();
+  await expect(page.getByRole('heading',{name:/UX review update/})).toHaveCount(2);
+  await page.getByRole('button',{name:'Mark displayed notifications as read',exact:true}).click();
+  await expect(page.getByRole('status')).toContainText('2 notifications marked as read');
+  await expect(page.getByRole('heading',{name:/UX review update/})).toHaveCount(0);
+  await expect(page.getByRole('link',{name:'Notifications',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'All notifications',exact:true}).click();
+  await expect(page.getByRole('heading',{name:/UX review update/})).toHaveCount(2);
+  await expect(page.locator('.procedure-badge').filter({hasText:'New'})).toHaveCount(0);
+});

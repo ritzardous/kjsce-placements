@@ -15,10 +15,10 @@ function Application() {
     if (auth.ready && auth.allowed && ['login', 'landing'].includes(route.page)) location.replace('#home');
   }, [auth.ready, auth.allowed, route.page]);
   useEffect(() => {
-    if (['landing','login','home','statistics','procedures','account'].includes(route.page)) document.title = route.page === 'account' ? 'My Account · Placement Stats KJSCE' : 'Placement Stats KJSCE';
+    if (['landing','login','home','statistics','account'].includes(route.page)) document.title = route.page === 'account' ? 'My Account · Placement Stats KJSCE' : 'Placement Stats KJSCE';
   }, [route.page]);
   useEffect(() => {
-    if (route.page === 'contributions') location.replace('#account');
+    if (route.page === 'contributions') location.replace('#procedures/contributions');
     if (route.page === 'alumni') location.replace('#statistics');
   }, [route.page]);
   if (!auth.ready) return <div className="session-loading" role="status">Getting your session ready…</div>;

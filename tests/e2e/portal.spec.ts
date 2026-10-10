@@ -30,7 +30,7 @@ test('main navigation has two areas, company stats own contacts, and account own
   await expect(page.locator('.live-notice')).toBeVisible();
   await page.getByRole('navigation', { name: 'App', exact: true }).getByRole('link', { name: 'Company Procedures', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Company Procedures', exact: true })).toBeVisible();
-  await page.getByRole('link', { name: 'Contribute', exact: true }).click();
+  await page.getByRole('link', { name: 'Share an experience', exact: false }).click();
   await expect(page.getByLabel('Company', { exact: true })).toBeVisible();
   await page.getByRole('searchbox', { name: 'Find a company' }).fill('Barclays');
   await expect(page.getByLabel('Company', { exact: true }).getByRole('option', { name: /Barclays/ })).toContainText('2025');
@@ -57,7 +57,7 @@ test('main navigation has two areas, company stats own contacts, and account own
   await page.reload();
   await expect(page.getByRole('heading', { name: 'My Account', exact: true })).toBeVisible();
   await page.goto('/#contributions');
-  await expect(page).toHaveURL(/#account$/);
+  await expect(page).toHaveURL(/#procedures\/contributions$/);
   await page.goto('/#alumni');
   await expect(page).toHaveURL(/#statistics$/);
   await expect(page.getByRole('heading', { name: 'Placement Stats', exact: true })).toBeVisible();

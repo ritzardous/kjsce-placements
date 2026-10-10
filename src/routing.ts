@@ -13,7 +13,7 @@ export function parseRoute(hash = location.hash): Route {
 export function useRoute() {
   const [route, setRoute] = useState(parseRoute);
   useEffect(() => {
-    const handle = () => { setRoute(parseRoute()); window.scrollTo(0, 0); };
+    const handle = () => { setRoute(parseRoute()); window.scrollTo(0, 0); requestAnimationFrame(() => document.getElementById('portal-main')?.focus({ preventScroll: true })); };
     window.addEventListener('hashchange', handle);
     return () => window.removeEventListener('hashchange', handle);
   }, []);

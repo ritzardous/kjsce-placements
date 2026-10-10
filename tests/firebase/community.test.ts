@@ -85,3 +85,17 @@ test('admin overview is in-app only and the removed email retry action is unavai
   assert.equal('emailFailures' in overview, false);
   await assert.rejects(call(admin, 'retryEmails'), (error: any) => error.code === 'invalid-argument');
 });
+
+test('notification counts and bounded batch read operations stay private to the recipient',async()=>{
+  const owner=actor(),other=actor(),ids=[randomUUID(),randomUUID()];
+  for(const item of ids)await db.doc(`procedureNotifications/${owner.uid}/items/${item}`).set({title:'Review update',read:false,createdAt:Date.now()});
+  assert.equal((await call(owner,'notificationSummary')).unread,2);
+  assert.equal((await call(other,'notificationSummary')).unread,0);
+  await assert.rejects(call(other,'readNotifications',{ids}));
+  assert.equal((await call(owner,'notificationSummary')).unread,2);
+  await assert.rejects(call(owner,'readNotifications',{ids:Array(51).fill(ids[0])}));
+  await call(owner,'readNotifications',{ids});
+  assert.equal((await call(owner,'notificationSummary')).unread,0);
+  assert.equal((await call(owner,'notifications',{unread:true})).rows.length,0);
+  assert.equal((await call(owner,'notifications')).rows.length,2);
+});
