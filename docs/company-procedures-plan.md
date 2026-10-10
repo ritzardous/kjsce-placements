@@ -32,7 +32,7 @@ Autosave drafts to the owner's private Firestore document with a visible save in
 
 ## 3. Architecture and data
 
-Keep **React + TypeScript + Vite + Firebase Auth/Firestore**. Add Firebase Functions (TypeScript) for trusted mutations and email delivery, plus `react-markdown`/`remark-gfm` for rendering with raw HTML disabled and safe link protocols.
+Keep **React + TypeScript + Vite + Firebase Auth/Firestore**. Use the Vercel Node API (TypeScript) for trusted mutations, with Firebase Functions wrappers for emulator tests only, plus `react-markdown`/`remark-gfm` for rendering with raw HTML disabled and safe link protocols.
 
 | Collection | Purpose / access |
 | --- | --- |
@@ -42,28 +42,28 @@ Keep **React + TypeScript + Vite + Firebase Auth/Firestore**. Add Firebase Funct
 | `procedurePosts/{id}` | Approved snapshot and vote totals only; signed-in reads, server writes. |
 | `procedurePosts/{id}/votes/{uid}` | One vote per reader (`-1` or `+1`); owner/admin reads, server writes. |
 | `procedureModeration/{eventId}` | Audit trail and admin inbox; admin reads, server writes. |
-| `procedureEmailOutbox/{eventId}` | Private delivery status, retries and deduplication for admin emails. |
+| `procedureNotifications/{uid}/items/{eventId}` | Private in-app updates, readable only by the recipient; server writes. |
 | `procedurePreferences/{uid}` | Owner-only remembered graduation year; server writes. |
 
-Callable functions: `saveProcedureDraft`, `submitProcedure`, `reviewProcedure`, `unpublishProcedure`, `setProcedureVote`. Validate verified Google identity, ownership/admin claims, schema and company key on the server. Enforce draft/submission/vote throttles and prevent self-votes. Draft saves also use version checks through Functions; rules deny all direct client mutations to community collections.
+Callable functions: `saveProcedureDraft`, `submitProcedure`, `reviewProcedure`, `unpublishProcedure`, `setProcedureVote`. Validate verified Google identity, ownership/admin claims, schema and company key on the server. Enforce draft/submission/vote throttles and prevent self-votes. Draft saves also use version checks through the trusted API; rules deny all direct client mutations to community collections.
 
 **Lifecycle:** Draft → Pending → Approved / Changes requested / Rejected. Feedback enables revision and resubmission. Pending revisions are locked; review targets an exact revision. Editing an approved post creates a new draft revision while readers retain the last approved snapshot. Approval transactionally replaces that snapshot and records the review. Unpublishing removes reader access immediately. Retry-safe submissions/reviews create one event per revision/action.
 
 **Voting:** a transaction reads the reader's previous vote and updates vote/totals together. Clicking the same vote removes it; switching changes it. Preserve votes across approved edits; display that approval is content review, not factual verification. Sort by Newest or Helpful (net votes), with cursor pagination and matching Firestore indexes.
 
-## 4. Admin email and dashboard
+## 4. Admin access and in-app notifications
 
 - Extend `scripts/set-role.ts` to resolve an existing, verified Google account by `--email`, then assign the existing `role: admin` custom claim using trusted Admin SDK credentials. First sign-in must happen before assignment; refresh the token afterward. Support revocation. No frontend email allowlist or self-service promotion.
-- Store notification recipients in private server configuration (`PROCEDURE_ADMIN_EMAILS`); keep the mail-provider API key in Secret Manager. Recipients and admin permissions are separate settings.
-- Submission creates the admin inbox event and email-outbox entry atomically. A Functions worker sends email through Resend with retry/deduplication and an authenticated dashboard link. Email failure never loses the submission; the queue and unread badge remain available. Configure sender-domain verification before enabling real emails.
+- Admin roles use verified Google accounts and trusted custom claims. No mail-provider configuration is required.
+- Submission atomically creates the pending review item, audit event and contributor notification. Admins see the pending-count badge and inbox; questions, replies and reports appear in their moderation dashboard. Review decisions create private in-app updates for the affected users.
 - Add `#admin/procedures`: Pending / Reviewed tabs, full Markdown preview, metadata, review history, feedback box and action buttons. Server authorization applies even when someone bypasses the route guard.
 
 ## 5. Implementation order and release gate
 
-1. Add shared Zod schemas, company-catalog seed, Functions package, private draft rules, indexes and role/email setup.
+1. Add shared Zod schemas, company-catalog seed, Functions package, private draft rules, indexes and role setup.
 2. Build trusted submission, moderation, voting and notification functions; test authorization and lifecycle using isolated emulators.
 3. Replace `Procedures` placeholders with browse/detail/editor views; wire My Account contributions and the admin dashboard into `App.tsx`/routing. Use `#procedures/<postId>` for details and reserved `#procedures/contribute` for the editor.
-4. Add desktop/mobile browser coverage: draft recovery, submit → approve → visible, requested changes/resubmission, safe Markdown, vote toggle/switch and unauthorized access. Verify concurrent votes, stale reviews, private-field isolation, email retries and unpublishing in backend/rules tests. Run build and existing regression suites.
-5. Deploy Functions, rules/indexes and frontend; seed the catalog, assign the chosen admin, configure email and smoke-test with separate contributor/admin accounts. Functions/email need deployment credentials, an eligible billing plan and a verified sender. Supply these once before the implementation run; document exact setup commands and rollback.
+4. Add desktop/mobile browser coverage: draft recovery, submit → approve → visible, requested changes/resubmission, safe Markdown, vote toggle/switch and unauthorized access. Verify concurrent votes, stale reviews, private-field isolation, in-app notifications and unpublishing in backend/rules tests. Run build and existing regression suites.
+5. Deploy rules/indexes and the Vercel frontend/API; seed the catalog, assign the chosen admin and smoke-test with separate contributor/admin accounts. Keep Firebase on Spark. Notifications require no external provider or billing upgrade. Document exact setup commands and rollback.
 
 **Beta complete:** a contributor submits with minimal friction; an admin is notified and reviews it; only approved content reaches readers; votes persist correctly; revisions stay private until approved. Empty/loading/error states and keyboard/mobile access work. Comments, attachments, alumni verification and off-campus company additions are deferred.

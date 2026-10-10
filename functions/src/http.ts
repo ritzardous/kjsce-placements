@@ -3,7 +3,6 @@ import { cert, getApps, initializeApp, type App } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { HttpsError, authorize, saveDraft, submit, review, unpublish, vote, type Actor } from './service.js';
-import { deliverEmail } from './email.js';
 import { community, adminCommunityActions } from './community.js';
 
 let serverApp: App | undefined;
@@ -51,18 +50,7 @@ export default async function handler(req: Request, res: ServerResponse) {
     switch (name) {
       case 'procedureCommunity': data = await community(db, actor, body.data); break;
       case 'saveProcedureDraft': data = await saveDraft(db, actor, body.data); break;
-      case 'submitProcedure': {
-        data = await submit(db, actor, body.data);
-        if (!process.env.FIRESTORE_EMULATOR_HOST && process.env.PROCEDURE_RESEND_API_KEY) {
-          try {
-            await deliverEmail(db, `${body.data.id}-${data.revision}-submitted`, {
-              recipients: process.env.PROCEDURE_ADMIN_EMAILS || '', sender: process.env.PROCEDURE_EMAIL_FROM || '',
-              appUrl: process.env.PROCEDURE_APP_URL || '', apiKey: process.env.PROCEDURE_RESEND_API_KEY,
-            }, (url, options) => fetch(url, { ...options, signal: AbortSignal.timeout(5000) }));
-          } catch { /* Approval queue remains available even if email delivery fails. */ }
-        }
-        break;
-      }
+      case 'submitProcedure': data = await submit(db, actor, body.data); break;
       case 'reviewProcedure': data = await review(db, actor, body.data); break;
       case 'unpublishProcedure': data = await unpublish(db, actor, body.data); break;
       case 'setProcedureVote': data = await vote(db, actor, body.data); break;

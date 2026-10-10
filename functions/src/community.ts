@@ -2,9 +2,8 @@ import { type Firestore, type Query, type DocumentData } from 'firebase-admin/fi
 import { z } from 'zod';
 import { authorize, HttpsError, type Actor } from './service.js';
 import { postTitle } from '../../shared/procedures.js';
-import { deliverEmail } from './email.js';
 
-export const adminCommunityActions = new Set(['queue', 'reviewContext', 'moderationInbox', 'moderateQuestion', 'resolveReport', 'overview', 'retryEmails']);
+export const adminCommunityActions = new Set(['queue', 'reviewContext', 'moderationInbox', 'moderateQuestion', 'resolveReport', 'overview']);
 const id = z.string().regex(/^[a-zA-Z0-9-]{1,100}$/);
 const cursorSchema = z.object({ id, values: z.array(z.number()).max(2) }).nullable().optional();
 function parse<T>(schema: z.ZodType<T>, input: unknown): T {
@@ -224,25 +223,14 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
       }); return { resolved: true };
     }
     case 'overview': {
-      const [pending, oldest, reports, questions, replies, emails, events] = await Promise.all([
+      const [pending, oldest, reports, questions, replies, events] = await Promise.all([
         db.collection('procedureSubmissions').where('status', '==', 'pending').count().get(), db.collection('procedureSubmissions').where('status', '==', 'pending').orderBy('updatedAt').limit(1).get(),
         db.collection('procedureReports').where('status', '==', 'open').count().get(), db.collection('procedureQuestions').where('status', '==', 'pending').count().get(),
         db.collection('procedureQuestions').where('answer.status', '==', 'pending').count().get(),
-        db.collection('procedureEmailOutbox').orderBy('createdAt', 'desc').limit(50).get(), db.collection('procedureModeration').orderBy('createdAt', 'desc').limit(50).get(),
+        db.collection('procedureModeration').orderBy('createdAt', 'desc').limit(50).get(),
       ]);
       const turnaround = events.docs.map(doc => doc.data().turnaroundMs).filter(n => typeof n === 'number');
-      return { pending: pending.data().count, oldestAt: oldest.docs[0]?.data().updatedAt || null, reports: reports.data().count, questions: questions.data().count, replies: replies.data().count, reviewHours: turnaround.length ? turnaround.reduce((sum, n) => sum + n, 0) / turnaround.length / 3600000 : null, emailConfigured: Boolean(process.env.PROCEDURE_RESEND_API_KEY && process.env.PROCEDURE_ADMIN_EMAILS && process.env.PROCEDURE_EMAIL_FROM && process.env.PROCEDURE_APP_URL), emailFailures: emails.docs.filter(doc => doc.data().status === 'failed' || doc.data().attempts > 0 && doc.data().status !== 'sent').length, checkedAt: Date.now() };
-    }
-    case 'retryEmails': {
-      required(!process.env.FIRESTORE_EMULATOR_HOST && process.env.PROCEDURE_RESEND_API_KEY && process.env.PROCEDURE_ADMIN_EMAILS && process.env.PROCEDURE_EMAIL_FROM && process.env.PROCEDURE_APP_URL, 'Email is not configured. Follow the optional email steps in 4amchanges.md.');
-      const items = await db.collection('procedureEmailOutbox').where('status', 'in', ['failed', 'pending']).orderBy('createdAt', 'asc').limit(10).get(); let retried = 0;
-      for (const item of items.docs) {
-        if (item.data().status === 'sent' || item.data().leaseUntil > Date.now()) continue;
-        await item.ref.update({ status: 'pending', attempts: 0, nextAttemptAt: 0 });
-        await deliverEmail(db, item.id, { recipients: process.env.PROCEDURE_ADMIN_EMAILS!, sender: process.env.PROCEDURE_EMAIL_FROM!, appUrl: process.env.PROCEDURE_APP_URL!, apiKey: process.env.PROCEDURE_RESEND_API_KEY! }, (url, opts) => fetch(url, { ...opts, signal: AbortSignal.timeout(3000) })); retried++;
-        if (retried === 3) break;
-      }
-      return { retried };
+      return { pending: pending.data().count, oldestAt: oldest.docs[0]?.data().updatedAt || null, reports: reports.data().count, questions: questions.data().count, replies: replies.data().count, reviewHours: turnaround.length ? turnaround.reduce((sum, n) => sum + n, 0) / turnaround.length / 3600000 : null, checkedAt: Date.now() };
     }
     default: throw new HttpsError('invalid-argument', 'Unknown community action.');
   }

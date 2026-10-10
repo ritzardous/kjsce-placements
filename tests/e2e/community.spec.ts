@@ -21,8 +21,10 @@ test('discovery, saved prep, comparison and moderated discussion work together',
     await reader.getByRole('searchbox',{name:'Search experiences'}).fill(tag);
     await reader.getByLabel('Round',{exact:true}).selectOption('Coding');
     await expect(reader.locator('.procedure-card h3').filter({hasText:tag})).toHaveCount(2);
-    await reader.getByRole('button',{name:'Compare',exact:true}).nth(0).click();
-    await reader.getByRole('button',{name:'Compare',exact:true}).click();
+    for (const index of [0,1]) {
+      const experience = reader.getByRole('article').filter({has:reader.getByRole('heading',{name:`${tag} ${index}`,exact:true})});
+      await experience.getByRole('button',{name:'Compare',exact:true}).click();
+    }
     await reader.getByRole('link',{name:'Compare selected',exact:false}).click();
     await expect(reader.locator('.procedure-compare h3').filter({hasText:tag})).toHaveCount(2);
     expect(await reader.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
@@ -46,7 +48,10 @@ test('discovery, saved prep, comparison and moderated discussion work together',
     await expect(reader.getByText('Question submitted for moderation.')).toBeVisible();
     const adminUid=await signInGoogle(admin);await getAuth(app).setCustomUserClaims(adminUid,{role:'admin'});
     await admin.evaluate(`(async()=>{const {getFirebase}=await import('/src/firebase.ts');await getFirebase().auth.currentUser.getIdToken(true);})()`);
-    await admin.goto('/#admin/procedures');await admin.getByRole('button',{name:'Reports and discussions',exact:true}).click();
+    await admin.goto('/#admin/procedures');
+    await expect(admin.getByText('All notifications are delivered in the app.', {exact:false})).toBeVisible();
+    await expect(admin.getByRole('button',{name:'Retry failed emails'})).toHaveCount(0);
+    await admin.getByRole('button',{name:'Reports and discussions',exact:true}).click();
     await admin.getByRole('button',{name:'Questions and replies',exact:true}).click();
     const card=admin.locator('.procedure-card').filter({hasText:'Which array techniques helped'});
     await card.getByLabel('Moderation reason').fill('Relevant preparation question.');await card.getByRole('button',{name:'Approve question'}).click();

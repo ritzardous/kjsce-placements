@@ -811,20 +811,6 @@
       ]
     },
     {
-      "collectionGroup": "procedureEmailOutbox",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
       "collectionGroup": "procedureSubmissions",
       "queryScope": "COLLECTION",
       "fields": [

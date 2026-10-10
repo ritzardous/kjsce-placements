@@ -5,7 +5,6 @@ import { initializeApp, deleteApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { authorize, saveDraft, submit, review, vote, unpublish, type Actor } from '../../functions/src/service.js';
 import { initialProcedureDraft } from '../../shared/procedures.js';
-import { deliverEmail } from '../../functions/src/email.js';
 
 const app = initializeApp({ projectId: 'demo-placementstats' }, 'procedure-tests');
 const db = getFirestore(app);
@@ -37,7 +36,9 @@ test('submission stays private; pending locks drafts; approval publishes only th
   await assert.rejects(saveDraft(db, contributor(), { id, expectedVersion: 1, draft }));
   await assert.rejects(review(db, admin, { id, revision: 2, decision: 'approved', feedback: '' }));
   assert.deepEqual(await submit(db, actor, { id, expectedVersion: 1 }), { revision: 1 });
-  assert.equal((await db.collection('procedureEmailOutbox').where('submissionId', '==', id).get()).size, 1);
+  assert.equal((await db.collection('procedureEmailOutbox').where('submissionId', '==', id).get()).size, 0);
+  assert.equal((await db.doc(`procedureNotifications/${actor.uid}/items/${id}-1-submitted`).get()).data()!.title, 'Submitted for review');
+  assert.equal((await db.doc(`procedureModeration/${id}-1-submitted`).get()).data()!.action, 'submitted');
   await review(db, admin, { id, revision: 1, decision: 'approved', feedback: '' });
   const published = (await db.doc(`procedurePosts/${id}`).get()).data()!;
   assert.equal(published.authorName, 'Community contributor');
@@ -95,36 +96,4 @@ test('submission validation and throttling reject empty content and rapid separa
   await db.doc(`procedureLimits/${first.actor.uid}-draft`).delete();
   await saveDraft(db, first.actor, { id: second, expectedVersion: 0, draft: first.draft });
   await assert.rejects(submit(db, first.actor, { id: second, expectedVersion: 1 }), (e: unknown) => (e as { code: string }).code === 'resource-exhausted');
-});
-
-test('email delivery is disabled without config, deduplicates concurrent workers, and retains failed submissions', async () => {
-  const id = randomUUID(), ref = db.doc(`procedureEmailOutbox/${id}`);
-  await ref.set({ status: 'pending', attempts: 0, companyName: 'Test Company', revision: 1 });
-  const config = { recipients: 'admin@example.test', sender: 'reviews@example.test', appUrl: 'https://example.test', apiKey: 'test-only' };
-  let sends = 0;
-  const successful: typeof fetch = async (_url, options) => {
-    sends++;
-    assert.equal((options!.headers as Record<string, string>)['Idempotency-Key'], id);
-    assert.match(String(options!.body), /#admin\/procedures/);
-    return new Response('{}', { status: 200 });
-  };
-  await deliverEmail(db, id, { ...config, recipients: '' }, successful);
-  assert.equal(sends, 0);
-  await Promise.all([deliverEmail(db, id, config, successful), deliverEmail(db, id, config, successful)]);
-  assert.equal(sends, 1);
-  await deliverEmail(db, id, config, successful);
-  assert.equal(sends, 1);
-  assert.equal((await ref.get()).data()!.status, 'sent');
-  const failureId = randomUUID(), failureRef = db.doc(`procedureEmailOutbox/${failureId}`);
-  await failureRef.set({ status: 'pending', attempts: 0, companyName: 'Test Company', revision: 1 });
-  await deliverEmail(db, failureId, config, async () => new Response('{}', { status: 503 }));
-  let failed = (await failureRef.get()).data()!;
-  assert.equal(failed.status, 'pending');
-  assert.equal(failed.attempts, 1);
-  assert.ok(failed.nextAttemptAt > Date.now());
-  await failureRef.update({ nextAttemptAt: 0, attempts: 4 });
-  await deliverEmail(db, failureId, config, async () => new Response('{}', { status: 503 }));
-  failed = (await failureRef.get()).data()!;
-  assert.equal(failed.status, 'failed');
-  assert.equal(failed.attempts, 5);
 });

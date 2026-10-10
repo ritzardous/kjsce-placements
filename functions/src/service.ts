@@ -53,7 +53,6 @@ export async function submit(db: Firestore, actorValue: Actor | undefined, value
     tx.update(ref, { status: 'pending', revision, companyName: company.data()!.name, feedback: '', updatedAt: now });
     tx.create(db.doc(`procedureModeration/${eventId}`), { submissionId: input.id, ownerUid: actor.uid, actorUid: actor.uid, revision, action: 'submitted', companyName: company.data()!.name, createdAt: now });
     tx.set(db.doc(`procedureNotifications/${actor.uid}/items/${eventId}`), { submissionId: input.id, title: 'Submitted for review', message: `${company.data()!.name}: revision ${revision} is awaiting approval.`, createdAt: now, read: false });
-    tx.create(db.doc(`procedureEmailOutbox/${eventId}`), { submissionId: input.id, revision, companyName: company.data()!.name, status: 'pending', attempts: 0, createdAt: now });
     stampLimit();
     return { revision };
   });

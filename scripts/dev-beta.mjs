@@ -1,7 +1,6 @@
 import { spawn } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { writeFile, unlink } from 'node:fs/promises';
 import { createConnection } from 'node:net';
 
 async function portOpen(port) {
@@ -43,11 +42,6 @@ if (existsSync(javaCache)) {
   const pathKey = Object.keys(env).find(key => key.toLowerCase() === 'path') ?? 'PATH';
   if (runtime) env[pathKey] = `${join(javaCache, runtime, 'bin')};${env[pathKey] ?? ''}`;
 }
-const created = [];
-async function ensure(path, content) {
-  try { await writeFile(path, content, { flag: 'wx' }); created.push(path); }
-  catch (cause) { if (cause.code !== 'EEXIST') throw cause; }
-}
 async function run(args) {
   const code = await new Promise((resolve, reject) => {
     const child = spawn(process.execPath, args, { env, stdio: 'inherit' });
@@ -56,9 +50,6 @@ async function run(args) {
   if (code !== 0) throw new Error('Local beta stopped. Check the error above.');
 }
 try {
-  await ensure('functions/.env.local', 'PROCEDURE_ADMIN_EMAILS=\nPROCEDURE_EMAIL_FROM=\nPROCEDURE_APP_URL=\n');
-  await ensure('functions/.secret.local', 'PROCEDURE_RESEND_API_KEY=emulator-only\n');
   await run(['functions/node_modules/typescript/bin/tsc', '-p', 'functions/tsconfig.json']);
   await run(['node_modules/firebase-tools/lib/bin/firebase.js', 'emulators:exec', '--config', 'firebase.test.json', '--only', 'auth,firestore,functions', '--project', 'demo-placementstats', 'node scripts/run-local-beta.mjs']);
 } catch (cause) { console.error(cause.message); process.exitCode = 1; }
-finally { for (const path of created) await unlink(path).catch(() => undefined); }

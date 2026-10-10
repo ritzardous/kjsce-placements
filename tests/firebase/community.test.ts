@@ -76,3 +76,12 @@ test('admin queue and contributor history paginate beyond 100 entries without du
   await assert.rejects(call(owner,'overview'));
   const overview=await call(admin,'overview');assert(overview.pending>=121);assert(overview.oldestAt<=base);
 });
+
+test('admin overview is in-app only and the removed email retry action is unavailable', async () => {
+  const overview = await call(admin, 'overview');
+  assert.equal(typeof overview.pending, 'number');
+  assert.equal(typeof overview.reports, 'number');
+  assert.equal('emailConfigured' in overview, false);
+  assert.equal('emailFailures' in overview, false);
+  await assert.rejects(call(admin, 'retryEmails'), (error: any) => error.code === 'invalid-argument');
+});

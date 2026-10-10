@@ -29,5 +29,5 @@ try {
   await run('Assigning the chosen admin account', ['node_modules/tsx/dist/cli.mjs', 'scripts/set-role.ts', ...trustedTarget, '--email', adminEmail, '--role', 'admin']);
   await run('Verifying live community setup', ['node_modules/tsx/dist/cli.mjs', 'scripts/verify-procedures.ts', ...trustedTarget]);
   console.log('\nLive Firebase community data and access are configured. Deploy the /api/procedures endpoint on Vercel, then wait for Firestore indexes to become enabled, then sign out/in on the normal app to refresh admin access.');
-  console.log('Firebase Cloud Functions are not used. Real email delivery is configured separately; the review dashboard works without it. See 4amchanges.md.');
+  console.log('Firebase Cloud Functions are not used. All submission and moderation notifications stay in the app. See 4amchanges.md.');
 } catch (cause) { console.error(cause.message); process.exitCode = 1; }

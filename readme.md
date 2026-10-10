@@ -6,7 +6,7 @@ Preserves overview, company/branch views, candidate search, timeline, insights, 
 
 Follow [4amchanges.md](4amchanges.md) for cloud permissions, import, React startup, and testing. Use `npm install`, configure `.env` from `.env.example`, publish rules, seed/verify, then `npm run dev`.
 
-Follow [access setup and testing](docs/access-structure.md) for Google-only access. Company Procedures now includes private Markdown drafts, submission/revision review, approved experiences, votes, an admin dashboard and optional email notifications. Follow [the beta setup guide](docs/company-procedures-setup.md) to deploy the app API, rules and indexes, seed the recruiter catalog and assign admins. Existing placement datasets do not need reimporting. Consented alumni contacts remain upcoming.
+Follow [access setup and testing](docs/access-structure.md) for Google-only access. Company Procedures now includes private Markdown drafts, submission/revision review, approved experiences, votes, an admin dashboard and in-app notifications. Follow [the beta setup guide](docs/company-procedures-setup.md) to deploy the app API, rules and indexes, seed the recruiter catalog and assign admins. Existing placement datasets do not need reimporting. Consented alumni contacts remain upcoming.
 
 ```powershell
 npm test

@@ -20,7 +20,9 @@
 4. Test as a contributor: create a draft with title/summary/rounds, open Markdown preview, save it, reopen it, then submit. Check **My Contributions → Submission timeline** and **Notifications**. “Share another company experience” starts a fresh body with editable remembered preferences.
 5. Test as **`runasjha1@gmail.com`**: open **Admin review**, filter the queue, open a revision and approve/request changes. For later revisions, open **Compare with the approved version**. Open **Reports and discussions**, approve the question/reply or resolve a report with a reason. Use **Refresh review queue/inbox** to load new items. Confirm the contributor receives the in-app notification.
 
-**Optional email:** no new external setup is needed for bookmarks, questions, reports or in-app notifications. The optional email instructions later in this file apply only if you want submission emails. Admin overview shows whether email is configured, and manual retry is disabled until it is configured.
+**Notifications are in-app only:** admins see new submissions in the Admin review badge and pending inbox, and questions/replies/reports in Reports and discussions. Contributors and readers receive updates under Company Procedures → Notifications. Use the refresh controls to check for updates. No email provider, sender domain or notification API key is needed.
+
+If you previously added `PROCEDURE_RESEND_API_KEY`, `PROCEDURE_ADMIN_EMAILS`, `PROCEDURE_EMAIL_FROM` or `PROCEDURE_APP_URL` in Vercel, you may delete them; this release ignores them and sends no emails even if they remain. Keep `FIREBASE_PROJECT_ID` and `FIREBASE_SERVICE_ACCOUNT_JSON`. The admin Google account remains **runasjha1@gmail.com**; removing notification email settings does not remove admin access.
 
 ---
 
@@ -98,7 +100,7 @@ The repository's `vercel.json` already keeps `/api/procedures` as a server endpo
 
 ## 5. Push the updated code and deploy it
 
-Environment variables alone are not enough: Vercel must receive the updated code, including **`api/procedures.mjs`**, **`vercel.json`**, **`package.json`**, **`package-lock.json`**, **all of `functions/src`** (including `http.ts`, `community.ts`, `service.ts` and `email.ts`), **`shared`**, and the frontend changes.
+Environment variables alone are not enough: Vercel must receive the updated code, including **`api/procedures.mjs`**, **`vercel.json`**, **`package.json`**, **`package-lock.json`**, **all of `functions/src`** (including `http.ts`, `community.ts`, `service.ts`), **`shared`**, and the frontend changes.
 
 Using **VS Code**:
 
@@ -137,23 +139,3 @@ Use your actual hosted URL, not localhost.
 | Logs report insufficient Firestore or Authentication permissions | In Google Cloud IAM for `placement-stats-kjsce`, find the principal matching the key's `client_email`. Grant **Cloud Datastore User** (`roles/datastore.user`) and **Firebase Authentication Viewer** (`roles/firebaseauth.viewer`) if those permissions are missing. Do not change the client Firestore rules to allow writes. |
 | Review queue does not appear | Sign out and back in with exactly `runasjha1@gmail.com`; a different Google account is not the chosen admin. |
 | Vercel build fails | Open that deployment's Build Logs, check the first error and confirm the latest code and lockfile were pushed. |
-
-## Optional: enable admin email notifications later
-
-**Skip this section until Steps 1–6 work.** The review queue and pending badge already work without email.
-
-1. In Resend, verify a sending domain and create an API key.
-2. Add these **Production, server-only** environment variables in Vercel:
-
-| Variable | Value |
-| --- | --- |
-| `PROCEDURE_ADMIN_EMAILS` | `runasjha1@gmail.com` |
-| `PROCEDURE_EMAIL_FROM` | `Placement Stats <notifications@YOUR_VERIFIED_DOMAIN>` |
-| `PROCEDURE_APP_URL` | Your production origin, e.g. `https://your-site.vercel.app` |
-| `PROCEDURE_RESEND_API_KEY` | Your private Resend API key; mark Sensitive |
-
-3. Redeploy the latest app commit.
-4. Submit a new experience from another account and check the admin inbox.
-
-The API attempts email delivery after saving the submission. Email failure does not lose the submission. This setup has no automatic scheduled retry worker.
-
