@@ -53,6 +53,7 @@ test('draft recovery, revision approval, voting and unpublishing work across con
     await setClaims(adminUid, { role: 'admin' });
     await adminPage.evaluate(`(async () => { const {getFirebase} = await import('/src/firebase.ts'); await getFirebase().auth.currentUser.getIdToken(true); })()`);
     await adminPage.goto('/#admin/procedures');
+    await adminPage.getByLabel('Review company', { exact: true }).selectOption('barclays');
     const pending = await db.collection('procedureSubmissions').where('ownerUid', '==', uid).get();
     expect(pending.docs.some(d => d.id === id)).toBe(true);
     await adminPage.locator(`button[data-submission-id="${id}"]`).click();
@@ -82,12 +83,13 @@ test('draft recovery, revision approval, voting and unpublishing work across con
     await page.getByRole('button', { name: 'Submit for review' }).click();
     await expect(page.getByRole('button', { name: 'Pending approval', exact: true })).toBeDisabled({ timeout: 20000 });
     expect((await db.doc(`procedurePosts/${id}`).get()).data()!.body).toContain('database fundamentals');
+    await adminPage.getByRole('button', { name: 'Refresh review queue', exact: true }).click();
     await adminPage.locator(`button[data-submission-id="${id}"]`).click();
     await adminPage.getByLabel('Review feedback / unpublish reason').fill('Clarify which technical round you attended.');
     await adminPage.getByRole('button', { name: 'Request changes', exact: true }).click();
     await expect(adminPage.locator(`button[data-submission-id="${id}"]`)).toHaveCount(0);
     await page.goto('/#account');
-    await expect(page.getByText('Changes requested', { exact: true })).toBeVisible();
+    await expect(page.locator('.procedure-badge').filter({hasText:'Changes requested'})).toBeVisible();
     await expect(page.locator('.procedure-feedback')).toContainText('Clarify');
     await page.goto(`/#procedures/contribute?draft=${id}`);
     await page.getByLabel('Your experience', { exact: true }).fill('Another draft: I attended the aptitude and technical rounds. Practice arrays, SQL joins and explaining project decisions clearly during the interview.');

@@ -15,7 +15,7 @@ test('app API verifies Google tokens, rejects forged auth and enforces approval 
   assert.equal(process.env.FIREBASE_AUTH_EMULATOR_HOST, '127.0.0.1:9099');
   const admin = adminApp({ projectId: 'demo-placementstats' }, 'http-api-test');
   configureProcedureApi(admin);
-  await getFirestore(admin).doc('procedureCompanies/barclays').set({ key: 'barclays', name: 'Barclays', years: [2026] });
+  await getFirestore(admin).doc('procedureCompanies/barclays').set({ key: 'barclays', name: 'Barclays', years: [2025, 2026, 2027] });
   const server = createServer((req, res) => { void handler(req, res); });
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
   const port = (server.address() as { port: number }).port;
@@ -46,8 +46,13 @@ test('app API verifies Google tokens, rejects forged auth and enforces approval 
     assert.equal((await call(moderator.token, 'reviewProcedure', { id, revision: 1, decision: 'approved', feedback: '' })).status, 200);
     assert.equal((await call(reader.token, 'setProcedureVote', { id, value: 1 })).status, 200);
     assert.equal((await getFirestore(admin).doc(`procedurePosts/${id}`).get()).data()?.score, 1);
+    assert.equal((await call(reader.token, 'procedureCommunity', { action: 'browse', payload: { company: 'barclays' } })).status, 200);
+    assert.equal((await call(reader.token, 'procedureCommunity', { action: 'bookmark', payload: { postId: id, saved: true } })).status, 200);
+    assert.equal((await call(reader.token, 'procedureCommunity', { action: 'overview' })).status, 403);
+    assert.equal((await call(moderator.token, 'procedureCommunity', { action: 'overview' })).status, 200);
     await adminAuth(admin).setCustomUserClaims(moderator.uid, {});
     assert.equal((await call(moderator.token, 'unpublishProcedure', { id, reason: 'Revoked admin' })).status, 403);
+    assert.equal((await call(moderator.token, 'procedureCommunity', { action: 'overview' })).status, 403);
   } finally {
     await new Promise<void>(resolve => server.close(() => resolve()));
     await Promise.all(apps.map(app => deleteApp(app))); await deleteAdmin(admin);

@@ -9,7 +9,7 @@ const commands = [
   ['node_modules/tsx/dist/cli.mjs', 'scripts/seed-firestore.ts', '--year', '2027', '--emulator'],
   ['node_modules/tsx/dist/cli.mjs', 'scripts/verify-firestore.ts', '--year', '2027', '--emulator'],
   ['node_modules/tsx/dist/cli.mjs', 'scripts/seed-procedure-companies.ts', '--emulator'],
-  ['node_modules/tsx/dist/cli.mjs', '--test', 'tests/firebase/rules.test.ts', 'tests/firebase/migration.test.ts', 'tests/firebase/procedures.test.ts', 'tests/firebase/procedures-api.test.ts'],
+  ['node_modules/tsx/dist/cli.mjs', '--test', 'tests/firebase/rules.test.ts', 'tests/firebase/migration.test.ts', 'tests/firebase/procedures.test.ts', 'tests/firebase/procedures-api.test.ts', 'tests/firebase/community.test.ts'],
   ['node_modules/@playwright/test/cli.js', 'test'],
 ];
 for (const args of commands) {

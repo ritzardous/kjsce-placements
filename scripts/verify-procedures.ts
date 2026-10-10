@@ -2,6 +2,7 @@ import { getAuth } from 'firebase-admin/auth';
 import { getSecurityRules } from 'firebase-admin/security-rules';
 import { readFile } from 'node:fs/promises';
 import { createAdminTarget, safeMigrationError } from './firebase-admin.js';
+import { community } from '../functions/src/community.js';
 
 let target: ReturnType<typeof createAdminTarget> | undefined;
 try {
@@ -20,6 +21,14 @@ try {
   const indexes = await indexResponse.json() as { indexes?: { state: string }[] };
   const waiting = indexes.indexes?.filter(index => index.state !== 'READY').length ?? 0;
   console.log(waiting ? `${waiting} live indexes are still building; wait before testing combined filters.` : 'All listed live Firestore indexes are READY.');
+  if (!waiting) {
+    const actor = { uid: admin.uid, token: { role: 'admin', email_verified: true, firebase: { sign_in_provider: 'google.com' } } };
+    for (const sort of ['newest', 'helpful']) await community(target.db, actor, { action: 'browse', payload: { sort } });
+    for (const tab of ['pending', 'reviewed', 'published']) for (const oldest of [true, false]) await community(target.db, actor, { action: 'queue', payload: { tab, oldest } });
+    for (const action of ['overview', 'impact', 'contributions', 'saved', 'notifications']) await community(target.db, actor, { action });
+    for (const kind of ['reports', 'questions']) await community(target.db, actor, { action: 'moderationInbox', payload: { kind } });
+    console.log('Live enhancement read queries passed: browsing, all review queues, impact, private lists, discussion inbox and overview. No test content was written.');
+  }
   console.log(`Verified live rules, ${catalog.size} campus companies and the chosen admin role. The community writes use /api/procedures on the app server, with no Firebase billing upgrade. Check index readiness and test Google sign-in on the normal app.`);
 } catch (cause) { console.error(safeMigrationError(cause)); process.exitCode = 1; }
 finally { await target?.close(); }

@@ -4,6 +4,7 @@ import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { HttpsError, authorize, saveDraft, submit, review, unpublish, vote, type Actor } from './service.js';
 import { deliverEmail } from './email.js';
+import { community, adminCommunityActions } from './community.js';
 
 let serverApp: App | undefined;
 export function configureProcedureApi(app: App) { serverApp = app; }
@@ -40,7 +41,7 @@ export default async function handler(req: Request, res: ServerResponse) {
     let body;
     try { body = await readBody(req); } catch (cause) { if (cause instanceof HttpsError) throw cause; throw new HttpsError('invalid-argument', 'Send a valid JSON request.'); }
     const name = body?.name;
-    if (['reviewProcedure', 'unpublishProcedure'].includes(name)) {
+    if (['reviewProcedure', 'unpublishProcedure'].includes(name) || name === 'procedureCommunity' && (adminCommunityActions.has(body.data?.action) || actor.token.role === 'admin')) {
       authorize(actor, true);
       const account = await auth.getUser(actor.uid);
       if (account.disabled || account.customClaims?.role !== 'admin') throw new HttpsError('permission-denied', 'Admin access has been revoked.');
@@ -48,6 +49,7 @@ export default async function handler(req: Request, res: ServerResponse) {
     const db = getFirestore(app());
     let data;
     switch (name) {
+      case 'procedureCommunity': data = await community(db, actor, body.data); break;
       case 'saveProcedureDraft': data = await saveDraft(db, actor, body.data); break;
       case 'submitProcedure': {
         data = await submit(db, actor, body.data);

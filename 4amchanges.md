@@ -1,5 +1,29 @@
 # Make the hosted site work on Vercel
 
+## Company Procedures enhancement release
+
+**For the existing working site:** keep your current Firebase/Vercel variables and admin account. You do not need a new private key or billing upgrade for these enhancements. Steps 1–6 below are the original setup reference for a fresh deployment.
+
+**Completed for this release:** the new rules and indexes are deployed, all indexes are READY, and the enhancement read queries passed against the real database. Your next action is to refresh the production site after its new Vercel deployment and follow the reader/contributor/admin checks in items 3–5. Item 1 is a reference if setup needs to be repeated later.
+
+1. Deploy the new rules and indexes from this repository, in its VS Code terminal:
+
+   ```powershell
+   node node_modules/tsx/dist/cli.mjs scripts/deploy-rules.ts --project placement-stats-kjsce --allow-production --cli-auth
+   npx firebase deploy --project placement-stats-kjsce --only firestore:indexes --non-interactive
+   npm run procedures:verify -- --project placement-stats-kjsce --allow-production --cli-auth
+   ```
+
+   If these have already been deployed for this release, only run the verification command. Wait until it reports all indexes **READY**. If login expired, run `npx firebase login --reauth` using the project owner account, then repeat the failed command.
+2. Push this release to the connected production Git branch. Vercel must build with **`npm run build`**, which compiles the server code included by `api/procedures.mjs`. Wait for the production deployment to become **Ready**, then refresh the live site.
+3. Test as a reader: search by title/role, select a round, open a company hub, save a post, compare two posts, submit a question and report a post. A submitted question stays pending until approved.
+4. Test as a contributor: create a draft with title/summary/rounds, open Markdown preview, save it, reopen it, then submit. Check **My Contributions → Submission timeline** and **Notifications**. “Share another company experience” starts a fresh body with editable remembered preferences.
+5. Test as **`runasjha1@gmail.com`**: open **Admin review**, filter the queue, open a revision and approve/request changes. For later revisions, open **Compare with the approved version**. Open **Reports and discussions**, approve the question/reply or resolve a report with a reason. Use **Refresh review queue/inbox** to load new items. Confirm the contributor receives the in-app notification.
+
+**Optional email:** no new external setup is needed for bookmarks, questions, reports or in-app notifications. The optional email instructions later in this file apply only if you want submission emails. Admin overview shows whether email is configured, and manual retry is disabled until it is configured.
+
+---
+
 Follow **Steps 1–6 in order**. Use your existing Vercel project and Firebase project **`placement-stats-kjsce`**. Keep Firebase on Spark; no billing upgrade is needed.
 
 **Already completed:** live Firestore rules, ready indexes, 175 campus companies, and admin access for **`runasjha1@gmail.com`**. You do not need to repeat Firebase imports or role assignment.
@@ -74,7 +98,7 @@ The repository's `vercel.json` already keeps `/api/procedures` as a server endpo
 
 ## 5. Push the updated code and deploy it
 
-Environment variables alone are not enough: Vercel must receive the updated code, including **`api/procedures.mjs`**, **`vercel.json`**, **`package.json`**, **`package-lock.json`**, **`functions/src/service.ts`**, **`functions/src/email.ts`**, **`shared`**, and the frontend changes.
+Environment variables alone are not enough: Vercel must receive the updated code, including **`api/procedures.mjs`**, **`vercel.json`**, **`package.json`**, **`package-lock.json`**, **all of `functions/src`** (including `http.ts`, `community.ts`, `service.ts` and `email.ts`), **`shared`**, and the frontend changes.
 
 Using **VS Code**:
 

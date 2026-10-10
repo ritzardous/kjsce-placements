@@ -8,6 +8,7 @@ import { defineSecret, defineString } from 'firebase-functions/params';
 import { setGlobalOptions } from 'firebase-functions/v2';
 import { deliverEmail } from './email.js';
 import { authorize, saveDraft, submit, review, unpublish, vote, type Actor } from './service.js';
+import { community, adminCommunityActions } from './community.js';
 
 initializeApp();
 setGlobalOptions({ region: 'asia-south1', maxInstances: 10 });
@@ -23,6 +24,7 @@ async function currentAdmin(actor: Actor | undefined) {
 export const reviewProcedure = onCall(options, async request => review(db, await currentAdmin(request.auth), request.data));
 export const unpublishProcedure = onCall(options, async request => unpublish(db, await currentAdmin(request.auth), request.data));
 export const setProcedureVote = onCall(options, request => vote(db, request.auth, request.data));
+export const procedureCommunity = onCall(options, async request => community(db, adminCommunityActions.has(request.data?.action) || request.auth?.token.role === 'admin' ? await currentAdmin(request.auth) : request.auth, request.data));
 
 const resendKey = defineSecret('PROCEDURE_RESEND_API_KEY');
 const recipients = defineString('PROCEDURE_ADMIN_EMAILS', { default: '' });

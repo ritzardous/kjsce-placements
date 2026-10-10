@@ -31,7 +31,7 @@ export async function saveDraft(db: Firestore, actorValue: Actor | undefined, va
     const stampLimit = await limit(db, tx, actor, 'draft', 300);
     const version = input.expectedVersion + 1;
     tx.set(ref, { ownerUid: actor.uid, draft: input.draft, draftVersion: version, revision: old?.revision ?? 0, status: 'draft', feedback: old?.feedback ?? '', updatedAt: Date.now(), hasPublished: old?.hasPublished ?? false }, { merge: true });
-    if (input.draft.graduationYear !== null) tx.set(db.doc(`procedurePreferences/${actor.uid}`), { graduationYear: input.draft.graduationYear });
+    tx.set(db.doc(`procedurePreferences/${actor.uid}`), { graduationYear: input.draft.graduationYear, role: input.draft.role, attribution: input.draft.attribution });
     stampLimit();
     return { version };
   });
@@ -51,7 +51,8 @@ export async function submit(db: Firestore, actorValue: Actor | undefined, value
     const authorName = draft.attribution === 'name' ? String(actor.token.name ?? 'Contributor').slice(0, 100) : 'Community contributor';
     tx.create(ref.collection('revisions').doc(String(revision)), { ...draft, authorUid: actor.uid, authorName, companyName: company.data()!.name, revision, submittedAt: now });
     tx.update(ref, { status: 'pending', revision, companyName: company.data()!.name, feedback: '', updatedAt: now });
-    tx.create(db.doc(`procedureModeration/${eventId}`), { submissionId: input.id, revision, action: 'submitted', companyName: company.data()!.name, createdAt: now });
+    tx.create(db.doc(`procedureModeration/${eventId}`), { submissionId: input.id, ownerUid: actor.uid, actorUid: actor.uid, revision, action: 'submitted', companyName: company.data()!.name, createdAt: now });
+    tx.set(db.doc(`procedureNotifications/${actor.uid}/items/${eventId}`), { submissionId: input.id, title: 'Submitted for review', message: `${company.data()!.name}: revision ${revision} is awaiting approval.`, createdAt: now, read: false });
     tx.create(db.doc(`procedureEmailOutbox/${eventId}`), { submissionId: input.id, revision, companyName: company.data()!.name, status: 'pending', attempts: 0, createdAt: now });
     stampLimit();
     return { revision };
@@ -74,7 +75,8 @@ export async function review(db: Firestore, actorValue: Actor | undefined, value
       tx.set(postRef, { ...snapshot, published: true, publishedAt: now, score: post.data()?.score ?? 0, upvotes: post.data()?.upvotes ?? 0, downvotes: post.data()?.downvotes ?? 0 });
     }
     tx.update(ref, { status: input.decision, feedback: input.feedback, updatedAt: now, hasPublished: input.decision === 'approved' || old.hasPublished === true });
-    tx.create(db.doc(`procedureModeration/${input.id}-${input.revision}-reviewed`), { submissionId: input.id, revision: input.revision, action: input.decision, feedback: input.feedback, adminUid: actor.uid, createdAt: now });
+    tx.create(db.doc(`procedureModeration/${input.id}-${input.revision}-reviewed`), { submissionId: input.id, ownerUid: old.ownerUid, actorUid: actor.uid, revision: input.revision, action: input.decision, feedback: input.feedback, adminUid: actor.uid, turnaroundMs: now - revision.data()!.submittedAt, createdAt: now });
+    tx.set(db.doc(`procedureNotifications/${old.ownerUid}/items/${input.id}-${input.revision}-reviewed`), { submissionId: input.id, title: input.decision === 'approved' ? 'Experience approved' : input.decision === 'changes_requested' ? 'Changes requested' : 'Submission rejected', message: input.feedback || 'Your experience is now available to readers.', createdAt: now, read: false });
     return { status: input.decision };
   });
 }
@@ -88,6 +90,7 @@ export async function unpublish(db: Firestore, actorValue: Actor | undefined, va
     tx.update(ref, { published: false });
     tx.update(db.doc(`procedureSubmissions/${input.id}`), { hasPublished: false, feedback: input.reason, updatedAt: Date.now() });
     tx.create(db.collection('procedureModeration').doc(), { submissionId: input.id, revision: post.data()!.revision, action: 'unpublished', feedback: input.reason, adminUid: actor.uid, createdAt: Date.now() });
+    tx.set(db.collection(`procedureNotifications/${post.data()!.authorUid}/items`).doc(), { submissionId: input.id, title: 'Experience unpublished', message: input.reason, createdAt: Date.now(), read: false });
     return { unpublished: true };
   });
 }

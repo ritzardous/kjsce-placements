@@ -36,6 +36,14 @@ service cloud.firestore {
     function procedureAdmin() { return googleUser() && request.auth.token.role == 'admin'; }
     match /procedureCompanies/{company} { allow read: if googleUser(); allow write: if false; }
     match /procedurePreferences/{uid} { allow get: if googleUser() && request.auth.uid == uid; allow list, write: if false; }
+    match /procedureBookmarks/{uid}/items/{id} { allow read: if googleUser() && request.auth.uid == uid; allow write: if false; }
+    match /procedureNotifications/{uid}/items/{id} { allow read: if googleUser() && request.auth.uid == uid; allow write: if false; }
+    match /procedureQuestions/{id} {
+      // API reads remove pending answers; clients cannot read discussion documents.
+      allow read: if procedureAdmin();
+      allow write: if false;
+    }
+    match /procedureReports/{id} { allow read: if procedureAdmin(); allow write: if false; }
     match /procedureSubmissions/{id} {
       allow read: if googleUser() && (resource.data.ownerUid == request.auth.uid || procedureAdmin());
       allow write: if false;
