@@ -90,3 +90,20 @@ test('notification counts and bounded batch read operations stay private to the 
   assert.equal((await call(owner,'notifications',{unread:true})).rows.length,0);
   assert.equal((await call(owner,'notifications')).rows.length,2);
 });
+
+test('company directory counts refresh after approval, hiding and deletion',async()=>{
+ const reader=actor();
+ const count=async()=>((await call(reader,'companyBrowse',{company:companyKey})).rows[0]?.count||0);
+ const before=await count();
+ const first=await publishedFixture();assert.equal(await count(),before+1);
+ const second=await publishedFixture();assert.equal(await count(),before+2);
+ await call(first.owner,'manageSubmission',{id:first.id,expectedVersion:1,action:'hide'});
+ assert.equal(await count(),before+1);
+ await call(second.owner,'manageSubmission',{id:second.id,expectedVersion:1,action:'delete'});
+ assert.equal(await count(),before);
+ const reported=await publishedFixture();assert.equal(await count(),before+1);
+ await call(reader,'report',{postId:reported.id,target:'post',reason:'incorrect',details:''});
+ const reportId=`${reader.uid}-post-${reported.id}`,report=await db.doc(`procedureReports/${reportId}`).get();
+ await call(admin,'resolveReport',{id:reportId,updatedAt:report.data()!.updatedAt,action:'hide',reason:'Incorrect information'});
+ assert.equal(await count(),before);
+});

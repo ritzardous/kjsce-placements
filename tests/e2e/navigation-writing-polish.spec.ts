@@ -21,17 +21,17 @@ test('home starts light, shows the account photo, and its community card is a fu
   await page.screenshot({animations:'disabled',path:`artifacts/home-personal-light-${info.project.name}.png`,fullPage:true});
   await page.getByRole('button',{name:'Switch to dark mode'}).click();
   const year=page.locator('.year-card').filter({has:page.getByRole('heading',{name:'Class of 2026',exact:true})});
-  expect(await year.locator('h3').evaluate(element=>getComputedStyle(element).color)).toBe('rgb(245, 245, 245)');
-  expect(await year.evaluate(element=>getComputedStyle(element).backgroundColor)).toBe('rgb(20, 20, 20)');
+  expect(await year.locator('h3').evaluate(element=>getComputedStyle(element).color)).toBe('rgb(222, 222, 222)');
+  expect(await year.evaluate(element=>getComputedStyle(element).backgroundColor)).toBe('rgb(27, 27, 27)');
   for(const destination of await page.locator('.home-card').all()) {
-    expect(await destination.evaluate(element=>getComputedStyle(element).backgroundColor)).toBe('rgb(20, 20, 20)');
-    expect(await destination.locator('h2,h3').evaluate(element=>getComputedStyle(element).color)).toBe('rgb(245, 245, 245)');
+    expect(await destination.evaluate(element=>getComputedStyle(element).backgroundColor)).toBe('rgb(27, 27, 27)');
+    expect(await destination.locator('h2,h3').evaluate(element=>getComputedStyle(element).color)).toBe('rgb(222, 222, 222)');
     if(info.project.name==='desktop') {
       await destination.hover();
-      await expect(destination).toHaveCSS('background-color','rgb(40, 40, 40)');
-      expect(await destination.locator('p').evaluate(element=>getComputedStyle(element).color)).toBe('rgb(185, 185, 185)');
+      await expect(destination).toHaveCSS('background-color','rgb(48, 48, 48)');
+      expect(await destination.locator('p').evaluate(element=>getComputedStyle(element).color)).toBe('rgb(183, 183, 183)');
       await page.mouse.move(0,0);
-      await expect(destination).toHaveCSS('background-color','rgb(20, 20, 20)');
+      await expect(destination).toHaveCSS('background-color','rgb(27, 27, 27)');
     }
   }
   await page.screenshot({animations:'disabled',path:`artifacts/home-personal-dark-${info.project.name}.png`,fullPage:true});
@@ -53,7 +53,7 @@ test('home starts light, shows the account photo, and its community card is a fu
 test('bookmark on the article boundary toggles and cancel keeps an editable draft',async({page},info)=>{
   const uid=await signInGoogle(page),id=randomUUID(),title=`Bookmark ${id}`;
   await db.doc(`procedurePosts/${id}`).set({...initialProcedureDraft(),id,title,companyKey:'barclays',companyName:'Barclays',authorUid:uid,authorName:'Test Student',body:'I attended the coding round and explained a project. Prepare arrays and practise SQL joins.',published:true,publishedAt:Date.now(),score:0,upvotes:0,downvotes:0,revision:1});
-  await page.goto(`/#procedures?search=${encodeURIComponent(title)}`);
+  await page.goto(`/#procedures/company?company=barclays&search=${encodeURIComponent(title)}`);
   const card=page.locator('.procedure-card').filter({has:page.getByRole('link',{name:title,exact:true})});
   const bookmark=card.getByRole('button',{name:'Save for prep',exact:true});
   await expect(bookmark).toBeEnabled();

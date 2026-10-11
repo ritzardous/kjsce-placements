@@ -36,7 +36,7 @@ test('draft recovery, revision approval, voting and unpublishing work across con
   const id = new URLSearchParams(page.url().split('?')[1]).get('draft')!;
   await page.reload();
   await expect(page.getByLabel('Your experience', { exact: true })).toContainText('database fundamentals');
-  await page.getByRole('button', { name: 'Preview Markdown' }).click();
+  await page.getByRole('button', { name: 'Preview' }).click();
   await expect(page.locator('.procedure-markdown')).toContainText('SQL joins');
   await page.getByRole('button', { name: 'Submit for review' }).click();
   await expect(page.getByRole('button', { name: 'Pending approval', exact: true })).toBeDisabled({ timeout: 20000 });
@@ -126,7 +126,7 @@ test('Markdown preview suppresses HTML, scripts and remote images', async ({ pag
   await signInGoogle(page);
   await page.goto('/#procedures/contribute');
   await page.getByLabel('Your experience', { exact: true }).fill('<script>window.pwned=true</script>\n<img src="https://example.test/tracker">\n[unsafe](javascript:alert(1))\n![remote](https://example.test/pixel.png)\n\n## Tips\nPrepare arrays and SQL joins.');
-  await page.getByRole('button', { name: 'Preview Markdown' }).click();
+  await page.getByRole('button', { name: 'Preview' }).click();
   await expect(page.locator('.procedure-markdown')).toContainText('Prepare arrays');
   await expect(page.locator('.procedure-markdown img')).toHaveCount(0);
   await expect(page.locator('.procedure-markdown script')).toHaveCount(0);

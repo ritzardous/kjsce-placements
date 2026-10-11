@@ -1,3 +1,4 @@
+import {createPortal} from 'react-dom';
 import {useEffect,useRef,useState} from 'react';
 import {AppIcon} from './AppIcon';
 
@@ -22,6 +23,6 @@ export function AppUtilities() {
     clearTimeout(focusTimer.current);
     focusTimer.current=setTimeout(()=>{if(location.hash===route&&window.scrollY<20&&document.activeElement===document.body){const heading=document.querySelector<HTMLElement>('main h1,main h2,main');if(heading){if(!heading.hasAttribute('tabindex'))heading.tabIndex=-1;heading.focus({preventScroll:true});}}},reduced?0:1100);
   }
-  return <>{visible&&<button className="scroll-top-control" type="button" aria-label="Scroll to top" title="Back to top" onClick={top}><AppIcon name="up"/><span>Top</span></button>}
+  return <>{visible&&createPortal(<button className="scroll-top-control" type="button" aria-label="Scroll to top" title="Back to top" onClick={top}><AppIcon name="up"/><span>Top</span></button>,document.getElementById('footer-actions')||document.body)}
     {feedback&&<div className={`app-feedback feedback-${feedback.tone}`} role={feedback.tone==='error'?'alert':'status'} key={`${feedback.key}:${feedback.message}`}><AppIcon name={feedback.tone==='success'?'check':feedback.tone==='error'?'close':'clock'}/><span>{feedback.message}</span><button type="button" aria-label="Dismiss notification" onClick={()=>{clearTimeout(timer.current);setFeedback(null);}}><AppIcon name="close"/></button></div>}</>;
 }

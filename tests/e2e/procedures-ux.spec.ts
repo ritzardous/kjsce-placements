@@ -51,24 +51,26 @@ test('navigation, field validation and device-copy discard are clear and keyboar
   await expect(page.getByRole('link',{name:/Device-only copy/})).toHaveCount(0);
 });
 
-test('filter URLs survive a reload, return links and a reset without changing the visual theme',async({page})=>{
+test('filter URLs survive reload and cancelled filter edits',async({page})=>{
   await signInGoogle(page);
   await page.goto('/#procedures?company=barclays&round=Coding&search=ux-filter&sort=helpful');
   await expect(page.getByRole('searchbox',{name:'Search experiences'})).toHaveValue('ux-filter');
-  await expect(page.locator('.procedure-more-filters').getByLabel('Round',{exact:true})).toHaveValue('Coding');
-  await expect(page.getByLabel('Sort',{exact:true})).toHaveValue('helpful');
-  await expect(page.getByLabel('Company',{exact:true})).toHaveValue('barclays');
-  if(test.info().project.name==='mobile')await page.setViewportSize({width:320,height:760});
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-  await page.screenshot({path:`artifacts/ui-polish-filters-${test.info().project.name}.png`,fullPage:true});
+  await page.getByRole('button',{name:/More filters/}).click();
+  const sheet=page.getByRole('dialog',{name:'Filter experiences'});
+  await expect(sheet.getByLabel('Round',{exact:true})).toHaveValue('Coding');
+  await expect(sheet.getByLabel('Sort',{exact:true})).toHaveValue('helpful');
+  await expect(sheet.getByLabel('Company',{exact:true})).toHaveValue('barclays');
+  await sheet.getByRole('button',{name:'Cancel',exact:true}).click();
   await page.reload();
-  await expect(page.getByRole('searchbox',{name:'Search experiences'})).toHaveValue('ux-filter');
-  await page.getByRole('button',{name:'Remove round filter'}).click();
-  await expect(page.locator('.procedure-more-filters').getByLabel('Round',{exact:true})).toHaveValue('');
+  await page.getByRole('button',{name:/More filters/}).click();
+  await sheet.getByLabel('Round',{exact:true}).selectOption('');
+  await sheet.getByRole('button',{name:'Apply filters'}).click();
   await expect(page).not.toHaveURL(/round=/);
-  await page.getByRole('button',{name:'Reset filters',exact:true}).click();
+  await page.getByRole('button',{name:/More filters/}).click();
+  await sheet.getByRole('button',{name:'Reset filters'}).click();
+  await sheet.getByRole('button',{name:'Apply filters'}).click();
+  await page.getByRole('button',{name:'Clear search'}).click();
   await expect(page).toHaveURL(/#procedures$/);
-  await expect(page.getByLabel('Company',{exact:true})).toHaveValue('');
 });
 
 test('unread notifications can be marked in place and the exact badge count updates',async({page})=>{
@@ -133,9 +135,9 @@ test('one company picker and a short writing flow keep extras optional',async({p
   await body.evaluate((element:HTMLTextAreaElement)=>{element.focus();element.setSelectionRange(0,10);});
   await page.getByRole('button',{name:'Bold',exact:true}).click();
   await expect(body).toHaveValue(/^\*\*I attended\*\*/);
-  await page.getByRole('button',{name:'Preview Markdown',exact:true}).click();
+  await page.getByRole('button',{name:'Preview',exact:true}).click();
   await expect(page.locator('.procedure-reader-preview strong')).toHaveText('I attended');
-  if(test.info().project.name==='mobile')await page.getByRole('button',{name:'Hide preview',exact:true}).click();
+  if(test.info().project.name==='mobile')await page.getByRole('button',{name:'Continue writing',exact:true}).click();
   await body.press('Control+i');
   await expect(body).toHaveValue(/^\*\*\*I attended\*\*\*/);
   const bold=page.getByRole('button',{name:'Bold',exact:true});
@@ -148,6 +150,7 @@ test('one company picker and a short writing flow keep extras optional',async({p
   await bold.click();
   await expect(body).toHaveValue(/^I attended a technical/);
   await expect(bold).toHaveAttribute('aria-pressed','false');
+  if(test.info().project.name==='mobile')await page.locator('.editor-more-tools > summary').click();
   for(const label of ['Heading','List','Code','Quote','Link']){
     const tool=page.getByRole('button',{name:label,exact:true});
     const original=await body.inputValue();
@@ -161,8 +164,8 @@ test('one company picker and a short writing flow keep extras optional',async({p
   await expect(bold).toHaveAttribute('aria-pressed','true');
   await body.press('Control+b');
   await expect(body).toHaveValue(/^I attended a technical/);
-  if(test.info().project.name!=='mobile')await page.getByRole('button',{name:'Hide preview',exact:true}).click();
-  await page.locator('summary').filter({hasText:'Optional details and attribution'}).click();
+  if(test.info().project.name!=='mobile')await page.getByRole('button',{name:'Continue writing',exact:true}).click();
+  await page.locator('summary').filter({hasText:'Optional details'}).click();
   await expect(page.getByLabel('Experience title (optional)',{exact:true})).toBeVisible();
   await page.getByLabel('Experience title (optional)',{exact:true}).fill('A short technical interview');
   await page.getByLabel('Public name',{exact:true}).selectOption('custom');
@@ -175,7 +178,7 @@ test('one company picker and a short writing flow keep extras optional',async({p
   await expect(page.getByLabel('Experience title (optional)',{exact:true})).not.toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.screenshot({path:`artifacts/procedure-simple-editor-${test.info().project.name}.png`,fullPage:true});
-  await page.locator('summary').filter({hasText:'Optional details and attribution'}).click();
+  await page.locator('summary').filter({hasText:'Optional details'}).click();
   await expect(page.getByLabel('Public name',{exact:true})).toHaveValue('custom');
   await expect(page.getByLabel('Custom public name',{exact:true})).toHaveValue('Campus Mentor');
   await page.getByLabel('Public name',{exact:true}).selectOption('anonymous');
@@ -231,7 +234,7 @@ test('phone advanced filters apply together and cancel leaves results unchanged'
  await expect(sheet).not.toBeVisible();await expect(page).toHaveURL(/coverage=Full/);await expect(page).toHaveURL(/round=Coding/);await expect(page).toHaveURL(/year=2025/);
  await expect(page.getByRole('button',{name:'More filters (3)',exact:true})).toBeFocused();
  await page.getByRole('button',{name:'More filters (3)',exact:true}).click();
- await sheet.getByRole('button',{name:'Reset',exact:true}).click();await expect(page).toHaveURL(/round=Coding/);
+ await sheet.getByRole('button',{name:'Reset filters',exact:true}).click();await expect(page).toHaveURL(/round=Coding/);
  await sheet.getByRole('button',{name:'Apply filters',exact:true}).click();await expect(page).not.toHaveURL(/coverage=|round=/);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });

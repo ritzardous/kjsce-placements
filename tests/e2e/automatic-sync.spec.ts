@@ -16,7 +16,7 @@ test('community refreshes quietly, retains loaded pages and pauses in hidden/off
     await route.fulfill({json:{result:{rows,cursor:{id:rows.at(-1)!.id,values:[1]},more:!cursor}}});
   });
   await page.clock.install();
-  await page.goto('/#procedures');
+  await page.goto('/#procedures/company?company=barclays');
   await expect(page.getByRole('link', {name:'Automatic experience 0 revision 1', exact:true})).toBeVisible();
   await expect(page.getByRole('button', {name:/Refresh experiences|Load more/})).toHaveCount(0);
   await page.locator('.page-sentinel').scrollIntoViewIfNeeded();
@@ -51,7 +51,7 @@ test('failed automatic requests back off and recover without a manual reload', a
     if (!available) return route.fulfill({status:503,json:{error:{status:'UNAVAILABLE',message:'Temporarily offline'}}});
     await route.fulfill({json:{result:{rows:[{...initialProcedureDraft(),id:'recovered-post',companyKey:'barclays',companyName:'Barclays',title:'Recovered automatically',body:'An interview experience.',published:true,publishedAt:Date.now(),score:0,upvotes:0,downvotes:0}],cursor:null,more:false}}});
   });
-  await page.goto('/#procedures');
+  await page.goto('/#procedures/company?company=barclays');
   await expect(page.getByRole('alert').filter({hasText:'community service is unavailable'})).toBeVisible();
   const initial=calls;
   const response=page.waitForResponse(response=>response.url().includes('/procedureCommunity')&&response.status()===503);

@@ -10,7 +10,7 @@ export type Notification = { id: string; title: string; message: string; submiss
 export type Question = { id: string; postId: string; body: string; authorUid: string; authorName: string; companyName: string; status: string; updatedAt: number; createdAt: number; answered: boolean; answer?: { body: string; authorUid: string; authorName: string; status: string } | null };
 export type Report = { id: string; postId: string; questionId?: string; target: 'post' | 'question' | 'answer'; companyName: string; reason: string; details: string; content?: string; updatedAt: number; createdAt: number };
 const pendingReads = new Map<string, Promise<unknown>>();
-const readActions = new Set(['browse','saved','contributions','notifications','notificationSummary','impact','preferences','timeline','bookmarkState','queue','moderationInbox','moderationOverview','reviewContext']);
+const readActions = new Set(['companyBrowse','browse','saved','contributions','notifications','notificationSummary','impact','preferences','timeline','bookmarkState','queue','moderationInbox','moderationOverview','reviewContext']);
 export function community<T>(action: string, payload: unknown = {}): Promise<T> {
   if (!readActions.has(action)) return callProcedure<T>('procedureCommunity', { action, payload });
   const key = `${getFirebase().auth.currentUser?.uid}:${action}:${JSON.stringify(payload)}`;
@@ -21,7 +21,7 @@ export function community<T>(action: string, payload: unknown = {}): Promise<T> 
   return request;
 }
 const cache = new Map<string, Page<unknown> & { scroll: number; pages?: number }>();
-export function invalidatePages(action:string) { for(const key of cache.keys()) if(key.includes(`:${action}:`)) cache.delete(key); }
+export function invalidatePages(action:string) { for(const key of cache.keys()) if(key.includes(`:${action}:`)||(action==='browse'&&key.includes(':companyBrowse:'))) cache.delete(key); }
 function rememberPage(key:string, value:Page<unknown> & {scroll:number; pages?:number}) {
   cache.delete(key);cache.set(key,value);
   while(cache.size>40)cache.delete(cache.keys().next().value!);

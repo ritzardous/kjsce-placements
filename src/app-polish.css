@@ -1,6 +1,6 @@
 /* Shared geometry prevents the shell shifting between app sections. */
 html { scrollbar-gutter:stable; }
-.app-header { position:sticky; top:0; z-index:50; background:var(--surface); border-bottom:1px solid var(--line-soft); }
+.app-header { position:static; background:var(--surface); border-bottom:1px solid var(--line-soft); }
 .app-header-inner { max-width:1400px; margin:auto; padding:16px 28px; min-height:80px; display:flex; align-items:center; gap:24px; border-bottom:1px solid var(--line-faint); }
 .app-header .brand { margin-right:auto; }
 .app-header .batch-back { display:inline-flex; align-items:center; gap:8px; margin:0; font-size:13px; }

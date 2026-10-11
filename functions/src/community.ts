@@ -3,6 +3,7 @@ import type { Auth } from 'firebase-admin/auth';
 import { z } from 'zod';
 import { authorize, manageSubmission, HttpsError, type Actor } from './service.js';
 import { postTitle } from '../../shared/procedures.js';
+import { publishedCompanyMetadata, invalidateCompanyDiscovery } from './company-discovery.js';
 import { matchesSearch } from '../../shared/search.js';
 
 export const adminCommunityActions = new Set(['queue', 'reviewContext', 'moderationInbox', 'moderateQuestion', 'resolveReport', 'overview']);
@@ -91,6 +92,17 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
       return { synced: true };
     }
     case 'manageSubmission': return manageSubmission(db,actor,value);
+    case 'companyBrowse': {
+      const filters=parse(z.object({company:z.string().max(120).default(''),year:z.string().max(4).default(''),coverage:z.string().max(20).default(''),outcome:z.string().max(30).default(''),search:z.string().max(120).default(''),round:z.string().max(40).default(''),sort:z.enum(['newest','helpful']).default('newest'),cursor:cursorSchema}).strict(),value);
+      const groups=new Map<string,{id:string;companyKey:string;companyName:string;count:number;publishedAt:number;score:number}>();
+      for(const row of await publishedCompanyMetadata(db)) {
+        if(!matches(row,filters))continue;
+        const group=groups.get(row.companyKey)||{id:row.companyKey,companyKey:row.companyKey,companyName:row.companyName,count:0,publishedAt:0,score:0};
+        group.count++;group.publishedAt=Math.max(group.publishedAt,Number(row.publishedAt)||0);group.score+=Number(row.score)||0;groups.set(row.companyKey,group);
+      }
+      const rows=[...groups.values()].sort((a,b)=>(filters.sort==='helpful'?b.score-a.score:0)||b.publishedAt-a.publishedAt||a.companyName.localeCompare(b.companyName));
+      return {rows,cursor:null,more:false};
+    }
     case 'browse': {
       const filters = parse(z.object({ company: z.string().max(120).default(''), year: z.string().max(4).default(''), coverage: z.string().max(20).default(''), outcome: z.string().max(30).default(''), search: z.string().max(120).default(''), round: z.string().max(40).default(''), sort: z.enum(['newest', 'helpful']).default('newest'), cursor: cursorSchema }).strict(), value);
       const fields = filters.sort === 'helpful' ? ['score', 'publishedAt'] : ['publishedAt'];
@@ -262,7 +274,9 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
         tx.create(db.collection('procedureModeration').doc(), { submissionId: row.postId, reportId: data.id, action: `report_${data.action}`, feedback: data.reason, adminUid: actor.uid, createdAt: Date.now() });
         if (post.exists && data.action !== 'dismiss') notify(db, tx, post.data()!.authorUid, data.action === 'hide' ? 'Reported content hidden' : 'Correction requested', data.reason, row.postId);
         notify(db, tx, row.reporterUid, 'Report reviewed', data.reason, row.postId);
-      }); return { resolved: true };
+      });
+      if(data.action==='hide')invalidateCompanyDiscovery(db);
+      return { resolved: true };
     }
     case 'overview': {
       const [pending, oldest, reports, questions, replies, events] = await Promise.all([

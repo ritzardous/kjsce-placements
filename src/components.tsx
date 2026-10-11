@@ -17,13 +17,14 @@ export function Stat({ value, label, extra, headline = false }: { value: ReactNo
   return <div className={'stat' + (headline ? ' headline' : '')}><div className="stat-value">{value}</div><div className="stat-label">{label}</div><div className="stat-extra">{extra}</div></div>;
 }
 export interface Column<T> { label: string; render: (row: T) => ReactNode; numeric?: boolean; sort?: string; primary?: boolean; }
-export function Table<T>({ columns, rows, rowKey, onSort, sort, empty }: {
+export function Table<T>({ columns, rows, rowKey, onSort, sort, empty, rowHref }: {
   columns: Column<T>[]; rows: T[]; rowKey: (row: T, index: number) => string;
   onSort?: (key: string) => void; sort?: { key: string; direction: 'asc' | 'desc' }; empty?: ReactNode;
+  rowHref?: (row: T) => string;
 }) {
   return <div className="table-wrap"><table className="card-table"><thead><tr>{columns.map(c => <th key={c.label} className={c.numeric && c.sort ? 'num sortable' : c.numeric ? 'num' : c.sort ? 'sortable' : ''} scope="col" aria-sort={sort && c.sort === sort.key ? (sort.direction === 'asc' ? 'ascending' : 'descending') : undefined}>
     {c.sort && onSort ? <button className="sort-button" onClick={() => onSort(c.sort!)}>{c.label}{c.sort === sort?.key && <span className="arrow">{sort.direction === 'asc' ? '▲' : '▼'}</span>}</button> : c.label}
-  </th>)}</tr></thead><tbody>{rows.length ? rows.map((r, i) => <tr key={rowKey(r, i)}>{columns.map((c, j) => <td key={c.label} className={(c.numeric ? 'num mono ' : '') + (c.primary || (!columns.some(column => column.primary) && j === 0) ? 'cell-strong card-title' : '')} data-label={c.label}>{c.render(r)}</td>)}</tr>) : <tr><td colSpan={columns.length}>{empty ?? <Empty />}</td></tr>}</tbody></table></div>;
+  </th>)}</tr></thead><tbody>{rows.length ? rows.map((r, i) => <tr key={rowKey(r, i)} className={rowHref?'clickable-company-row':undefined} onClick={rowHref?event=>{if((event.target as HTMLElement).closest('a,button,input,select,textarea'))return;const href=rowHref(r);if(event.ctrlKey||event.metaKey)window.open(href,'_blank','noopener');else location.hash=href.replace(/^#/,'');}:undefined}>{columns.map((c, j) => <td key={c.label} className={(c.numeric ? 'num mono ' : '') + (c.primary || (!columns.some(column => column.primary) && j === 0) ? 'cell-strong card-title' : '')} data-label={c.label}>{c.render(r)}</td>)}</tr>) : <tr><td colSpan={columns.length}>{empty ?? <Empty />}</td></tr>}</tbody></table></div>;
 }
 export interface Rank { label: string; value: number; href?: string; companyKey?: string; }
 export function RankedBars({ rows, unit = 'sel.', format }: { rows: Rank[]; unit?: string; format?: (n: number) => string }) {

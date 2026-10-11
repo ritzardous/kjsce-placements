@@ -1,3 +1,4 @@
+import { invalidateCompanyDiscovery } from './company-discovery.js';
 import type { Firestore, Transaction } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
 export { HttpsError };
@@ -64,7 +65,7 @@ export async function submit(db: Firestore, actorValue: Actor | undefined, value
 export async function review(db: Firestore, actorValue: Actor | undefined, value: unknown) {
   const actor = authorize(actorValue, true), input = parse(z.object({ id: idSchema, revision: versionSchema, decision: z.enum(['approved', 'changes_requested', 'rejected']), feedback: z.string().trim().max(2000) }).strict(), value);
   requireCondition(input.decision === 'approved' || input.feedback.length > 0, 'Explain what needs changing or why the post was rejected.');
-  return db.runTransaction(async tx => {
+  const result=await db.runTransaction(async tx => {
     const ref = db.doc(`procedureSubmissions/${input.id}`), snap = await tx.get(ref), old = snap.data();
     requireCondition(old && old.revision === input.revision, 'A newer revision exists. Refresh the review queue.');
     if (old.status === input.decision) return { status: old.status };
@@ -81,11 +82,13 @@ export async function review(db: Firestore, actorValue: Actor | undefined, value
     tx.set(db.doc(`procedureNotifications/${old.ownerUid}/items/${input.id}-${input.revision}-reviewed`), { submissionId: input.id, title: input.decision === 'approved' ? 'Experience approved' : input.decision === 'changes_requested' ? 'Changes requested' : 'Submission rejected', message: input.feedback || 'Your experience is now available to readers.', createdAt: now, read: false });
     return { status: input.decision };
   });
+  invalidateCompanyDiscovery(db);
+  return result;
 }
 
 export async function unpublish(db: Firestore, actorValue: Actor | undefined, value: unknown) {
   const actor = authorize(actorValue, true), input = parse(z.object({ id: idSchema, reason: z.string().trim().min(1).max(2000) }).strict(), value);
-  return db.runTransaction(async tx => {
+  const result=await db.runTransaction(async tx => {
     const ref = db.doc(`procedurePosts/${input.id}`), post = await tx.get(ref);
     requireCondition(post.exists, 'Post not found.');
     if (!post.data()!.published) return { unpublished: true };
@@ -95,11 +98,13 @@ export async function unpublish(db: Firestore, actorValue: Actor | undefined, va
     tx.set(db.collection(`procedureNotifications/${post.data()!.authorUid}/items`).doc(), { submissionId: input.id, title: 'Experience unpublished', message: input.reason, createdAt: Date.now(), read: false });
     return { unpublished: true };
   });
+  invalidateCompanyDiscovery(db);
+  return result;
 }
 
 export async function vote(db: Firestore, actorValue: Actor | undefined, value: unknown) {
   const actor = authorize(actorValue), input = parse(z.object({ id: idSchema, value: z.union([z.literal(-1), z.literal(0), z.literal(1)]) }).strict(), value);
-  return db.runTransaction(async tx => {
+  const result=await db.runTransaction(async tx => {
     const postRef = db.doc(`procedurePosts/${input.id}`), voteRef = postRef.collection('votes').doc(actor.uid);
     const post = await tx.get(postRef), previous = await tx.get(voteRef);
     requireCondition(post.exists && post.data()!.published, 'This post is not available.');
@@ -112,6 +117,8 @@ export async function vote(db: Firestore, actorValue: Actor | undefined, value: 
     stampLimit();
     return { value: after };
   });
+  invalidateCompanyDiscovery(db);
+  return result;
 }
 
 export async function manageSubmission(db: Firestore, actorValue: Actor | undefined, value: unknown) {
@@ -140,6 +147,7 @@ export async function manageSubmission(db: Firestore, actorValue: Actor | undefi
     tx.create(db.collection('procedureModeration').doc(),{submissionId:input.id,ownerUid:actor.uid,actorUid:actor.uid,revision:old.revision,action:input.action==='withdraw'?'withdrawn':'unpublished_by_author',createdAt:now});
     return {deleted:false};
   });
+  invalidateCompanyDiscovery(db);
   if(input.action==='delete'){
     // Cleanup is retryable after a lost response; the transaction already removed public access.
     await db.recursiveDelete(ref.collection('revisions'));

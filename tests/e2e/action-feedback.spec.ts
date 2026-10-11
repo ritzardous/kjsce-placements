@@ -9,7 +9,7 @@ const db=getFirestore(initializeApp({projectId:'demo-placementstats'},'action-fe
 test('bookmark responds before the network finishes, confirms and rolls back failures',async({page},info)=>{
   const uid=await signInGoogle(page),id=randomUUID(),title=`Quick save ${id}`;
   await db.doc(`procedurePosts/${id}`).set({...initialProcedureDraft(),id,title,companyKey:'barclays',companyName:'Barclays',authorUid:'another-user',authorName:'Contributor',body:'Practise coding arrays and SQL joins. Explain your project clearly and prepare examples of teamwork.',published:true,publishedAt:Date.now(),score:0,upvotes:0,downvotes:0,revision:1});
-  await page.goto(`/#procedures?search=${encodeURIComponent(title)}`);
+  await page.goto(`/#procedures/company?company=barclays&search=${encodeURIComponent(title)}`);
   const card=page.locator('.procedure-card').filter({has:page.getByRole('link',{name:title,exact:true})}),button=card.locator('.article-bookmark');
   await expect(button).toHaveAttribute('aria-disabled','false',{timeout:20000});
   let release!:()=>void;

@@ -1,0 +1,71 @@
+import {test,expect} from '@playwright/test';
+import {signInGoogle} from './auth-helper';
+
+test('open login and consistent personal footer',async({page},info)=>{
+ await page.goto('/#login');
+ await expect(page.getByRole('button',{name:'Continue with Google'})).toBeEnabled();
+ expect(await page.locator('.login-card').evaluate(element=>getComputedStyle(element).borderTopWidth)).toBe('0px');
+ await expect(page.getByRole('link',{name:/Made with love by Ritesh Jha/})).toHaveAttribute('href','https://github.com/ritzardous');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:`artifacts/current-login-${info.project.name}.png`,fullPage:true});
+});
+test('company rows open from any cell and browsing keeps filters behind one panel',async({page},info)=>{
+ await signInGoogle(page);
+ await page.goto('/#companies');
+ const row=page.locator('.clickable-company-row').filter({has:page.getByRole('link',{name:'EY',exact:true})});
+ await expect(row).toBeVisible({timeout:20000});
+ await row.locator('td').nth(2).click();
+ await expect(page).toHaveURL(/#company\/ey$/);
+ await page.goto('/#procedures');
+ await expect(page.getByRole('searchbox')).toBeVisible();
+ await expect(page.getByLabel('Company',{exact:true})).not.toBeVisible();
+ await expect(page.getByLabel('Appearance year',{exact:true})).not.toBeVisible();
+ await page.getByRole('button',{name:/More filters/}).click();
+ await expect(page.getByRole('dialog',{name:'Filter experiences'})).toBeVisible();
+ await page.getByLabel('Company',{exact:true}).selectOption('barclays');
+ await page.getByLabel('Appearance year',{exact:true}).fill('2026');
+ await page.getByRole('button',{name:'Apply filters'}).click();
+ await expect(page.getByRole('dialog')).not.toBeVisible();
+ await expect(page).toHaveURL(/company=barclays/);
+ await page.getByRole('button',{name:/More filters/}).click();
+ await expect(page.getByLabel('Appearance year',{exact:true})).toHaveValue('2026');
+ await page.getByRole('button',{name:'Reset filters'}).click();
+ await page.getByRole('button',{name:'Cancel',exact:true}).click();
+ await page.getByRole('button',{name:/More filters/}).click();
+ await expect(page.getByLabel('Appearance year',{exact:true})).toHaveValue('2026');
+ await page.getByRole('button',{name:'Apply filters'}).click();
+ await page.screenshot({path:`artifacts/current-browse-${info.project.name}.png`,fullPage:true});
+});
+test('phone formatting, preview and static actions preserve drafts in both themes',async({page},info)=>{
+ await signInGoogle(page);
+ await page.goto('/#procedures/contribute');
+ await expect(page.getByLabel('Company',{exact:true})).toBeVisible({timeout:20000});
+ const body=page.getByLabel('Your experience',{exact:true});
+ await body.fill('My interview included coding and a discussion of database fundamentals.');
+ await body.evaluate((node:HTMLTextAreaElement)=>{node.focus();node.setSelectionRange(0,12);node.dispatchEvent(new Event('select',{bubbles:true}));});
+ await page.getByRole('button',{name:'Bold',exact:true}).click();
+ await expect(body).toHaveValue(/^\*\*My interview\*\*/);
+ await page.getByRole('button',{name:'Bold',exact:true}).click();
+ await expect(body).toHaveValue(/^My interview included/);
+ if(info.project.name==='mobile'){
+  await expect(page.getByRole('button',{name:'Heading',exact:true})).not.toBeVisible();
+  await page.locator('.editor-more-tools > summary').click();
+  await expect(page.getByRole('button',{name:'Heading',exact:true})).toBeVisible();
+  await page.locator('.editor-more-tools > summary').click();
+ }
+ await page.getByRole('button',{name:'Preview',exact:true}).click();
+ await expect(page.locator('.procedure-reader-preview')).toContainText('database fundamentals');
+ if(info.project.name==='mobile')await expect(body).not.toBeVisible();
+ await page.getByRole('button',{name:'Continue writing',exact:true}).click();
+ await expect(body).toBeVisible();
+ expect(await page.locator('.procedure-submit-bar').evaluate(node=>getComputedStyle(node).position)).toBe('static');
+ expect(await page.locator('.app-header').evaluate(node=>getComputedStyle(node).position)).toBe('static');
+ await page.getByRole('button',{name:'Switch to dark mode'}).click();
+ expect(await page.locator('.portal-shell').evaluate(node=>getComputedStyle(node).backgroundColor)).toBe('rgb(16, 16, 16)');
+ expect(await page.locator('.procedure-composer').evaluate(node=>getComputedStyle(node).color)).toBe('rgb(222, 222, 222)');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await body.scrollIntoViewIfNeeded();
+ await page.screenshot({path:`artifacts/current-editor-dark-${info.project.name}.png`});
+ await page.getByRole('button',{name:'Cancel',exact:true}).click();
+ await expect(page).toHaveURL(/#procedures\/contributions/);
+});

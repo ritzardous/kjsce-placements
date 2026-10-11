@@ -37,7 +37,7 @@ for(const width of [320,390,430]) {
     await page.getByRole('combobox',{name:'Company',exact:true}).fill('Barclays');
     await page.getByRole('option',{name:/Barclays/}).click();
     await body.fill('I attended a coding round with arrays and SQL questions. Practise explaining your approach and review the fundamentals.');
-    await page.getByRole('button',{name:'Preview Markdown',exact:true}).click();
+    await page.getByRole('button',{name:'Preview',exact:true}).click();
     await expect(page.locator('.procedure-reader-preview')).toBeVisible();
     await fits(page);
     if(width===390){await page.locator('.procedure-composer').scrollIntoViewIfNeeded();await page.screenshot({path:'artifacts/mobile-editor-refined.png',fullPage:false});}

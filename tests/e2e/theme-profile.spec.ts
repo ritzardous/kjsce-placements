@@ -21,7 +21,7 @@ test('neutral light palette, search spacing and dark SVG labels remain readable'
   await page.getByRole('button',{name:'Switch to dark mode'}).click();
   await page.goto('/#2026/overview');
   await expect(page.locator('.donut-total')).toHaveText('82');
-  expect(await page.locator('.donut-total').evaluate(element=>getComputedStyle(element).fill)).toBe('rgb(245, 245, 245)');
+  expect(await page.locator('.donut-total').evaluate(element=>getComputedStyle(element).fill)).toBe('rgb(222, 222, 222)');
   await page.locator('.react-donut').scrollIntoViewIfNeeded();
   await page.screenshot({path:`artifacts/dark-chart-label-${info.project.name}.png`});
 });

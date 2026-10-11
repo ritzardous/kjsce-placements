@@ -19,19 +19,16 @@ test('discovery, clean reading, saved prep and report moderation work together',
   try{
     await signInGoogle(reader);await reader.goto('/#procedures');
     await reader.getByRole('searchbox',{name:'Search experiences'}).fill(tag);
-    if(test.info().project.name==='mobile'){
-      await reader.getByRole('button',{name:'More filters',exact:true}).click();
-      const sheet=reader.getByRole('dialog',{name:'Filter experiences'});
-      await sheet.getByLabel('Round',{exact:true}).selectOption('Coding');
-      await sheet.getByRole('button',{name:'Apply filters',exact:true}).click();
-    }else{
-      await reader.locator('summary').filter({hasText:'More filters'}).click();
-      await reader.locator('.procedure-more-filters').getByLabel('Round',{exact:true}).selectOption('Coding');
-    }
+    await reader.getByRole('button',{name:'More filters',exact:true}).click();
+    const sheet=reader.getByRole('dialog',{name:'Filter experiences'});
+    await sheet.getByLabel('Round',{exact:true}).selectOption('Coding');
+    await sheet.getByRole('button',{name:'Apply filters',exact:true}).click();
+    await expect(reader.getByRole('link',{name:'Barclays experiences',exact:true})).toContainText('2 experiences');
+    await reader.getByRole('link',{name:'Barclays experiences',exact:true}).click();
     await expect(reader.locator('.procedure-card h3').filter({hasText:tag})).toHaveCount(2);
     await expect(reader.getByRole('button',{name:'Compare',exact:true})).toHaveCount(0);
-    await reader.getByRole('link',{name:'Company hub',exact:true}).first().click();
-    await expect(reader.getByRole('heading',{name:'Barclays procedure hub'})).toBeVisible();
+    await reader.getByRole('link',{name:'Company details',exact:true}).first().click();
+    await expect(reader.getByRole('heading',{name:'Barclays experiences'})).toBeVisible();
     await expect(reader.getByRole('link',{name:'2025 placement statistics',exact:false})).toBeVisible();
     await reader.goto(`/#procedures/${ids[0]}`);
     await expect(reader.getByRole('navigation',{name:'Experience sections'})).toHaveCount(0);
@@ -76,8 +73,9 @@ test('device writing survives a new tab and cloud conflicts require an explicit 
     await reopened.getByRole('button',{name:'Save now',exact:true}).click();
     await expect(reopened.getByRole('status')).toContainText('Saved to your account');
     expect((await db.doc(`procedureSubmissions/${id}`).get()).data()!.draft.body).toContain('Device writing');
-    await reopened.getByRole('link',{name:'Share another company experience',exact:false}).click();
-    await reopened.locator('summary').filter({hasText:'Optional details and attribution'}).click();
+    await reopened.getByRole('button',{name:'Cancel',exact:true}).click();
+    await reopened.getByRole('link',{name:'Share an experience',exact:true}).click();
+    await reopened.locator('summary').filter({hasText:'Optional details'}).click();
     await expect(reopened.getByLabel('Role',{exact:true})).toHaveValue('Software Engineer');
     await expect(reopened.getByLabel('Graduation year',{exact:true})).toHaveValue('2026');
     await expect(reopened.getByLabel('Your experience',{exact:true})).not.toContainText('Device writing');

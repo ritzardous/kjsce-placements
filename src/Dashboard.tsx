@@ -6,7 +6,7 @@ import { useBackgroundSync } from './background-sync';
 import { loadDashboard, watchDashboardVersion } from './repository';
 import { firebaseMessage } from './firebase';
 import type { Route } from './routing';
-import { AppHeader } from './Portal';
+import { AppHeader, PortalFooter } from './Portal';
 import { MobileAppNav } from './MobileAppNav';
 import { AppIcon, type IconName } from './AppIcon';
 import { date, routeHref } from './components';
@@ -70,7 +70,7 @@ export default function Dashboard({ route }: { route: Route }) {
   const notes = data?.metadata.extraction_notes;
   return <div id="app"><AppHeader active="statistics"/>
     <main id="main" key={route.year}><nav className="nav dashboard-desktop-nav" aria-label="Dashboard">{nav.map(([key, label]) => <a className={'nav-item ' + (active === key ? 'active' : '')} aria-current={active === key ? 'page' : undefined} key={key} href={routeHref(key, route.year)}><AppIcon name={sectionIcons[key]}/><span>{label}</span></a>)}</nav>{s && route.year === 2027 && <aside className="coverage-notice live-notice"><strong><span className="live-badge">LIVE</span> 2026–27 · Placements ongoing</strong><span>Season in progress. these totals are provisional. Latest included email: {typeof data?.metadata.source_updated_at === 'string' ? date(data.metadata.source_updated_at.slice(0, 10), true) : 'Not available'}; latest declared result: {date(s.summary.latestDate, true)}. Updates appear automatically when reviewed results are published. Registration total is unavailable, so no placement rate is calculated.</span><span className="sync-indicator">Published updates appear automatically.</span></aside>}{s && route.year === 2025 && route.page === 'overview' && <aside className="coverage-notice"><strong>2024–25 · Final UG report + email results</strong>{s.candidates.filter(c => c.campus === 'On campus').length} on-campus and {s.candidates.filter(c => c.campus === 'Off campus').length} off-campus selections. {s.candidates.filter(c => c.date === null).length} selections have no confirmed date; undated entries remain in totals but are excluded from timeline charts. Registration total is unavailable, so no placement rate is calculated.</aside>}{page}{s && route.page !== 'company' && Array.isArray(notes) && <details className="source-notes"><summary>Data sources, extraction notes & limitations</summary><ul>{notes.map((note, i) => <li key={i}>{String(note)}</li>)}</ul></details>}</main>
-    <footer><div className="footer-inner"><div className="footer-left"><span>KJSCE T&amp;PO PLACEMENT DATA{s ? ` · ${date(s.summary.firstDate, true)} → ${date(s.summary.latestDate, true)} · ${s.summary.announcements} ${route.year === 2025 ? "RECORD GROUPS" : "ANNOUNCEMENTS"} · ${s.summary.selections} CANDIDATE SELECTIONS RECORDED` : ''}</span><span className="footer-credit">Made with <span className="footer-heart">♥</span> by Ritzardous</span></div><a href="https://github.com/RiteshJha912/placementsatkjsce-26" target="_blank" rel="noopener noreferrer" className="footer-source-btn">Source code ↗</a></div></footer>
+    <PortalFooter/>
     <AppUtilities/><MobileAppNav active="statistics" statisticsHref={routeHref("overview",route.year)} year={route.year} section={active}/>
   </div>;
 }
