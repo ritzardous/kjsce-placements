@@ -16,7 +16,7 @@ export function AreaNav({ active }: { active: string }) {
 function Brand() { return <a className="brand" href="#home"><span className="brand-mark">KJSCE</span><span className="brand-name">Placement Stats</span></a>; }
 function PortalFooter() { return <footer className="portal-footer"><span>Built by students. Grounded in sources.</span><span>Made with ♥ by Ritzardous</span></footer>; }
 export function PortalShell({ active, children }: { active: string; children: ReactNode }) {
-  return <div className="portal-shell"><a className="skip-link" href="#portal-main" onClick={event => { event.preventDefault(); document.getElementById('portal-main')?.focus(); }}>Skip to content</a><header className="portal-header"><div className="portal-header-inner"><Brand /><AuthControls /></div><AreaNav active={active} /></header><main className="portal-main" id="portal-main" tabIndex={-1}>{children}</main><PortalFooter /><MobileAppNav active={active}/></div>;
+  return <div className="portal-shell" data-app-page={active}><a className="skip-link" href="#portal-main" onClick={event => { event.preventDefault(); document.getElementById('portal-main')?.focus(); }}>Skip to content</a><header className="portal-header"><div className="portal-header-inner"><Brand /><AuthControls /></div><AreaNav active={active} /></header><main className="portal-main" id="portal-main" tabIndex={-1}>{children}</main><PortalFooter /><MobileAppNav active={active}/></div>;
 }
 export function Landing() {
   const { error } = useAuth();

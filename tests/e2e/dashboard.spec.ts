@@ -125,7 +125,8 @@ test('branches, timeline and insights render without browser exceptions', async 
   page.on('pageerror', error => errors.push(error.message));
   for (const path of ['/#branches/IT', '/#timeline', '/#insights', '/#company/not-found']) {
     await page.goto(path);
-    await expect(page.locator('.source-notes')).toBeVisible();
+    if(path.includes('/#company/'))await expect(page.getByText('Company not found',{exact:true})).toBeVisible();
+    else await expect(page.locator('.source-notes')).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   }
   await expect(page.getByText('Company not found', { exact: true })).toBeVisible();

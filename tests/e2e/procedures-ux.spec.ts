@@ -55,7 +55,7 @@ test('filter URLs survive a reload, return links and a reset without changing th
   await signInGoogle(page);
   await page.goto('/#procedures?company=barclays&round=Coding&search=ux-filter&sort=helpful');
   await expect(page.getByRole('searchbox',{name:'Search experiences'})).toHaveValue('ux-filter');
-  await expect(page.getByLabel('Round',{exact:true})).toHaveValue('Coding');
+  await expect(page.locator('.procedure-more-filters').getByLabel('Round',{exact:true})).toHaveValue('Coding');
   await expect(page.getByLabel('Sort',{exact:true})).toHaveValue('helpful');
   await expect(page.getByLabel('Company',{exact:true})).toHaveValue('barclays');
   if(test.info().project.name==='mobile')await page.setViewportSize({width:320,height:760});
@@ -64,7 +64,7 @@ test('filter URLs survive a reload, return links and a reset without changing th
   await page.reload();
   await expect(page.getByRole('searchbox',{name:'Search experiences'})).toHaveValue('ux-filter');
   await page.getByRole('button',{name:'Remove round filter'}).click();
-  await expect(page.getByLabel('Round',{exact:true})).toHaveValue('');
+  await expect(page.locator('.procedure-more-filters').getByLabel('Round',{exact:true})).toHaveValue('');
   await expect(page).not.toHaveURL(/round=/);
   await page.getByRole('button',{name:'Reset filters',exact:true}).click();
   await expect(page).toHaveURL(/#procedures$/);
@@ -113,6 +113,7 @@ test('one company picker and a short writing flow keep extras optional',async({p
   await expect(body).toHaveValue(/^\*\*I attended\*\*/);
   await page.getByRole('button',{name:'Preview Markdown',exact:true}).click();
   await expect(page.locator('.procedure-reader-preview strong')).toHaveText('I attended');
+  if(test.info().project.name==='mobile')await page.getByRole('button',{name:'Hide preview',exact:true}).click();
   await body.press('Control+i');
   await expect(body).toHaveValue(/^\*\*\*I attended\*\*\*/);
   const bold=page.getByRole('button',{name:'Bold',exact:true});
@@ -138,7 +139,7 @@ test('one company picker and a short writing flow keep extras optional',async({p
   await expect(bold).toHaveAttribute('aria-pressed','true');
   await body.press('Control+b');
   await expect(body).toHaveValue(/^I attended a technical/);
-  await page.getByRole('button',{name:'Hide preview',exact:true}).click();
+  if(test.info().project.name!=='mobile')await page.getByRole('button',{name:'Hide preview',exact:true}).click();
   await page.locator('summary').filter({hasText:'Optional details and attribution'}).click();
   await expect(page.getByLabel('Experience title (optional)',{exact:true})).toBeVisible();
   await page.getByLabel('Experience title (optional)',{exact:true}).fill('A short technical interview');
@@ -188,4 +189,27 @@ test('account content management has clear actions and draft deletion cannot be 
  await expect(button).toHaveCount(0);
  await page.goto(`/#procedures/contribute?draft=${id}`);
  await expect(page.getByRole('alert')).toContainText('Draft not found');
+});
+
+
+test('phone advanced filters apply together and cancel leaves results unchanged',async({page},info)=>{
+ test.skip(info.project.name!=='mobile','Phone filter sheet');
+ await signInGoogle(page);await page.goto('/#procedures');
+ const trigger=page.getByRole('button',{name:'More filters',exact:true});
+ await trigger.click();const sheet=page.getByRole('dialog',{name:'Filter experiences'});
+ await sheet.getByLabel('Coverage',{exact:true}).selectOption('Full');
+ await sheet.getByLabel('Round',{exact:true}).selectOption('Coding');
+ await expect(page).not.toHaveURL(/coverage=|round=/);
+ await page.keyboard.press('Escape');await expect(sheet).not.toBeVisible();
+ await trigger.click();await expect(sheet.getByLabel('Coverage',{exact:true})).toHaveValue('');
+ await sheet.getByLabel('Coverage',{exact:true}).selectOption('Full');
+ await sheet.getByLabel('Round',{exact:true}).selectOption('Coding');
+ await sheet.getByLabel('Appearance year',{exact:true}).fill('2025');
+ await sheet.getByRole('button',{name:'Apply filters',exact:true}).click();
+ await expect(sheet).not.toBeVisible();await expect(page).toHaveURL(/coverage=Full/);await expect(page).toHaveURL(/round=Coding/);await expect(page).toHaveURL(/year=2025/);
+ await expect(page.getByRole('button',{name:'More filters (3)',exact:true})).toBeFocused();
+ await page.getByRole('button',{name:'More filters (3)',exact:true}).click();
+ await sheet.getByRole('button',{name:'Reset',exact:true}).click();await expect(page).toHaveURL(/round=Coding/);
+ await sheet.getByRole('button',{name:'Apply filters',exact:true}).click();await expect(page).not.toHaveURL(/coverage=|round=/);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });

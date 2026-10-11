@@ -1,0 +1,172 @@
+/* Authenticated app polish. Landing selectors and global theme tokens stay untouched. */
+:is(.procedure-ui, #app, .portal-shell) {
+ --ui-success:#176447; --ui-success-bg:#edf8f1;
+ --ui-warning:#795400; --ui-warning-bg:#fff7df;
+ --ui-danger:#a02e29; --ui-danger-bg:#fff1ef;
+ --ui-fast:150ms; --ui-enter:220ms;
+}
+.app-icon { width:18px; height:18px; flex:none; vertical-align:middle; }
+:is(.procedure-ui,#app,.portal-shell) :is(button,a,summary) { -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+:is(.procedure-ui,#app,.portal-shell) :is(button,a,summary):focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+:is(.procedure-ui,#app,.portal-shell) :is(button,a)[aria-disabled=true] { pointer-events:none; }
+:is(.procedure-ui,#app,.portal-shell) :is(button,.action-button,.portal-link,.nav-item,.account-content-shortcuts a,.mobile-app-nav a,.area-nav a) {
+ transition:background-color var(--ui-fast),border-color var(--ui-fast),color var(--ui-fast),box-shadow var(--ui-fast),transform var(--ui-fast);
+}
+:is(.procedure-ui,#app,.portal-shell) button:not(:disabled):active,
+:is(.procedure-ui,#app,.portal-shell) :is(.action-button,.portal-link):active { transform:translateY(1px); }
+:is(#app,.portal-shell) :is(.nav-item,.area-nav a,.batch-back,.pagination button,summary) { min-height:44px; }
+.procedure-ui button:not(.procedure-review-item) { display:inline-flex; align-items:center; justify-content:center; gap:8px; border-radius:4px; min-width:44px; }
+.procedure-ui :is(input:not([type=checkbox]):not([type=radio]),select,textarea) { border-radius:4px; border-color:var(--line-soft); transition:border-color var(--ui-fast),box-shadow var(--ui-fast); }
+.procedure-ui :is(input,select,textarea):focus-visible { border-color:var(--accent); }
+.procedure-ui input:is([type=checkbox],[type=radio]) { width:18px; height:18px; min-width:18px; accent-color:var(--accent); cursor:pointer; }
+.procedure-ui :is(.procedure-rounds,.procedure-checklist) label { min-height:44px; padding:6px 8px; flex-direction:row; align-items:center; border-radius:4px; cursor:pointer; }
+.procedure-ui :is(.procedure-rounds,.procedure-checklist) label:has(input:checked) { background:var(--accent-soft); }
+.procedure-ui summary { box-sizing:border-box; min-height:48px; padding:12px 8px; cursor:pointer; border-radius:4px; line-height:1.5; }
+.procedure-ui summary:hover { background:var(--accent-soft); }
+.procedure-ui details > :not(summary) { margin-top:16px; }
+.procedure-ui :is(.procedure-card,.procedure-discovery,.procedure-composer,.procedure-optional) { border-radius:6px; }
+.procedure-ui .procedure-card { padding:24px; }
+.procedure-ui .procedure-card p { margin:12px 0; font-size:14px; line-height:1.75; }
+.procedure-ui .procedure-heading { gap:16px; margin-bottom:16px; }
+.procedure-ui .procedure-heading h3 { line-height:1.4; }
+.procedure-ui .procedure-card-title { display:block; padding:12px 0; font:600 21px/1.4 var(--font-display); color:var(--ink); }
+.procedure-ui .procedure-list { gap:20px; margin:24px 0; }
+.procedure-ui .procedure-list > section { display:grid; gap:16px; }
+.procedure-ui .procedure-list > section > :is(h3,p) { margin:0; }
+.procedure-ui .procedure-actions { gap:12px; margin:20px 0; }
+.procedure-ui .procedure-actions > a:not(.procedure-back-link) { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:10px 14px; border:1px solid var(--line-soft); border-radius:4px; }
+.procedure-ui .procedure-actions > .portal-link { border-color:var(--accent); color:var(--accent); font-weight:600; }
+.procedure-ui .procedure-actions > a[aria-disabled=true] { opacity:.5; }
+.procedure-ui .procedure-back-link { display:inline-flex; align-items:center; min-height:44px; }
+.procedure-ui .procedure-navigation { padding:6px 0; margin-bottom:24px; gap:12px 20px; }
+.procedure-ui .procedure-navigation .procedure-tabs { gap:8px; }
+.procedure-ui .procedure-navigation .procedure-tabs a { display:flex; align-items:center; gap:8px; padding:14px 12px; min-height:48px; border-radius:4px 4px 0 0; }
+.procedure-ui .procedure-navigation .procedure-tabs a[aria-current=page] { background:var(--accent-soft); }
+.procedure-ui .procedure-utilities { gap:8px; }
+.procedure-ui .procedure-utilities a { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:10px 12px; border-radius:4px; }
+.procedure-ui .procedure-utilities .action-button { padding:12px 16px; color:white; }
+.procedure-ui .procedure-section-name > span { display:none; }
+.procedure-ui .procedure-context { margin:16px 0 24px; }
+.procedure-ui .procedure-intro { padding-block:0; }
+.procedure-ui .procedure-search-input { display:flex; align-items:center; position:relative; }
+.procedure-ui .procedure-search-input > .app-icon { position:absolute; left:14px; color:var(--ink-soft); pointer-events:none; }
+.procedure-ui .procedure-discovery .procedure-search-input input { padding-left:42px; padding-right:48px; min-height:48px; }
+.procedure-ui .procedure-search-input input::-webkit-search-cancel-button { display:none; }
+.procedure-ui .procedure-discovery .procedure-search-input .search-clear { position:absolute; right:2px; min-width:44px; min-height:44px; padding:8px; background:transparent; border:0; }
+.procedure-ui .procedure-active-filters > button { border-radius:20px; background:var(--accent-soft); color:var(--accent); }
+.procedure-ui .procedure-active-filters:empty { display:none; }
+.procedure-ui .procedure-mobile-filters { display:none; }
+.procedure-ui .procedure-badge { border-radius:4px; line-height:1.4; }
+.procedure-ui :is(.status-approved,.coverage-full) { background:var(--ui-success-bg); color:var(--ui-success); }
+.procedure-ui :is(.status-pending,.status-changes_requested,.coverage-partial) { background:var(--ui-warning-bg); color:var(--ui-warning); }
+.procedure-ui .status-rejected { background:var(--ui-danger-bg); color:var(--ui-danger); }
+.procedure-ui :is(.status-draft,.status-unpublished) { background:var(--bg); color:var(--ink-soft); }
+.procedure-ui button.control-danger:not(.action-button) { background:var(--ui-danger-bg); color:var(--ui-danger); border-color:#eac5c1; }
+.procedure-ui button.control-warning:not(.action-button) { background:var(--ui-warning-bg); color:var(--ui-warning); border-color:#e4d4a3; }
+.procedure-ui button.control-success:not(.action-button) { background:var(--ui-success-bg); color:var(--ui-success); border-color:#bad9c8; }
+.procedure-ui :is(p,div)[role=alert] { border-left:3px solid var(--ui-danger); padding:14px 16px; background:var(--ui-danger-bg); color:var(--ui-danger); border-radius:4px; line-height:1.7; }
+.procedure-ui .procedure-note[id^=procedure-error-] { color:var(--ui-danger); }
+.procedure-ui .procedure-detail { max-width:920px; margin-inline:auto; }
+.procedure-ui .procedure-detail > .procedure-markdown { max-width:72ch; margin:24px auto; }
+.procedure-ui .procedure-markdown { font-size:16px; line-height:1.85; }
+.procedure-ui .procedure-markdown p { font-size:16px; margin:0 0 18px; color:var(--ink); }
+.procedure-ui .procedure-markdown :is(h1,h2,h3,h4) { margin:32px 0 14px; line-height:1.35; }
+.procedure-ui .procedure-markdown li { margin-block:8px; }
+.procedure-ui .procedure-markdown a { padding-block:3px; text-underline-offset:3px; }
+.procedure-ui .procedure-report { border-top:1px solid var(--line-soft); padding-top:12px; }
+.procedure-ui .procedure-company-options [role=option] { min-height:48px; }
+.procedure-ui .procedure-editor-page .procedure-composer { margin:24px 0; }
+.procedure-ui .procedure-toolbar { gap:6px; border-radius:4px 4px 0 0; }
+.procedure-ui .procedure-toolbar button { min-height:44px; gap:6px; }
+.procedure-ui .procedure-toolbar button[aria-pressed=true] { box-shadow:inset 0 -2px var(--accent); }
+.procedure-ui .procedure-compose-intro { margin-bottom:24px; }
+.procedure-ui .procedure-save-status { display:inline-flex; align-items:center; gap:8px; line-height:1.5; }
+.procedure-ui .procedure-save-status.is-saved { color:var(--ui-success); }
+.procedure-ui .procedure-submit-bar { position:sticky; bottom:16px; z-index:15; padding:12px; border:1px solid var(--line-soft); border-radius:6px; background:var(--surface); box-shadow:0 4px 20px #1010140d; }
+.procedure-ui .procedure-review-item { width:100%; min-height:96px; padding:20px; border-radius:4px; cursor:pointer; }
+.procedure-ui .procedure-review-item strong { font-size:16px; }
+.procedure-ui .procedure-review-item[aria-pressed=true] { box-shadow:inset 3px 0 var(--accent); }
+.procedure-ui .procedure-review-detail h2 { margin:20px 0 12px; }
+.procedure-ui .procedure-decision-bar { position:sticky; bottom:16px; z-index:15; background:var(--surface); border:1px solid var(--line-soft); padding:12px; border-radius:4px; box-shadow:0 4px 20px #1010140d; }
+.procedure-ui .procedure-loading { display:flex; align-items:center; gap:10px; padding:16px 0; font-size:14px; color:var(--ink-soft); }
+.procedure-loading-dot { width:10px; height:10px; border-radius:50%; background:var(--accent); animation:ui-pulse 1s ease-in-out infinite alternate; }
+.procedure-skeletons { display:grid; gap:20px; margin-bottom:24px; }
+.procedure-skeleton { display:grid; gap:14px; padding:24px; border:1px solid var(--line-soft); border-radius:6px; }
+.procedure-skeleton span { display:block; height:16px; background:var(--line-faint,var(--line-soft)); border-radius:4px; }
+.procedure-skeleton span:first-child { width:45%; height:24px; }
+.procedure-skeleton span:last-child { width:70%; }
+.procedure-ui dialog[open], .mobile-statistics-sheet[open] { animation:ui-sheet-in 220ms ease-out; }
+.procedure-ui dialog::backdrop, .mobile-statistics-sheet::backdrop { animation:ui-backdrop-in 180ms ease-out; }
+.procedure-filter-sheet { box-sizing:border-box; width:min(480px,calc(100% - 32px)); max-height:calc(100dvh - 48px); overflow:auto; padding:24px; background:var(--surface); border:1px solid var(--line-soft); border-radius:8px; color:var(--ink); }
+.procedure-filter-sheet::backdrop { background:#10101466; }
+.procedure-ui .procedure-sheet-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.procedure-sheet-heading h2 { font:600 24px/1.3 var(--font-display); margin:0; }
+.procedure-ui .procedure-filter-sheet .procedure-fields { grid-template-columns:1fr; }
+.procedure-ui .procedure-filter-sheet .procedure-actions { justify-content:space-between; margin-bottom:0; }
+@media(hover:hover) {
+ .procedure-ui .procedure-card:has(.procedure-card-title):hover { border-color:#b9becd; }
+ .procedure-ui .procedure-card-title:hover { color:var(--accent); }
+ .procedure-ui :is(.procedure-navigation a,.procedure-actions a,.procedure-outline button):not([aria-disabled=true]):not(.action-button):hover { background:var(--accent-soft); color:var(--accent); }
+ .procedure-ui button.control-danger:not(:disabled):hover { background:#fbe2df; border-color:var(--ui-danger); }
+ .procedure-ui button.control-warning:not(:disabled):hover { background:#fff0c5; border-color:var(--ui-warning); }
+ .procedure-ui button.control-success:not(:disabled):hover { background:#dff2e6; border-color:var(--ui-success); }
+}
+@media(max-width:720px) {
+ .procedure-ui .procedure-card { padding:18px; }
+ .procedure-ui .procedure-card p { font-size:14px; }
+ .procedure-ui .procedure-card-title { font-size:20px; }
+ .procedure-ui .procedure-navigation .procedure-tabs { gap:4px; }
+ .procedure-ui .procedure-navigation .procedure-tabs a { flex-direction:column; gap:6px; padding:12px 4px; min-height:64px; }
+ .procedure-ui .procedure-utilities { justify-content:space-between; gap:8px; }
+ .procedure-ui .procedure-utilities .action-button { width:auto; flex:1 1 auto; }
+ .procedure-ui .procedure-utilities a { font-size:12px; padding:12px 8px; }
+ .procedure-ui .procedure-mobile-filters { display:inline-flex; width:100%; margin-top:8px; }
+ .procedure-ui .procedure-more-filters { display:none; }
+ .procedure-ui .procedure-search { gap:12px; }
+ .procedure-ui .procedure-search > button { align-self:stretch; }
+ .procedure-ui .procedure-actions > :is(a,button) { min-height:48px; }
+ .procedure-ui .procedure-toolbar { display:flex; gap:6px; }
+ .procedure-ui .procedure-toolbar button { flex:1 0 auto; padding:10px; font-size:12px; }
+ .procedure-ui .procedure-composer:has(.procedure-writing.with-preview) .procedure-toolbar { display:none; }
+ .procedure-ui .procedure-writing.with-preview > .procedure-body-label { display:none; }
+ .procedure-ui .procedure-writing.with-preview { grid-template-columns:1fr; }
+ .procedure-ui .procedure-reader-preview { padding:16px; }
+ .procedure-ui .procedure-submit-bar, .procedure-ui .procedure-decision-bar { bottom:calc(84px + env(safe-area-inset-bottom)); }
+ .procedure-ui .procedure-submit-bar > .action-button { flex:1; min-height:48px; }
+ .procedure-ui .procedure-admin-grid.has-selection > div:first-child { display:none; }
+ .procedure-ui .procedure-decision-bar { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+ .procedure-ui .procedure-decision-bar > .action-button { grid-column:1/-1; }
+ .procedure-filter-sheet { position:fixed; inset:auto 8px calc(84px + env(safe-area-inset-bottom)); width:auto; max-height:calc(100dvh - 120px); margin:0; padding:20px; }
+ .procedure-ui .procedure-comparison-tray { position:static; padding:16px; }
+}
+@keyframes ui-sheet-in { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+@keyframes ui-backdrop-in { from { opacity:0; } to { opacity:1; } }
+@keyframes ui-pulse { from { opacity:.35; } to { opacity:1; } }
+@media(prefers-reduced-motion:reduce) {
+ :is(.procedure-ui,#app,.portal-shell) *, .mobile-statistics-sheet { animation:none!important; transition:none!important; scroll-behavior:auto!important; }
+}
+
+/* Small refinements to the existing statistics and account controls. */
+#app :is(.filter-input,.filter-select,.pagination button) { border-radius:4px; }
+#app :is(.nav-item,.career-explorer-tabs a,.batch-back,.company-link,.source-notes summary) { padding-block:12px; }
+:is(#app,.portal-shell) .mobile-app-nav :is(a,button):active { background:var(--accent-soft); }
+.portal-shell[data-app-page=account] .account-details { border-radius:6px; }
+.portal-shell[data-app-page=account] .account-content-shortcuts a { border-radius:6px; }
+@media(hover:hover) {
+ #app .nav-item:not(.active):hover { color:var(--accent); background:var(--accent-soft); }
+ #app .pagination button:not(:disabled):hover { border-color:var(--accent); }
+}
+
+:is(#app,.portal-shell) .auth-controls { display:flex; align-items:center; gap:10px; }
+.procedure-ui summary::marker { color:var(--accent); }
+.procedure-ui .procedure-feedback[role=status], .procedure-ui .procedure-success { background:var(--ui-success-bg); color:var(--ui-success); border-left:3px solid var(--ui-success); padding:14px 16px; border-radius:4px; }
+.procedure-ui > section { animation:ui-content-in 180ms ease-out; }
+@keyframes ui-content-in { from { opacity:.65; } to { opacity:1; } }
+@media(prefers-reduced-motion:reduce) { .procedure-ui > section { animation:none; } }
+
+@media(max-width:720px) {
+ .procedure-ui .procedure-discovery > .procedure-fields { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+ .procedure-ui .procedure-discovery > .procedure-fields .procedure-year-filter { display:none; }
+ .procedure-ui .procedure-discovery > .procedure-note { display:none; }
+ .procedure-ui .procedure-search > button:disabled { display:none; }
+}

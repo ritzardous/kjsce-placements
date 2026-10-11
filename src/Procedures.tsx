@@ -17,7 +17,7 @@ export default function Procedures({parameter,draftId}:{parameter?:string;draftI
   return <PortalShell active="procedures"><div className="procedure-ui">
     {!parameter ? <header className="portal-welcome procedure-intro"><span className="eyebrow">THE COMMUNITY ARCHIVE</span><h1>Company Procedures</h1><p>Find firsthand recruitment experiences by company, year and role.</p></header> : <div className="procedure-section-name"><BackToExperiences>Company Procedures</BackToExperiences><span>Firsthand recruitment experiences</span></div>}
     <ProcedureNavigation view={parameter}/>
-    {!detail && parameter && <header className="procedure-context"><nav className="procedure-actions" aria-label="Breadcrumb"><BackToExperiences>Browse experiences</BackToExperiences><span aria-hidden="true">/</span><span aria-current="page">{title}</span></nav><h1 id="procedure-page-title">{title}</h1></header>}
+    {!detail && parameter && <header className="procedure-context"><h1 id="procedure-page-title">{title}</h1></header>}
     {content}
   </div></PortalShell>;
 }

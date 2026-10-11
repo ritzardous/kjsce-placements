@@ -19,8 +19,15 @@ test('discovery, saved prep, comparison and moderated discussion work together',
   try{
     await signInGoogle(reader);await reader.goto('/#procedures');
     await reader.getByRole('searchbox',{name:'Search experiences'}).fill(tag);
-    await reader.locator('summary').filter({hasText:'More filters'}).click();
-    await reader.getByLabel('Round',{exact:true}).selectOption('Coding');
+    if(test.info().project.name==='mobile'){
+      await reader.getByRole('button',{name:'More filters',exact:true}).click();
+      const sheet=reader.getByRole('dialog',{name:'Filter experiences'});
+      await sheet.getByLabel('Round',{exact:true}).selectOption('Coding');
+      await sheet.getByRole('button',{name:'Apply filters',exact:true}).click();
+    }else{
+      await reader.locator('summary').filter({hasText:'More filters'}).click();
+      await reader.locator('.procedure-more-filters').getByLabel('Round',{exact:true}).selectOption('Coding');
+    }
     await expect(reader.locator('.procedure-card h3').filter({hasText:tag})).toHaveCount(2);
     for (const index of [0,1]) {
       const experience = reader.getByRole('article').filter({has:reader.getByRole('heading',{name:`${tag} ${index}`,exact:true})});
@@ -31,7 +38,7 @@ test('discovery, saved prep, comparison and moderated discussion work together',
     expect(await reader.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
     await reader.getByRole('link',{name:'Back to experiences',exact:false}).click();
     await expect(reader.getByRole('searchbox',{name:'Search experiences'})).toHaveValue(tag);
-    await expect(reader.getByLabel('Round',{exact:true})).toHaveValue('Coding');
+    await expect(reader.locator('.procedure-more-filters').getByLabel('Round',{exact:true})).toHaveValue('Coding');
     await reader.getByRole('link',{name:'Company hub',exact:true}).first().click();
     await expect(reader.getByRole('heading',{name:'Barclays procedure hub'})).toBeVisible();
     await expect(reader.getByRole('link',{name:'2025 placement statistics',exact:false})).toBeVisible();

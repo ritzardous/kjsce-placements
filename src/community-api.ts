@@ -19,6 +19,7 @@ export function usePaged<T>(action: string, payload: Record<string, unknown> = {
   const key = `${user?.uid}:${action}:${JSON.stringify(payload)}`;
   const initial = preserve ? cache.get(key) as (Page<T> & { scroll: number }) | undefined : undefined;
   const [rows, setRows] = useState<T[]>(initial?.rows || []), [cursor, setCursor] = useState<Cursor>(initial?.cursor || null), [more, setMore] = useState(initial?.more || false), [loading, setLoading] = useState(!initial), [error, setError] = useState('');
+  const previousAccount = useRef(user?.uid);
   const generation = useRef(0), latest = useRef({ rows, cursor, more }), currentKey = useRef(key), resolvedKey=useRef(initial?key:''), inFlight=useRef<string|null>(null);
   latest.current = { rows, cursor, more };
   currentKey.current = key;
@@ -40,7 +41,8 @@ export function usePaged<T>(action: string, payload: Record<string, unknown> = {
   }, [key, action, preserve]);
   useEffect(() => {
     const saved = preserve ? cache.get(key) as (Page<T> & {scroll:number}) | undefined : undefined;
-    setRows(saved?.rows || []); setCursor(saved?.cursor || null); setMore(saved?.more || false); setError('');
+    const retainBrowse=action==='browse'&&previousAccount.current===user?.uid;previousAccount.current=user?.uid;
+    setRows(previous=>saved?.rows || (retainBrowse?previous:[])); setCursor(saved?.cursor || null); setMore(saved?.more || false); setError('');
     if (saved) { resolvedKey.current=key;setLoading(false); requestAnimationFrame(() => window.scrollTo(0, saved.scroll)); }
     else void request();
     return () => { generation.current++; };
