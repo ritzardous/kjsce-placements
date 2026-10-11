@@ -56,7 +56,7 @@ export default function Dashboard({ route }: { route: Route }) {
   const active = route.page === 'company' ? 'companies' : nav.some(([key]) => key === route.page) ? route.page : 'overview';
   let page;
   if (!s) page = <div className="page-message" role={error ? 'alert' : 'status'}><h1>{error ? 'Placement data unavailable' : 'Loading placement statistics…'}</h1><p>{error ?? `Fetching the ${route.year} dataset.`}</p>{error && <button className="action-button" onClick={() => setAttempt(a => a + 1)}>Try again</button>}</div>;
-  else if (route.page === 'company') page = <CompanyDetail company={s.companies.find(c => c.key === route.parameter)} />;
+  else if (route.page === 'company') page = <CompanyDetail company={s.companies.find(c => c.key === route.parameter)} year={route.year} />;
   else if (active === 'companies') page = <Companies statistics={s} filters={companyFilters} setFilters={setCompanyFilters} />;
   else if (active === 'branches') page = <Branches statistics={s} selected={route.parameter} onCandidates={branch => setCandidateFilters({ search: branch, role: null })} />;
   else if (active === 'candidates') page = <Candidates statistics={s} filters={candidateFilters} setFilters={setCandidateFilters} />;

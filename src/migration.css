@@ -58,6 +58,11 @@ button{color:inherit;}
 @media(max-width:850px){.topbar-inner{flex-wrap:wrap;gap:10px;}.batch-picker{order:3;margin-left:0;width:100%;}.batch-picker select{max-width:none;width:100%;}.auth-controls{margin-left:auto;}.topbar-meta{display:none;}}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
 .company-identity{display:inline-flex;align-items:center;gap:10px;max-width:100%;min-width:0;vertical-align:middle;}
+.candidate-linkedin{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:6px 10px;border:1px solid var(--line-soft);border-radius:4px;font:500 12px var(--font-body);color:#0a66c2;background:var(--surface);white-space:nowrap;}
+.candidate-linkedin svg{width:17px;height:17px;flex-shrink:0;}
+a.candidate-linkedin:hover{background:var(--accent-soft);border-color:#0a66c2;}
+.candidate-linkedin-pending{color:var(--ink-soft);background:var(--bg);border-color:transparent;font-weight:400;}
+@media(max-width:720px){.candidate-linkedin{min-height:44px;font-size:13px;}}
 .company-identity-name{min-width:0;overflow-wrap:anywhere;}
 .company-logo{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;flex:0 0 36px;overflow:hidden;background:#fff;border:1px solid var(--line-soft);border-radius:9px;}
 .company-logo img{display:block;width:26px;height:26px;object-fit:contain;}

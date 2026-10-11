@@ -1,5 +1,6 @@
 import { CompanyIdentity, CompanyLogo } from './CompanyIdentity';
 import { useState } from 'react';
+import { CandidateLinkedIn } from './CandidateLinkedIn';
 import type { Announcement } from '../shared/dataset';
 import type { Branch, Candidate, Company, Statistics } from '../shared/statistics';
 import { ColumnChart, Donut, Empty, LineChart, RankedBars, Section, Stat, Table, Tag, academicYear, routeHref, companyHref, date, money, type Column } from './components';
@@ -95,13 +96,13 @@ export function Companies({ statistics: s, filters, setFilters }: { statistics: 
     <Table rows={rows} columns={columns} rowKey={c => c.key} sort={filters.sort} onSort={key => set({ sort: { key, direction: key === filters.sort.key ? (filters.sort.direction === 'asc' ? 'desc' : 'asc') : key === 'name' ? 'asc' : 'desc' } })} />
   </Section>;
 }
-export function CompanyDetail({ company: c }: { company: Company | undefined }) {
+export function CompanyDetail({ company: c, year }: { company: Company | undefined; year:number }) {
   if (!c) return <Empty title="Company not found"><a href={routeHref("companies")}>← Back to Companies</a></Empty>;
   return <Section title="Company Details" note="Chronological · earliest first"><a className="back-link" href={routeHref("companies")}>← All Companies</a>
     <div className="detail-head"><div className="company-detail-identity"><CompanyLogo companyKey={c.key} name={c.name} size="large" /><div className="company-detail-copy"><div className="eyebrow">{c.type}</div><h1 className="detail-name">{c.name}</h1><div className="detail-tags">{c.roles.map(r => <Tag key={r}>{r}</Tag>)}</div></div></div><div className="detail-stats">{[[money(c.highestCtc), 'Highest CTC'], [c.totalHired, c.announcements.some(p => p.campus) ? 'Selections' : 'Students hired'], [c.announcements.length, c.announcements.some(p => p.campus) ? "Record groups" : "Announcements"], [c.branches.join(', '), 'Branches hired']].map(([value, label]) => <div className="detail-stat" key={label}><div className="v">{value}</div><div className="l">{label}</div></div>)}</div></div>
-    <div className="company-candidates-heading"><h2>Selected candidates</h2><p>Selections are grouped by placement announcement below.</p><aside className="company-contacts" aria-labelledby="company-contacts-title"><h3 id="company-contacts-title">Alumni contacts</h3><p>Verified, consented LinkedIn contacts for selected candidates will appear here once available.</p><span className="coming-label">COMING SOON</span></aside></div>
+    <div className="company-candidates-heading"><h2>Selected candidates</h2><p>Selections are grouped by placement announcement below.</p><aside className="company-contacts" aria-labelledby="company-contacts-title"><h3 id="company-contacts-title">Alumni contacts</h3><p>LinkedIn profiles are listed beside each candidate below. Profiles open in a new tab; candidates without a supplied profile show “Coming soon”.</p></aside></div>
     {c.announcements.map(p => <article className="announcement-block" key={p.placement_id}><div className="announcement-head"><div className="a-date">{date(p.result.declared_date, true)} <span className="cell-sub">· {p.placement_id}</span></div><div className="a-role">{p.roles.join(' / ') || 'Role not provided'}{p.campus && <Tag>{p.campus}</Tag>}</div><div className="a-ctc">{ctcLabel(p)}</div></div>{p.notes && <div className="note-flag">⚑ NOTE: {p.notes}</div>}<Table rows={p.candidates} rowKey={(candidate, index) => `${candidate.roll_number}-${index}`} columns={[
-      { label: 'Candidate', render: row => row.name }, { label: 'Roll No.', render: row => <span className="mono">{row.roll_number}</span> }, { label: 'Branch', render: row => <Tag>{row.branch}</Tag> }, { label: 'Role', render: row => row.role || "Not provided" },
+      { label: 'Candidate', render: row => row.name }, { label: 'LinkedIn', render: row => <CandidateLinkedIn roll={row.roll_number} name={row.name} year={year}/> }, { label: 'Roll No.', render: row => <span className="mono">{row.roll_number}</span> }, { label: 'Branch', render: row => <Tag>{row.branch}</Tag> }, { label: 'Role', render: row => row.role || "Not provided" },
     ]} /><p className="methodology announcement-provenance">{p.campus ? 'SOURCE CUMULATIVE COUNTER' : 'PLACEMENT COUNT AT THIS ANNOUNCEMENT'}: {p.hiring.placement_count ?? 'Not available'} · {p.hiring.students_hired} selections<br />Source: {p.source.source_file}, pages {p.source.pages.join(', ')}<SourceDetails announcement={p} /></p></article>)}
   </Section>;
 }

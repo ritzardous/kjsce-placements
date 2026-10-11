@@ -10,8 +10,8 @@
     "dev": "node scripts/dev-live.mjs",
     "dev:web": "vite --host 127.0.0.1",
     "typecheck": "tsc --noEmit",
-    "build": "npm run build:functions && npm run typecheck && vite build",
-    "predev": "npm run build:functions",
+    "build": "npm run data:linkedin && npm run build:functions && npm run typecheck && vite build",
+    "predev": "npm run data:linkedin && npm run build:functions",
     "predev:api": "npm run build:functions",
     "start": "vite preview --host 127.0.0.1",
     "db:seed": "tsx scripts/seed-firestore.ts",
@@ -30,7 +30,9 @@
     "dev:beta": "node scripts/dev-beta.mjs",
     "procedures:deploy": "node scripts/deploy-procedures.mjs",
     "procedures:verify": "tsx scripts/verify-procedures.ts",
-    "dev:api": "tsx watch scripts/dev-api.ts"
+    "dev:api": "tsx watch scripts/dev-api.ts",
+    "data:linkedin": "tsx scripts/build-linkedin.ts",
+    "predev:web": "npm run data:linkedin"
   },
   "dependencies": {
     "dotenv": "^18.0.6",

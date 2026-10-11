@@ -138,3 +138,22 @@ test('Firestore loading error displays retry and recovers using real emulator da
   await page.getByRole('button', { name: 'Try again' }).click();
   await expect(page.getByRole('heading', { name: /Placement Stats/ })).toBeVisible();
 });
+
+
+test('company candidate LinkedIn links stay with the 2026 batch and missing profiles are clear',async({page})=>{
+  await page.goto('/#company/barclays');
+  await expect(page.getByRole('heading',{name:'Barclays',exact:true})).toBeVisible();
+  const candidate=page.locator('tbody tr').filter({hasText:'16014022147'});
+  const link=candidate.getByRole('link',{name:/Prithviraj.*LinkedIn/});
+  await expect(link).toHaveAttribute('href','https://www.linkedin.com/in/prithviraj-sawant-boby/');
+  await expect(link).toHaveAttribute('target','_blank');
+  await expect(link).toHaveAttribute('rel','noopener noreferrer');
+  await expect(page.locator('tbody tr').filter({hasText:'16010422073'}).getByText('Coming soon',{exact:true})).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await candidate.scrollIntoViewIfNeeded();
+  await page.screenshot({path:`artifacts/candidate-linkedin-${test.info().project.name}.png`});
+  await page.goto('/#2025/company/barclays');
+  await expect(page.getByRole('heading',{name:'Barclays',exact:true})).toBeVisible();
+  await expect(page.locator('a.candidate-linkedin')).toHaveCount(0);
+  await expect(page.locator('.candidate-linkedin-pending').first()).toBeVisible();
+});
