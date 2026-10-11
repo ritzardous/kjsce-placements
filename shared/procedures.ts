@@ -19,18 +19,19 @@ export const procedureDraftSchema = z.object({
   coverage: z.enum(['Full', 'Partial']),
   outcome: z.enum(['Selected', 'Not selected', 'Result pending']),
   role: z.string().trim().max(100),
-  attribution: z.enum(['anonymous', 'name']),
+  attribution: z.enum(['anonymous', 'name', 'custom']),
+  customName: z.string().trim().max(60).default(''),
   body: z.string().max(20_000),
 }).strict();
 export type ProcedureDraft = z.infer<typeof procedureDraftSchema>;
-export const submissionSchema = procedureDraftSchema.refine(d => d.companyKey.length > 0, {message:'Choose a company.',path:['companyKey']}).refine(d => meaningfulBody(d.body).length >= 60, {message:'Write at least 60 characters about your experience beyond the starter headings.',path:['body']});
+export const submissionSchema = procedureDraftSchema.refine(d => d.companyKey.length > 0, {message:'Choose a company.',path:['companyKey']}).refine(d => meaningfulBody(d.body).length >= 60, {message:'Write at least 60 characters about your experience beyond the starter headings.',path:['body']}).refine(d => d.attribution !== 'custom' || d.customName.length > 0, {message:'Enter the public name you want readers to see.',path:['customName']});
 export function meaningfulBody(body: string) { return body.replace(/<!--[\s\S]*?-->/g, '').replace(/^#{1,6}.*$/gm, '').replace(/\s+/g, ' ').trim(); }
 export type ProcedureStatus = 'draft' | 'pending' | 'approved' | 'changes_requested' | 'rejected';
 export type ProcedureCompany = { key: string; name: string; years: number[] };
 export type ProcedureSubmission = { id: string; ownerUid: string; draft: ProcedureDraft; draftVersion: number; revision: number; status: ProcedureStatus; feedback: string; updatedAt: number; companyName?: string; hasPublished?: boolean };
 export type ProcedurePost = ProcedureDraft & { id: string; companyName: string; authorName: string; authorUid: string; revision: number; published: boolean; publishedAt: number; score: number; upvotes: number; downvotes: number };
 export const statusLabels: Record<ProcedureStatus, string> = { draft: 'Draft', pending: 'Pending approval', approved: 'Approved', changes_requested: 'Changes requested', rejected: 'Rejected' };
-export function initialProcedureDraft(): ProcedureDraft { return { title: '', summary: '', rounds: [], companyKey: '', appearanceYear: new Date().getFullYear(), graduationYear: null, coverage: 'Partial', outcome: 'Result pending', role: '', attribution: 'anonymous', body: procedureStarter }; }
+export function initialProcedureDraft(): ProcedureDraft { return { title: '', summary: '', rounds: [], companyKey: '', appearanceYear: new Date().getFullYear(), graduationYear: null, coverage: 'Partial', outcome: 'Result pending', role: '', attribution: 'anonymous', customName: '', body: procedureStarter }; }
 
 export const roundOptions = ['Aptitude', 'Coding', 'Technical interview', 'HR', 'Group discussion', 'Assignment', 'Other'] as const;
 export const oneRoundStarter = '## The round I attended\n\n## Questions and format\n\n## What helped me prepare\n';

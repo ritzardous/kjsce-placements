@@ -31,7 +31,7 @@ export async function saveDraft(db: Firestore, actorValue: Actor | undefined, va
     const stampLimit = await limit(db, tx, actor, 'draft', 300);
     const version = input.expectedVersion + 1;
     tx.set(ref, { ownerUid: actor.uid, draft: input.draft, draftVersion: version, revision: old?.revision ?? 0, status: 'draft', feedback: old?.feedback ?? '', updatedAt: Date.now(), hasPublished: old?.hasPublished ?? false }, { merge: true });
-    tx.set(db.doc(`procedurePreferences/${actor.uid}`), { graduationYear: input.draft.graduationYear, role: input.draft.role, attribution: input.draft.attribution });
+    tx.set(db.doc(`procedurePreferences/${actor.uid}`), { graduationYear: input.draft.graduationYear, role: input.draft.role, attribution: input.draft.attribution, customName: input.draft.customName });
     stampLimit();
     return { version };
   });
@@ -48,8 +48,9 @@ export async function submit(db: Firestore, actorValue: Actor | undefined, value
     requireCondition(company.exists, 'Choose a company from the campus recruiter directory.');
     const stampLimit = await limit(db, tx, actor, 'submit', 30_000);
     const revision = old.revision + 1, eventId = `${input.id}-${revision}-submitted`, now = Date.now();
-    const authorName = draft.attribution === 'name' ? String(actor.token.name ?? 'Contributor').slice(0, 100) : 'Community contributor';
-    tx.create(ref.collection('revisions').doc(String(revision)), { ...draft, authorUid: actor.uid, authorName, companyName: company.data()!.name, revision, submittedAt: now });
+    const authorName = draft.attribution === 'custom' ? draft.customName : draft.attribution === 'name' ? String(actor.token.name ?? 'Contributor').slice(0, 100) : 'Community contributor';
+    // An unused custom name stays private when another attribution option is chosen.
+    tx.create(ref.collection('revisions').doc(String(revision)), { ...draft, customName: draft.attribution === 'custom' ? draft.customName : '', authorUid: actor.uid, authorName, companyName: company.data()!.name, revision, submittedAt: now });
     tx.update(ref, { status: 'pending', revision, companyName: company.data()!.name, feedback: '', updatedAt: now });
     tx.create(db.doc(`procedureModeration/${eventId}`), { submissionId: input.id, ownerUid: actor.uid, actorUid: actor.uid, revision, action: 'submitted', companyName: company.data()!.name, createdAt: now });
     tx.set(db.doc(`procedureNotifications/${actor.uid}/items/${eventId}`), { submissionId: input.id, title: 'Submitted for review', message: `${company.data()!.name}: revision ${revision} is awaiting approval.`, createdAt: now, read: false });

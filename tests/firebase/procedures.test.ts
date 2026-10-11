@@ -97,3 +97,24 @@ test('submission validation and throttling reject empty content and rapid separa
   await saveDraft(db, first.actor, { id: second, expectedVersion: 0, draft: first.draft });
   await assert.rejects(submit(db, first.actor, { id: second, expectedVersion: 1 }), (e: unknown) => (e as { code: string }).code === 'resource-exhausted');
 });
+
+
+test('custom attribution is validated and approval publishes the chosen name without leaking unused names', async()=>{
+  for(const attribution of ['custom','name','anonymous'] as const){
+    const actor=contributor(),id=randomUUID();
+    const draft={...initialProcedureDraft(),companyKey:'procedure-test-company',body,attribution,customName:'  Campus Mentor  '};
+    if(attribution==='custom'){
+      await saveDraft(db,actor,{id,expectedVersion:0,draft:{...draft,customName:'   '}});
+      await assert.rejects(submit(db,actor,{id,expectedVersion:1}),/public name/);
+      await db.doc(`procedureLimits/${actor.uid}-draft`).delete();
+      await saveDraft(db,actor,{id,expectedVersion:1,draft});
+    }else await saveDraft(db,actor,{id,expectedVersion:0,draft});
+    await submit(db,actor,{id,expectedVersion:attribution==='custom'?2:1});
+    await review(db,admin,{id,revision:1,decision:'approved',feedback:''});
+    const post=(await db.doc(`procedurePosts/${id}`).get()).data()!;
+    assert.equal(post.authorName,attribution==='custom'?'Campus Mentor':attribution==='name'?'Private Contributor':'Community contributor');
+    assert.equal(post.customName,attribution==='custom'?'Campus Mentor':'');
+    assert.equal(post.email,undefined);
+    assert.equal((await db.doc(`procedurePreferences/${actor.uid}`).get()).data()!.customName,'Campus Mentor');
+  }
+});

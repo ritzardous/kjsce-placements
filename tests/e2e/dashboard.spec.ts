@@ -6,6 +6,12 @@ import { buildStatistics } from '../../shared/statistics';
 
 const dataset = datasetSchema.parse(JSON.parse(readFileSync('data/placements-2026.json', 'utf8')));
 const payload = { metadata: dataset.metadata, statistics: buildStatistics(dataset, batch2026) };
+async function chooseSection(page: import('@playwright/test').Page, name: string) {
+  const menu=page.locator('.dashboard-mobile-menu');
+  if(await menu.isVisible()) await menu.locator('summary').click();
+  await page.getByRole('link',{name,exact:true}).click();
+}
+
 test.beforeEach(async ({ page }) => {
   if (process.env.E2E_FIREBASE !== 'true') throw new Error('Run npm run test:firebase for isolated seeded Firestore/Auth emulator tests.');
   await signInGoogle(page);
@@ -18,7 +24,7 @@ test('ongoing 2027 season stays explicit across routes, reload, refresh and year
   await expect(page.locator('.live-notice')).toContainText('08 Oct 2026');
   await expect(page.locator('.stat').filter({ hasText: 'Candidate selections recorded' }).locator('.stat-value')).toHaveText('121');
   await expect(page.locator('.stat').filter({ hasText: 'Placement rate' }).locator('.stat-value')).toHaveText('—');
-  await page.getByRole('link', { name: 'Companies', exact: true }).click();
+  await chooseSection(page,'Companies');
   await expect(page).toHaveURL(/#2027\/companies/);
   await page.getByRole('link', { name: 'Barclays', exact: true }).click();
   await expect(page).toHaveURL(/#2027\/company\/barclays/);
@@ -42,7 +48,7 @@ test('year switching keeps 2025 links, refresh, missing data and campus filters 
   await expect(page.locator('.stat').filter({ hasText: 'Unique UG students placed' }).locator('.stat-value')).toHaveText('323');
   await expect(page.locator('.stat').filter({ hasText: 'Candidate selections recorded' }).locator('.stat-value')).toHaveText('360');
   await expect(page.locator('.stat').filter({ hasText: 'Placement rate' }).locator('.stat-value')).toHaveText('—');
-  await page.getByRole('link', { name: 'Candidates & Roles', exact: true }).click();
+  await chooseSection(page,'Candidates & Roles');
   await expect(page).toHaveURL(/#2025\/candidates/);
   await page.getByRole('combobox', { name: 'Campus status' }).selectOption('Off campus');
   await expect(page.locator('.result-count')).toHaveText('29 / 360');
@@ -60,7 +66,7 @@ test('year switching keeps 2025 links, refresh, missing data and campus filters 
   await expect(page.locator('.a-role').first()).toContainText('Role not provided');
   await page.getByRole('combobox', { name: 'Placement year' }).selectOption('2026');
   await expect(page.getByRole('heading', { name: /KJSCE '26/ })).toBeVisible();
-  await page.getByRole('link', { name: 'Candidates & Roles', exact: true }).click();
+  await chooseSection(page,'Candidates & Roles');
   await expect(page.locator('.result-count')).toHaveText('311 / 311');
   await expect(page.getByRole('combobox', { name: 'Campus status' })).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

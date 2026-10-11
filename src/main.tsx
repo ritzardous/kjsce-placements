@@ -5,5 +5,6 @@ import './styles.css';
 import './migration.css';
 import './portal.css';
 import './procedures.css';
+import './mobile.css';
 
 createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);

@@ -32,9 +32,9 @@ test('main navigation has two areas, company stats own contacts, and account own
   await expect(page.getByRole('heading', { name: 'Company Procedures', exact: true })).toBeVisible();
   await page.getByRole('link', { name: 'Share an experience', exact: false }).click();
   await expect(page.getByLabel('Company', { exact: true })).toBeVisible();
-  await page.getByRole('searchbox', { name: 'Find a company' }).fill('Barclays');
-  await expect(page.getByLabel('Company', { exact: true }).getByRole('option', { name: /Barclays/ })).toContainText('2025');
-  await expect(page.getByLabel('Company', { exact: true }).getByRole('option', { name: /Barclays/ })).toContainText('2027');
+  await page.getByRole('combobox', { name: 'Company', exact:true }).fill('Barclays');
+  await expect(page.getByRole('option', { name: /Barclays/ })).toContainText('2025');
+  await expect(page.getByRole('option', { name: /Barclays/ })).toContainText('2027');
   await page.screenshot({ path: `artifacts/portal-contribute-${test.info().project.name}.png`, fullPage: true });
   await expect(page.getByRole('button', { name: 'Submit for review' })).toBeVisible();
   const appNav = page.getByRole('navigation', { name: 'App', exact: true });

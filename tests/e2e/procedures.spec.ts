@@ -26,8 +26,8 @@ test('draft recovery, revision approval, voting and unpublishing work across con
   const expect = testExpect.configure({ timeout: 20000 });
   const uid = await signInGoogle(page);
   await page.goto('/#procedures/contribute');
-  await page.getByRole('searchbox', { name: 'Find a company' }).fill('Barclays');
-  await page.getByLabel('Company', { exact: true }).selectOption({ label: 'Barclays · Class of 2025, 2026, 2027' });
+  await page.getByRole('combobox', { name: 'Company', exact:true }).fill('Barclays');
+  await page.getByRole('option', {name:/Barclays/}).click();
   await page.getByLabel('Year you appeared').fill('2026');
   await page.getByLabel('Your experience', { exact: true }).fill('I attended an aptitude test and a technical interview on arrays and SQL joins. Practise explaining your project and review database fundamentals before the interview.');
   await page.getByRole('button', { name: 'Save now', exact: true }).click();

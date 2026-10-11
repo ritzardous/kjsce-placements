@@ -1,0 +1,153 @@
+/* Phone refinements keep the existing palette, typography and restrained borders. */
+.mobile-app-nav, .dashboard-mobile-menu { display:none; }
+@media (max-width:720px) {
+  :root { --ink-faint:#706d65; }
+  html { scroll-padding-top:16px; scroll-padding-bottom:100px; }
+  body { font-size:15px; line-height:1.65; -webkit-text-size-adjust:100%; }
+  .portal-shell, #app { padding-bottom:calc(76px + env(safe-area-inset-bottom)); min-height:100dvh; }
+  .mobile-app-nav {
+    display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); position:fixed;
+    inset:auto 0 0; z-index:60; background:var(--surface); border-top:1px solid var(--line-soft);
+    padding:6px max(8px, env(safe-area-inset-left)) calc(6px + env(safe-area-inset-bottom));
+    box-shadow:0 -4px 16px #0f0f1206;
+  }
+  .mobile-app-nav a { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-height:56px; color:var(--ink-soft); font-size:12px; font-weight:600; border-radius:4px; }
+  .mobile-app-nav svg { width:22px; height:22px; }
+  .mobile-app-nav a[aria-current=page] { background:var(--accent-soft); color:var(--accent); }
+  .mobile-app-nav a:focus-visible { outline-offset:-3px; }
+  main, .portal-main { padding-inline:16px; }
+  .portal-main { padding-top:28px; padding-bottom:36px; }
+  .portal-header-inner, .landing-header, .topbar-inner { padding:12px 16px; gap:12px; }
+  .brand { min-width:0; align-items:center; gap:8px; }
+  .brand > div, .brand-name { min-width:0; }
+  .brand-mark { flex-shrink:0; font-size:13px; }
+  .brand-name { font-size:14px; line-height:1.35; }
+  .portal-header-inner .brand { flex:1; }
+  .portal-header-inner .auth-controls { margin-left:0; }
+  :is(.portal-header-inner, .topbar-inner):has(.auth-controls > a + a) { flex-wrap:wrap; }
+  :is(.portal-header-inner, .topbar-inner):has(.auth-controls > a + a) > .brand { flex-basis:100%; }
+  :is(.portal-header-inner, .topbar-inner):has(.auth-controls > a + a) > .auth-controls { display:grid; grid-template-columns:1fr 1fr; gap:8px; width:100%; }
+  .auth-button { min-height:44px; display:inline-flex; align-items:center; justify-content:center; padding:10px; font-size:13px; border-radius:4px; }
+  .topbar { position:static; }
+  .topbar-inner .brand { flex:1; }
+  .topbar-inner .auth-controls { margin-left:0; }
+  .topbar-inner .live-badge { font-size:10px; }
+  .batch-picker { gap:6px; font-size:12px; }
+  .batch-picker select { min-height:44px; font-size:16px; border-radius:4px; padding:10px; }
+  .area-nav { padding:0 16px; gap:12px; overflow:visible; }
+  .area-nav a { flex:1; display:flex; align-items:center; justify-content:center; text-align:center; white-space:normal; min-height:48px; font-size:13px; border-bottom:2px solid transparent; }
+  .area-nav a[aria-current=page] { border-bottom-color:var(--accent); }
+  .dashboard-desktop-nav { display:none; }
+  .dashboard-mobile-menu { display:block; padding:0 16px; border-top:1px solid var(--line-faint); }
+  .dashboard-mobile-menu summary { min-height:48px; display:flex; align-items:center; justify-content:space-between; gap:12px; cursor:pointer; font-size:14px; font-weight:600; list-style:none; }
+  .dashboard-mobile-menu summary::-webkit-details-marker { display:none; }
+  .dashboard-mobile-menu summary > span:last-child { font-size:12px; color:var(--accent); }
+  .dashboard-mobile-menu summary > span:last-child::after { content:' ▾'; }
+  .dashboard-mobile-menu[open] summary > span:last-child::after { content:' ▴'; }
+  .dashboard-mobile-menu nav { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; padding:4px 0 16px; }
+  .dashboard-mobile-menu nav a { min-height:48px; display:flex; align-items:center; padding:10px 12px; font-size:13px; border:1px solid var(--line-soft); border-radius:4px; }
+  .dashboard-mobile-menu nav a[aria-current=page] { color:var(--accent); background:var(--accent-soft); border-color:var(--accent); }
+  :is(button, input, select, textarea, summary, a) { -webkit-tap-highlight-color:#1b4cff18; }
+  button, .action-button, .chip, .role-chip, .branch-chip, .footer-source-btn, .back-link { min-height:44px; }
+  .back-link { display:inline-flex; align-items:center; }
+  :is(input, select, textarea):not([type=checkbox]):not([type=radio]) { font-size:16px; }
+  :is(input, select, textarea, button, a) { scroll-margin-block:20px 100px; }
+  .landing-main { padding-inline:20px; }
+  .hero-copy h1 { font-size:clamp(36px,10vw,46px); }
+  .hero-copy > p, .pillar-grid p, .landing-trust p, .login-card > p { font-size:15px; line-height:1.75; }
+  .landing-hero { padding:36px 0; gap:32px; }
+  .landing-preview { box-shadow:4px 4px 0 var(--accent-dim); }
+  .landing-login, .landing-header > a:last-child { min-height:44px; display:inline-flex; align-items:center; font-size:13px; }
+  .access-note, .hero-copy .access-note { font-size:12px; }
+  .landing-privacy summary { min-height:44px; padding-block:10px; }
+  .login-main { padding:28px 16px; }
+  .login-card { padding:24px; box-shadow:4px 4px 0 var(--accent-dim); }
+  .portal-welcome h1 { font-size:32px; }
+  .portal-welcome p { font-size:15px; line-height:1.7; }
+  .year-card { min-height:0; padding:20px; border-radius:4px; }
+  .year-card h3 { margin:18px 0 10px; }
+  .year-card p, .community-entry p, .portal-section-heading p { font-size:14px; }
+  .year-card p { margin-bottom:18px; }
+  .year-card-link { font-size:14px; }
+  .community-entry { padding:20px; border-radius:4px; gap:12px; }
+  .portal-link { min-height:44px; display:inline-flex; align-items:center; font-size:14px; white-space:normal; }
+  .account-details { padding:20px; border-radius:4px; }
+  .account-fields dt { font-size:13px; }
+  .account-fields dd { font-size:15px; }
+  .account-fields { gap:20px; }
+  .account-details h2 { font-size:24px; }
+  .statgrid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .stat { padding:14px 12px; min-width:0; }
+  .stat-value { font-size:clamp(22px,6.5vw,30px); }
+  .stat-label, .stat-extra { font-size:12px; line-height:1.6; }
+  .stat.headline .stat-extra { color:#c5c3bb; }
+  .stat-label { letter-spacing:.03em; }
+  .hero-title, .detail-name { font-size:32px; line-height:1.15; overflow-wrap:anywhere; }
+  .section-title { font-size:13px; letter-spacing:.04em; }
+  .hero-sub, .section-note, .methodology, .coverage-notice, .source-notes { font-size:13px; }
+  .coverage-notice { padding:14px; line-height:1.75; border-radius:4px; }
+  .coverage-notice strong { margin-bottom:6px; }
+  .source-notes summary { min-height:48px; padding-block:12px; }
+  .refresh-live { padding:10px 12px; font-size:13px; }
+  .grid2 > div { min-width:0; padding:16px; }
+  .controls { gap:10px; margin-block:20px; }
+  select.filter { min-height:46px; font-size:16px; width:100%; border-radius:4px; }
+  .search-box input { min-height:46px; border-radius:4px; }
+  .chip-row { flex-wrap:wrap; overflow:visible; gap:8px; }
+  .chip { white-space:normal; font-size:13px; padding:10px 12px; border-radius:4px; }
+  .chart-controls { gap:8px; }
+  .role-chip, .branch-chip { font-size:13px; border-radius:4px; }
+  .rank-row { min-height:60px; gap:10px; }
+  .rank-name, .rank-val { font-size:13px; }
+  .rank-main { min-width:0; }
+  .rank-val { flex-shrink:0; }
+  .detail-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; gap:16px; }
+  .detail-stat { min-width:0; }
+  .detail-stat .v { font-size:22px; overflow-wrap:anywhere; }
+  .detail-stat .l { font-size:12px; }
+  table.card-table tbody tr { border-radius:4px; overflow:hidden; }
+  table.card-table tbody td { align-items:flex-start; gap:12px; font-size:14px; overflow-wrap:anywhere; }
+  table.card-table tbody td::before { font-size:11px; max-width:42%; }
+  table.card-table tbody td.card-title { font-size:16px; }
+  table.card-table td a { display:inline-flex; align-items:center; min-height:44px; text-align:left; }
+  .event-row { border-radius:4px; min-width:0; }
+  .event-company { min-width:0; overflow-wrap:anywhere; }
+  .pagination { gap:8px; flex-wrap:wrap; font-size:13px; }
+  .pagination button { border-radius:4px; padding:10px 14px; }
+  .portal-footer, footer { padding:20px 16px; font-size:12px; }
+  .footer-inner { font-size:12px; line-height:1.7; }
+  .procedure-ui .procedure-navigation .procedure-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:4px; }
+  .procedure-ui .procedure-navigation .procedure-tabs a { display:flex; align-items:center; justify-content:center; text-align:center; padding:12px 4px; min-height:56px; font-size:12px; line-height:1.4; }
+  .procedure-ui .procedure-utilities { gap:8px 16px; padding-block:12px; }
+  .procedure-ui .procedure-utilities a { min-height:44px; display:inline-flex; align-items:center; font-size:13px; }
+  .procedure-ui .procedure-utilities .action-button { width:100%; justify-content:center; }
+  .procedure-ui :is(.procedure-card, .procedure-discovery, .procedure-optional, .procedure-composer) { border-radius:4px; }
+  .procedure-ui .procedure-card { padding:18px; }
+  .procedure-ui .procedure-card :is(h2,h3) { font-size:21px; line-height:1.35; }
+  .procedure-ui .procedure-card p, .procedure-ui .procedure-markdown { font-size:15px; line-height:1.8; }
+  .procedure-ui .procedure-note, .procedure-ui .procedure-compose-intro { font-size:13px; }
+  .procedure-ui .procedure-markdown :is(h1,h2,h3) { font-size:24px; line-height:1.35; }
+  .procedure-ui .procedure-markdown pre { max-width:100%; overflow-x:auto; }
+  .procedure-ui .procedure-markdown table { display:block; max-width:100%; overflow-x:auto; }
+  .procedure-ui .procedure-actions { gap:8px 12px; }
+  .procedure-ui .procedure-actions > a { min-height:44px; display:inline-flex; align-items:center; }
+  .procedure-ui :is(button, input, select, textarea) { border-radius:4px; }
+  .procedure-ui button:not(.procedure-review-item) { font-size:14px; }
+  .procedure-ui .procedure-composer { padding:12px; }
+  .procedure-ui .procedure-composer-controls { width:100%; display:grid; grid-template-columns:1fr 1fr; }
+  .procedure-ui .procedure-toolbar { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; padding:8px; }
+  .procedure-ui .procedure-toolbar button { padding:10px 4px; font-size:12px; }
+  .procedure-ui .procedure-composer textarea[aria-required] { font-size:16px; padding:14px 12px; min-height:280px; }
+  .procedure-ui .procedure-rounds { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; padding:12px; }
+  .procedure-ui :is(.procedure-rounds, .procedure-checklist) label { min-height:44px; font-size:13px; }
+  .procedure-ui .procedure-optional { padding:8px 14px; }
+  .procedure-ui .procedure-confirmation { max-height:calc(100dvh - 120px); padding:20px; }
+  .procedure-ui .procedure-badge { font-size:12px; }
+  .procedure-ui .procedure-review-item { padding:16px; }
+  .procedure-ui .procedure-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .procedure-ui .procedure-metrics p { padding:12px; font-size:13px; }
+  .procedure-ui .procedure-metrics strong { font-size:22px; overflow-wrap:anywhere; }
+}
+@media (prefers-reduced-motion:reduce) {
+  *, *::before, *::after { scroll-behavior:auto !important; transition:none !important; animation:none !important; }
+}
