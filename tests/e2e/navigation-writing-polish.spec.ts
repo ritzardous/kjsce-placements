@@ -41,7 +41,7 @@ test('home starts light, shows the account photo, and its community card is a fu
   await expect(page).toHaveURL(/#procedures$/);
   await expect(avatar).toBeVisible();
   expect((await page.getByRole('link',{name:'Back to Home / change batch',exact:true}).boundingBox())!.width).toBe(44);
-  await page.getByRole('searchbox',{name:'Search experiences'}).fill(`No matches ${randomUUID()}`);
+  await page.getByRole('searchbox',{name:/Search companies|Search experiences/}).fill(`No matches ${randomUUID()}`);
   const empty=page.locator('.experience-empty');
   await expect(empty).toBeVisible({timeout:20000});
   const emptyBox=(await empty.boundingBox())!,headingBox=(await empty.getByRole('heading').boundingBox())!;

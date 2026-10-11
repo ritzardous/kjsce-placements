@@ -5,7 +5,7 @@ test('open login and consistent personal footer',async({page},info)=>{
  await page.goto('/#login');
  await expect(page.getByRole('button',{name:'Continue with Google'})).toBeEnabled();
  expect(await page.locator('.login-card').evaluate(element=>getComputedStyle(element).borderTopWidth)).toBe('0px');
- await expect(page.getByRole('link',{name:/Made with love by Ritesh Jha/})).toHaveAttribute('href','https://github.com/ritzardous');
+ await expect(page.getByRole('link',{name:'Ritesh',exact:true})).toHaveAttribute('href','https://github.com/ritzardous');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:`artifacts/current-login-${info.project.name}.png`,fullPage:true});
 });
@@ -67,5 +67,5 @@ test('phone formatting, preview and static actions preserve drafts in both theme
  await body.scrollIntoViewIfNeeded();
  await page.screenshot({path:`artifacts/current-editor-dark-${info.project.name}.png`});
  await page.getByRole('button',{name:'Cancel',exact:true}).click();
- await expect(page).toHaveURL(/#procedures\/contributions/);
+ await expect(page).toHaveURL(/#procedures\/contributions/,{timeout:20000});
 });

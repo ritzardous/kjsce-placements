@@ -26,7 +26,7 @@ test('company directory counts all published posts and opens their paginated art
  await page.evaluate(()=>window.scrollTo(0,document.body.scrollHeight));
  await expect(page.locator('.procedure-card-title')).toHaveCount(14,{timeout:20000});
  await expect(page.locator('.procedure-card-title').filter({hasText:`${tag} 15`})).toHaveCount(0);
- await page.getByRole('link',{name:'All companies',exact:true}).click();
+ await page.getByRole('link',{name:'Back to companies',exact:true}).click();
  await expect(company).toContainText('14 experiences');
  await expect(page.getByRole('searchbox')).toHaveValue(tag);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);

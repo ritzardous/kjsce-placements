@@ -54,7 +54,7 @@ test('navigation, field validation and device-copy discard are clear and keyboar
 test('filter URLs survive reload and cancelled filter edits',async({page})=>{
   await signInGoogle(page);
   await page.goto('/#procedures?company=barclays&round=Coding&search=ux-filter&sort=helpful');
-  await expect(page.getByRole('searchbox',{name:'Search experiences'})).toHaveValue('ux-filter');
+  await expect(page.getByRole('searchbox',{name:/Search companies|Search experiences/})).toHaveValue('ux-filter');
   await page.getByRole('button',{name:/More filters/}).click();
   const sheet=page.getByRole('dialog',{name:'Filter experiences'});
   await expect(sheet.getByLabel('Round',{exact:true})).toHaveValue('Coding');

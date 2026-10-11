@@ -18,7 +18,7 @@ test('discovery, clean reading, saved prep and report moderation work together',
   const adminContext=await browser.newContext({viewport:page.viewportSize()!,baseURL:new URL(page.url()).origin}),admin=await adminContext.newPage();
   try{
     await signInGoogle(reader);await reader.goto('/#procedures');
-    await reader.getByRole('searchbox',{name:'Search experiences'}).fill(tag);
+    await reader.getByRole('searchbox',{name:/Search companies|Search experiences/}).fill(tag);
     await reader.getByRole('button',{name:'More filters',exact:true}).click();
     const sheet=reader.getByRole('dialog',{name:'Filter experiences'});
     await sheet.getByLabel('Round',{exact:true}).selectOption('Coding');
@@ -27,7 +27,7 @@ test('discovery, clean reading, saved prep and report moderation work together',
     await reader.getByRole('link',{name:'Barclays experiences',exact:true}).click();
     await expect(reader.locator('.procedure-card h3').filter({hasText:tag})).toHaveCount(2);
     await expect(reader.getByRole('button',{name:'Compare',exact:true})).toHaveCount(0);
-    await reader.getByRole('link',{name:'Company details',exact:true}).first().click();
+    await expect(reader.getByRole('link',{name:'Company details',exact:true})).toHaveCount(0);
     await expect(reader.getByRole('heading',{name:'Barclays experiences'})).toBeVisible();
     await expect(reader.getByRole('link',{name:'2025 placement statistics',exact:false})).toBeVisible();
     await reader.goto(`/#procedures/${ids[0]}`);

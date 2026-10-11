@@ -408,7 +408,7 @@ body:has(:is(#app,.portal-shell,.login-page)) { background:#f7f8fa; }
 :is(#app,.portal-shell) .experience-empty :is(h2,p) { margin:0; }
 :is(#app,.portal-shell) .has-bookmark { position:relative; }
 :is(#app,.portal-shell) .has-bookmark > .procedure-heading { padding-right:48px; }
-:is(#app,.portal-shell) .bookmark-control { position:absolute; right:20px; top:-16px; z-index:2; }
+:is(#app,.portal-shell) .bookmark-control { position:absolute; right:20px; top:20px; z-index:2; }
 :is(#app,.portal-shell) button.article-bookmark { width:44px; height:48px; padding:10px; background:var(--surface); }
 :is(#app,.portal-shell) button.article-bookmark[aria-pressed=true] { background:var(--accent); color:var(--accent-ink); }
 :is(#app,.portal-shell) button.article-bookmark[aria-pressed=true] .app-icon { fill:currentColor; }
@@ -494,6 +494,8 @@ body:has(:is(#app,.portal-shell,.login-page)) { background:#f7f8fa; }
 .portal-footer .footer-brand > span { font-weight:500; color:var(--ink-soft); }
 .portal-footer .footer-credit { display:inline-flex; align-items:center; gap:5px; min-height:44px; color:var(--ink-soft); text-decoration:none; transition:color 150ms; }
 .portal-footer .footer-credit:hover { color:var(--accent); }
+.portal-footer .footer-author { color:inherit; display:inline-flex; align-items:center; min-height:44px; text-decoration:none; text-underline-offset:4px; }
+.portal-footer .footer-author:hover { text-decoration:underline; }
 .portal-footer .footer-heart { color:var(--accent); }
 .portal-footer .footer-credit .app-icon { width:16px; height:16px; margin-left:7px; }
 [data-theme=dark] :is(#app,.portal-shell) :is(.area-switcher a[aria-current=page],.mobile-app-nav :is(a,button)[aria-current=page]) { background:var(--accent-soft); color:var(--accent); border-color:var(--line-soft); }
@@ -559,4 +561,76 @@ body:has(:is(#app,.portal-shell,.login-page)) { background:#f7f8fa; }
  .portal-footer .footer-actions { width:100%; gap:12px; justify-content:space-between; }
  :is(#app,.portal-shell) .portal-main { padding-bottom:28px; }
  :is(#app,.portal-shell) .procedure-company-card { padding:20px; min-height:180px; gap:20px; }
+}
+/* Compact phone hierarchy with consistent controls and room for bookmarking. */
+.procedure-nav-label-phone { display:none; }
+:is(#app,.portal-shell) .company-directory-back { display:inline-flex; align-items:center; gap:8px; min-height:44px; margin:0 0 16px; color:var(--ink); font-size:14px; font-weight:600; text-decoration:none; }
+:is(#app,.portal-shell) .company-directory-back:hover { color:var(--accent); }
+:is(#app,.portal-shell) .procedure-company-hub { margin-bottom:20px; }
+:is(#app,.portal-shell) .has-bookmark > .bookmark-control + :is(h3,.procedure-back-link) { padding-right:56px; min-height:48px; }
+@media(max-width:720px) {
+ :is(#app,.portal-shell,.login-page) { font-size:14px; line-height:1.65; }
+ :is(#app,.portal-shell,.login-page) h1 { font-size:30px; line-height:1.18; }
+ :is(#app,.portal-shell,.login-page) h2 { font-size:22px; line-height:1.3; }
+ :is(#app,.portal-shell,.login-page) h3 { font-size:18px; line-height:1.4; }
+ :is(#app,.portal-shell) :is(.portal-welcome,.procedure-intro,.hero) h1 { font-size:32px; line-height:1.15; }
+ :is(#app,.portal-shell) :is(.portal-welcome,.procedure-intro,.hero) p { font-size:14px; line-height:1.65; }
+ :is(#app,.portal-shell) .home-card :is(h2,h3) { font-size:25px; }
+ :is(#app,.portal-shell) .procedure-context h1 { font-size:28px; }
+ :is(#app,.portal-shell) .procedure-navigation { gap:12px; margin-bottom:20px; padding-bottom:16px; }
+ :is(#app,.portal-shell) .procedure-navigation .procedure-tabs { gap:8px; border:0; padding:0; }
+ :is(#app,.portal-shell) .procedure-navigation .procedure-tabs a { min-height:64px; padding:8px 4px; border:2px solid var(--line-faint); background:var(--surface); color:var(--ink-soft); box-shadow:none; font-size:12px; line-height:1.4; gap:5px; }
+ :is(#app,.portal-shell) .procedure-navigation .procedure-tabs a[aria-current=page] { border-color:var(--line); background:var(--accent-soft); color:var(--ink); box-shadow:2px 2px 0 var(--neo-shadow); }
+ .procedure-nav-label-wide { display:none; }
+ .procedure-nav-label-phone { display:inline; }
+ :is(#app,.portal-shell) .procedure-navigation .procedure-utilities { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+ :is(#app,.portal-shell) .procedure-navigation .procedure-utilities a { width:100%; height:100%; min-height:48px; display:flex; align-items:center; justify-content:center; padding:10px 8px; gap:6px; font-size:12px; line-height:1.4; text-align:center; }
+ :is(#app,.portal-shell) .procedure-utilities a.action-button:last-child:nth-child(3) { grid-column:1/-1; }
+ :is(#app,.portal-shell) .procedure-discovery { padding:14px; }
+ :is(#app,.portal-shell) .procedure-discovery .procedure-search { display:grid; grid-template-columns:minmax(0,1fr); align-items:stretch; gap:10px; width:100%; }
+ :is(#app,.portal-shell) .procedure-search label { width:100%; min-width:0; font-size:12px; gap:6px; }
+ :is(#app,.portal-shell) .procedure-search-input { width:100%; }
+ :is(#app,.portal-shell) .procedure-discovery .procedure-search-input input { min-height:48px; height:48px; padding-block:10px; padding-left:40px; padding-right:44px; font-size:16px; box-shadow:none; }
+ :is(#app,.portal-shell) .procedure-search-input > .app-icon { width:18px; height:18px; left:13px; }
+ :is(#app,.portal-shell) .procedure-discovery button.procedure-extra-filters { width:100%; align-self:stretch; min-height:48px; padding:10px 12px; font-size:13px; margin:0; }
+ :is(#app,.portal-shell) .procedure-list { margin:20px 0; gap:18px; }
+ :is(#app,.portal-shell) .procedure-list > section { gap:16px; }
+ :is(#app,.portal-shell) .procedure-list > section > h3 { font-size:14px; margin:0 0 12px; color:var(--ink-soft); }
+ :is(#app,.portal-shell) .procedure-card:not(.reader-view) { padding:16px; }
+ :is(#app,.portal-shell) .procedure-card h3 { margin:14px 0 8px; }
+ :is(#app,.portal-shell) .procedure-card-title { font-size:18px; line-height:1.45; padding:4px 0; min-height:44px; }
+ :is(#app,.portal-shell) .procedure-card p { margin:8px 0; font-size:13px; line-height:1.65; }
+ :is(#app,.portal-shell) .procedure-badge { font-size:11px; padding:5px 8px; }
+ :is(#app,.portal-shell) .has-bookmark > .procedure-heading { display:grid; grid-template-columns:minmax(0,1fr) 44px; gap:8px 12px; padding:0; min-height:44px; margin-bottom:0; }
+ :is(#app,.portal-shell) .has-bookmark > .procedure-heading .company-identity { font-size:14px; min-width:0; gap:8px; }
+ :is(#app,.portal-shell) .has-bookmark > .procedure-heading .company-logo { width:30px; height:30px; flex-shrink:0; }
+ :is(#app,.portal-shell) .has-bookmark > .procedure-heading .procedure-badge { grid-column:1; grid-row:2; justify-self:start; }
+ :is(#app,.portal-shell) .has-bookmark > .procedure-heading .bookmark-control { position:relative; inset:auto; grid-column:2; grid-row:1/3; align-self:start; }
+ :is(#app,.portal-shell) .bookmark-control { top:16px; right:16px; }
+ :is(#app,.portal-shell) button.article-bookmark { width:44px; height:44px; min-height:44px; padding:10px; box-shadow:none; }
+ :is(#app,.portal-shell) .procedure-card .procedure-actions { margin:16px 0 0; gap:10px; }
+ :is(#app,.portal-shell) .procedure-card .procedure-actions > a { min-height:44px; font-size:13px; padding:10px 12px; }
+ :is(#app,.portal-shell) .procedure-company-hub h2 { font-size:22px; margin:12px 0; }
+ :is(#app,.portal-shell) .procedure-company-hub .procedure-actions { margin-top:12px; }
+ :is(#app,.portal-shell) .procedure-company-card .company-identity { font-size:18px; }
+ :is(#app,.portal-shell) .company-card-action { font-size:13px; }
+ :is(#app,.portal-shell) .profile-identity h2 { font-size:22px; }
+ :is(#app,.portal-shell) :is(.procedure-fields,.account-information) label { font-size:13px; }
+ :is(#app,.portal-shell) .reader-view .procedure-markdown :is(p,li) { font-size:16px; line-height:1.8; }
+ :is(#app,.portal-shell) .reader-view h1 { font-size:28px; line-height:1.25; }
+ :is(#app,.portal-shell) .reader-view .procedure-markdown h2 { font-size:23px; }
+ :is(#app,.portal-shell) .reader-view .procedure-markdown h3 { font-size:19px; }
+ :is(#app,.portal-shell) .procedure-composer textarea[aria-required] { font-size:16px; line-height:1.75; }
+ #app .stat-value { font-size:28px; }
+ #app .stat-label { font-size:12px; }
+ #app table.card-table td { font-size:13px; }
+ .login-page .login-card h1 { font-size:34px; }
+}
+:is(#app,.portal-shell) .company-hub-title { display:flex; align-items:center; gap:12px; }
+:is(#app,.portal-shell) .company-hub-title .company-logo { flex-shrink:0; }
+@media(max-width:720px) {
+ :is(#app,.portal-shell) .procedure-intro .eyebrow { display:none; }
+ :is(#app,.portal-shell) .procedure-intro h1 { margin-top:0; }
+ :is(#app,.portal-shell) .procedure-company-hub .company-hub-title { margin:0; gap:10px; }
+ :is(#app,.portal-shell) .procedure-company-hub .company-hub-title .company-logo { width:32px; height:32px; }
 }
