@@ -1,6 +1,6 @@
 import { type Firestore, type Query, type DocumentData } from 'firebase-admin/firestore';
 import { z } from 'zod';
-import { authorize, HttpsError, type Actor } from './service.js';
+import { authorize, manageSubmission, HttpsError, type Actor } from './service.js';
 import { postTitle } from '../../shared/procedures.js';
 
 export const adminCommunityActions = new Set(['queue', 'reviewContext', 'moderationInbox', 'moderateQuestion', 'resolveReport', 'overview']);
@@ -67,6 +67,7 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
   const request = parse(z.object({ action: z.string().max(40), payload: z.record(z.string(), z.unknown()).default({}) }).strict(), input);
   const actor = authorize(actorValue, adminCommunityActions.has(request.action)), value = request.payload;
   switch (request.action) {
+    case 'manageSubmission': return manageSubmission(db,actor,value);
     case 'browse': {
       const filters = parse(z.object({ company: z.string().max(120).default(''), year: z.string().max(4).default(''), coverage: z.string().max(20).default(''), outcome: z.string().max(30).default(''), search: z.string().max(120).default(''), round: z.string().max(40).default(''), sort: z.enum(['newest', 'helpful']).default('newest'), cursor: cursorSchema }).strict(), value);
       const fields = filters.sort === 'helpful' ? ['score', 'publishedAt'] : ['publishedAt'];
@@ -95,7 +96,7 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
     }
     case 'contributions': {
       const data = parse(pageInput, value);
-      return page(db.collection('procedureSubmissions').where('ownerUid', '==', actor.uid), ['updatedAt'], 'desc', data.cursor, row => value.status === 'published' ? row.hasPublished === true : value.status === 'attention' ? ['changes_requested','rejected'].includes(row.status) : !value.status || row.status === value.status);
+      return page(db.collection('procedureSubmissions').where('ownerUid', '==', actor.uid), ['updatedAt'], 'desc', data.cursor, row => !row.deleted && (value.status === 'published' ? row.hasPublished === true : value.status === 'attention' ? ['changes_requested','rejected'].includes(row.status) : !value.status || row.status === value.status));
     }
     case 'impact': {
       const submissions = db.collection('procedureSubmissions').where('ownerUid', '==', actor.uid);
@@ -104,7 +105,8 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
         db.collection('procedurePosts').where('authorUid', '==', actor.uid).where('published', '==', true).aggregate({ helpful: (await import('firebase-admin/firestore')).AggregateField.sum('upvotes') }).get(),
         db.collection('procedureQuestions').where('postAuthorUid', '==', actor.uid).where('status', '==', 'visible').where('answered', '==', false).where('replyPending', '==', false).count().get(),
       ]);
-      return { total: total.data().count, drafts: drafts.data().count, pending: pending.data().count, published: approved.data().count, helpful: votes.data().helpful || 0, unanswered: questions.data().count };
+      const deleted=await submissions.where('deleted','==',true).count().get();
+      return { total: total.data().count-deleted.data().count, drafts: drafts.data().count, pending: pending.data().count, published: approved.data().count, helpful: votes.data().helpful || 0, unanswered: questions.data().count };
     }
     case 'preferences': return (await db.doc(`procedurePreferences/${actor.uid}`).get()).data() || {};
     case 'timeline': {
@@ -138,8 +140,8 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
     }
     case 'ask': {
       const data = parse(z.object({ postId: id, body: z.string().trim().min(10).max(2000) }).strict(), value);
-      const post = await published(db, data.postId), ref = db.collection('procedureQuestions').doc();
-      await db.runTransaction(async tx => { const stamp = await throttle(db, tx, actor.uid, 'question'); tx.create(ref, { ...data, postAuthorUid: post.authorUid, authorUid: actor.uid, authorName: 'Community reader', companyName: post.companyName, status: 'pending', answered: false, replyPending: false, createdAt: Date.now(), updatedAt: Date.now() }); stamp(); });
+      const ref = db.collection('procedureQuestions').doc();
+      await db.runTransaction(async tx => { const snapshot=await tx.get(db.doc(`procedurePosts/${data.postId}`));required(snapshot.exists&&snapshot.data()!.published,'Experience is unavailable.');const post=snapshot.data()!;const stamp = await throttle(db, tx, actor.uid, 'question'); tx.create(ref, { ...data, postAuthorUid: post.authorUid, authorUid: actor.uid, authorName: 'Community reader', companyName: post.companyName, status: 'pending', answered: false, replyPending: false, createdAt: Date.now(), updatedAt: Date.now() }); stamp(); });
       return { id: ref.id, status: 'pending' };
     }
     case 'answer': {
@@ -157,7 +159,6 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
     }
     case 'report': {
       const data = parse(z.object({ postId: id, questionId: id.optional(), target: z.enum(['post', 'question', 'answer']), reason: z.enum(['outdated', 'incorrect', 'privacy', 'abuse', 'duplicate']), details: z.string().trim().max(1000) }).strict(), value);
-      const post = await published(db, data.postId);
       if (data.target !== 'post') {
         required(data.questionId, 'Select a question.');
         const question = await db.doc(`procedureQuestions/${data.questionId}`).get();
@@ -165,7 +166,13 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
         if (data.target === 'answer') required(question.data()!.answer?.status === 'visible', 'Reply is unavailable.');
       }
       const ref = db.doc(`procedureReports/${actor.uid}-${data.target}-${data.questionId || data.postId}`);
-      await db.runTransaction(async tx => { const previous = await tx.get(ref); if (previous.data()?.status === 'open') return; const stamp = await throttle(db, tx, actor.uid, 'report'); tx.set(ref, { ...data, reporterUid: actor.uid, companyName: post.companyName, status: 'open', createdAt: Date.now(), updatedAt: Date.now() }); stamp(); });
+      await db.runTransaction(async tx => {
+        const post=await tx.get(db.doc(`procedurePosts/${data.postId}`));
+        required(post.exists&&post.data()!.published,'Experience is unavailable.');
+        const previous = await tx.get(ref); if (previous.data()?.status === 'open') return;
+        const stamp = await throttle(db, tx, actor.uid, 'report');
+        tx.set(ref, { ...data, reporterUid: actor.uid, companyName: post.data()!.companyName, status: 'open', createdAt: Date.now(), updatedAt: Date.now() }); stamp();
+      });
       return { received: true };
     }
     case 'queue': {

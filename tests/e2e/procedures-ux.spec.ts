@@ -158,3 +158,34 @@ test('one company picker and a short writing flow keep extras optional',async({p
   await page.getByLabel('Public name',{exact:true}).selectOption('anonymous');
   await expect(page.getByLabel('Custom public name',{exact:true})).not.toBeVisible();
 });
+
+
+test('account content management has clear actions and draft deletion cannot be undone by an old tab',async({page})=>{
+ await signInGoogle(page);await page.goto('/#procedures/contribute');
+ await page.getByRole('combobox',{name:'Company',exact:true}).fill('Barclays');
+ await page.getByRole('option',{name:/Barclays/}).click();
+ await page.getByLabel('Your experience',{exact:true}).fill('My coding round included arrays, SQL queries and discussion about my final project. Prepare by practising timed questions.');
+ await page.getByRole('button',{name:'Save now',exact:true}).click();
+ await expect(page.getByRole('status')).toContainText('Saved');
+ const id=new URLSearchParams(page.url().split('?')[1]).get('draft')!;
+ await page.getByRole('button',{name:'Submit for review',exact:true}).click();
+ await expect(page.locator('#procedure-submitted')).toContainText('Pending approval');
+ await page.goto('/#account');
+ const withdraw=page.getByRole('button',{name:'Withdraw from review',exact:true});
+ await expect(withdraw).toBeVisible();await withdraw.click();
+ await page.getByRole('dialog').getByRole('button',{name:'Withdraw submission',exact:true}).click();
+ await expect(page.locator('.account-contributions .procedure-feedback[role=status]')).toContainText('Submission withdrawn');
+ await expect(withdraw).toHaveCount(0);
+
+ await expect(page.getByRole('navigation',{name:'Manage your content'})).toBeVisible();
+ const card=page.locator('.account-contributions .procedure-card').filter({has:page.getByRole('button',{name:'Delete experience',exact:true})}).first();
+ const button=card.getByRole('button',{name:'Delete experience',exact:true});
+ expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(48);
+ await page.screenshot({path:`artifacts/account-content-management-${test.info().project.name}.png`,fullPage:true});
+ await button.click();await page.getByRole('dialog').getByRole('button',{name:'Cancel',exact:true}).click();
+ await expect(button).toBeVisible();await button.click();await page.getByRole('dialog').getByRole('button',{name:'Delete permanently',exact:true}).click();
+ await expect(page.locator('.account-contributions .procedure-feedback[role=status]')).toContainText('Experience deleted');
+ await expect(button).toHaveCount(0);
+ await page.goto(`/#procedures/contribute?draft=${id}`);
+ await expect(page.getByRole('alert')).toContainText('Draft not found');
+});

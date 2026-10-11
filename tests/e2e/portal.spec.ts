@@ -24,11 +24,11 @@ test('public landing and protected deep links never read placement documents bef
 test('main navigation has two areas, company stats own contacts, and account owns contributions; logout closes access', async ({ page }) => {
   await signInGoogle(page);
   await expect(page.getByRole('heading', { name: 'Welcome, Test.' })).toBeVisible();
-  for (const year of [2027,2026,2025]) await expect(page.getByRole('heading', { name: `Class of ${year}`, exact: true })).toBeVisible();
+  for (const year of [2026,2025]) await expect(page.getByRole('heading', { name: `Class of ${year}`, exact: true })).toBeVisible();
   await page.screenshot({ path: `artifacts/portal-home-${test.info().project.name}.png`, fullPage: true });
-  await page.getByRole('link', { name: /Class of 2027/ }).click();
-  await expect(page.locator('.live-notice')).toBeVisible();
-  await page.getByRole('navigation', { name: 'App', exact: true }).getByRole('link', { name: 'Company Procedures', exact: true }).click();
+  await page.getByRole('link', { name: /Class of 2026/ }).click();
+  await expect(page.getByRole('combobox',{name:'Placement year'})).toHaveCount(0);
+  if(await page.getByRole('navigation',{name:'Quick navigation'}).isVisible())await page.getByRole('navigation',{name:'Quick navigation'}).getByRole('link',{name:'Experiences',exact:true}).click();else await page.getByRole('navigation', { name: 'App', exact: true }).getByRole('link', { name: 'Company Procedures', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Company Procedures', exact: true })).toBeVisible();
   await page.getByRole('link', { name: 'Share an experience', exact: false }).click();
   await expect(page.getByLabel('Company', { exact: true })).toBeVisible();
@@ -37,15 +37,15 @@ test('main navigation has two areas, company stats own contacts, and account own
   await expect(page.getByRole('option', { name: /Barclays/ })).toContainText('2027');
   await page.screenshot({ path: `artifacts/portal-contribute-${test.info().project.name}.png`, fullPage: true });
   await expect(page.getByRole('button', { name: 'Submit for review' })).toBeVisible();
-  const appNav = page.getByRole('navigation', { name: 'App', exact: true });
-  await expect(appNav.getByRole('link')).toHaveCount(2);
-  await expect(appNav.getByRole('link', { name: 'Placement Stats', exact: true })).toBeVisible();
+  const appNav = page.locator('nav.area-nav');
+  await expect(appNav.locator('a')).toHaveCount(2);
+  if(await page.getByRole('navigation',{name:'Quick navigation'}).isVisible())await expect(appNav).not.toBeVisible();else await expect(appNav.getByRole('link', { name: 'Placement Stats', exact: true })).toBeVisible();
   await expect(appNav.getByRole('link', { name: /Alumni Contacts|My Contributions/ })).toHaveCount(0);
   await page.goto('/#2025/company/google');
   await expect(page.getByRole('heading', { name: 'Selected candidates', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Alumni contacts', exact: true })).toBeVisible();
   await expect(page.locator('.announcement-block').first()).toBeVisible();
-  await page.getByRole('link', { name: 'My Account', exact: true }).click();
+  if(await page.getByRole('navigation',{name:'Quick navigation'}).isVisible())await page.getByRole('navigation',{name:'Quick navigation'}).getByRole('link',{name:'Account',exact:true}).click();else await page.getByRole('link', { name: 'My Account', exact: true }).click();
   await expect(page).toHaveURL(/#account$/);
   await expect(page.getByRole('heading', { name: 'My Account', exact: true })).toBeVisible();
   await expect(page.locator('.account-details')).toContainText('Test Student');
@@ -59,9 +59,9 @@ test('main navigation has two areas, company stats own contacts, and account own
   await page.goto('/#contributions');
   await expect(page).toHaveURL(/#procedures\/contributions$/);
   await page.goto('/#alumni');
-  await expect(page).toHaveURL(/#statistics$/);
-  await expect(page.getByRole('heading', { name: 'Placement Stats', exact: true })).toBeVisible();
-  await page.getByRole('link', { name: 'My Account', exact: true }).click();
+  await expect(page).toHaveURL(/#2025\/overview$/);
+  await expect(page.getByRole('heading', { name: /KJSCE '25/ })).toBeVisible();
+  if(await page.getByRole('navigation',{name:'Quick navigation'}).isVisible())await page.getByRole('navigation',{name:'Quick navigation'}).getByRole('link',{name:'Account',exact:true}).click();else await page.getByRole('link', { name: 'My Account', exact: true }).click();
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
   await expect(page.getByRole('heading', { name: /Your placement prep/ })).toBeVisible();
   await page.goto('/#companies');

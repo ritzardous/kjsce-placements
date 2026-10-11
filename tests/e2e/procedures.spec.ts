@@ -15,7 +15,7 @@ test('a stalled draft save never blocks navigation and unsaved writing can be re
   await page.route('**/saveProcedureDraft', async route => { await new Promise(resolve => setTimeout(resolve, 5000)); await route.abort(); });
   await page.getByLabel('Your experience', { exact: true }).fill('My unsaved interview experience should survive navigation when the community backend is slow.');
   await saving;
-  await page.getByRole('link', { name: 'My Account', exact: true }).click();
+  if(await page.getByRole('navigation',{name:'Quick navigation'}).isVisible())await page.getByRole('navigation',{name:'Quick navigation'}).getByRole('link',{name:'Account',exact:true}).click();else await page.getByRole('link', { name: 'My Account', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'My Account', exact: true })).toBeVisible({ timeout: 3000 });
   await page.getByRole('link', { name: 'Share an experience', exact: false }).click();
   await expect(page.getByLabel('Your experience', { exact: true })).toHaveValue('My unsaved interview experience should survive navigation when the community backend is slow.');

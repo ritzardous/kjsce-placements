@@ -50,16 +50,17 @@ for(const width of [320,390,430]) {
       await page.goto(`/#2026/${section}`);
       await expect(page.locator('#main .hero, #main .detail-head, #main .section').first()).toBeVisible();
       await fits(page);
-      await expect(page.getByRole('combobox',{name:'Placement year'})).toHaveCSS('font-size','16px');
+      await expect(page.getByRole('combobox',{name:'Placement year'})).toHaveCount(0);await expect(page.getByRole('navigation',{name:'App',exact:true})).not.toBeVisible();
       if(width===390&&section==='overview')await page.screenshot({path:'artifacts/mobile-statistics-refined.png',fullPage:false});
     }
-    const menu=page.locator('.dashboard-mobile-menu');
-    await menu.locator('summary').click();
-    await expect(menu.getByRole('link')).toHaveCount(6);
-    for(const link of await menu.getByRole('link').all())expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-    await menu.getByRole('link',{name:'Insights',exact:true}).click();
-    await expect(page).toHaveURL(/#insights$/);
-    await expect(menu).not.toHaveAttribute('open');
+    await quick.getByRole('button',{name:'Statistics',exact:true}).click();
+    const menu=page.getByRole('dialog');
+    await expect(menu.getByRole('navigation',{name:'Statistics sections'}).getByRole('link')).toHaveCount(4);
+    for(const link of await menu.getByRole('navigation',{name:'Statistics sections'}).getByRole('link').all())expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await menu.getByRole('link',{name:'Career explorer',exact:true}).click();
+    await page.getByRole('navigation',{name:'Career explorer views'}).getByRole('link',{name:'Insights',exact:true}).click();
+    await expect(page).toHaveURL(/#explore\/insights$/);
+    await expect(menu).not.toBeVisible();
     await fits(page);
     const uid=await page.evaluate(`(async()=>{const {getFirebase}=await import('/src/firebase.ts');return getFirebase().auth.currentUser.uid;})()`);
     const response=await fetch('http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:update?key=demo-api-key', {method:'POST',headers:{Authorization:'Bearer owner','Content-Type':'application/json'},body:JSON.stringify({localId:uid,customAttributes:JSON.stringify({role:'admin'})})});

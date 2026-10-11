@@ -26,6 +26,7 @@ export async function saveDraft(db: Firestore, actorValue: Actor | undefined, va
   return db.runTransaction(async tx => {
     const ref = db.doc(`procedureSubmissions/${input.id}`), snap = await tx.get(ref), old = snap.data();
     if (old && old.ownerUid !== actor.uid) throw new HttpsError('permission-denied', 'This draft belongs to another contributor.');
+    requireCondition(!old?.deleted, 'This experience was deleted. Start a new experience instead.');
     requireCondition((old?.draftVersion ?? 0) === input.expectedVersion, 'This draft changed in another tab. Reload before editing.');
     requireCondition(old?.status !== 'pending', 'This revision is awaiting review.');
     const stampLimit = await limit(db, tx, actor, 'draft', 300);
@@ -42,6 +43,7 @@ export async function submit(db: Firestore, actorValue: Actor | undefined, value
   return db.runTransaction(async tx => {
     const ref = db.doc(`procedureSubmissions/${input.id}`), snap = await tx.get(ref), old = snap.data();
     if (!old || old.ownerUid !== actor.uid) throw new HttpsError('permission-denied', 'Draft not available.');
+    requireCondition(!old.deleted, 'This experience was deleted. Start a new experience instead.');
     requireCondition(old.draftVersion === input.expectedVersion, 'Draft changed. Reload and try again.');
     if (old.status === 'pending') return { revision: old.revision }; // Safe retry after a lost response.
     const draft = parse(submissionSchema, old.draft), company = await tx.get(db.doc(`procedureCompanies/${draft.companyKey}`));
@@ -110,4 +112,41 @@ export async function vote(db: Firestore, actorValue: Actor | undefined, value: 
     stampLimit();
     return { value: after };
   });
+}
+
+export async function manageSubmission(db: Firestore, actorValue: Actor | undefined, value: unknown) {
+  const actor=authorize(actorValue),input=parse(z.object({id:idSchema,expectedVersion:versionSchema,action:z.enum(['withdraw','hide','delete'])}).strict(),value);
+  const ref=db.doc(`procedureSubmissions/${input.id}`),postRef=db.doc(`procedurePosts/${input.id}`);
+  const result=await db.runTransaction(async tx=>{
+    const snap=await tx.get(ref),old=snap.data();
+    if(!old||old.ownerUid!==actor.uid)throw new HttpsError('permission-denied','You can only manage your own experiences.');
+    if(old.deleted){requireCondition(input.action==='delete','This experience has already been deleted.');return {deleted:true};}
+    requireCondition(old.draftVersion===input.expectedVersion,'Your experience changed. Refresh contributions before trying again.');
+    const post=await tx.get(postRef),now=Date.now();
+    if(input.action==='delete'){
+      // Retain an empty ownership/version marker so autosave in an old tab cannot recreate deleted writing.
+      tx.set(ref,{ownerUid:actor.uid,draftVersion:old.draftVersion+1,revision:old.revision,deleted:true,updatedAt:now});
+      tx.delete(postRef);
+      return {deleted:true};
+    }
+    if(input.action==='withdraw'){
+      requireCondition(old.status==='pending','Only a pending submission can be withdrawn. Refresh contributions.');
+      tx.update(ref,{status:'draft',draftVersion:old.draftVersion+1,updatedAt:now});
+    }else{
+      requireCondition(post.exists&&post.data()!.published,'This experience is already offline. Refresh contributions.');
+      tx.update(postRef,{published:false});
+      tx.update(ref,{hasPublished:false,...(old.status==='pending'?{status:'draft'}:{}),draftVersion:old.draftVersion+1,updatedAt:now});
+    }
+    tx.create(db.collection('procedureModeration').doc(),{submissionId:input.id,ownerUid:actor.uid,actorUid:actor.uid,revision:old.revision,action:input.action==='withdraw'?'withdrawn':'unpublished_by_author',createdAt:now});
+    return {deleted:false};
+  });
+  if(input.action==='delete'){
+    // Cleanup is retryable after a lost response; the transaction already removed public access.
+    await db.recursiveDelete(ref.collection('revisions'));
+    await db.recursiveDelete(postRef);
+    for(const collection of ['procedureQuestions','procedureReports']){
+      for(;;){const rows=await db.collection(collection).where('postId','==',input.id).limit(400).get();if(rows.empty)break;const batch=db.batch();rows.docs.forEach(row=>batch.delete(row.ref));await batch.commit();}
+    }
+  }
+  return result;
 }

@@ -9,6 +9,7 @@ export type Question = { id: string; postId: string; body: string; authorUid: st
 export type Report = { id: string; postId: string; questionId?: string; target: 'post' | 'question' | 'answer'; companyName: string; reason: string; details: string; content?: string; updatedAt: number; createdAt: number };
 export function community<T>(action: string, payload: unknown = {}) { return callProcedure<T>('procedureCommunity', { action, payload }); }
 const cache = new Map<string, Page<unknown> & { scroll: number }>();
+export function invalidatePages(action:string) { for(const key of cache.keys()) if(key.includes(`:${action}:`)) cache.delete(key); }
 function rememberPage(key:string, value:Page<unknown> & {scroll:number}) {
   cache.delete(key);cache.set(key,value);
   while(cache.size>40)cache.delete(cache.keys().next().value!);

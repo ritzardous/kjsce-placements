@@ -27,7 +27,7 @@ export function watchContributions(uid: string, callback: (rows: ProcedureSubmis
   const stop = onSnapshot(query(collection(getFirebase().db, 'procedureSubmissions'), where('ownerUid', '==', uid), orderBy('updatedAt', 'desc'), limit(100)), s => { clearTimeout(timer); callback(s.docs.map(d => ({ ...d.data(), id: d.id }) as ProcedureSubmission)); }, cause => { clearTimeout(timer); error(cause); });
   return () => { clearTimeout(timer); stop(); };
 }
-export async function getSubmission(id: string): Promise<ProcedureSubmission | null> { const d = await withTimeout(getDoc(doc(getFirebase().db, 'procedureSubmissions', id))); return d.exists() ? { ...d.data(), id: d.id } as ProcedureSubmission : null; }
+export async function getSubmission(id: string): Promise<ProcedureSubmission | null> { const d = await withTimeout(getDoc(doc(getFirebase().db, 'procedureSubmissions', id))); return d.exists() && !d.data().deleted ? { ...d.data(), id: d.id } as ProcedureSubmission : null; }
 export async function saveProcedure(id: string, expectedVersion: number, draft: ProcedureDraft) { return callProcedure<{ version: number }>('saveProcedureDraft', { id, expectedVersion, draft }); }
 export type PostFilters = { company: string; year: string; coverage: string; outcome: string; sort: string };
 export const defaultPostFilters: PostFilters = { company: '', year: '', coverage: '', outcome: '', sort: 'newest' };

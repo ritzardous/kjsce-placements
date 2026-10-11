@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { initializeApp, deleteApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { authorize, saveDraft, submit, review, vote, unpublish, type Actor } from '../../functions/src/service.js';
+import { authorize, saveDraft, submit, review, vote, unpublish, manageSubmission, type Actor } from '../../functions/src/service.js';
+import { community } from '../../functions/src/community.js';
 import { initialProcedureDraft } from '../../shared/procedures.js';
 
 const app = initializeApp({ projectId: 'demo-placementstats' }, 'procedure-tests');
@@ -117,4 +118,76 @@ test('custom attribution is validated and approval publishes the chosen name wit
     assert.equal(post.email,undefined);
     assert.equal((await db.doc(`procedurePreferences/${actor.uid}`).get()).data()!.customName,'Campus Mentor');
   }
+});
+
+
+test('owners can withdraw, unpublish and permanently delete; stale edits and other users cannot undo deletion',async()=>{
+ const {actor,id,draft}=await fixture();
+ await assert.rejects(manageSubmission(db,contributor(),{id,expectedVersion:1,action:'delete'}));
+ await assert.rejects(manageSubmission(db,actor,{id,expectedVersion:0,action:'delete'}));
+ await manageSubmission(db,actor,{id,expectedVersion:1,action:'withdraw'});
+ assert.equal((await db.doc(`procedureSubmissions/${id}`).get()).data()!.status,'draft');
+ await assert.rejects(review(db,admin,{id,revision:1,decision:'approved',feedback:''}));
+ await db.doc(`procedureLimits/${actor.uid}-draft`).delete();
+ await saveDraft(db,actor,{id,expectedVersion:2,draft});
+ await db.doc(`procedureLimits/${actor.uid}-submit`).delete();
+ await submit(db,actor,{id,expectedVersion:3});
+ await review(db,admin,{id,revision:2,decision:'approved',feedback:''});
+ await manageSubmission(db,actor,{id,expectedVersion:3,action:'hide'});
+ assert.equal((await db.doc(`procedurePosts/${id}`).get()).data()!.published,false);
+ assert.equal((await db.doc(`procedureSubmissions/${id}`).get()).data()!.hasPublished,false);
+ await db.doc(`procedurePosts/${id}/votes/test`).set({value:1});
+ await db.doc(`procedureQuestions/delete-${id}`).set({postId:id,body:'A discussion'});
+ await db.doc(`procedureReports/delete-${id}`).set({postId:id,content:'A copied experience'});
+ await manageSubmission(db,actor,{id,expectedVersion:4,action:'delete'});
+ assert.equal((await db.doc(`procedurePosts/${id}`).get()).exists,false);
+ assert.equal((await db.doc(`procedurePosts/${id}/votes/test`).get()).exists,false);
+ assert.equal((await db.doc(`procedureSubmissions/${id}`).get()).data()!.draft,undefined);
+ assert.equal((await db.collection(`procedureSubmissions/${id}/revisions`).get()).size,0);
+ assert.equal((await db.doc(`procedureQuestions/delete-${id}`).get()).exists,false);
+ assert.equal((await db.doc(`procedureReports/delete-${id}`).get()).exists,false);
+ await assert.rejects(saveDraft(db,actor,{id,expectedVersion:5,draft}));
+ await assert.rejects(review(db,admin,{id,revision:2,decision:'approved',feedback:''}));
+ await manageSubmission(db,actor,{id,expectedVersion:4,action:'delete'});
+});
+
+
+test('deleting a published experience removes it from the account and prevents further interactions',async()=>{
+ const {actor,id}=await fixture();
+ await review(db,admin,{id,revision:1,decision:'approved',feedback:''});
+ await assert.rejects(manageSubmission(db,admin,{id,expectedVersion:1,action:'delete'}));
+ await manageSubmission(db,actor,{id,expectedVersion:1,action:'delete'});
+ assert.equal((await db.doc(`procedurePosts/${id}`).get()).exists,false);
+ const result=await community(db,actor,{action:'contributions',payload:{}}) as {rows:{id:string}[]};
+ assert.equal(result.rows.some(row=>row.id===id),false);
+ const impact=await community(db,actor,{action:'impact',payload:{}}) as {total:number;published:number};
+ assert.equal(impact.total,0);assert.equal(impact.published,0);
+ await assert.rejects(community(db,contributor(),{action:'ask',payload:{postId:id,body:'What coding topics should I practise?'}}));
+ await assert.rejects(community(db,contributor(),{action:'report',payload:{postId:id,target:'post',reason:'outdated',details:''}}));
+});
+
+test('deleting a pending experience wins against a concurrent admin approval',async()=>{
+ const {actor,id}=await fixture();
+ const results=await Promise.allSettled([
+  review(db,admin,{id,revision:1,decision:'approved',feedback:''}),
+  manageSubmission(db,actor,{id,expectedVersion:1,action:'delete'})
+ ]);
+ assert.equal(results[1].status,'fulfilled');
+ assert.equal((await db.doc(`procedurePosts/${id}`).get()).exists,false);
+ assert.equal((await db.doc(`procedureSubmissions/${id}`).get()).data()!.deleted,true);
+ assert.equal((await db.collection(`procedureSubmissions/${id}/revisions`).get()).size,0);
+});
+
+
+test('unpublishing also withdraws a pending revision so an admin cannot put it back online',async()=>{
+ const {actor,id,draft}=await fixture();
+ await review(db,admin,{id,revision:1,decision:'approved',feedback:''});
+ await db.doc(`procedureLimits/${actor.uid}-draft`).delete();
+ await saveDraft(db,actor,{id,expectedVersion:1,draft});
+ await db.doc(`procedureLimits/${actor.uid}-submit`).delete();
+ await submit(db,actor,{id,expectedVersion:2});
+ await manageSubmission(db,actor,{id,expectedVersion:2,action:'hide'});
+ assert.equal((await db.doc(`procedureSubmissions/${id}`).get()).data()!.status,'draft');
+ await assert.rejects(review(db,admin,{id,revision:2,decision:'approved',feedback:''}));
+ assert.equal((await db.doc(`procedurePosts/${id}`).get()).data()!.published,false);
 });
