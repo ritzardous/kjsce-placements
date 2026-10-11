@@ -32,14 +32,16 @@ export function RankedBars({ rows, unit = 'sel.', format }: { rows: Rank[]; unit
 }
 const colors = ['#1B4CFF', '#0F0F12', '#8FA6FF', '#68665F', '#C9D2FF', '#B0AEA6', '#4C6BFF', '#D8D6CE'];
 export function Donut({ rows, label }: { rows: Rank[]; label: string }) {
+  const [selected,setSelected]=useState<number|null>(null),[hovered,setHovered]=useState<number|null>(null);
+  const active=hovered??selected;
   const total = rows.reduce((n, r) => n + r.value, 0);
   let offset = 0;
   if (!total) return <Empty title="No data available" />;
-  return <div className="react-donut"><svg viewBox="0 0 200 200" role="img" aria-label={label}><title>{label}</title>{rows.map((r, i) => {
+  return <><div className="react-donut"><svg viewBox="0 0 200 200" role="img" aria-label={label}><title>{label}</title>{rows.map((r, i) => {
     const length = r.value / total * 100;
     const start = offset; offset += length;
-    return <circle key={r.label} cx="100" cy="100" r="72" fill="none" stroke={colors[i % colors.length]} strokeWidth="26" pathLength="100" strokeDasharray={`${length} ${100 - length}`} strokeDashoffset={-start} transform="rotate(-90 100 100)"><title>{r.label}: {r.value}</title></circle>;
-  })}<text x="100" y="100" textAnchor="middle" dominantBaseline="middle" className="donut-total">{total}</text></svg><div className="react-legend">{rows.map((r, i) => <div key={r.label}><span className="legend-swatch" style={{ background: colors[i % colors.length] }} /><span>{r.label}</span><span className="mono">{r.value} · {(r.value / total * 100).toFixed(1)}%</span></div>)}</div></div>;
+    return <circle className={`chart-segment ${active===i?'is-active':active!==null?'is-muted':''}`} onMouseEnter={()=>setHovered(i)} onMouseLeave={()=>setHovered(null)} onClick={()=>setSelected(selected===i?null:i)} key={r.label} cx="100" cy="100" r="72" fill="none" stroke={colors[i % colors.length]} strokeWidth="26" pathLength="100" strokeDasharray={`${length} ${100 - length}`} strokeDashoffset={-start} transform="rotate(-90 100 100)"><title>{r.label}: {r.value}</title></circle>;
+  })}<text x="100" y="100" textAnchor="middle" dominantBaseline="middle" className="donut-total">{total}</text></svg><div className="react-legend">{rows.map((r, i) => <div key={r.label}><button type="button" className="chart-legend-button" aria-pressed={selected===i} onFocus={()=>setHovered(i)} onBlur={()=>setHovered(null)} onClick={()=>setSelected(selected===i?null:i)}><span className="legend-swatch" style={{ background: colors[i % colors.length] }} /><span>{r.label}</span><span className="mono">{r.value} · {(r.value / total * 100).toFixed(1)}%</span></button></div>)}</div></div><div className="chart-description chart-readout" role="status">{active!==null&&rows[active]?`${rows[active].label}: ${rows[active].value} (${(rows[active].value/total*100).toFixed(1)}%)`:'Choose a category to see its share.'}</div></>;
 }
 function useChartWidth() {
   const ref = useRef<HTMLDivElement>(null);
@@ -53,14 +55,15 @@ function useChartWidth() {
 }
 export function ColumnChart({ rows, label }: { rows: Rank[]; label: string }) {
   const { ref, width } = useChartWidth();
+  const [active,setActive]=useState<number|null>(null);
   const height = 215, baseline = 165, left = 25;
   const max = Math.max(1, ...rows.map(r => r.value));
   const step = (width - 2 * left) / Math.max(1, rows.length);
-  return <div className="col-chart-wrap" ref={ref}><svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label}><title>{label}</title>{rows.map((r, i) => {
+  return <div className="col-chart-wrap" ref={ref}><svg viewBox={`0 0 ${width} ${height}`} role="group" aria-label={label}><title>{label}</title>{rows.map((r, i) => {
     const barHeight = r.value / max * 135;
     const x = left + i * step;
-    return <g key={r.label}><rect x={x + step * .15} y={baseline - barHeight} width={step * .7} height={barHeight} fill="var(--accent)"><title>{r.label}: {r.value}</title></rect><text x={x + step / 2} y={baseline - barHeight - 6} textAnchor="middle" className="chart-label">{r.value}</text>{(step > 43 || i % 2 === 0 || i === rows.length - 1) && <text x={x + step / 2} y="187" textAnchor="middle" className="chart-label">{r.label}</text>}</g>;
-  })}</svg></div>;
+    return <g className={`chart-column ${active===i?'is-active':''}`} key={r.label} tabIndex={0} role="button" aria-label={`${r.label}: ${r.value}`} aria-pressed={active===i} onFocus={()=>setActive(i)} onMouseEnter={()=>setActive(i)} onClick={()=>setActive(i)} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();setActive(i);}if(event.key==='Escape')setActive(null);}}><rect className="chart-hit-target" x={x} y={15} width={step} height={175} fill="transparent"/><rect className="chart-bar" x={x + step * .15} y={baseline - barHeight} width={step * .7} height={barHeight} fill="var(--accent)"><title>{r.label}: {r.value}</title></rect><text x={x + step / 2} y={baseline - barHeight - 6} textAnchor="middle" className="chart-label">{r.value}</text>{(step > 43 || i % 2 === 0 || i === rows.length - 1) && <text x={x + step / 2} y="187" textAnchor="middle" className="chart-label">{r.label}</text>}</g>;
+  })}</svg><div className="chart-description chart-readout" role="status">{active!==null&&rows[active]?`${rows[active].label}: ${rows[active].value}`:'Choose a bar to see its value.'}</div></div>;
 }
 export interface TimelinePoint { id: string; date: string; value: number; company: string; companyKey: string; hired: number; }
 export function LineChart({ points, label }: { points: TimelinePoint[]; label: string }) {
@@ -76,7 +79,7 @@ export function LineChart({ points, label }: { points: TimelinePoint[]; label: s
   const months = points.flatMap((p, i) => !i || p.date.slice(0, 7) !== points[i - 1].date.slice(0, 7) ? [{ i, label: date(p.date).slice(3) + ' ' + p.date.slice(2, 4) }] : []);
   let lastTick = -100;
   return <div className="timeline-chart-wrap" ref={ref}>
-    {!points.length ? <Empty title="No timeline data" /> : <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={label}><title>{label}</title>{[0, 1, 2, 3, 4].map(i => <g key={i}><line x1={left} x2={right} y1={y(max * i / 4)} y2={y(max * i / 4)} stroke="var(--line-faint)" /><text x={left - 8} y={y(max * i / 4) + 3} textAnchor="end" className="chart-label">{Math.round(max * i / 4)}</text></g>)}<path d={`${path} L ${x(points.length - 1)} ${bottom} L ${x(0)} ${bottom} Z`} fill="var(--accent-dim)" /><path d={path} stroke="var(--accent)" strokeWidth="2" fill="none" />{points.map((p, i) => <a href={companyHref(p.companyKey)} key={p.id} onFocus={() => setActive(p)} onBlur={() => setActive(null)} onMouseEnter={() => setActive(p)} onMouseLeave={() => setActive(null)} aria-label={`${p.company}, ${date(p.date, true)}, ${p.value}`}><circle cx={x(i)} cy={y(p.value)} r="4" fill="var(--accent)" stroke="white"><title>{p.company} · {date(p.date, true)} · {p.value}</title></circle></a>)}{months.map(t => {
+    {!points.length ? <Empty title="No timeline data" /> : <svg viewBox={`0 0 ${width} ${height}`} role="group" aria-label={label}><title>{label}</title>{[0, 1, 2, 3, 4].map(i => <g key={i}><line x1={left} x2={right} y1={y(max * i / 4)} y2={y(max * i / 4)} stroke="var(--line-faint)" /><text x={left - 8} y={y(max * i / 4) + 3} textAnchor="end" className="chart-label">{Math.round(max * i / 4)}</text></g>)}<path d={`${path} L ${x(points.length - 1)} ${bottom} L ${x(0)} ${bottom} Z`} fill="var(--accent-dim)" /><path d={path} stroke="var(--accent)" strokeWidth="2" fill="none" />{points.map((p, i) => <a href={companyHref(p.companyKey)} key={p.id} onFocus={() => setActive(p)} onBlur={() => setActive(null)} onMouseEnter={() => setActive(p)} onMouseLeave={() => setActive(null)} aria-label={`${p.company}, ${date(p.date, true)}, ${p.value}`}><circle className="chart-hit-target" cx={x(i)} cy={y(p.value)} r="12" fill="transparent"/><circle className="timeline-point" cx={x(i)} cy={y(p.value)} r="4" fill="var(--accent)" stroke="white"><title>{p.company} · {date(p.date, true)} · {p.value}</title></circle></a>)}{months.map(t => {
       const tickX = x(t.i); if (tickX - lastTick < (width < 480 ? 65 : 72)) return null; lastTick = tickX;
       return <text key={t.i} x={tickX} y="274" textAnchor="middle" className="chart-label">{t.label}</text>;
     })}</svg>}

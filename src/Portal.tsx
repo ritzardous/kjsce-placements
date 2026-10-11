@@ -1,3 +1,4 @@
+import {AppUtilities} from './AppUtilities';
 import { ProfileAvatar } from './ProfileAvatar';
 import { type ReactNode } from 'react';
 import AuthControls from './AuthControls';
@@ -21,7 +22,7 @@ export function AppHeader({active}:{active:string}) {
 }
 function PortalFooter() { return <footer className="portal-footer"><span>Built by students. Grounded in sources.</span><span>Made with ♥ by Ritzardous</span></footer>; }
 export function PortalShell({ active, children }: { active: string; children: ReactNode }) {
-  return <div className="portal-shell" data-app-page={active}><a className="skip-link" href="#portal-main" onClick={event => { event.preventDefault(); document.getElementById('portal-main')?.focus(); }}>Skip to content</a><AppHeader active={active}/><main className="portal-main" id="portal-main" tabIndex={-1}>{children}</main><PortalFooter /><MobileAppNav active={active}/></div>;
+  return <div className="portal-shell" data-app-page={active}><a className="skip-link" href="#portal-main" onClick={event => { event.preventDefault(); document.getElementById('portal-main')?.focus(); }}>Skip to content</a><AppHeader active={active}/><main className="portal-main" id="portal-main" tabIndex={-1}>{children}</main><PortalFooter /><MobileAppNav active={active}/><AppUtilities/></div>;
 }
 export function Landing() {
   const { error } = useAuth();

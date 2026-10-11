@@ -1,5 +1,5 @@
 import { roundOptions } from '../shared/procedures';
-import { AppIcon } from './AppIcon';
+import {type IconName, AppIcon } from './AppIcon';
 import { useId, useRef, useState, type ReactNode } from 'react';
 import { useAuth } from './auth';
 import { safeStored } from './community-api';
@@ -11,12 +11,12 @@ export function BackToExperiences({ children = '← Back to experiences' }: { ch
 }
 
 // Native dialog supplies focus containment, Escape and focus restoration without a new visual system.
-export function ConfirmAction({ label, title, description, confirmLabel, onConfirm, disabled = false, tone = 'danger' }: {
+export function ConfirmAction({ label, title, description, confirmLabel, onConfirm, disabled = false, tone = 'danger', icon }: {
   label: string; title: string; description: string; confirmLabel: string;
-  onConfirm: () => void; disabled?: boolean; tone?: 'danger' | 'warning';
+  onConfirm: () => void; disabled?: boolean; tone?: 'danger' | 'warning'; icon?:IconName;
 }) {
   const dialog = useRef<HTMLDialogElement>(null), heading = useId();
-  return <><button className={`control-${tone}`} type="button" disabled={disabled} onClick={() => dialog.current?.showModal()}>{label}</button>
+  return <><button className={`control-${tone}`} type="button" disabled={disabled} onClick={() => dialog.current?.showModal()}><AppIcon name={icon|| (tone==='danger'?'trash':'back')}/>{label}</button>
     <dialog className="procedure-card procedure-confirmation" ref={dialog} aria-labelledby={heading}>
       <h2 id={heading}>{title}</h2><p>{description}</p>
       <div className="procedure-actions"><button type="button" autoFocus onClick={() => dialog.current?.close()}>Cancel</button>
