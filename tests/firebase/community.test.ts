@@ -40,20 +40,11 @@ test('structured discovery, remembered preferences, private bookmarks and notifi
   assert.equal((await call(reader,'saved')).rows[0].available,false);await assert.rejects(call(other,'bookmark',{postId:id,saved:true}));
   await call(reader,'bookmark',{postId:id,saved:false});assert.equal((await call(reader,'saved')).rows.length,0);
 });
-test('questions and replies stay private until moderation; reports never automatically hide content',async()=>{
+test('removed questions reject old clients; reports require an explicit admin decision',async()=>{
   const {owner,id}=await publishedFixture(),reader=actor(),other=actor();
-  const asked=await call(reader,'ask',{postId:id,body:'How many coding questions were in this round?'});
-  assert.equal((await call(other,'questions',{postId:id})).rows.length,0);
-  let question=(await call(reader,'questions',{postId:id})).rows[0];assert.equal(question.status,'pending');
-  await assert.rejects(call(reader,'moderateQuestion',{id:asked.id,target:'question',decision:'visible',reason:'Fine',updatedAt:question.updatedAt}));
-  await call(admin,'moderateQuestion',{id:asked.id,target:'question',decision:'visible',reason:'Relevant question',updatedAt:question.updatedAt});
-  await assert.rejects(call(admin,'moderateQuestion',{id:asked.id,target:'question',decision:'hidden',reason:'Stale decision',updatedAt:question.updatedAt}));
-  await assert.rejects(call(other,'answer',{questionId:asked.id,body:'A forged answer'}));
-  await call(owner,'answer',{questionId:asked.id,body:'There were two coding questions in my attempt.'});
-  assert.equal((await call(reader,'questions',{postId:id})).rows[0].answer,null);
-  question=(await call(owner,'questions',{postId:id})).rows[0];assert.equal(question.answer.status,'pending');
-  await call(admin,'moderateQuestion',{id:asked.id,target:'answer',decision:'visible',reason:'Firsthand answer',updatedAt:question.updatedAt});
-  assert.match((await call(reader,'questions',{postId:id})).rows[0].answer.body,/two coding/);
+  await assert.rejects(call(reader,'ask',{postId:id,body:'How many coding questions were in this round?'}),{code:'failed-precondition'});
+  await assert.rejects(call(owner,'answer',{questionId:randomUUID(),body:'A previously supported reply.'}),{code:'failed-precondition'});
+  assert.equal((await db.collection('procedureQuestions').where('postId','==',id).get()).size,0);
   await call(reader,'report',{postId:id,target:'post',reason:'outdated',details:'Drive format changed.'});
   assert.equal((await db.doc(`procedurePosts/${id}`).get()).data()!.published,true);
   await assert.rejects(call(reader,'moderationInbox',{kind:'reports'}));

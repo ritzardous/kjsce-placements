@@ -1,0 +1,375 @@
+/* The authenticated archive: paper, ink, geometry and tactile controls.
+   Deliberately scoped so the public landing keeps its existing design. */
+:is(#app,.portal-shell,.login-page,.mobile-statistics-sheet) {
+ --bg:#f7f8fa; --surface:#fff; --ink:#151515; --ink-soft:#515766; --ink-faint:#626978;
+ --line:#151515; --line-soft:#9aa2b0; --line-faint:#dce0e7;
+ --accent:#2445eb; --accent-ink:#fff; --accent-soft:#eef0ff; --accent-dim:#d7ddff;
+ --ui-success:#235228; --ui-success-bg:#dcf5c0; --ui-warning:#68440b; --ui-warning-bg:#ffeab1;
+ --ui-danger:#922b24; --ui-danger-bg:#ffe0d9; --warn:#8b3918;
+ --neo-lime:#eef1ff; --neo-yellow:#eef1ff; --neo-shadow:#151515;
+ color:var(--ink); background:var(--bg); color-scheme:light;
+}
+[data-theme=dark] :is(#app,.portal-shell,.mobile-statistics-sheet) {
+ --bg:#080808; --surface:#141414; --ink:#f5f5f5; --ink-soft:#b9b9b9; --ink-faint:#a2a2a2;
+ --line:#dedede; --line-soft:#797979; --line-faint:#383838;
+ --accent:#f5f5f5; --accent-ink:#080808; --accent-soft:#282828; --accent-dim:#424242;
+ --ui-success:#f5f5f5; --ui-success-bg:#252525; --ui-warning:#eee; --ui-warning-bg:#303030;
+ --ui-danger:#fff; --ui-danger-bg:#252525; --warn:#ddd;
+ --neo-lime:#dedede; --neo-yellow:#c9c9c9; --neo-shadow:#6b6b6b; color-scheme:dark;
+}
+body:has(:is(#app,.portal-shell,.login-page)) { background:#f7f8fa; }
+[data-theme=dark] body:has(:is(#app,.portal-shell)) { background:#080808; }
+:is(#app,.portal-shell,.login-page) { font-size:15px; }
+:is(#app,.portal-shell,.login-page) :is(h1,h2,h3) { font-family:var(--font-display); font-weight:700; letter-spacing:-.035em; }
+:is(#app,.portal-shell) :is(.portal-welcome,.procedure-intro,.hero) h1 { font-size:clamp(34px,4.6vw,60px); line-height:1.06; max-width:22ch; margin:16px 0 20px; }
+:is(#app,.portal-shell) :is(.portal-welcome,.procedure-intro) { margin-bottom:32px; }
+:is(#app,.portal-shell) .eyebrow { display:inline-block; font-weight:700; color:var(--ink); font-size:11px; letter-spacing:.12em; }
+:is(#app,.portal-shell) :is(.portal-welcome,.procedure-intro,.hero) .eyebrow { padding:7px 10px; border:1px solid var(--line); background:var(--neo-yellow); box-shadow:2px 2px 0 var(--neo-shadow); }
+:is(#app,.portal-shell) .app-header { border-bottom:2px solid var(--line); background:var(--surface); }
+:is(#app,.portal-shell) .app-header-inner { border-bottom:1px solid var(--line-faint); }
+:is(#app,.portal-shell) .brand { align-items:center; }
+:is(#app,.portal-shell) .brand-mark { color:var(--surface); background:var(--ink); padding:7px 10px; font-size:16px; border:2px solid var(--ink); }
+:is(#app,.portal-shell) .brand-name { font-weight:700; }
+:is(#app,.portal-shell) .batch-back { color:var(--ink-soft); }
+:is(#app,.portal-shell) .area-switcher { border:2px solid var(--line); border-radius:0; padding:4px; gap:4px; background:var(--bg); box-shadow:3px 3px 0 var(--neo-shadow); }
+:is(#app,.portal-shell) .area-switcher a { border-radius:0; border:1px solid transparent; font-weight:700; padding:12px 18px; color:var(--ink-soft); }
+:is(#app,.portal-shell) .area-switcher a[aria-current=page] { background:var(--ink); color:var(--surface); border-color:var(--ink); box-shadow:none; }
+:is(#app,.portal-shell) :is(button,.action-button,.auth-button,.chip,.filter,.procedure-actions>a,.procedure-utilities>a,.account-content-shortcuts>a,.year-card,.branch-chip,.role-chip,.footer-source-btn) {
+ border-radius:0; transition:transform 120ms ease,box-shadow 120ms ease,background-color 120ms ease,color 120ms ease,border-color 120ms ease;
+}
+:is(#app,.portal-shell,.login-page,.mobile-statistics-sheet) button {
+ border:2px solid var(--line); background:var(--surface); color:var(--ink); min-height:44px;
+ padding:10px 14px; font:600 14px/1.4 var(--font-body); border-radius:0; box-shadow:2px 2px 0 var(--neo-shadow);
+}
+:is(#app,.portal-shell) :is(.action-button,.contribution-primary-action) {
+ background:var(--accent); border:2px solid var(--line); color:var(--accent-ink); border-radius:0;
+ box-shadow:3px 3px 0 var(--neo-shadow); font-weight:700;
+}
+:is(#app,.portal-shell) .procedure-ui button.action-button { background:var(--accent); color:var(--accent-ink); border-color:var(--line); }
+:is(#app,.portal-shell) .auth-button { background:var(--surface); color:var(--ink); border:2px solid var(--line); box-shadow:2px 2px 0 var(--neo-shadow); }
+:is(#app,.portal-shell) :is(button,.chip,.branch-chip,.role-chip)[aria-pressed=true], #app :is(.chip,.branch-chip,.role-chip).active {
+ background:var(--ink); color:var(--surface); border-color:var(--ink); box-shadow:2px 2px 0 var(--neo-shadow);
+}
+:is(#app,.portal-shell) button:disabled { opacity:.5; box-shadow:none; transform:none; cursor:not-allowed; }
+:is(#app,.portal-shell,.login-page,.mobile-statistics-sheet) :is(input:not([type=checkbox]):not([type=radio]),select,textarea) {
+ border:2px solid var(--line); border-radius:0; background:var(--surface); color:var(--ink); min-height:48px;
+ font-family:var(--font-body); font-size:15px; padding:12px 14px; box-shadow:2px 2px 0 var(--neo-shadow);
+ transition:border-color 120ms,box-shadow 120ms;
+}
+:is(#app,.portal-shell) :is(input,textarea)::placeholder { color:var(--ink-soft); opacity:1; }
+:is(#app,.portal-shell) input:is([type=checkbox],[type=radio]) { accent-color:var(--accent); width:20px; height:20px; cursor:pointer; }
+:is(#app,.portal-shell) label { font-size:13px; font-weight:600; }
+:is(#app,.portal-shell,.mobile-statistics-sheet) :is(button,a,input,textarea,select,summary,[role=option]):focus-visible { outline:3px solid var(--accent); outline-offset:4px; }
+:is(#app,.portal-shell) main:focus { outline:none; }
+:is(#app,.portal-shell) :is(.procedure-tabs,.dashboard-desktop-nav,.career-explorer-tabs) { gap:8px; border-bottom:2px solid var(--line); padding-bottom:12px; }
+:is(#app,.portal-shell) :is(.procedure-tabs,.dashboard-desktop-nav,.career-explorer-tabs) a {
+ min-height:48px; border:2px solid transparent; border-radius:0; padding:12px 16px; font-weight:700;
+}
+:is(#app,.portal-shell) :is(.procedure-tabs,.dashboard-desktop-nav,.career-explorer-tabs) a:is([aria-current=page],.active) {
+ background:var(--neo-lime); color:var(--ink); border-color:var(--line); box-shadow:3px 3px 0 var(--neo-shadow);
+}
+:is(#app,.portal-shell) .procedure-navigation { align-items:center; border-bottom:2px solid var(--line); gap:16px; padding-bottom:16px; margin-bottom:28px; }
+:is(#app,.portal-shell) .procedure-navigation .procedure-tabs { border:0; padding:0; }
+:is(#app,.portal-shell) .procedure-utilities a { border:2px solid var(--line); border-radius:0; background:var(--surface); color:var(--ink); box-shadow:2px 2px 0 var(--neo-shadow); }
+:is(#app,.portal-shell) .procedure-utilities .action-button { color:var(--accent-ink); background:var(--accent); }
+:is(#app,.portal-shell) :is(.procedure-card,.procedure-discovery,.procedure-composer,.procedure-optional,.account-details,.year-card,.community-entry,.portal-empty,.procedure-confirmation,.procedure-filter-sheet,.table-wrap,.insight-card,.chart-card,.announcement-block,.chart-container,.procedure-reader-preview,.login-card) {
+ background:var(--surface); color:var(--ink); border:2px solid var(--line); border-radius:0; box-shadow:4px 4px 0 var(--neo-shadow);
+}
+:is(#app,.portal-shell) :is(.procedure-card,.procedure-discovery,.procedure-composer,.account-details) { padding:26px; }
+:is(#app,.portal-shell) .procedure-list { gap:24px; margin:28px 0; }
+:is(#app,.portal-shell) .procedure-list > section { gap:24px; }
+:is(#app,.portal-shell) .procedure-card-title { font:700 24px/1.25 var(--font-display); letter-spacing:-.025em; padding:16px 0; }
+:is(#app,.portal-shell) .procedure-card h3 { font-size:21px; line-height:1.3; }
+:is(#app,.portal-shell) .procedure-card p { color:var(--ink-soft); font-size:14px; line-height:1.75; }
+:is(#app,.portal-shell) .procedure-actions { gap:12px; margin:22px 0; }
+:is(#app,.portal-shell) .procedure-actions > a:not(.procedure-back-link) { border:2px solid var(--line); border-radius:0; padding:10px 14px; background:var(--surface); color:var(--ink); box-shadow:2px 2px 0 var(--neo-shadow); font-weight:600; }
+:is(#app,.portal-shell) .procedure-actions > a.contribution-primary-action { background:var(--accent); color:var(--accent-ink); }
+:is(#app,.portal-shell) :is(.procedure-badge,.tag,.year-status,.live-badge,.coming-label,.profile-connected) { border:1px solid var(--line); border-radius:0; font:600 11px/1.5 var(--font-mono); padding:5px 8px; }
+:is(#app,.portal-shell) :is(.status-approved,.coverage-full,.control-success) { background:var(--ui-success-bg); color:var(--ui-success); }
+:is(#app,.portal-shell) :is(.status-pending,.status-changes_requested,.coverage-partial,.control-warning) { background:var(--ui-warning-bg); color:var(--ui-warning); }
+:is(#app,.portal-shell) :is(.status-rejected,.control-danger) { background:var(--ui-danger-bg); color:var(--ui-danger); }
+:is(#app,.portal-shell) :is(.procedure-feedback,.procedure-success,.procedure-summary,.procedure-compose-intro,.coverage-notice) { border:2px solid var(--line); border-left-width:6px; border-radius:0; box-shadow:none; background:var(--accent-soft); color:var(--ink); padding:16px 20px; line-height:1.7; }
+:is(#app,.portal-shell) .procedure-success { background:var(--ui-success-bg); color:var(--ui-success); }
+:is(#app,.portal-shell) [role=alert] { border:2px solid var(--line); border-left-width:6px; border-radius:0; background:var(--ui-danger-bg); color:var(--ui-danger); padding:16px; }
+:is(#app,.portal-shell) .procedure-note { color:var(--ink-soft); font-size:13px; }
+:is(#app,.portal-shell) summary { min-height:48px; padding:12px 8px; border-radius:0; color:var(--ink); cursor:pointer; font-weight:600; }
+:is(#app,.portal-shell) summary::marker { color:var(--ink); }
+:is(#app,.portal-shell) .procedure-optional > summary { width:100%; padding:18px 20px; }
+:is(#app,.portal-shell) .procedure-more-filters { border-block:1px solid var(--line-soft); }
+:is(#app,.portal-shell) .procedure-company-preview { background:var(--neo-lime); color:var(--ink); border:2px solid var(--line); box-shadow:3px 3px 0 var(--neo-shadow); padding:18px; }
+:is(#app,.portal-shell) .procedure-company-options { background:var(--surface); color:var(--ink); border:2px solid var(--line); box-shadow:4px 4px 0 var(--neo-shadow); }
+:is(#app,.portal-shell) .procedure-company-options [role=option] { border-bottom:1px solid var(--line-faint); padding:14px 18px; }
+:is(#app,.portal-shell) .procedure-company-options [role=option]:is(.is-active,[aria-selected=true]) { background:var(--neo-lime); color:var(--ink); }
+:is(#app,.portal-shell) .procedure-toolbar { background:var(--bg); border:2px solid var(--line); border-radius:0; padding:14px; gap:10px; margin-bottom:12px; }
+:is(#app,.portal-shell) .procedure-toolbar button { font-size:13px; min-width:44px; }
+:is(#app,.portal-shell) .procedure-composer textarea[aria-required] { min-height:350px; font:400 16px/1.9 var(--font-body); border:2px solid var(--line); padding:24px; }
+:is(#app,.portal-shell) :is(.procedure-submit-bar,.procedure-decision-bar) { border:2px solid var(--line); border-radius:0; background:var(--surface); box-shadow:4px 4px 0 var(--neo-shadow); padding:14px; }
+:is(#app,.portal-shell) :is(.procedure-rounds,.procedure-checklist) { border:2px solid var(--line); padding:20px; }
+:is(#app,.portal-shell) .procedure-rounds label:has(input:checked) { background:var(--neo-lime); border-radius:0; }
+:is(#app,.portal-shell) .procedure-review-item { background:var(--surface); color:var(--ink); border:2px solid var(--line); border-radius:0; padding:22px; min-height:110px; }
+:is(#app,.portal-shell) .procedure-review-item[aria-pressed=true] { background:var(--accent-soft)!important; border-color:var(--line)!important; border-left-width:6px; color:var(--ink); }
+:is(#app,.portal-shell) .procedure-metrics p { border:2px solid var(--line); background:var(--neo-lime); color:var(--ink); }
+:is(#app,.portal-shell) .procedure-metrics strong { font:700 30px var(--font-display); }
+:is(#app,.portal-shell) .procedure-diff { border:2px solid var(--line); background:var(--surface); }
+:is(#app,.portal-shell) .diff-added { color:var(--ui-success); background:var(--ui-success-bg); }
+:is(#app,.portal-shell) .diff-removed { color:var(--ui-danger); background:var(--ui-danger-bg); text-decoration:line-through; }
+:is(#app,.portal-shell) .reader-view { padding:36px!important; box-shadow:5px 5px 0 var(--neo-shadow); }
+:is(#app,.portal-shell) .reader-view h1 { font-size:clamp(30px,3.2vw,44px); max-width:26ch; margin:28px 0 36px; }
+:is(#app,.portal-shell) .reader-view .procedure-markdown { font-size:17px; line-height:1.95; }
+:is(#app,.portal-shell) .reader-view .procedure-markdown p { color:var(--ink); font-size:17px; line-height:1.95; margin-bottom:24px; }
+:is(#app,.portal-shell) .procedure-markdown blockquote { border-radius:0; border:0; border-left:4px solid var(--line); padding:18px 22px; background:var(--bg); }
+:is(#app,.portal-shell) .procedure-markdown :is(pre,code) { background:var(--accent-soft); color:var(--ink); }
+:is(#app,.portal-shell) .procedure-markdown a { color:var(--accent); text-underline-offset:4px; }
+:is(#app,.portal-shell) .reader-footer { border-top:2px solid var(--line); margin-top:44px; padding-top:24px; }
+:is(#app,.portal-shell) .reader-context { border-top:1px solid var(--line-faint); }
+:is(#app,.portal-shell) .reader-footer .procedure-actions > button { font-size:13px; }
+:is(#app,.portal-shell) .profile-identity { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+:is(#app,.portal-shell) .profile-avatar { width:76px; height:76px; flex:none; display:grid; place-items:center; background:var(--neo-lime); border:2px solid var(--line); box-shadow:3px 3px 0 var(--neo-shadow); font:700 28px var(--font-display); }
+:is(#app,.portal-shell) .profile-identity h2 { font-size:28px; margin:4px 0; }
+:is(#app,.portal-shell) .profile-identity p { color:var(--ink-soft); overflow-wrap:anywhere; margin:0; }
+:is(#app,.portal-shell) .profile-connected { display:flex; align-items:center; gap:8px; margin-left:auto; background:var(--bg); }
+:is(#app,.portal-shell) .profile-account-meta { border-block:1px solid var(--line-faint); margin:24px 0 18px; }
+:is(#app,.portal-shell) .profile-account-meta summary { width:100%; }
+:is(#app,.portal-shell) .account-details { max-width:none; }
+:is(#app,.portal-shell) .account-fields { gap:24px; padding:8px 8px 20px; margin:0; }
+:is(#app,.portal-shell) .profile-signout { display:inline-flex; align-items:center; gap:8px; }
+:is(#app,.portal-shell) .account-content-shortcuts { gap:24px; margin:28px 0 36px; }
+:is(#app,.portal-shell) .account-content-shortcuts > a { display:grid; grid-template-columns:32px 1fr; gap:8px 16px; padding:24px; border:2px solid var(--line); box-shadow:4px 4px 0 var(--neo-shadow); background:var(--surface); }
+:is(#app,.portal-shell) .account-content-shortcuts .app-icon { grid-row:span 2; width:28px; height:28px; margin-top:4px; }
+:is(#app,.portal-shell) .account-content-shortcuts strong { font:700 22px var(--font-display); }
+:is(#app,.portal-shell) .account-content-shortcuts > a:first-child { background:var(--neo-lime); }
+:is(#app,.portal-shell) .account-content-shortcuts span { color:var(--ink); }
+:is(#app,.portal-shell) .contribution-view-buttons { gap:10px; padding:16px 0; }
+:is(#app,.portal-shell) .contribution-management { border-top:1px solid var(--line-soft); gap:12px; padding-top:20px; }
+:is(#app,.portal-shell) .contribution-management > button:last-of-type { color:var(--ui-danger); background:var(--ui-danger-bg); border-color:var(--line); }
+:is(#app,.portal-shell) .contribution-content-actions > a { min-height:48px; }
+:is(#app,.portal-shell) .sync-indicator { display:inline-flex; align-items:center; gap:8px; color:var(--ink-soft); font:500 11px var(--font-mono); }
+:is(#app,.portal-shell) .sync-indicator > span { width:8px; height:8px; background:var(--ui-success); }
+:is(#app,.portal-shell) .portal-empty { padding:40px; text-align:center; background:var(--bg); }
+:is(#app,.portal-shell) .portal-empty h2 { font-size:28px; }
+:is(#app,.portal-shell) .portal-empty a { display:inline-flex; padding:12px 20px; background:var(--ink); color:var(--surface); border:2px solid var(--line); box-shadow:3px 3px 0 var(--neo-shadow); margin-top:12px; }
+:is(#app,.portal-shell) .year-card { padding:28px; }
+:is(#app,.portal-shell) .year-card h3 { font-size:32px; }
+:is(#app,.portal-shell) .year-card-link { border-top:2px solid var(--line); padding-top:16px; margin-top:24px; }
+:is(#app,.portal-shell) .year-card:first-child { background:var(--neo-lime); }
+:is(#app,.portal-shell) .statgrid { border:2px solid var(--line); box-shadow:4px 4px 0 var(--neo-shadow); }
+#app .stat { border-right:1px solid var(--line); border-bottom:1px solid var(--line); background:var(--surface); padding:24px; }
+#app .stat.headline { background:var(--ink); color:var(--surface); }
+#app .stat-value { font-weight:700; }
+#app .stat:not(.headline) :is(.stat-label,.stat-extra) { color:var(--ink-soft); }
+#app :is(.stat-label,.stat-extra) { line-height:1.65; }
+#app .stat.headline :is(.stat-label,.stat-extra) { color:var(--surface); opacity:.8; }
+#app .statgrid .stat:nth-child(4) { background:var(--neo-yellow); color:var(--ink); }
+#app .statgrid .stat:nth-child(4) :is(.stat-label,.stat-extra) { color:var(--ink); }
+#app .company-salary-filters { margin-bottom:28px; }
+#app :is(.chip,.branch-chip,.role-chip) { border:2px solid var(--line); box-shadow:2px 2px 0 var(--neo-shadow); }
+#app .table-wrap { border:2px solid var(--line); border-radius:0; box-shadow:4px 4px 0 var(--neo-shadow); }
+#app table { background:var(--surface); }
+#app th { background:var(--bg); color:var(--ink); font-weight:700; border-bottom:2px solid var(--line); padding-block:16px; }
+#app td { border-color:var(--line-faint); padding-block:18px; }
+#app tbody tr { transition:background-color 140ms; }
+#app :is(.bar,.tl-bar) { border-radius:0; }
+#app :is(.bar-bg,.timeline-bar-bg) { background:var(--line-faint); border-radius:0; }
+#app .announcement-head { background:var(--bg); border-bottom:2px solid var(--line); }
+#app .insight-card { border:2px solid var(--line); box-shadow:3px 3px 0 var(--neo-shadow); }
+#app :is(.branch-chip,.role-chip) { background:var(--surface); color:var(--ink); }
+#app .source-notes { margin-top:40px; border-top:2px solid var(--line); }
+#app .company-link { display:flex; width:100%; min-height:44px; align-items:center; }
+:is(#app,.portal-shell) .company-logo { border-radius:0; background:#fff; border:1px solid var(--line-soft); }
+[data-theme=dark] #app svg:not(.app-icon) { filter:grayscale(1); }
+:is(#app,.portal-shell) :is(footer,.portal-footer) { border-top:2px solid var(--line); color:var(--ink-soft); background:var(--surface); }
+:is(#app,.portal-shell) dialog { background:var(--surface); color:var(--ink); border:2px solid var(--line); border-radius:0; box-shadow:6px 6px 0 var(--neo-shadow); }
+:is(#app,.portal-shell) dialog::backdrop,.mobile-statistics-sheet::backdrop { background:#0009; backdrop-filter:blur(3px); }
+.mobile-statistics-sheet { border:2px solid var(--line); border-radius:0!important; background:var(--surface); color:var(--ink); box-shadow:5px 5px 0 var(--neo-shadow); }
+.mobile-statistics-sheet a { border:2px solid var(--line); border-radius:0; background:var(--surface); color:var(--ink); min-height:52px; }
+.mobile-statistics-sheet a[aria-current=page] { background:var(--neo-lime); color:var(--ink); }
+:is(#app,.portal-shell) .mobile-app-nav { background:var(--surface); border-top:2px solid var(--line); }
+:is(#app,.portal-shell) .mobile-app-nav :is(a,button) { box-shadow:none; border:1px solid transparent; border-radius:0; min-height:58px; font-size:12px; color:var(--ink-soft); padding:6px; }
+:is(#app,.portal-shell) .mobile-app-nav :is(a,button)[aria-current=page] { background:var(--ink); color:var(--surface); border-color:var(--ink); }
+:is(#app,.portal-shell) .mobile-app-nav .mobile-nav-hint { color:inherit; }
+:is(#app,.portal-shell) .page-sentinel { min-height:12px; }
+/* Hourglass flips, flowing sand and skeleton strips share the same geometry. */
+:is(#app,.portal-shell,.login-page) .fetch-loader { min-height:260px; gap:24px; color:var(--ink-soft); padding:40px 20px; font:500 13px var(--font-mono); }
+:is(#app,.portal-shell,.login-page) .fetch-visual { width:100px; height:112px; position:relative; display:grid; place-items:center; }
+.fetch-hourglass { width:52px; height:68px; color:var(--accent); animation:neo-hourglass 2.8s cubic-bezier(.65,0,.35,1) infinite; }
+.fetch-corner { position:absolute; width:24px; height:24px; border:2px solid var(--line); }
+.corner-one { top:0; left:0; border-right:0; border-bottom:0; }
+.corner-two { bottom:0; right:0; border-left:0; border-top:0; }
+.hourglass-stream { animation:neo-sand .5s linear infinite; }
+:is(#app,.portal-shell,.login-page) .fetch-lines { width:min(300px,85%); gap:10px; }
+:is(#app,.portal-shell,.login-page) .fetch-lines i { height:10px; border:1px solid var(--line-soft); border-radius:0; background:linear-gradient(90deg,var(--line-faint),var(--accent-dim),var(--line-faint)); background-size:200% 100%; animation:fetch-shimmer 1.8s ease-in-out infinite; }
+:is(#app,.portal-shell,.login-page) .fetch-loader.is-compact { min-height:80px; padding:18px 0; gap:16px; }
+:is(#app,.portal-shell,.login-page) .fetch-loader.is-compact .fetch-visual { width:44px; height:48px; }
+:is(#app,.portal-shell,.login-page) .fetch-loader.is-compact .fetch-hourglass { width:28px; height:38px; }
+:is(#app,.portal-shell) .fetch-loader.is-compact .fetch-corner { width:12px; height:12px; }
+:is(#app,.portal-shell) .procedure-skeleton { border:2px solid var(--line); border-radius:0; box-shadow:4px 4px 0 var(--neo-shadow); background:var(--surface); }
+:is(#app,.portal-shell) .procedure-skeleton span { border-radius:0; background:linear-gradient(90deg,var(--line-faint),var(--accent-dim),var(--line-faint)); background-size:200% 100%; animation:fetch-shimmer 1.8s ease-in-out infinite; }
+:is(#app,.portal-shell) :is(.procedure-ui>section,.section,.portal-welcome,.reader-view) { animation:neo-enter 200ms ease-out; }
+@keyframes neo-enter { from { opacity:.5; translate:0 6px; } to { opacity:1; translate:0 0; } }
+@keyframes neo-hourglass { 0%,38% { transform:rotate(0); } 50%,88% { transform:rotate(180deg); } 100% { transform:rotate(360deg); } }
+@keyframes neo-sand { to { stroke-dashoffset:-7; } }
+@media(hover:hover) {
+ :is(#app,.portal-shell) :is(button,.action-button,.auth-button,.chip,.branch-chip,.role-chip,.procedure-actions>a,.procedure-utilities>a,.account-content-shortcuts>a,.year-card,.portal-empty>a):not(:disabled):not([aria-disabled=true]):hover {
+  transform:translate(-2px,-2px); box-shadow:4px 4px 0 var(--neo-shadow); border-color:var(--line); background:var(--neo-lime); color:var(--ink); filter:none;
+ }
+ :is(#app,.portal-shell) :is(.action-button,button.action-button,.contribution-primary-action):not(:disabled):hover { background:var(--ink); color:var(--surface); }
+ :is(#app,.portal-shell) :is(.area-switcher a,.procedure-tabs a,.dashboard-desktop-nav a,.career-explorer-tabs a):hover { background:var(--neo-lime); color:var(--ink); border-color:var(--line); }
+ :is(#app,.portal-shell) :is(.procedure-card-title,.batch-back,.procedure-back-link,.back-link):hover { color:var(--accent); text-decoration:underline; text-underline-offset:5px; }
+ :is(#app,.portal-shell) summary:hover { color:var(--ink); background:var(--accent-soft); }
+ :is(#app,.portal-shell) :is(input,select,textarea):not(:disabled):hover { border-color:var(--accent); }
+ #app tbody tr:hover { background:var(--accent-soft); }
+ :is(#app,.portal-shell) .mobile-app-nav :is(a,button):hover { transform:none; box-shadow:none; }
+}
+:is(#app,.portal-shell) :is(button,.action-button,.auth-button,.procedure-actions>a,.procedure-utilities>a,.account-content-shortcuts>a,.year-card):not(:disabled):active { transform:translate(2px,2px); box-shadow:none; }
+@media(min-width:1050px) {
+ .portal-shell .procedure-list:has(>.procedure-card .procedure-card-title) { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .portal-shell .account-contributions .procedure-list { grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; }
+}
+@media(max-width:720px) {
+ :is(#app,.portal-shell) { font-size:16px; }
+ :is(#app,.portal-shell) .app-header .area-nav { display:none; }
+ :is(#app,.portal-shell) .app-header-inner { padding:14px 18px; gap:12px; }
+ :is(#app,.portal-shell) .app-header .brand-mark { font-size:13px; padding:5px 7px; }
+ :is(#app,.portal-shell) .app-header .brand-name { font-size:14px; }
+ :is(#app,.portal-shell) .app-header .batch-back { font-size:12px; }
+ :is(#app,.portal-shell) .auth-controls { gap:8px; }
+ :is(#app,.portal-shell) .auth-controls .icon-control { width:44px; }
+ :is(#app,.portal-shell) .portal-main { padding:28px 18px 112px; }
+ #app main { padding:24px 18px 112px; }
+ :is(#app,.portal-shell) :is(.portal-welcome,.procedure-intro) { margin-bottom:24px; }
+ :is(#app,.portal-shell) :is(.portal-welcome,.procedure-intro,.hero) h1 { font-size:36px; line-height:1.1; }
+ :is(#app,.portal-shell) :is(.procedure-card,.procedure-discovery,.procedure-composer,.account-details) { padding:18px; box-shadow:3px 3px 0 var(--neo-shadow); }
+ :is(#app,.portal-shell) .procedure-navigation { gap:14px; }
+ :is(#app,.portal-shell) .procedure-navigation .procedure-tabs { width:100%; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+ :is(#app,.portal-shell) .procedure-navigation .procedure-tabs a { padding:10px 6px; font-size:12px; gap:6px; min-height:64px; text-align:center; flex-direction:column; justify-content:center; }
+ :is(#app,.portal-shell) .procedure-navigation .procedure-utilities { width:100%; padding:0; gap:10px; }
+ :is(#app,.portal-shell) .procedure-navigation .procedure-utilities a { min-height:46px; font-size:13px; padding:10px; }
+ :is(#app,.portal-shell) .procedure-utilities .action-button { flex:1; }
+ :is(#app,.portal-shell) .procedure-card-title { font-size:22px; }
+ :is(#app,.portal-shell) :is(input:not([type=checkbox]):not([type=radio]),select,textarea) { font-size:16px; }
+ :is(#app,.portal-shell) .procedure-actions { gap:10px; }
+ :is(#app,.portal-shell) .procedure-toolbar { padding:10px; gap:8px; }
+ :is(#app,.portal-shell) .procedure-toolbar button { padding:9px 11px; }
+ :is(#app,.portal-shell) .procedure-composer textarea[aria-required] { padding:18px; min-height:320px; }
+ :is(#app,.portal-shell) .reader-view { padding:22px 18px!important; }
+ :is(#app,.portal-shell) .reader-view h1 { font-size:30px; }
+ :is(#app,.portal-shell) .reader-view .procedure-markdown p { font-size:16px; line-height:1.9; }
+ :is(#app,.portal-shell) .reader-footer .procedure-actions > button { padding:9px 10px; }
+ :is(#app,.portal-shell) .profile-avatar { width:60px; height:60px; font-size:24px; }
+ :is(#app,.portal-shell) .profile-identity { gap:16px; }
+ :is(#app,.portal-shell) .profile-identity > div { min-width:0; flex:1; }
+ :is(#app,.portal-shell) .profile-identity h2 { font-size:23px; }
+ :is(#app,.portal-shell) .profile-identity p { font-size:13px; }
+ :is(#app,.portal-shell) .profile-connected { margin-left:0; }
+ :is(#app,.portal-shell) .account-content-shortcuts { grid-template-columns:1fr; gap:20px; }
+ :is(#app,.portal-shell) .account-content-shortcuts > a { padding:20px; }
+ :is(#app,.portal-shell) .contribution-management { grid-template-columns:1fr; gap:12px; }
+ :is(#app,.portal-shell) .contribution-management button { width:100%; }
+ :is(#app,.portal-shell) .contribution-view-buttons > button { font-size:13px; padding:10px; }
+ #app .table-wrap { border:0; box-shadow:none; overflow:visible; }
+ #app table.card-table tbody tr { border:2px solid var(--line); border-radius:0; box-shadow:3px 3px 0 var(--neo-shadow); background:var(--surface); margin-bottom:18px; }
+ #app table.card-table tbody td.card-title { border-bottom:2px solid var(--line); background:var(--bg); }
+ #app table.card-table tbody td { padding-block:12px; }
+ #app .stat { padding:18px 14px; }
+ #app .stat-value { font-size:32px; }
+ :is(#app,.portal-shell) :is(.procedure-submit-bar,.procedure-decision-bar) { bottom:calc(86px + env(safe-area-inset-bottom)); padding:12px; }
+ :is(#app,.portal-shell) .portal-empty { padding:28px 18px; }
+ :is(#app,.portal-shell) .procedure-ui button.procedure-mobile-filters { display:inline-flex; }
+ .mobile-statistics-sheet { max-height:calc(100dvh - 32px); padding:20px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ :is(#app,.portal-shell,.login-page,.mobile-statistics-sheet) *, .fetch-hourglass, .hourglass-stream { animation:none!important; transition:none!important; scroll-behavior:auto!important; }
+ :is(#app,.portal-shell) :is(a,button):is(:hover,:active) { transform:none!important; }
+}
+
+[data-theme=dark] #app .stat.headline { background:#f5f5f5; color:#080808; }
+[data-theme=dark] #app .stat.headline :is(.stat-value,.stat-label,.stat-extra) { color:#080808; }
+[data-theme=dark] #app :is(.legend-swatch,.bar-fill,.timeline-bar,.branch-bar,.footer-heart) { filter:grayscale(1); }
+[data-theme=dark] :is(#app,.portal-shell) .footer-heart { color:var(--ink-soft); }
+[data-theme=dark] :is(#app,.portal-shell) ::selection { background:#f5f5f5; color:#080808; }
+
+/* Embedded controls retain their own icon clearance and compact table geometry. */
+:is(#app,.portal-shell) .procedure-discovery .procedure-search-input input { padding-left:44px; padding-right:48px; }
+#app .search-box input { padding-left:44px; }
+:is(#app,.portal-shell) .procedure-search-input button.search-clear { box-shadow:none; border:0; padding:8px; background:transparent; transform:none; }
+#app table { font-size:14px; }
+#app th button { border:0; box-shadow:none; background:transparent; min-height:44px; padding:8px 0; font:600 11px var(--font-mono); text-align:inherit; }
+#app th button:hover { transform:none; box-shadow:none; background:transparent; text-decoration:underline; text-underline-offset:4px; }
+@media(max-width:720px) {
+ :is(#app,.portal-shell) .profile-identity { display:grid; grid-template-columns:60px minmax(0,1fr); }
+ :is(#app,.portal-shell) .profile-connected { grid-column:1/-1; width:fit-content; margin-top:4px; }
+}
+
+:is(#app,.portal-shell) .contribution-management > button { min-height:48px; padding:12px 18px; }
+:is(#app,.portal-shell) .empty-state { border:2px dashed var(--line); padding:32px; background:var(--surface); color:var(--ink-soft); }
+:is(#app,.portal-shell) .empty-state .es-title { color:var(--ink); font:700 24px var(--font-display); margin-bottom:12px; }
+:is(#app,.portal-shell) .login-card { border:2px solid var(--line); border-radius:0; box-shadow:5px 5px 0 var(--neo-shadow); }
+.login-page .login-card { border:2px solid var(--line); border-radius:0; box-shadow:5px 5px 0 var(--neo-shadow); }
+
+/* Local community scopes must inherit semantic tokens from the selected theme. */
+:is(#app,.portal-shell) .procedure-ui {
+ --ui-success:inherit; --ui-success-bg:inherit; --ui-warning:inherit; --ui-warning-bg:inherit; --ui-danger:inherit; --ui-danger-bg:inherit;
+}
+/* Pale monochrome highlights use dark ink, including explicitly colored children. */
+[data-theme=dark] :is(#app,.portal-shell) :is(.portal-welcome,.procedure-intro,.hero) .eyebrow { color:#080808; }
+[data-theme=dark] #app .statgrid .stat:nth-child(4),
+[data-theme=dark] #app .statgrid .stat:nth-child(4) :is(.stat-value,.stat-label,.stat-extra) { color:#080808; }
+[data-theme=dark] :is(#app,.portal-shell) :is(.profile-avatar,.procedure-company-preview,.procedure-metrics p) { color:#080808; }
+[data-theme=dark] :is(#app,.portal-shell) .procedure-company-preview :is(p,span,a),
+[data-theme=dark] :is(#app,.portal-shell) .procedure-metrics p strong { color:#080808; }
+[data-theme=dark] :is(#app,.portal-shell) .procedure-company-preview a { text-decoration:underline; text-underline-offset:3px; }
+[data-theme=dark] :is(#app,.portal-shell) .account-content-shortcuts > a:first-child,
+[data-theme=dark] :is(#app,.portal-shell) .account-content-shortcuts > a:first-child :is(strong,span) { color:#080808; }
+[data-theme=dark] :is(#app,.portal-shell) .year-card:first-child,
+[data-theme=dark] :is(#app,.portal-shell) .year-card:first-child :is(h3,p,.year-card-link,.year-status) { color:#080808; }
+[data-theme=dark] #app .candidate-linkedin { color:var(--ink); background:var(--surface); border:2px solid var(--line); border-radius:0; }
+:is(#app,.portal-shell) .candidate-linkedin { border-radius:0; }
+[data-theme=dark] :is(#app,.portal-shell) .procedure-ui button.control-danger { background:var(--ui-danger-bg); color:var(--ui-danger); border-color:var(--line); }
+[data-theme=dark] :is(#app,.portal-shell) .procedure-ui button.control-warning { background:var(--ui-warning-bg); color:var(--ui-warning); border-color:var(--line); }
+
+[data-theme=dark] :is(#app,.portal-shell) :is(.procedure-company-preview,.procedure-metrics p,.year-card:first-child,.account-content-shortcuts>a:first-child) {
+ --ink:#080808; --ink-soft:#333; --ink-faint:#444; --accent:#080808; --accent-soft:#ccc;
+}
+@media(hover:hover) {
+ [data-theme=dark] :is(#app,.portal-shell) :is(button,.auth-button,.chip,.branch-chip,.role-chip,.procedure-actions>a,.procedure-utilities>a,.account-content-shortcuts>a,.year-card):not(:disabled):not(.action-button):not(.contribution-primary-action):hover { background:#dedede; color:#080808; border-color:var(--line); }
+ [data-theme=dark] :is(#app,.portal-shell) :is(.area-switcher a,.procedure-tabs a,.dashboard-desktop-nav a,.career-explorer-tabs a):hover { background:#dedede; color:#080808; }
+ [data-theme=dark] :is(#app,.portal-shell) :is(.action-button,button.action-button,.contribution-primary-action):not(:disabled):hover { background:#dedede; color:#080808; }
+ [data-theme=dark] :is(#app,.portal-shell) .account-content-shortcuts>a:hover span { color:#080808; }
+}
+
+@media(hover:hover) {
+ [data-theme=dark] :is(#app,.portal-shell) button[aria-pressed=true]:not(:disabled):hover { background:#dedede!important; color:#080808; }
+ [data-theme=dark] :is(#app,.portal-shell) .procedure-review-item:hover span { color:#333; }
+}
+
+/* Keep monochrome foreground/background swaps simultaneous for contrast;
+   depth and position provide the animated feedback. */
+[data-theme=dark] :is(#app,.portal-shell) :is(button,a,summary) { transition:transform 120ms ease,box-shadow 120ms ease,border-color 120ms ease; }
+
+/* Dashboard controls must reserve room for the real icon, not the legacy glyph. */
+#app .controls .search-box::before { content:none; }
+#app .controls .search-box > .app-icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--ink-soft); }
+#app .controls .search-box input { padding-left:48px; }
+#app .section-head .section-title, #app h3.section-title { letter-spacing:.07em; line-height:1.5; }
+#app svg text { fill:var(--ink); }
+#app svg text.chart-label { fill:var(--ink-soft); }
+:is(#app,.portal-shell) .profile-avatar { overflow:hidden; }
+:is(#app,.portal-shell) .profile-avatar img { width:100%; height:100%; object-fit:cover; }
+
+/* Keep every dark chart segment visible, with matching legend swatches. */
+[data-theme=dark] #app .react-donut circle:nth-of-type(1) { stroke:#f5f5f5; }
+[data-theme=dark] #app .react-legend > div:nth-child(1) .legend-swatch { background:#f5f5f5 !important; }
+[data-theme=dark] #app .react-donut circle:nth-of-type(2) { stroke:#939393; }
+[data-theme=dark] #app .react-legend > div:nth-child(2) .legend-swatch { background:#939393 !important; }
+[data-theme=dark] #app .react-donut circle:nth-of-type(3) { stroke:#c9c9c9; }
+[data-theme=dark] #app .react-legend > div:nth-child(3) .legend-swatch { background:#c9c9c9 !important; }
+[data-theme=dark] #app .react-donut circle:nth-of-type(4) { stroke:#747474; }
+[data-theme=dark] #app .react-legend > div:nth-child(4) .legend-swatch { background:#747474 !important; }
+[data-theme=dark] #app .react-donut circle:nth-of-type(5) { stroke:#dedede; }
+[data-theme=dark] #app .react-legend > div:nth-child(5) .legend-swatch { background:#dedede !important; }
+[data-theme=dark] #app .react-donut circle:nth-of-type(6) { stroke:#ababab; }
+[data-theme=dark] #app .react-legend > div:nth-child(6) .legend-swatch { background:#ababab !important; }
+[data-theme=dark] #app .react-donut circle:nth-of-type(7) { stroke:#b9b9b9; }
+[data-theme=dark] #app .react-legend > div:nth-child(7) .legend-swatch { background:#b9b9b9 !important; }
+[data-theme=dark] #app .react-donut circle:nth-of-type(8) { stroke:#858585; }
+[data-theme=dark] #app .react-legend > div:nth-child(8) .legend-swatch { background:#858585 !important; }

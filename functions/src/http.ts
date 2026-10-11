@@ -48,7 +48,7 @@ export default async function handler(req: Request, res: ServerResponse) {
     const db = getFirestore(app());
     let data;
     switch (name) {
-      case 'procedureCommunity': data = await community(db, actor, body.data); break;
+      case 'procedureCommunity': data = await community(db, actor, body.data, auth); break;
       case 'saveProcedureDraft': data = await saveDraft(db, actor, body.data); break;
       case 'submitProcedure': data = await submit(db, actor, body.data); break;
       case 'reviewProcedure': data = await review(db, actor, body.data); break;

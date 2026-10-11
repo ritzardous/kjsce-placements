@@ -2,8 +2,10 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { GoogleAuthProvider, onIdTokenChanged, signInWithPopup, signInWithCredential, signOut, type User } from 'firebase/auth';
 import { firebaseMessage, getFirebase } from './firebase';
 import { withTimeout } from './request-timeout';
+import { syncGoogleProfile } from './account-profile';
+import { useBackgroundSync } from './background-sync';
 
-type AuthState = { user: User | null; ready: boolean; allowed: boolean; admin: boolean; busy: boolean; error: string; login: () => Promise<void>; logout: () => Promise<void>; betaLogin: (role: string) => Promise<void> };
+type AuthState = { user: User | null; ready: boolean; allowed: boolean; admin: boolean; busy: boolean; error: string; profileError: boolean; login: () => Promise<void>; logout: () => Promise<void>; betaLogin: (role: string) => Promise<void> };
 const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -14,6 +16,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const operation = useRef(false);
+  const [profileError,setProfileError] = useState(false);
+  const profileRevision = useRef(0);
+  async function syncProfile() {
+    if (!user || !allowed) return;
+    const revision = profileRevision.current;
+    try { await syncGoogleProfile(user); if (revision === profileRevision.current) setProfileError(false); return true; }
+    catch { if (revision === profileRevision.current) setProfileError(true); return false; }
+  }
+  useEffect(() => {
+    profileRevision.current++; setProfileError(false);
+    void syncProfile();
+    return () => { profileRevision.current++; };
+  }, [allowed,user?.uid,user?.metadata.lastSignInTime]);
+  useBackgroundSync(syncProfile,120000,allowed && profileError);
   useEffect(() => {
     let revision = 0;
     let disposed = false;
@@ -58,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signOut(getFirebase().auth);
     location.hash = '#landing';
   });
-  return <AuthContext.Provider value={{ user, ready, allowed, admin, busy, error, login, logout, betaLogin }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ user, ready, allowed, admin, busy, error, profileError, login, logout, betaLogin }}>{children}</AuthContext.Provider>;
 }
 export function useAuth() {
   const auth = useContext(AuthContext);

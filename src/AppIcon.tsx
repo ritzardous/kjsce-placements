@@ -1,5 +1,14 @@
 import type { SVGProps } from 'react';
 const paths = {
+ user:'M20 21v-2a8 8 0 0 0-16 0v2M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z',
+ moon:'M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10Z',
+ sun:'M12 2v2m0 16v2M2 12h2m16 0h2M5 5l2 2m10 10 2 2M5 19l2-2M17 7l2-2M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z',
+ logout:'M9 3H3v18h6m5-5 4-4-4-4M8 12h13',
+ book:'M12 5v16M12 5C9 3 5 3 2 4v16c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Z',
+ chart:'M4 3v18h17M8 16v-5m5 5V7m5 9V4',
+ building:'M5 21V3h14v18M3 21h18M9 7h1m4 0h1M9 11h1m4 0h1M9 15h1m4 0h1M10 21v-3h4v3',
+ branches:'M12 8V3M5 16v-4h14v4M12 12V8M2 16h6v5H2v-5Zm14 0h6v5h-6v-5Z',
+ compass:'m16 8-3 5-5 3 3-5 5-3ZM22 12a10 10 0 1 1-20 0 10 10 0 0 1 20 0Z',
  search:'m21 21-4.4-4.4M19 11a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z',
  filter:'M4 7h16M7 12h10M10 17h4', bookmark:'M6 3h12v18l-6-4-6 4V3Z',
  bell:'M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4',

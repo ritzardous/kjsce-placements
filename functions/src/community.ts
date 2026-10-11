@@ -1,4 +1,5 @@
 import { type Firestore, type Query, type DocumentData } from 'firebase-admin/firestore';
+import type { Auth } from 'firebase-admin/auth';
 import { z } from 'zod';
 import { authorize, manageSubmission, HttpsError, type Actor } from './service.js';
 import { postTitle } from '../../shared/procedures.js';
@@ -63,10 +64,32 @@ async function throttle(db: Firestore, tx: FirebaseFirestore.Transaction, uid: s
   return () => tx.set(ref, { at: now });
 }
 
-export async function community(db: Firestore, actorValue: Actor | undefined, input: unknown) {
+export async function community(db: Firestore, actorValue: Actor | undefined, input: unknown, auth?: Auth) {
   const request = parse(z.object({ action: z.string().max(40), payload: z.record(z.string(), z.unknown()).default({}) }).strict(), input);
   const actor = authorize(actorValue, adminCommunityActions.has(request.action)), value = request.payload;
+  if(['ask','answer'].includes(request.action))throw new HttpsError('failed-precondition','Questions and replies are no longer available.');
   switch (request.action) {
+    case 'syncAccount': {
+      required(auth, 'Account sync is unavailable.');
+      const account = await auth.getUser(actor.uid);
+      if (account.disabled || !account.emailVerified || !account.providerData.some(provider => provider.providerId === 'google.com')) throw new HttpsError('permission-denied', 'Verified Google sign-in is required.');
+      const google = account.providerData.find(provider => provider.providerId === 'google.com')!;
+      // Use server-verified identity only. Never accept email, role or profile data from the payload.
+      const authProfile = {
+        displayName: account.displayName || google.displayName || '',
+        email: account.email || '', emailVerified: account.emailVerified,
+        photoURL: account.photoURL || google.photoURL || '',
+        provider: 'google.com', providerUid: google.uid,
+        createdAt: account.metadata.creationTime,
+        lastSignInAt: account.metadata.lastSignInTime || null,
+      };
+      const ref = db.doc(`users/${actor.uid}`);
+      await db.runTransaction(async tx => {
+        const previous = (await tx.get(ref)).data()?.authProfile;
+        if (!previous || Object.entries(authProfile).some(([key,value]) => previous[key] !== value)) tx.set(ref, { authProfile, profileSyncedAt: Date.now() }, { merge: true });
+      });
+      return { synced: true };
+    }
     case 'manageSubmission': return manageSubmission(db,actor,value);
     case 'browse': {
       const filters = parse(z.object({ company: z.string().max(120).default(''), year: z.string().max(4).default(''), coverage: z.string().max(20).default(''), outcome: z.string().max(30).default(''), search: z.string().max(120).default(''), round: z.string().max(40).default(''), sort: z.enum(['newest', 'helpful']).default('newest'), cursor: cursorSchema }).strict(), value);

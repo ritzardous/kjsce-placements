@@ -16,7 +16,7 @@ async function chooseSection(page: import('@playwright/test').Page, name: string
  if(views[name])await page.getByRole('navigation',{name:'Career explorer views'}).getByRole('link',{name:views[name],exact:true}).click();
 }
 async function chooseBatch(page:import('@playwright/test').Page,year:number) {
- await page.locator('.topbar .batch-back').click();
+ await page.locator('.app-header .batch-back').click();
  await page.getByRole('link',{name:new RegExp(`Class of ${year}`)}).click();
 }
 
@@ -40,7 +40,7 @@ test('ongoing 2027 season stays explicit across routes, reload, refresh and year
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Barclays', exact: true })).toBeVisible();
   await expect(page.locator('.live-notice')).toBeVisible();
-  await page.getByRole('button', { name: 'Refresh latest published data' }).click();
+  await expect(page.getByRole('button', { name: 'Refresh latest published data' })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Barclays', exact: true })).toBeVisible();
   await chooseBatch(page,2025);
   await expect(page.getByRole('heading', { name: /KJSCE '25/ })).toBeVisible();
@@ -135,7 +135,8 @@ test('branches, timeline and insights render without browser exceptions', async 
 test('Firestore loading error displays retry and recovers using real emulator data', async ({ page }) => {
   await page.route(/\/src\/repository\.ts(?:\?t=\d+)?$/, route => route.fulfill({
     contentType: 'application/javascript',
-    body: `export async function loadDashboard(year) {
+    body: `export function watchDashboardVersion(){return () => {}; }
+    export async function loadDashboard(year) {
       if (!window.retryEnabled) throw new Error('Temporary Firestore outage');
       const real = await import('/src/repository.ts?retry-real');
       return real.loadDashboard(year);

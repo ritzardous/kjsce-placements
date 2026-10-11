@@ -88,6 +88,28 @@ test('unread notifications can be marked in place and the exact badge count upda
 });
 
 
+test('multiword company previews match published statistics and preserve brand colors in dark mode',async({page})=>{
+  await signInGoogle(page);
+  await page.goto('/#procedures/contribute');
+  const darkMode=page.getByRole('button',{name:'Switch to dark mode',exact:true});
+  if(await darkMode.count())await darkMode.click();
+  const picker=page.getByRole('combobox',{name:'Company',exact:true});
+  await picker.fill('ACI Worldwide');
+  await page.getByRole('option',{name:/ACI Worldwide/}).click();
+  const preview=page.getByRole('complementary',{name:'Selected company information'});
+  await expect(preview).toContainText('₹12.50 LPA');
+  await expect(preview).toContainText('6 recorded selections');
+  await expect(preview).toContainText('Technical Consultant');
+  await expect(preview.getByRole('link',{name:'View placement stats'})).toHaveAttribute('href','#2026/company/aci_worldwide');
+  const logo=preview.locator('.company-logo img');
+  await expect(logo).toBeVisible();
+  expect(await logo.evaluate(element=>getComputedStyle(element).filter)).toBe('none');
+  await picker.fill('Barclays');
+  await page.getByRole('option',{name:/Barclays/}).click();
+  await expect(preview).toContainText('highest recorded CTC');
+  expect(await preview.locator('.company-logo img').evaluate(element=>getComputedStyle(element).filter)).toBe('none');
+});
+
 test('one company picker and a short writing flow keep extras optional',async({page})=>{
   await signInGoogle(page);
   await page.goto('/#procedures/contribute');

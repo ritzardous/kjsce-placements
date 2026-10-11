@@ -21,7 +21,16 @@ export async function callProcedure<T>(name: string, data: unknown): Promise<T> 
   }
   return result.data;
 }
-export async function procedureCompanies() { return (await withTimeout(getDocs(query(collection(getFirebase().db, 'procedureCompanies'), orderBy('name'))))).docs.map(d => ({ ...d.data(), key: d.id }) as ProcedureCompany); }
+const companyCache = new Map<string, {at:number;request:Promise<ProcedureCompany[]>}>();
+export function procedureCompanies():Promise<ProcedureCompany[]> {
+  const {db,auth}=getFirebase(), key=auth.currentUser?.uid || '', cached=companyCache.get(key);
+  if(cached && Date.now()-cached.at<300000) return cached.request;
+  const request=withTimeout(getDocs(query(collection(db,'procedureCompanies'),orderBy('name')))).then(result=>result.docs.map(d=>({...d.data(),key:d.id}) as ProcedureCompany));
+  const entry={at:Date.now(),request};companyCache.set(key,entry);
+  while(companyCache.size>6)companyCache.delete(companyCache.keys().next().value!);
+  void request.catch(()=>{if(companyCache.get(key)===entry)companyCache.delete(key);});
+  return request;
+}
 export function watchContributions(uid: string, callback: (rows: ProcedureSubmission[]) => void, error: (cause: unknown) => void) {
   const timer = setTimeout(() => error(new Error('Your contributions could not load. Check your connection and retry.')), 15000);
   const stop = onSnapshot(query(collection(getFirebase().db, 'procedureSubmissions'), where('ownerUid', '==', uid), orderBy('updatedAt', 'desc'), limit(100)), s => { clearTimeout(timer); callback(s.docs.map(d => ({ ...d.data(), id: d.id }) as ProcedureSubmission)); }, cause => { clearTimeout(timer); error(cause); });

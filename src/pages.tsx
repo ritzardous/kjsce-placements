@@ -1,4 +1,5 @@
 import { CompanyIdentity, CompanyLogo } from './CompanyIdentity';
+import { AppIcon } from './AppIcon';
 import { useState } from 'react';
 import { CandidateLinkedIn } from './CandidateLinkedIn';
 import type { Announcement } from '../shared/dataset';
@@ -91,8 +92,8 @@ export function Companies({ statistics: s, filters, setFilters }: { statistics: 
     { label: s.batch.year === 2025 ? 'Record groups' : 'Announcements', numeric: true, render: c => c.announcements.length },
   ];
   return <Section title="Companies" note={`${s.companies.length} companies represented`}>
-    <div className="controls"><div className="search-box"><input aria-label="Search companies" placeholder="Search company or role…" value={filters.search} onChange={e => set({ search: e.target.value })} /></div><select className="filter" aria-label="Company type" value={filters.type} onChange={e => set({ type: e.target.value })}><option value="ALL">All company types</option>{s.types.map(t => <option key={t.label}>{t.label}</option>)}</select><div className="result-count">{rows.length} / {s.companies.length}</div></div>
-    <div className="chip-row">{['ALL', '<5L', '5–10L', '10–15L', '15L+'].map(ctc => <button key={ctc} aria-pressed={filters.ctc === ctc} className={'chip ' + (filters.ctc === ctc ? 'active' : '')} onClick={() => set({ ctc })}>{ctc}</button>)}</div>
+    <div className="controls"><div className="search-box"><AppIcon name="search"/><input aria-label="Search companies" placeholder="Search company or role…" value={filters.search} onChange={e => set({ search: e.target.value })} /></div><select className="filter" aria-label="Company type" value={filters.type} onChange={e => set({ type: e.target.value })}><option value="ALL">All company types</option>{s.types.map(t => <option key={t.label}>{t.label}</option>)}</select><div className="result-count">{rows.length} / {s.companies.length}</div></div>
+    <div className="chip-row company-salary-filters" role="group" aria-label="Salary range">{['ALL', '<5L', '5–10L', '10–15L', '15L+'].map(ctc => <button key={ctc} aria-pressed={filters.ctc === ctc} className={'chip ' + (filters.ctc === ctc ? 'active' : '')} onClick={() => set({ ctc })}>{ctc}</button>)}</div>
     <Table rows={rows} columns={columns} rowKey={c => c.key} sort={filters.sort} onSort={key => set({ sort: { key, direction: key === filters.sort.key ? (filters.sort.direction === 'asc' ? 'desc' : 'asc') : key === 'name' ? 'asc' : 'desc' } })} />
   </Section>;
 }
@@ -137,7 +138,7 @@ export function Candidates({ statistics: s, filters, setFilters }: { statistics:
   const update = (next: CandidateFilters) => { setPage(1); setFilters(next); };
   return <Section title="Candidates & Role Intelligence" note={`${s.summary.selections} candidate selections recorded (not unique students)`}>
     <div className="role-summary">{s.roles.slice(0, 10).map(r => <button key={r.label} className={'role-chip ' + (filters.role === r.label ? 'active' : '')} aria-pressed={filters.role === r.label} onClick={() => update({ ...filters, role: filters.role === r.label ? null : r.label, search: '' })}><span>{r.label}</span><span className="rc-n">{r.value}</span></button>)}</div>
-    <div className="controls"><div className="search-box"><input aria-label="Search candidates" placeholder="Search name, roll no., branch, role or company…" value={filters.search} onChange={e => update({ ...filters, search: e.target.value, role: null })} /></div><div className="result-count">{filtered.length} / {s.candidates.length}</div></div>
+    <div className="controls"><div className="search-box"><AppIcon name="search"/><input aria-label="Search candidates" placeholder="Search name, roll no., branch, role or company…" value={filters.search} onChange={e => update({ ...filters, search: e.target.value, role: null })} /></div><div className="result-count">{filtered.length} / {s.candidates.length}</div></div>
     {hasCampus && <label className="campus-filter">Campus status <select className="filter" aria-label="Campus status" value={filters.campus ?? 'ALL'} onChange={e => update({ ...filters, campus: e.target.value })}><option value="ALL">All selections</option><option>On campus</option><option>Off campus</option></select></label>}
     <Table rows={filtered.slice((currentPage - 1) * 100, currentPage * 100)} columns={hasCampus ? [...candidateColumns, { label: 'Campus', render: c => c.campus ?? 'Not provided' }] : candidateColumns} rowKey={(c, i) => `${c.placementId}-${c.roll}-${i}`} />
     {pages > 1 && <div className="pagination"><button disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>Previous</button><span>Page {currentPage} of {pages}</span><button disabled={currentPage === pages} onClick={() => setPage(currentPage + 1)}>Next</button></div>}

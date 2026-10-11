@@ -170,3 +170,52 @@
  .procedure-ui .procedure-discovery > .procedure-note { display:none; }
  .procedure-ui .procedure-search > button:disabled { display:none; }
 }
+/* Shared visual language for statistics and community experiences. */
+@media (min-width:721px) {
+ :is(#app,.portal-shell) .area-nav { padding:12px 28px; border-top:0; }
+ .portal-shell .area-nav { max-width:1240px; padding-inline:32px; }
+ :is(#app,.portal-shell) .area-switcher { display:inline-flex; align-items:center; gap:4px; padding:4px; border:1px solid var(--line-soft); border-radius:6px; background:var(--bg); }
+ :is(#app,.portal-shell) .area-switcher a { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:10px 14px; min-height:44px; border-radius:4px; font-size:13px; }
+ :is(#app,.portal-shell) .area-switcher a[aria-current=page] { color:var(--accent); background:var(--accent-soft); box-shadow:inset 0 0 0 1px var(--accent); }
+ :is(#app,.portal-shell) .area-switcher a:hover { color:var(--accent); background:var(--accent-soft); }
+ #app .desktop-navigation { display:flex; align-items:center; flex-wrap:wrap; gap:8px 24px; max-width:1400px; margin:auto; padding:12px 28px; }
+ #app .desktop-navigation .area-nav { flex:none; margin:0; padding:0; overflow:visible; }
+ #app .desktop-navigation .dashboard-desktop-nav { flex:1; width:auto; margin:0; padding:0 0 0 24px; border-left:1px solid var(--line-soft); }
+}
+@media (min-width:721px) and (max-width:1100px) {
+ #app .desktop-navigation .dashboard-desktop-nav { flex-basis:100%; padding:0; border-left:0; }
+}
+@media (max-width:720px) {
+ #app .desktop-navigation { display:none; }
+}
+#app .dashboard-desktop-nav { gap:8px; padding-top:8px; }
+#app .nav-item { display:inline-flex; align-items:center; gap:8px; min-height:48px; padding:14px 12px; border-radius:4px 4px 0 0; font-size:14px; letter-spacing:0; text-transform:none; }
+#app .nav-item.active { color:var(--accent); background:var(--accent-soft); }
+#app .controls { gap:12px; margin-bottom:18px; }
+#app .search-box::before { content:none; }
+#app .search-box > .app-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--ink-soft); pointer-events:none; }
+#app .search-box input { min-height:48px; padding:12px 14px 12px 42px; border-color:var(--line-soft); border-radius:4px; }
+#app select.filter { min-height:48px; padding:12px 14px; border-color:var(--line-soft); border-radius:4px; font-size:13px; letter-spacing:0; text-transform:none; }
+#app .chip-row { gap:8px; }
+#app .chip { min-height:44px; padding:10px 14px; border-color:var(--line-soft); border-radius:4px; font-size:13px; letter-spacing:0; text-transform:none; }
+#app .chip.active { color:var(--accent); background:var(--accent-soft); border-color:var(--accent); }
+#app .company-salary-filters { margin-bottom:24px; }
+#app .branch-chip { border-radius:4px; border-color:var(--line-soft); }
+#app :is(.branch-chip.active,.role-chip.active) { color:var(--accent); background:var(--accent-soft); border-color:var(--accent); }
+#app .tag { border-radius:4px; }
+#app .section-head { margin-bottom:20px; }
+#app .announcement-block { border-color:var(--line-soft); border-radius:6px; overflow:hidden; }
+#app .announcement-head { padding:16px 20px; border-color:var(--line-soft); gap:16px; }
+@media (min-width:721px) {
+ #app .table-wrap { border-color:var(--line-soft); border-radius:6px; }
+ #app .announcement-block .table-wrap { border:none; border-radius:0; }
+}
+@media (max-width:720px) {
+ #app select.filter { font-size:16px; }
+ #app table.card-table tbody tr { border-color:var(--line-soft); border-radius:6px; overflow:hidden; }
+ #app table.card-table tbody td.card-title { border-color:var(--line-soft); }
+ #app table.card-table .cell-sub { white-space:nowrap; }
+}
+@media (hover:hover) {
+ #app :is(.chip,.branch-chip,.role-chip):not(.active):hover { color:var(--accent); background:var(--accent-soft); border-color:var(--accent); }
+}

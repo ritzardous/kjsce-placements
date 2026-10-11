@@ -7,5 +7,7 @@ import './portal.css';
 import './procedures.css';
 import './mobile.css';
 import './enhancements.css';
+import './app-polish.css';
+import './neobrutal.css';
 
 createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);

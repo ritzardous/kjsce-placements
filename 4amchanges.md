@@ -1,5 +1,9 @@
 # Make the hosted site work on Vercel
 
+## Profile photo and theme fixes
+
+Deploy the updated code through your existing Vercel Git deployment, using `npm run build`. No additional Google permissions, API keys, Firebase rules, billing or console setup are required. After deployment, refresh the app while signed in: the profile photo displays from Google sign-in, and verified name, email, photo URL, provider identity, account creation and last sign-in are saved automatically to `users/{uid}.authProfile`. This record stays private under the existing owner-only Firestore rules. Existing users sync on their next app visit; temporary sync failures retry automatically. Unchanged profiles are not rewritten. Google sign-in does not supply batch, branch or graduation year.
+
 ## Company Procedures enhancement release
 
 **For the existing working site:** keep your current Firebase/Vercel variables and admin account. You do not need a new private key or billing upgrade for these enhancements. Steps 1–6 below are the original setup reference for a fresh deployment.

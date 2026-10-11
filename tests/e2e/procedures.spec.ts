@@ -59,20 +59,25 @@ test('draft recovery, revision approval, voting and unpublishing work across con
     await adminPage.locator(`button[data-submission-id="${id}"]`).click();
     await expect(adminPage.locator('.procedure-markdown')).toContainText('database fundamentals');
     await adminPage.screenshot({ path: `artifacts/procedures-admin-${test.info().project.name}.png`, fullPage: true });
+    await page.goto(`/#procedures/contribute?draft=${id}`);
+    await expect(page.getByRole('button', {name:'Pending approval',exact:true})).toBeDisabled();
     await adminPage.getByRole('button', { name: 'Approve', exact: true }).click();
     await expect(adminPage.locator(`button[data-submission-id="${id}"]`)).toHaveCount(0);
+    await expect(page.getByRole('button', {name:'Submit for review',exact:true})).toBeEnabled();
+    await expect(page.getByLabel('Your experience', {exact:true})).toContainText('database fundamentals');
 
     await signInGoogle(readerPage);
     await readerPage.goto(`/#procedures/${id}`);
+    await readerPage.locator('.reader-context summary').click();
     await expect(readerPage.getByText('By Community contributor', { exact: false })).toBeVisible();
     await expect(readerPage.locator('.procedure-markdown')).toContainText('database fundamentals');
     await readerPage.getByRole('button', { name: /Upvote/ }).click();
-    await expect(readerPage.getByRole('button', { name: /Upvote/ })).toContainText('(1)');
+    await expect(readerPage.getByRole('button', { name: /Upvote/ })).toHaveText('1');
     await expect(readerPage.getByRole('button', { name: /Upvote/ })).toBeEnabled();
     await db.doc(`procedureLimits/${(await signInGoogleUid(readerPage))}-vote`).delete();
     await readerPage.getByRole('button', { name: /Downvote/ }).click();
-    await expect(readerPage.getByRole('button', { name: /Downvote/ })).toContainText('(1)');
-    await expect(readerPage.getByRole('button', { name: /Upvote/ })).toContainText('(0)');
+    await expect(readerPage.getByRole('button', { name: /Downvote/ })).toHaveText('1');
+    await expect(readerPage.getByRole('button', { name: /Upvote/ })).toHaveText('0');
     await readerPage.screenshot({ path: `artifacts/procedures-post-${test.info().project.name}.png`, fullPage: true });
     expect(await readerPage.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 

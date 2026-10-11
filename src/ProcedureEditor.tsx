@@ -1,3 +1,7 @@
+import { useBackgroundSync } from './background-sync';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { getFirebase } from './firebase';
+import { FetchLoader } from './FetchLoader';
 import { AppIcon } from './AppIcon';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useAuth } from './auth';
@@ -31,6 +35,8 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
   const backupKey=`procedure-backup:${user?.uid}:${persistedId||newKey}`, storageKey=useRef(backupKey); storageKey.current=backupKey;
   const [draft,setDraft]=useState<ProcedureDraft>(()=>backup?.draft || {...initialProcedureDraft(),body:''}),[status,setStatus]=useState<ProcedureSubmission['status']>('draft'),[feedback,setFeedback]=useState(''),[ready,setReady]=useState(!draftId),[preview,setPreview]=useState(false),[saved,setSaved]=useState(backup?'Recovered writing from this device.':'Start writing; your draft saves automatically.'),[error,setError]=useState(''),[busy,setBusy]=useState(false),[conflict,setConflict]=useState(false),[remote,setRemote]=useState<ProcedureDraft|null>(null),[deviceSaved,setDeviceSaved]=useState(false),[issues,setIssues]=useState<Partial<Record<keyof ProcedureDraft,string>>>({});
   const id=useRef(draftId||backup?.id||crypto.randomUUID()),version=useRef(backup?.version||0),latest=useRef(draft),savedBody=useRef(JSON.stringify({...initialProcedureDraft(),body:''})),queue=useRef<Promise<unknown>>(Promise.resolve()),pending=useRef(false),alive=useRef(true),textarea=useRef<HTMLTextAreaElement>(null),touched=useRef(Boolean(backup)), submitting=useRef(false);
+  const [readAttempt,setReadAttempt]=useState(0);
+  useBackgroundSync(async () => { setReadAttempt(value=>value+1); }, 120000, Boolean(!ready&&error));
   const [selection,setSelection]=useState({start:0,end:0});
   const formattedSelection=useRef<{start:number;end:number}|null>(null);
   useLayoutEffect(()=>{const range=formattedSelection.current,element=textarea.current;if(!range||!element)return;formattedSelection.current=null;element.focus({preventScroll:true});element.setSelectionRange(range.start,range.end);},[draft.body,selection]);
@@ -48,8 +54,20 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
     const parsed=procedureDraftSchema.parse(row.draft);version.current=row.draftVersion;savedBody.current=JSON.stringify(parsed);pending.current=row.status==='pending';setRemote(parsed);
     const unsynced=backup&&JSON.stringify(backup.draft)!==JSON.stringify(parsed);
     setDraft(pending.current?parsed:unsynced?backup.draft:parsed);setConflict(Boolean(unsynced&&backup.version!==row.draftVersion&&!pending.current));
-    setStatus(row.status);setFeedback(row.feedback);setSaved(unsynced&&!pending.current?'Recovered unsynced writing from this device.':'Saved to your account');setReady(true);
-  }).catch(cause=>{if(active)setError(procedureError(cause));});return()=>{active=false;};},[draftId]);
+    setStatus(row.status);setFeedback(row.feedback);setSaved(unsynced&&!pending.current?'Recovered unsynced writing from this device.':'Saved to your account');setError('');setReady(true);
+  }).catch(cause=>{if(active)setError(procedureError(cause));});return()=>{active=false;};},[draftId,readAttempt]);
+  useEffect(() => {
+    if (status !== 'pending') return;
+    return onSnapshot(doc(getFirebase().db,'procedureSubmissions',id.current), snapshot => {
+      if (!alive.current || snapshot.metadata.fromCache) return;
+      const row = snapshot.data() as (ProcedureSubmission & {deleted?:boolean}) | undefined;
+      if (!row || row.deleted) { setError('This submission was deleted in another session. Return to My contributions.'); return; }
+      if (row.status === 'pending') return;
+      const value = procedureDraftSchema.parse(row.draft);
+      pending.current = false; version.current = row.draftVersion; savedBody.current = JSON.stringify(value);
+      setDraft(value); setRemote(value); setStatus(row.status); setFeedback(row.feedback || ''); setSaved('Saved to your account');
+    }, cause => { if (alive.current) setError(procedureError(cause)); });
+  }, [status]);
   function enqueueSave() {
     const operation=queue.current.catch(()=>undefined).then(async()=>{
       const value=latest.current;if(pending.current||JSON.stringify(value)===savedBody.current)return;
@@ -84,7 +102,7 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
   const fieldProps=(key:keyof ProcedureDraft)=>({id:`procedure-${key}`,'aria-label':names[key],'aria-invalid':Boolean(issues[key]),'aria-describedby':issues[key]?`procedure-error-${key}`:undefined});
   const fieldError=(key:keyof ProcedureDraft)=>issues[key]?<p id={`procedure-error-${key}`} className="procedure-note">{issues[key]}</p>:null;
   useEffect(()=>{const guard=(event:MouseEvent)=>{const anchor=(event.target as HTMLElement).closest?.('a[href]');if(!anchor||pending.current||JSON.stringify(latest.current)===savedBody.current)return;if(!deviceCopy(latest.current)&&!window.confirm('Your latest writing could not be saved to your account or this browser. Leave and lose these unsaved changes?')){event.preventDefault();event.stopPropagation();}};document.addEventListener('click',guard,true);return()=>document.removeEventListener('click',guard,true);},[]);
-  if(!ready)return <section>{error?<p role="alert">{error}</p>:<p role="status">Loading your draft…</p>}<a href="#procedures/contributions">Back to my contributions</a></section>;
+  if(!ready)return <section>{error?<p role="alert">{error}</p>:<FetchLoader label="Loading your draft…"/>}<a href="#procedures/contributions">Back to my contributions</a></section>;
   return <section className="procedure-editor-page"><div className={status==='pending'?'contribute-notice':'procedure-compose-intro'} id="procedure-submitted" tabIndex={-1}>{status==='pending'&&<strong>Pending approval</strong>}<p>{status==='pending'?'Your submitted revision is locked while an admin reviews it. Follow its status in My contributions. Your experience becomes public only after approval.':'One round or the whole process — share as much as you know. Your draft saves automatically.'}</p>{remote&&draftId&&<p className="procedure-note">If an approved version exists, it stays visible until your new revision is approved.</p>}</div>{feedback&&<p className="procedure-feedback"><strong>Admin feedback:</strong> {feedback}</p>}
     {conflict&&<div className="procedure-feedback" role="alert"><h3>This draft changed on your account.</h3><p>Your device writing is still in the editor. Choose which version to continue with before saving.</p><details><summary>Compare account version</summary><Markdown body={remote?.body||''}/></details><div className="procedure-actions"><button onClick={()=>{if(remote)setDraft(remote);clearCopy();setConflict(false);setSaved('Saved to your account');}}>Use account version</button><button onClick={()=>{deviceCopy(latest.current);setConflict(false);}}>Keep this device version</button></div></div>}
     {Object.keys(issues).length>0&&<div className="procedure-feedback" role="alert"><h3>Check these details before submitting</h3>{Object.entries(issues).map(([key,message])=><p key={key}><button className="text-button" onClick={()=>{const field=document.getElementById(`procedure-${key}`);field?.closest('details')?.setAttribute('open','');field?.focus();}}>{names[key as keyof ProcedureDraft]}: {message}</button></p>)}</div>}{companyError&&<p role="alert">{companyError}</p>}<fieldset className="procedure-editor" disabled={locked}><legend>The essentials</legend><p className="procedure-note">Choose the company, confirm your attempt details, and write what happened. Everything else is optional.</p><ProcedureCompanyPicker companies={companies} value={draft.companyKey} onChange={value=>update('companyKey',value)} loading={companiesLoading} disabled={locked} invalid={Boolean(issues.companyKey)} errorId={issues.companyKey?'procedure-error-companyKey':undefined}/>{fieldError('companyKey')}{selectedCompany&&<ProcedureCompanyPreview company={selectedCompany} appearanceYear={draft.appearanceYear}/>}

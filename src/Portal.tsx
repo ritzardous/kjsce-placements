@@ -1,3 +1,4 @@
+import { ProfileAvatar } from './ProfileAvatar';
 import { type ReactNode } from 'react';
 import AuthControls from './AuthControls';
 import { GoogleButton, useAuth } from './auth';
@@ -7,16 +8,20 @@ import { visibleYears } from './routing';
 import {useStatisticsHref} from './statistics-navigation';
 import { Contributions } from './Contributions';
 import { MobileAppNav } from './MobileAppNav';
+import { AppIcon } from './AppIcon';
 
 const areas = [['statistics', 'Placement Stats'], ['procedures', 'Company Procedures']];
 export function AreaNav({ active }: { active: string }) {
   const statisticsHref=useStatisticsHref();
-  return <nav className="area-nav" aria-label="App">{areas.map(([key, label]) => <a key={key} href={key==='statistics'?statisticsHref:`#${key}`} aria-current={active === key || (active === 'home' && key === 'statistics') ? 'page' : undefined}>{label}</a>)}</nav>;
+  return <nav className="area-nav" aria-label="App"><div className="area-switcher">{areas.map(([key, label]) => <a key={key} href={key==='statistics'?statisticsHref:`#${key}`} aria-current={active === key || (active === 'home' && key === 'statistics') ? 'page' : undefined}><AppIcon name={key==='statistics'?'chart':'book'}/><span>{label}</span></a>)}</div></nav>;
 }
 function Brand() { return <a className="brand" href="#home"><span className="brand-mark">KJSCE</span><span className="brand-name">Placement Stats</span></a>; }
+export function AppHeader({active}:{active:string}) {
+ return <header className="app-header"><div className="app-header-inner"><Brand/><a className="batch-back" href="#home"><AppIcon name="back"/><span>Back to Home / change batch</span></a><AuthControls/></div><AreaNav active={active}/></header>;
+}
 function PortalFooter() { return <footer className="portal-footer"><span>Built by students. Grounded in sources.</span><span>Made with ♥ by Ritzardous</span></footer>; }
 export function PortalShell({ active, children }: { active: string; children: ReactNode }) {
-  return <div className="portal-shell" data-app-page={active}><a className="skip-link" href="#portal-main" onClick={event => { event.preventDefault(); document.getElementById('portal-main')?.focus(); }}>Skip to content</a><header className="portal-header"><div className="portal-header-inner"><Brand /><AuthControls /></div><AreaNav active={active} /></header><main className="portal-main" id="portal-main" tabIndex={-1}>{children}</main><PortalFooter /><MobileAppNav active={active}/></div>;
+  return <div className="portal-shell" data-app-page={active}><a className="skip-link" href="#portal-main" onClick={event => { event.preventDefault(); document.getElementById('portal-main')?.focus(); }}>Skip to content</a><AppHeader active={active}/><main className="portal-main" id="portal-main" tabIndex={-1}>{children}</main><PortalFooter /><MobileAppNav active={active}/></div>;
 }
 export function Landing() {
   const { error } = useAuth();
@@ -41,11 +46,11 @@ export function Home({ statisticsOnly = false }: { statisticsOnly?: boolean }) {
   return <PortalShell active={statisticsOnly ? 'statistics' : 'home'}><section className="portal-welcome"><span className="eyebrow">YOUR NEXT STEP STARTS HERE</span><h1>{statisticsOnly ? 'Placement Stats' : `Welcome${user?.displayName ? `, ${user.displayName.split(' ')[0]}` : ''}.`}</h1><p>{statisticsOnly ? 'Explore one placement season at a time.' : 'Explore placement stats by batch, or company procedures for recruitment experiences.'}</p></section><YearChoices />{!statisticsOnly && <section className="community-entry"><div><span className="eyebrow">BEYOND THE NUMBERS</span><h2>Company Procedures</h2><p>A separate archive across batches. Browse approved recruitment experiences, or help build the archive for companies that visited campus.</p><span className="coming-label">Share your experience · reviewed before publication</span></div><a className="portal-link" href="#procedures">Explore experiences ↗</a></section>}</PortalShell>;
 }
 export function Account() {
-  const { user, admin, busy, error, logout } = useAuth();
+  const { user, admin, busy, error, profileError, logout } = useAuth();
   const accountDate = (value: string | undefined) => value ? new Date(value).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Not available';
   return <PortalShell active="account"><section className="portal-welcome"><span className="eyebrow">YOUR PERSONAL SPACE</span><h1>My Account</h1><p>Your account information and contributions, all in one place.</p></section>
-    <section className="account-details" aria-labelledby="account-details-title"><h2 id="account-details-title">Account information</h2><dl className="account-fields"><div><dt>Name</dt><dd>{user?.displayName || 'Not provided'}</dd></div><div><dt>Email</dt><dd>{user?.email || 'Not provided'}</dd></div><div><dt>Sign-in method</dt><dd>Google</dd></div><div><dt>Account created</dt><dd>{accountDate(user?.metadata.creationTime)}</dd></div><div><dt>Last sign-in</dt><dd>{accountDate(user?.metadata.lastSignInTime)}</dd></div></dl><button className="action-button" disabled={busy} onClick={() => void logout()}>{busy ? 'Signing out...' : 'Sign out'}</button>{error && <p className="auth-message" role="alert">{error}</p>}</section>
-    <nav className="account-content-shortcuts" aria-label="Manage your content"><a href="#procedures/contributions"><strong>My writing</strong><span>Edit drafts, manage review submissions and published experiences →</span></a><a href="#procedures/saved"><strong>Saved for prep</strong><span>Read or remove saved experiences →</span></a></nav>
+    <section className="account-details" aria-labelledby="account-details-title"><div className="profile-identity"><ProfileAvatar user={user}/><div><span className="eyebrow">YOUR ACCOUNT</span><h2 id="account-details-title">{user?.displayName || 'Your profile'}</h2><p>{user?.email}</p></div><span className="profile-connected"><AppIcon name="check"/>Google connected</span></div>{profileError&&<p className="procedure-note" role="status">Your private profile details could not sync yet. Retrying automatically.</p>}<details className="profile-account-meta"><summary>Account information</summary><dl className="account-fields"><div><dt>Name</dt><dd>{user?.displayName || 'Not provided'}</dd></div><div><dt>Email</dt><dd>{user?.email || 'Not provided'}</dd></div><div><dt>Sign-in method</dt><dd>Google</dd></div><div><dt>Email verification</dt><dd>{user?.emailVerified ? 'Verified' : 'Not verified'}</dd></div><div><dt>Account created</dt><dd>{accountDate(user?.metadata.creationTime)}</dd></div><div><dt>Last sign-in</dt><dd>{accountDate(user?.metadata.lastSignInTime)}</dd></div></dl></details><button className="text-button profile-signout" disabled={busy} onClick={() => void logout()}><AppIcon name="logout"/>{busy ? 'Signing out...' : 'Sign out'}</button>{error && <p className="auth-message" role="alert">{error}</p>}</section>
+    <nav className="account-content-shortcuts" aria-label="Manage your content"><a href="#procedures/contributions"><AppIcon name="pen"/><strong>My writing</strong><span>Edit drafts, manage review submissions and published experiences →</span></a><a href="#procedures/saved"><AppIcon name="bookmark"/><strong>Saved for prep</strong><span>Read or remove saved experiences →</span></a></nav>
     {admin&&<a className="portal-link" href="#admin/procedures">Review submissions →</a>}<Contributions />
   </PortalShell>;
 }

@@ -10,7 +10,7 @@ import { signInGoogle } from './auth-helper';
 
 const app=initializeApp({projectId:'demo-placementstats'},'community-browser-tests'),db=getFirestore(app);
 test.beforeEach(()=>{if(process.env.E2E_FIREBASE!=='true')throw new Error('Emulators required.');});
-test('discovery, saved prep, comparison and moderated discussion work together',async({page,browser})=>{
+test('discovery, clean reading, saved prep and report moderation work together',async({page,browser})=>{
   test.setTimeout(120000);
   const owner=await signInGoogle(page),ids=[randomUUID(),randomUUID()],tag=`Experience ${randomUUID()}`;
   for(const [index,id] of ids.entries())await db.doc(`procedurePosts/${id}`).set({...initialProcedureDraft(),id,title:`${tag} ${index}`,summary:'A focused coding round with arrays and SQL.',rounds:['Coding'],companyKey:'barclays',companyName:'Barclays',role:'Software Engineer',body:'## Coding\nI solved an array problem and explained its complexity before discussing SQL joins.\n\nPreparation\n-----------\nPractise explaining projects clearly.',published:true,publishedAt:Date.now()+index,authorUid:owner,authorName:'Community contributor',revision:1,score:0,upvotes:0,downvotes:0});
@@ -29,58 +29,33 @@ test('discovery, saved prep, comparison and moderated discussion work together',
       await reader.locator('.procedure-more-filters').getByLabel('Round',{exact:true}).selectOption('Coding');
     }
     await expect(reader.locator('.procedure-card h3').filter({hasText:tag})).toHaveCount(2);
-    for (const index of [0,1]) {
-      const experience = reader.getByRole('article').filter({has:reader.getByRole('heading',{name:`${tag} ${index}`,exact:true})});
-      await experience.getByRole('button',{name:'Compare',exact:true}).click();
-    }
-    await reader.getByRole('link',{name:'Compare selected',exact:false}).click();
-    await expect(reader.locator('.procedure-compare h3').filter({hasText:tag})).toHaveCount(2);
-    expect(await reader.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-    await reader.getByRole('link',{name:'Back to experiences',exact:false}).click();
-    await expect(reader.getByRole('searchbox',{name:'Search experiences'})).toHaveValue(tag);
-    await expect(reader.locator('.procedure-more-filters').getByLabel('Round',{exact:true})).toHaveValue('Coding');
+    await expect(reader.getByRole('button',{name:'Compare',exact:true})).toHaveCount(0);
     await reader.getByRole('link',{name:'Company hub',exact:true}).first().click();
     await expect(reader.getByRole('heading',{name:'Barclays procedure hub'})).toBeVisible();
     await expect(reader.getByRole('link',{name:'2025 placement statistics',exact:false})).toBeVisible();
     await reader.goto(`/#procedures/${ids[0]}`);
-    await reader.locator('summary').filter({hasText:'On this page'}).click();
-    await expect(reader.getByRole('navigation',{name:'Experience sections'}).getByRole('button',{name:'Preparation'})).toBeVisible();
+    await expect(reader.getByRole('navigation',{name:'Experience sections'})).toHaveCount(0);
+    await expect(reader.getByLabel('Ask a question')).toHaveCount(0);
     await reader.getByRole('button',{name:'Save for prep',exact:true}).click();
-    await expect(reader.getByRole('button',{name:'Saved for prep ✓'})).toBeVisible();
-    await reader.getByRole('link',{name:'Saved for prep',exact:true}).click();
+    await expect(reader.getByRole('button',{name:'Remove from saved experiences'})).toBeVisible();
+    await reader.goto('/#procedures/saved');
     await expect(reader.getByRole('heading',{name:`${tag} 0`,exact:true})).toBeVisible();
     await db.doc(`procedurePosts/${ids[0]}`).update({revision:2});await reader.reload();
     await expect(reader.getByText('A newer approved revision is available.')).toBeVisible();
     await reader.goto(`/#procedures/${ids[0]}`);
-    await reader.getByLabel('Ask a question').fill('Which array techniques helped you solve the coding round?');
-    await reader.getByRole('button',{name:'Submit question for review'}).click();
-    await expect(reader.getByText('Question submitted for moderation.')).toBeVisible();
     const adminUid=await signInGoogle(admin);await getAuth(app).setCustomUserClaims(adminUid,{role:'admin'});
     await admin.evaluate(`(async()=>{const {getFirebase}=await import('/src/firebase.ts');await getFirebase().auth.currentUser.getIdToken(true);})()`);
     await admin.goto('/#admin/procedures');
     await admin.locator('summary').filter({hasText:'Moderation overview'}).click();
     await expect(admin.getByText('All notifications are delivered in the app.', {exact:false})).toBeVisible();
     await expect(admin.getByRole('button',{name:'Retry failed emails'})).toHaveCount(0);
-    await admin.getByRole('button',{name:'Reports and discussions',exact:true}).click();
-    await admin.getByRole('button',{name:'Questions and replies',exact:true}).click();
-    const card=admin.locator('.procedure-card').filter({hasText:'Which array techniques helped'});
-    await card.getByLabel('Moderation reason').fill('Relevant preparation question.');await card.getByRole('button',{name:'Approve question'}).click();
-    await expect(card).toHaveCount(0);
-    await page.goto(`/#procedures/${ids[0]}`);await page.getByLabel('Your reply').fill('I practised two pointers and prefix sums before the interview.');
-    await page.getByRole('button',{name:'Submit reply for review'}).click();
-    await expect(page.getByText('Reply awaiting moderation')).toBeVisible();
-    await reader.reload();await expect(reader.getByText('I practised two pointers',{exact:false})).toHaveCount(0);
-    await admin.getByRole('button',{name:'Refresh inbox',exact:true}).click();
-    await card.getByLabel('Moderation reason').fill('Firsthand and helpful.');await card.getByRole('button',{name:'Approve reply'}).click();
-    await expect(card).toHaveCount(0);await reader.reload();
-    await expect(reader.getByText('I practised two pointers',{exact:false})).toBeVisible();
-    await reader.locator('.procedure-detail > details').filter({hasText:'Report experience'}).locator('summary').click();
-    const report=reader.locator('.procedure-detail > details').filter({hasText:'Report experience'});
-    await report.getByLabel('Details (optional)').fill('Please check whether the coding format has changed.');
+    await reader.locator('.reader-footer > details').filter({hasText:'Report experience'}).locator('summary').click();
+    const report=reader.locator('.reader-footer > details').filter({hasText:'Report experience'});
+    await report.getByLabel('Details (optional)').fill(`Please check whether the coding format has changed. ${tag}`);
     await report.getByRole('button',{name:'Send report'}).click();
     await expect(report.getByText('Report received',{exact:false})).toBeVisible();
     await admin.getByRole('button',{name:'Reports',exact:true}).click();
-    const reportCard=admin.locator('.procedure-card').filter({hasText:'Please check whether the coding format has changed.'});
+    const reportCard=admin.locator('.procedure-card').filter({hasText:`Please check whether the coding format has changed. ${tag}`});
     await reportCard.getByLabel('Moderation reason').fill('Contributor should confirm the latest format.');await reportCard.getByRole('button',{name:'Request correction'}).click();
     await expect(reportCard).toHaveCount(0);await page.goto('/#procedures/notifications');
     await expect(page.getByRole('heading',{name:'Correction requested',exact:false})).toBeVisible();

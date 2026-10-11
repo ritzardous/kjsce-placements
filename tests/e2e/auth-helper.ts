@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-export async function signInGoogle(page: Page, navigate = true) {
+export async function signInGoogle(page: Page, navigate = true, photoURL?: string) {
   if (navigate) await page.goto('/#login');
   await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeEnabled();
   // The isolated Auth emulator accepts a synthetic provider token. This uses the
@@ -8,7 +8,7 @@ export async function signInGoogle(page: Page, navigate = true) {
     const {getFirebase} = await import('/src/firebase.ts');
     const {GoogleAuthProvider,signInWithCredential} = await import('/node_modules/.vite/deps/firebase_auth.js');
     const id = crypto.randomUUID();
-    await signInWithCredential(getFirebase().auth, GoogleAuthProvider.credential(JSON.stringify({sub:id,email:id+'@example.test',email_verified:true,name:'Test Student'})));
+    await signInWithCredential(getFirebase().auth, GoogleAuthProvider.credential(JSON.stringify({sub:id,email:id+'@example.test',email_verified:true,name:'Test Student',picture:${JSON.stringify(photoURL ?? '')}})));
   })()`);
   await expect(page.getByRole('button', { name: 'Log out', exact: true })).toBeVisible();
   if(navigate)await expect(page).toHaveURL(/#home$/);

@@ -1,0 +1,114 @@
+/* Shared geometry prevents the shell shifting between app sections. */
+html { scrollbar-gutter:stable; }
+.app-header { position:sticky; top:0; z-index:50; background:var(--surface); border-bottom:1px solid var(--line-soft); }
+.app-header-inner { max-width:1400px; margin:auto; padding:16px 28px; min-height:80px; display:flex; align-items:center; gap:24px; border-bottom:1px solid var(--line-faint); }
+.app-header .brand { margin-right:auto; }
+.app-header .batch-back { display:inline-flex; align-items:center; gap:8px; margin:0; font-size:13px; }
+:is(#app,.portal-shell) .app-header .batch-back { padding:0; min-height:44px; }
+:is(#app,.portal-shell) .app-header .area-nav { max-width:1400px; padding:12px 28px; min-height:78px; margin:auto; }
+.portal-shell .portal-main { max-width:1400px; padding:36px 28px 80px; }
+#app main { padding-top:24px; }
+#app .dashboard-desktop-nav { padding:0; margin-bottom:0; }
+.auth-controls .auth-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; }
+.auth-controls .icon-control { width:44px; padding:10px; flex:none; }
+.auth-controls .app-icon { width:20px; height:20px; }
+.procedure-ui button.procedure-mobile-filters { display:none; }
+.reader-view { width:100%; max-width:820px; margin:0 auto; padding:32px!important; }
+.reader-view h1 { font:700 clamp(28px,3vw,38px)/1.25 var(--font-display); margin:24px 0 32px; overflow-wrap:anywhere; }
+.reader-view .procedure-markdown { max-width:70ch; font-size:16px; line-height:1.9; }
+.procedure-ui .reader-view > .procedure-markdown { margin:24px 0; }
+.reader-view .procedure-markdown p { font-size:16px; line-height:1.9; margin:0 0 22px; }
+.reader-view .procedure-markdown :is(h1,h2,h3,h4) { margin:32px 0 16px; line-height:1.35; }
+.reader-view .procedure-markdown :is(ul,ol) { padding-left:24px; margin-block:18px; }
+.reader-view .procedure-markdown li+li { margin-top:8px; }
+.reader-view .procedure-markdown blockquote { background:var(--accent-soft); padding:16px 20px; border-radius:0 6px 6px 0; }
+.reader-view .procedure-markdown :is(pre,table) { max-width:100%; }
+.reader-footer { margin-top:40px; padding-top:20px; border-top:1px solid var(--line-soft); }
+.reader-footer .procedure-actions { margin:0 0 12px; }
+.reader-context p { color:var(--ink-soft); }
+.reader-context a { display:inline-flex; align-items:center; gap:8px; color:var(--accent); }
+.reader-footer .procedure-report { margin-bottom:0; }
+
+/* A moving constellation of recruitment cards, rather than a blocking overlay. */
+.fetch-loader { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; min-height:240px; padding:32px 20px; color:var(--ink-soft); font-size:14px; text-align:center; }
+.fetch-visual { position:relative; width:132px; height:108px; }
+.fetch-orbit { position:absolute; inset:5px 12px; border:1px dashed var(--line-soft); border-radius:50%; animation:fetch-spin 12s linear infinite; }
+.fetch-tile { position:absolute; width:40px; height:40px; display:grid; place-items:center; color:var(--accent); background:var(--surface); border:1px solid var(--line-soft); border-radius:10px; box-shadow:0 6px 18px color-mix(in srgb,var(--accent) 10%,transparent); animation:fetch-float 2.6s ease-in-out infinite; }
+.tile-one { left:8px; top:6px; transform:rotate(-10deg); }
+.tile-two { right:4px; top:22px; animation-delay:-.9s; }
+.tile-three { bottom:0; left:40px; animation-delay:-1.8s; }
+.fetch-core { position:absolute; left:62px; top:42px; width:8px; height:8px; border-radius:50%; background:var(--accent); animation:fetch-pulse 1.4s ease-in-out infinite; }
+.fetch-lines { width:min(260px,80%); display:grid; gap:8px; }
+.fetch-lines i { display:block; height:6px; border-radius:8px; background:linear-gradient(90deg,var(--line-faint),var(--accent-dim),var(--line-faint)); background-size:200% 100%; animation:fetch-shimmer 1.8s ease-in-out infinite; }
+.fetch-lines i:nth-child(2) { width:85%; animation-delay:.15s; }
+.fetch-lines i:nth-child(3) { width:65%; animation-delay:.3s; }
+.fetch-loader.is-compact { flex-direction:row; min-height:72px; padding:16px; justify-content:flex-start; text-align:left; }
+.fetch-loader.is-compact .fetch-visual { width:56px; height:40px; flex:none; }
+.fetch-loader.is-compact .fetch-tile { width:24px; height:24px; border-radius:5px; }
+.fetch-loader.is-compact .fetch-tile .app-icon { width:14px; height:14px; }
+.fetch-loader.is-compact .tile-one { left:0; top:0; }
+.fetch-loader.is-compact .tile-two { right:0; top:10px; }
+.fetch-loader.is-compact :is(.tile-three,.fetch-core,.fetch-orbit) { display:none; }
+@keyframes fetch-spin { to { transform:rotate(360deg); } }
+@keyframes fetch-float { 0%,100% { translate:0 0; } 50% { translate:0 -9px; } }
+@keyframes fetch-pulse { 50% { box-shadow:0 0 0 10px color-mix(in srgb,var(--accent) 12%,transparent); } }
+@keyframes fetch-shimmer { to { background-position:-200% 0; } }
+
+@media (hover:hover) {
+ :is(#app,.portal-shell) :is(.auth-button,.text-button,.chip,.filter,.procedure-actions>a,.procedure-actions>button,summary) { transition:background-color 160ms,border-color 160ms,box-shadow 160ms,color 160ms; }
+ :is(#app,.portal-shell) :is(.auth-button,.text-button,.procedure-actions>a,.procedure-actions>button):not(:disabled):hover { border-color:var(--accent); color:var(--accent); background:var(--accent-soft); box-shadow:0 3px 10px color-mix(in srgb,var(--accent) 8%,transparent); }
+ :is(#app,.portal-shell) .action-button:not(:disabled):hover { background:color-mix(in srgb,var(--accent) 88%,var(--ink)); color:var(--accent-ink); box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 24%,transparent); }
+ .procedure-ui .procedure-card:not(.reader-view):hover { border-color:color-mix(in srgb,var(--accent) 30%,var(--line-soft)); }
+ #app .card-table tbody tr:hover { background:var(--accent-soft); }
+ .reader-view .procedure-markdown a:hover { text-decoration-thickness:2px; text-underline-offset:4px; }
+}
+
+:root[data-theme=dark] { color-scheme:dark; --bg:#080808; --surface:#141414; --ink:#f5f5f5; --ink-soft:#b9b9b9; --ink-faint:#a2a2a2; --line:#dedede; --line-soft:#797979; --line-faint:#383838; --accent:#f5f5f5; --accent-ink:#080808; --accent-dim:#424242; --accent-soft:#282828; --warn:#ddd; }
+[data-theme=dark] :is(#app,.portal-shell) { --ui-success:#99dfbc; --ui-success-bg:#19372d; --ui-warning:#f3cd89; --ui-warning-bg:#3c301a; --ui-danger:#ffa9a5; --ui-danger-bg:#402627; }
+[data-theme=dark] :is(.portal-shell,#app) :is(.procedure-card,.procedure-discovery,.procedure-composer,.procedure-optional,.procedure-company-options,.procedure-reader-preview,.procedure-filter-sheet,.procedure-confirmation,.procedure-submit-bar,.account-details,.account-content-shortcuts a,.year-card,.portal-empty,.mobile-app-nav,.statistics-menu,.skip-link,input,select,textarea,button:not(.action-button),.auth-button) { background-color:var(--surface); color:var(--ink); }
+[data-theme=dark] :is(.procedure-ui,#app,.portal-shell) .action-button { background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+[data-theme=dark] .procedure-ui :is(.procedure-badge,.procedure-metrics p,.procedure-summary,.procedure-editor-toolbar,.procedure-feedback,.procedure-company-preview) { background:var(--accent-soft); color:var(--ink); }
+[data-theme=dark] :is(#app,.portal-shell) :is(.chip.active,.branch-chip.active,.role-chip.active,button[aria-pressed=true],a[aria-current=page]) { background:var(--accent-soft); color:var(--accent); }
+[data-theme=dark] #app .stat.headline { background:#0c1220; color:#edf1f7; }
+[data-theme=dark] #app .stat.headline .stat-value { color:#edf1f7; }
+[data-theme=dark] #app .stat.headline :is(.stat-label,.stat-extra) { color:#b6becb; }
+[data-theme=dark] :is(#app,.portal-shell) .control-danger { background:var(--ui-danger-bg); color:var(--ui-danger); border-color:var(--ui-danger); }
+[data-theme=dark] :is(#app,.portal-shell) .control-warning { background:var(--ui-warning-bg); color:var(--ui-warning); }
+[data-theme=dark] :is(#app,.portal-shell) .control-success { background:var(--ui-success-bg); color:var(--ui-success); }
+[data-theme=dark] :is(#app,.portal-shell) .company-logo { background:white; }
+[data-theme=dark] .procedure-ui :is(.procedure-success,.procedure-feedback[role=status]) { background:var(--ui-success-bg); color:var(--ui-success); }
+[data-theme=dark] .procedure-ui :is(.procedure-load-error,[role=alert]) { background:var(--ui-danger-bg); color:var(--ui-danger); }
+[data-theme=dark] .diff-added { background:#19372d; color:#99dfbc; }
+[data-theme=dark] .diff-removed { background:#402627; color:#ffa9a5; }
+[data-theme=dark] .mobile-statistics-sheet { background:var(--surface); color:var(--ink); border-color:var(--line-soft); }
+[data-theme=dark] :is(#app,.portal-shell) button.control-danger { background:var(--ui-danger-bg); color:var(--ui-danger); border-color:var(--ui-danger); }
+[data-theme=dark] :is(#app,.portal-shell) button.control-warning { background:var(--ui-warning-bg); color:var(--ui-warning); border-color:var(--ui-warning); }
+[data-theme=dark] :is(#app,.portal-shell) button.control-success { background:var(--ui-success-bg); color:var(--ui-success); border-color:var(--ui-success); }
+[data-theme=dark] .procedure-ui :is(.status-published,.status-approved,.coverage-full) { background:var(--ui-success-bg); color:var(--ui-success); }
+[data-theme=dark] .procedure-ui :is(.status-pending,.coverage-partial) { background:var(--ui-warning-bg); color:var(--ui-warning); }
+[data-theme=dark] .procedure-ui :is(.status-rejected,.status-changes_requested) { background:var(--ui-danger-bg); color:var(--ui-danger); }
+@media(hover:hover) {
+ [data-theme=dark] :is(#app,.portal-shell) :is(button:not(.action-button),.auth-button):not(:disabled):hover { background:var(--accent-soft); color:var(--accent); }
+ [data-theme=dark] :is(#app,.portal-shell) button.control-danger:not(:disabled):hover { background:var(--ui-danger-bg); color:var(--ui-danger); }
+}
+
+@media(max-width:720px) {
+ .app-header-inner { padding:12px 16px; min-height:72px; gap:10px; flex-wrap:wrap; }
+ .app-header .brand { flex:1; font-size:13px; }
+ .app-header .brand-name { font-size:13px; }
+ .app-header .batch-back { order:3; width:100%; min-height:36px; }
+ .app-header .auth-controls { gap:6px; margin:0; flex-wrap:nowrap; }
+ .app-header .logout-button { width:44px; padding:10px; }
+ .app-header .logout-button span { display:none; }
+ .portal-shell .portal-main { padding:28px 16px 104px; }
+ #app main { padding-top:12px; }
+ .procedure-ui button.procedure-mobile-filters { display:inline-flex; }
+ .reader-view { padding:20px!important; }
+ .reader-view h1 { font-size:28px; }
+ .reader-view .procedure-markdown p { font-size:16px; }
+ .fetch-loader { min-height:200px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .fetch-loader * { animation:none!important; }
+ :is(#app,.portal-shell) * { transition:none!important; }
+}

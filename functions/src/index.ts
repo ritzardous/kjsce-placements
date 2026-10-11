@@ -20,4 +20,4 @@ async function currentAdmin(actor: Actor | undefined) {
 export const reviewProcedure = onCall(options, async request => review(db, await currentAdmin(request.auth), request.data));
 export const unpublishProcedure = onCall(options, async request => unpublish(db, await currentAdmin(request.auth), request.data));
 export const setProcedureVote = onCall(options, request => vote(db, request.auth, request.data));
-export const procedureCommunity = onCall(options, async request => community(db, adminCommunityActions.has(request.data?.action) || request.auth?.token.role === 'admin' ? await currentAdmin(request.auth) : request.auth, request.data));
+export const procedureCommunity = onCall(options, async request => community(db, adminCommunityActions.has(request.data?.action) || request.auth?.token.role === 'admin' ? await currentAdmin(request.auth) : request.auth, request.data, getAuth()));

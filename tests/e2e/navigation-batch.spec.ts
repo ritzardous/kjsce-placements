@@ -25,7 +25,7 @@ test('selected batch survives app sections and refresh; changing batch starts at
  await views.getByRole('link',{name:'Candidates & roles',exact:true}).click();await expect(page.getByRole('textbox',{name:'Search candidates'})).toHaveValue('Google');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:`artifacts/career-explorer-${info.project.name}.png`,fullPage:false});
- await page.locator('.topbar .batch-back').click();await expect(page).toHaveURL(/#home$/);
+ await page.locator('.app-header .batch-back').click();await expect(page).toHaveURL(/#home$/);
  await page.getByRole('link',{name:/Class of 2026/}).click();await expect(page).toHaveURL(/#overview$/);
  await page.goto('/#company/barclays');await expect(page.getByRole('heading',{name:'Barclays',exact:true})).toBeVisible();
  const sources=page.locator('.company-source-details');await expect(sources.locator('.announcement-provenance').first()).not.toBeVisible();await sources.locator('summary').click();await expect(sources.locator('.announcement-provenance').first()).toContainText('Source:');
