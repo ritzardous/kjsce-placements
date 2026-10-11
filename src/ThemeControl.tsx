@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { AppIcon } from './AppIcon';
 const ThemeContext=createContext({dark:false,toggle:()=>{}});
-function initialTheme(){try{const saved=localStorage.getItem('placement-theme');return saved?saved==='dark':matchMedia('(prefers-color-scheme: dark)').matches;}catch{return false;}}
+function initialTheme(){try{return localStorage.getItem('placement-theme')==='dark';}catch{return false;}}
 export function ThemeProvider({children}:{children:ReactNode}) {
  const [dark,setDark]=useState(initialTheme);
  useEffect(()=>{const apply=()=>{const publicPage=!location.hash||/^#(?:landing|login)(?:\?|$)/.test(location.hash);document.documentElement.dataset.theme=dark&&!publicPage?'dark':'light';};apply();window.addEventListener('hashchange',apply);return()=>window.removeEventListener('hashchange',apply);},[dark]);

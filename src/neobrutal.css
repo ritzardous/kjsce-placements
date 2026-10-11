@@ -151,7 +151,6 @@ body:has(:is(#app,.portal-shell,.login-page)) { background:#f7f8fa; }
 :is(#app,.portal-shell) .year-card { padding:28px; }
 :is(#app,.portal-shell) .year-card h3 { font-size:32px; }
 :is(#app,.portal-shell) .year-card-link { border-top:2px solid var(--line); padding-top:16px; margin-top:24px; }
-:is(#app,.portal-shell) .year-card:first-child { background:var(--neo-lime); }
 :is(#app,.portal-shell) .statgrid { border:2px solid var(--line); box-shadow:4px 4px 0 var(--neo-shadow); }
 #app .stat { border-right:1px solid var(--line); border-bottom:1px solid var(--line); background:var(--surface); padding:24px; }
 #app .stat.headline { background:var(--ink); color:var(--surface); }
@@ -320,18 +319,16 @@ body:has(:is(#app,.portal-shell,.login-page)) { background:#f7f8fa; }
 [data-theme=dark] :is(#app,.portal-shell) .procedure-company-preview a { text-decoration:underline; text-underline-offset:3px; }
 [data-theme=dark] :is(#app,.portal-shell) .account-content-shortcuts > a:first-child,
 [data-theme=dark] :is(#app,.portal-shell) .account-content-shortcuts > a:first-child :is(strong,span) { color:#080808; }
-[data-theme=dark] :is(#app,.portal-shell) .year-card:first-child,
-[data-theme=dark] :is(#app,.portal-shell) .year-card:first-child :is(h3,p,.year-card-link,.year-status) { color:#080808; }
 [data-theme=dark] #app .candidate-linkedin { color:var(--ink); background:var(--surface); border:2px solid var(--line); border-radius:0; }
 :is(#app,.portal-shell) .candidate-linkedin { border-radius:0; }
 [data-theme=dark] :is(#app,.portal-shell) .procedure-ui button.control-danger { background:var(--ui-danger-bg); color:var(--ui-danger); border-color:var(--line); }
 [data-theme=dark] :is(#app,.portal-shell) .procedure-ui button.control-warning { background:var(--ui-warning-bg); color:var(--ui-warning); border-color:var(--line); }
 
-[data-theme=dark] :is(#app,.portal-shell) :is(.procedure-company-preview,.procedure-metrics p,.year-card:first-child,.account-content-shortcuts>a:first-child) {
+[data-theme=dark] :is(#app,.portal-shell) :is(.procedure-company-preview,.procedure-metrics p,.account-content-shortcuts>a:first-child) {
  --ink:#080808; --ink-soft:#333; --ink-faint:#444; --accent:#080808; --accent-soft:#ccc;
 }
 @media(hover:hover) {
- [data-theme=dark] :is(#app,.portal-shell) :is(button,.auth-button,.chip,.branch-chip,.role-chip,.procedure-actions>a,.procedure-utilities>a,.account-content-shortcuts>a,.year-card):not(:disabled):not(.action-button):not(.contribution-primary-action):hover { background:#dedede; color:#080808; border-color:var(--line); }
+ [data-theme=dark] :is(#app,.portal-shell) :is(button,.auth-button,.chip,.branch-chip,.role-chip,.procedure-actions>a,.procedure-utilities>a,.account-content-shortcuts>a):not(:disabled):not(.action-button):not(.contribution-primary-action):hover { background:#dedede; color:#080808; border-color:var(--line); }
  [data-theme=dark] :is(#app,.portal-shell) :is(.area-switcher a,.procedure-tabs a,.dashboard-desktop-nav a,.career-explorer-tabs a):hover { background:#dedede; color:#080808; }
  [data-theme=dark] :is(#app,.portal-shell) :is(.action-button,button.action-button,.contribution-primary-action):not(:disabled):hover { background:#dedede; color:#080808; }
  [data-theme=dark] :is(#app,.portal-shell) .account-content-shortcuts>a:hover span { color:#080808; }
@@ -373,3 +370,51 @@ body:has(:is(#app,.portal-shell,.login-page)) { background:#f7f8fa; }
 [data-theme=dark] #app .react-legend > div:nth-child(7) .legend-swatch { background:#b9b9b9 !important; }
 [data-theme=dark] #app .react-donut circle:nth-of-type(8) { stroke:#858585; }
 [data-theme=dark] #app .react-legend > div:nth-child(8) .legend-swatch { background:#858585 !important; }
+
+/* Personal navigation and a gentle invitation to the community. */
+:is(#app,.portal-shell) .profile-avatar.navigation-avatar { width:32px; height:32px; font-size:14px; border:0; border-radius:50%; box-shadow:none; }
+:is(#app,.portal-shell) .app-header-inner { gap:10px; }
+:is(#app,.portal-shell) .app-header .auth-controls { margin-left:0; gap:10px; flex-wrap:nowrap; }
+:is(#app,.portal-shell) .app-header :is(.auth-button,.home-control) { height:44px; min-height:44px; box-sizing:border-box; }
+:is(#app,.portal-shell) .app-header .auth-controls .icon-control { width:44px; padding:4px; }
+:is(#app,.portal-shell) .app-header .account-header-link { display:grid; place-items:center; }
+:is(#app,.portal-shell) .home-control { min-width:44px; min-height:44px; display:grid; place-items:center; border:2px solid var(--line); background:var(--surface); box-shadow:2px 2px 0 var(--neo-shadow); }
+:is(#app,.portal-shell) .app-header .home-control { transition:transform 120ms ease,box-shadow 120ms ease,background-color 120ms ease,color 120ms ease; text-decoration:none; }
+@media(hover:hover) { :is(#app,.portal-shell) .app-header .home-control:hover { transform:translate(-1px,-1px); background:var(--accent-soft); color:var(--accent); box-shadow:3px 3px 0 var(--neo-shadow); } }
+:is(#app,.portal-shell) .app-header .home-control:active { transform:translate(2px,2px); box-shadow:none; }
+:is(#app,.portal-shell) .app-header .home-control { width:44px; flex:0 0 44px; order:0; }
+@media(max-width:480px) { :is(#app,.portal-shell) .app-header-inner:has(.home-control) .brand-name { display:none; } }
+:is(#app,.portal-shell) .year-card h3 { color:inherit; }
+:is(#app,.portal-shell) .home-community-link { position:relative; overflow:hidden; color:var(--ink); text-decoration:none; border-color:var(--line); background:var(--surface); transition:transform 160ms ease,box-shadow 160ms ease; }
+:is(#app,.portal-shell) .home-community-link::after { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(110deg,transparent 30%,color-mix(in srgb,var(--accent) 9%,transparent) 48%,transparent 66%); transform:translateX(-110%); animation:community-sweep 7s ease-in-out infinite; }
+:is(#app,.portal-shell) .home-community-link .portal-link { display:flex; align-items:center; gap:12px; }
+:is(#app,.portal-shell) .home-community-link:focus-visible { outline:3px solid var(--accent); outline-offset:5px; }
+@keyframes community-sweep { 0%,65% { transform:translateX(-110%); } 95%,100% { transform:translateX(110%); } }
+/* Home destinations share one surface in every interaction state. */
+:is(#app,.portal-shell) .home-card { background:var(--surface); color:var(--ink); border:2px solid var(--line); padding:28px; box-shadow:4px 4px 0 var(--neo-shadow); text-decoration:none; transition:transform 160ms ease,box-shadow 160ms ease,background-color 160ms ease; }
+:is(#app,.portal-shell) .home-card :is(h2,h3,.year-card-link,.portal-link,.eyebrow) { color:var(--ink); }
+:is(#app,.portal-shell) .home-card :is(p,.year-status,.coming-label) { color:var(--ink-soft); }
+:is(#app,.portal-shell) .home-card p { font-size:14px; line-height:1.8; }
+:is(#app,.portal-shell) .home-card .coming-label { display:inline-block; max-width:100%; line-height:1.6; }
+:is(#app,.portal-shell) .home-card :is(h2,h3) { font-size:32px; }
+:is(#app,.portal-shell) .home-card .year-card-link { margin-top:auto; font-size:14px; }
+:is(#app,.portal-shell) .home-community-link { flex-direction:column; align-items:stretch; gap:24px; }
+:is(#app,.portal-shell) .home-community-link > div { max-width:none; }
+:is(#app,.portal-shell) .home-community-link .portal-link { justify-content:space-between; border-top:2px solid var(--line); padding-top:16px; font-size:14px; }
+@media(hover:hover) {
+ :is(#app,.portal-shell) a.home-card:not(:disabled):not([aria-disabled=true]):hover { background:var(--accent-soft); color:var(--ink); border-color:var(--line); transform:translate(-2px,-2px); box-shadow:6px 6px 0 var(--neo-shadow); }
+}
+:is(#app,.portal-shell) a.home-card:active { background:var(--accent-soft); color:var(--ink); transform:translate(2px,2px); box-shadow:none; }
+@media(max-width:600px) { :is(#app,.portal-shell) .home-card { padding:22px; } :is(#app,.portal-shell) .home-card :is(h2,h3) { font-size:28px; } }
+:is(#app,.portal-shell) .experience-empty { text-align:center; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:260px; gap:12px; }
+:is(#app,.portal-shell) .experience-empty > .app-icon { width:34px; height:34px; color:var(--ink-soft); }
+:is(#app,.portal-shell) .experience-empty :is(h2,p) { margin:0; }
+:is(#app,.portal-shell) .has-bookmark { position:relative; }
+:is(#app,.portal-shell) .has-bookmark > .procedure-heading { padding-right:48px; }
+:is(#app,.portal-shell) .bookmark-control { position:absolute; right:20px; top:-16px; z-index:2; }
+:is(#app,.portal-shell) button.article-bookmark { width:44px; height:48px; padding:10px; background:var(--surface); }
+:is(#app,.portal-shell) button.article-bookmark[aria-pressed=true] { background:var(--accent); color:var(--accent-ink); }
+:is(#app,.portal-shell) button.article-bookmark[aria-pressed=true] .app-icon { fill:currentColor; }
+:is(#app,.portal-shell) .bookmark-control > [role=alert] { width:min(270px,75vw); position:absolute; right:0; top:50px; margin:0; font-size:13px; }
+.bookmark-feedback { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+@media(prefers-reduced-motion:reduce) { :is(#app,.portal-shell) .home-community-link::after { animation:none; display:none; } }

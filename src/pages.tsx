@@ -1,3 +1,4 @@
+import {matchesSearch} from '../shared/search';
 import { CompanyIdentity, CompanyLogo } from './CompanyIdentity';
 import { AppIcon } from './AppIcon';
 import { useState } from 'react';
@@ -47,16 +48,16 @@ export function Overview({ statistics: s }: { statistics: Statistics }) {
   return <>
     <section className="hero"><div className="eyebrow">AY {academicYear(s.batch.year)} · {m.announcements} {s.batch.year === 2025 ? "placement record groups" : "TPO announcements"}</div><h1 className="hero-title">Placement Stats<br />@ KJSCE '{String(s.batch.year).slice(-2)}</h1><p className="hero-sub">{s.batch.year === 2025 ? "Final UG placement report enriched with campus email results. Missing dates, roles, compensation, and registration totals remain unavailable." : s.batch.year === 2027 ? "Placements are ongoing for the Class of 2027. Explore confirmed results so far; figures will change as reviewed email updates are added." : "A structured read of the KJSCE T&PO announcement history: every confirmed hire, CTC and role, organized for placement season decision-making."}</p></section>
     <div className="statgrid">
-      <Stat value={s.batch.registeredStudents ?? '—'} label={s.batch.degreeScope === "UG" ? "UG students registered" : "B.Tech students registered"} extra={s.batch.registeredStudents === null ? "Registration total not supplied" : "AY 2025–26 · T&PO director's mail"} headline />
+      <Stat value={s.batch.registeredStudents ?? 'Not available'} label={s.batch.degreeScope === "UG" ? "UG students registered" : "B.Tech students registered"} extra={s.batch.registeredStudents === null ? "Registration total not supplied" : "AY 2025–26 · T&PO director's mail"} headline />
       <Stat value={m.uniqueStudents} label={s.batch.degreeScope === "UG" ? "Unique UG students placed" : "Unique B.Tech students placed"} extra={m.notConfirmedPlaced === null ? s.batch.year === 2025 ? "By distinct roll number in the final report" : "By distinct roll number in supplied emails" : `${m.notConfirmedPlaced} not confirmed placed in these sources`} headline />
-      <Stat value={m.placementRate === null ? '—' : m.placementRate.toFixed(1) + '%'} label="Placement rate" extra={`of ${s.batch.registeredStudents ?? 'unknown'} registered ${s.batch.degreeScope} students`} headline />
-      <Stat value={m.reportedCounter ?? '—'} label="Confirmed cumulative placements" extra="TPO running counter · latest confirmed" />
+      <Stat value={m.placementRate === null ? 'Not available' : m.placementRate.toFixed(1) + '%'} label="Placement rate" extra={`of ${s.batch.registeredStudents ?? 'unknown'} registered ${s.batch.degreeScope} students`} headline />
+      <Stat value={m.reportedCounter ?? 'Not available'} label="Confirmed cumulative placements" extra="TPO running counter · latest confirmed" />
       <Stat value={m.announcements} label={s.batch.year === 2025 ? "Placement record groups" : "Placement announcements"} extra={`${date(m.firstDate, true)} → ${date(m.latestDate, true)}`} />
       <Stat value={m.selections} label="Candidate selections recorded" extra={s.batch.year === 2025 ? "final report rows · includes off-campus" : "across announcements · not unique students"} />
       <Stat value={m.companies} label="Companies represented" extra={`${s.types.length} company types`} />
       <Stat value={money(m.highestCtc)} label="Highest CTC" extra={topCtc[0]?.company.name} />
       <Stat value={money(m.avgCtc)} label="Average CTC" extra={`across ${m.ctcCoverage} valued ${s.batch.ctcWeighting === "selection" ? "selection rows" : "announcements"}`} />
-      <Stat value={topHiring[0]?.name ?? '—'} label="Most hiring company" extra={`${topHiring[0]?.totalHired ?? 0} selections`} />
+      <Stat value={topHiring[0]?.name ?? 'Not available'} label="Most hiring company" extra={`${topHiring[0]?.totalHired ?? 0} selections`} />
       <Stat value={date(m.latestDate)} label="Most recent result" extra={recent[0]?.company.name} />
     </div>
     <p className="methodology">{s.batch.registrationSource} Placement rate uses unique students, not selections, and requires a documented registration denominator. {s.batch.year === 2025 ? "On-campus and off-campus report selections are both included. Average CTC is selection-weighted;" : "Off-campus or unannounced placements are outside this dataset. Average CTC is announcement-weighted;"} missing or mixed compensation values are excluded.</p>
@@ -78,7 +79,7 @@ export function Companies({ statistics: s, filters, setFilters }: { statistics: 
       if (value === null) return false;
       if (filters.ctc === '<5L' && value >= 5 || filters.ctc === '5–10L' && (value < 5 || value >= 10) || filters.ctc === '10–15L' && (value < 10 || value >= 15) || filters.ctc === '15L+' && value < 15) return false;
     }
-    return `${c.name} ${c.type} ${c.roles.join(' ')}`.toLowerCase().includes(filters.search.trim().toLowerCase());
+    return matchesSearch(`${c.name} ${c.type} ${c.roles.join(' ')}`,filters.search);
   });
   const sortValue = (c: Company) => ({ name: c.name, ctc: c.highestCtc ?? -1, hired: c.totalHired, date: c.lastDate ?? "" })[filters.sort.key as 'name' | 'ctc' | 'hired' | 'date'];
   rows.sort((a, b) => { const av = sortValue(a), bv = sortValue(b); return (av < bv ? -1 : av > bv ? 1 : a.name.localeCompare(b.name)) * (filters.sort.direction === 'asc' ? 1 : -1); });
@@ -118,7 +119,7 @@ export function Branches({ statistics: s, selected, onCandidates }: { statistics
     { label: 'Share', numeric: true, render: b => b.pctOfTotal.toFixed(1) + '%' }, { label: 'Companies', numeric: true, render: b => b.companiesCount },
     { label: 'Highest CTC', numeric: true, render: b => money(b.highestCtc) }, { label: 'Average CTC', numeric: true, render: b => money(b.avgCtc) },
     { label: 'Median CTC', numeric: true, render: b => money(b.medianCtc) },
-    { label: 'Top Hiring Company', render: b => `${b.companyRanking[0]?.label ?? '—'} (${b.companyRanking[0]?.value ?? 0})` },
+    { label: 'Top Hiring Company', render: b => `${b.companyRanking[0]?.label ?? 'Not available'} (${b.companyRanking[0]?.value ?? 0})` },
   ];
   return <><Section title="Branch Intelligence" note={`${s.summary.selections} selections · ${s.summary.uniqueStudents} unique students · ${s.summary.multiSelectedStudents} students selected more than once`}><Table rows={s.branches} columns={columns} rowKey={b => b.branch} /><p className="methodology">Branch shares count selections. Branch average/median CTC are selection-weighted and exclude unknown compensation.</p></Section>
     <Section title="Branch Breakdown" note="Select a branch for a full breakdown"><div className="branch-chip-row">{s.branches.map(b => <a className={'branch-chip ' + (b.branch === branch.branch ? 'active' : '')} href={routeHref('branches/' + encodeURIComponent(b.branch))} key={b.branch}><div className="bc-name">{b.branch}</div><div className="bc-count">{b.selections} selections · {b.uniqueStudents} students</div></a>)}</div><h1 className="detail-name">{branch.branch}</h1><div className="statgrid"><Stat value={branch.selections} label="Selections" /><Stat value={branch.uniqueStudents} label="Unique students" /><Stat value={branch.companiesCount} label="Companies hired" /><Stat value={money(branch.highestCtc)} label="Highest CTC" /></div></Section>
@@ -132,7 +133,7 @@ export interface CandidateFilters { search: string; role: string | null; campus?
 export function Candidates({ statistics: s, filters, setFilters }: { statistics: Statistics; filters: CandidateFilters; setFilters: (next: CandidateFilters) => void }) {
   const [page, setPage] = useState(1);
   const hasCampus = s.candidates.some(c => c.campus);
-  const filtered = s.candidates.filter(c => (!filters.campus || filters.campus === 'ALL' || c.campus === filters.campus) && (!filters.role || c.role === filters.role) && `${c.name} ${c.roll} ${c.branch} ${c.company} ${c.role}`.toLowerCase().includes(filters.search.trim().toLowerCase()));
+  const filtered = s.candidates.filter(c => (!filters.campus || filters.campus === 'ALL' || c.campus === filters.campus) && (!filters.role || c.role === filters.role) && matchesSearch(`${c.name} ${c.roll} ${c.branch} ${c.company} ${c.role}`,filters.search));
   const pages = Math.max(1, Math.ceil(filtered.length / 100));
   const currentPage = Math.min(page, pages);
   const update = (next: CandidateFilters) => { setPage(1); setFilters(next); };
@@ -145,24 +146,24 @@ export function Candidates({ statistics: s, filters, setFilters }: { statistics:
   </Section>;
 }
 export function Timeline({ statistics: s }: { statistics: Statistics }) {
-  return <><Section title="Placement Timeline" note={`${date(s.summary.firstDate, true)} → ${date(s.summary.latestDate, true)}`}><Progress statistics={s} /></Section><Section title={s.batch.year === 2025 ? "Dated Result History" : "Announcement History"} note="Chronological · earliest first"><div className="event-list">{s.timeline.map(p => <a className="event-row" href={companyHref(p.companyKey)} key={p.id}><span className="event-date">{date(p.date, true)}</span><span className="event-company"><CompanyIdentity companyKey={p.companyKey} name={p.company} size="small" /></span><span className="event-hired">+{p.hired} selections</span><span className="event-cum">TPO: {p.reportedCumulative ?? '—'} · Σ selections: {p.selections}</span></a>)}</div></Section></>;
+  return <><Section title="Placement Timeline" note={`${date(s.summary.firstDate, true)} → ${date(s.summary.latestDate, true)}`}><Progress statistics={s} /></Section><Section title={s.batch.year === 2025 ? "Dated Result History" : "Announcement History"} note="Chronological · earliest first"><div className="event-list">{s.timeline.map(p => <a className="event-row" href={companyHref(p.companyKey)} key={p.id}><span className="event-date">{date(p.date, true)}</span><span className="event-company"><CompanyIdentity companyKey={p.companyKey} name={p.company} size="small" /></span><span className="event-hired">+{p.hired} selections</span><span className="event-cum">TPO: {p.reportedCumulative ?? 'Not available'} · Σ selections: {p.selections}</span></a>)}</div></Section></>;
 }
 export function Insights({ statistics: s }: { statistics: Statistics }) {
   const m = s.summary;
   const top = [...s.companies].sort((a, b) => b.totalHired - a.totalHired)[0];
   const biggest = announcements(s).sort((a, b) => b.hiring.students_hired - a.hiring.students_hired)[0];
   const cards = [
-    { label: 'Placement rate', value: m.placementRate === null ? '—' : m.placementRate.toFixed(1) + '%', detail: `${m.uniqueStudents} of ${s.batch.registeredStudents ?? 'unknown'} registered ${s.batch.degreeScope} students` },
-    { label: 'Not confirmed placed', value: m.notConfirmedPlaced ?? '—', detail: 'Registration base minus students in published announcements' },
+    { label: 'Placement rate', value: m.placementRate === null ? 'Not available' : m.placementRate.toFixed(1) + '%', detail: `${m.uniqueStudents} of ${s.batch.registeredStudents ?? 'unknown'} registered ${s.batch.degreeScope} students` },
+    { label: 'Not confirmed placed', value: m.notConfirmedPlaced ?? 'Not available', detail: 'Registration base minus students in published announcements' },
     { label: 'Highest CTC', value: money(m.highestCtc), detail: s.batch.year === 2025 ? 'Final report compensation · includes off-campus' : 'Confirmed announcement compensation' },
     { label: 'Average CTC', value: money(m.avgCtc), detail: `${s.batch.ctcWeighting === "selection" ? "Selection" : "Announcement"}-weighted · ${m.ctcCoverage} known values` },
     { label: 'Median CTC', value: money(m.medianCtc), detail: `${s.batch.ctcWeighting === "selection" ? "Selection" : "Announcement"}-weighted · unknown/mixed bands excluded` },
-    { label: 'Most hiring company', value: top?.name ?? '—', detail: `${top?.totalHired ?? 0} selections across ${top?.announcements.length ?? 0} announcements` },
-    { label: 'Most common role', value: s.roles[0]?.label ?? '—', detail: `${s.roles[0]?.value ?? 0} selections` },
-    { label: 'Most common company type', value: s.types[0]?.label ?? '—', detail: `${s.types[0]?.value ?? 0} unique companies` },
-    { label: 'Largest branch by selections', value: s.branchRanking[0]?.label ?? '—', detail: `${s.branchRanking[0]?.value ?? 0} selections` },
+    { label: 'Most hiring company', value: top?.name ?? 'Not available', detail: `${top?.totalHired ?? 0} selections across ${top?.announcements.length ?? 0} announcements` },
+    { label: 'Most common role', value: s.roles[0]?.label ?? 'Not available', detail: `${s.roles[0]?.value ?? 0} selections` },
+    { label: 'Most common company type', value: s.types[0]?.label ?? 'Not available', detail: `${s.types[0]?.value ?? 0} unique companies` },
+    { label: 'Largest branch by selections', value: s.branchRanking[0]?.label ?? 'Not available', detail: `${s.branchRanking[0]?.value ?? 0} selections` },
     { label: 'Companies hiring 2+ branches', value: m.multiBranchCompanies, detail: `of ${m.companies} companies` },
-    { label: s.batch.year === 2025 ? 'Largest record group' : 'Largest single announcement', value: biggest?.hiring.students_hired ?? '—', detail: biggest?.company.name ?? '—' },
+    { label: s.batch.year === 2025 ? 'Largest record group' : 'Largest single announcement', value: biggest?.hiring.students_hired ?? 'Not available', detail: biggest?.company.name ?? 'Not available' },
     { label: 'Companies with tech/software roles', value: m.techCompanies, detail: 'Keyword match on role titles, not an official company classification' },
     { label: 'Distinct roles offered', value: s.roles.length, detail: 'Exact role titles as announced' },
     { label: 'Season span', value: `${date(m.firstDate)}–${date(m.latestDate)}`, detail: 'First to latest declared result' },

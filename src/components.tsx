@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { CompanyIdentity } from './CompanyIdentity';
 
-export const money = (value: number | null) => value === null ? '—' : `₹${value.toFixed(2)}L`;
-export const date = (value: string | null, full = false) => value ? new Date(value + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', ...(full ? { year: 'numeric' as const } : {}) }) : '—';
+export const money = (value: number | null) => value === null ? 'Not available' : `₹${value.toFixed(2)}L`;
+export const date = (value: string | null, full = false) => value ? new Date(value + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', ...(full ? { year: 'numeric' as const } : {}) }) : 'Not available';
 export const academicYear = (year: number) => `${year - 1}–${String(year).slice(-2)}`;
 export const routeHref = (page: string, year = /^#(2025|2027)(?:\/|$)/.exec(location.hash)?.[1] ? Number(location.hash.slice(1, 5)) : 2026) => `${year === 2026 ? '#' : `#${year}/`}${page}`;
 export const companyHref = (key: string) => routeHref('company/' + encodeURIComponent(key));

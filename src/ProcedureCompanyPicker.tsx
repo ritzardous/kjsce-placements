@@ -1,3 +1,4 @@
+import {matchesSearch} from '../shared/search';
 import { useEffect, useId, useState } from 'react';
 import type { ProcedureCompany } from '../shared/procedures';
 
@@ -7,7 +8,7 @@ export function ProcedureCompanyPicker({ companies, value, onChange, loading, di
 }) {
   const listId=useId(), [open,setOpen]=useState(false), [query,setQuery]=useState(''), [active,setActive]=useState(-1);
   const selected=companies.find(company=>company.key===value);
-  const matches=companies.filter(company=>!query||query===selected?.name||company.name.toLowerCase().includes(query.toLowerCase()));
+  const matches=companies.filter(company=>!query||query===selected?.name||matchesSearch(company.name,query));
   useEffect(()=>{if(open&&active>=0)document.getElementById(`${listId}-${active}`)?.scrollIntoView({block:'nearest'});},[open,active,listId]);
   function choose(company:ProcedureCompany){onChange(company.key);setQuery(company.name);setOpen(false);setActive(-1);}
   return <div className="procedure-company-picker"><label htmlFor="procedure-companyKey">Company</label>

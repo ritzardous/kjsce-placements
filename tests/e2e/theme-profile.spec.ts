@@ -31,7 +31,7 @@ test('Google photo is displayed and server-verified identity syncs privately wit
   await page.route(photo,route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="76" height="76"><rect width="76" height="76" fill="#2445eb"/><circle cx="38" cy="38" r="22" fill="white"/></svg>'}));
   const uid=await signInGoogle(page,true,photo);
   await page.goto('/#account');
-  const image=page.locator('.profile-avatar img');
+  const image=page.locator('.profile-identity .profile-avatar img');
   await expect(image).toBeVisible();
   await expect(image).toHaveAttribute('src',photo);
   await expect.poll(async()=> (await db.doc(`users/${uid}`).get()).data()?.authProfile?.photoURL,{timeout:20000}).toBe(photo);

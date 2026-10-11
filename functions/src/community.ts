@@ -3,6 +3,7 @@ import type { Auth } from 'firebase-admin/auth';
 import { z } from 'zod';
 import { authorize, manageSubmission, HttpsError, type Actor } from './service.js';
 import { postTitle } from '../../shared/procedures.js';
+import { matchesSearch } from '../../shared/search.js';
 
 export const adminCommunityActions = new Set(['queue', 'reviewContext', 'moderationInbox', 'moderateQuestion', 'resolveReport', 'overview']);
 const id = z.string().regex(/^[a-zA-Z0-9-]{1,100}$/);
@@ -17,14 +18,13 @@ const pageInput = z.object({ cursor: cursorSchema }).passthrough();
 const normalize = (text: unknown) => String(text || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 function matches(row: DocumentData, filters: DocumentData) {
   const draft = row.draft || row;
-  const words = normalize(filters.search).trim().split(/\s+/).filter(Boolean);
-  const text = normalize(`${row.companyName || draft.companyKey} ${draft.title || ''} ${draft.role || ''}`);
+  const text = `${row.companyName || draft.companyKey} ${draft.title || ''} ${draft.role || ''} ${draft.summary || ''}`;
   return (!filters.company || draft.companyKey === filters.company)
     && (!filters.year || draft.appearanceYear === Number(filters.year))
     && (!filters.coverage || draft.coverage === filters.coverage)
     && (!filters.outcome || draft.outcome === filters.outcome)
     && (!filters.round || (draft.rounds || []).includes(filters.round))
-    && words.every(word => text.includes(word));
+    && matchesSearch(text,filters.search);
 }
 async function page(q: Query, fields: string[], direction: 'asc' | 'desc', rawCursor: unknown, accept: (row: DocumentData) => boolean = () => true, size = 20) {
   const cursor = parse(cursorSchema, rawCursor);
@@ -94,7 +94,9 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
     case 'browse': {
       const filters = parse(z.object({ company: z.string().max(120).default(''), year: z.string().max(4).default(''), coverage: z.string().max(20).default(''), outcome: z.string().max(30).default(''), search: z.string().max(120).default(''), round: z.string().max(40).default(''), sort: z.enum(['newest', 'helpful']).default('newest'), cursor: cursorSchema }).strict(), value);
       const fields = filters.sort === 'helpful' ? ['score', 'publishedAt'] : ['publishedAt'];
-      return page(db.collection('procedurePosts').where('published', '==', true), fields, 'desc', filters.cursor, row => matches(row, filters), 12);
+      const results = await page(db.collection('procedurePosts').where('published', '==', true), fields, 'desc', filters.cursor, row => matches(row, filters), 12);
+      const bookmarks = results.rows.length ? await db.getAll(...results.rows.map(row=>db.doc(`procedureBookmarks/${actor.uid}/items/${row.id}`))) : [];
+      return {...results,rows:results.rows.map((row,index)=>({...row,saved:bookmarks[index].exists}))};
     }
     case 'bookmark': {
       const data = parse(z.object({ postId: id, saved: z.boolean() }).strict(), value);
