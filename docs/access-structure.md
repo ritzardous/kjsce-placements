@@ -10,7 +10,7 @@ Implemented flow: **public landing → Google login → Home → placement year 
 - `#procedures/contribute`: company search and Markdown editor, private draft autosave, attribution choice and submission for review. The catalog is seeded from source-backed campus recruiters across all batches; shared logos do not merge subsidiaries.
 - `#procedures/<postId>`: approved experience detail and votes. `#procedures/contribute?draft=<id>` resumes an owner's draft.
 - `#account`: account details, contributions, status and review feedback. `#contributions` redirects here; `#alumni` redirects to statistics while contacts remain upcoming.
-- `#admin/procedures`: admin-only review queue, immutable revision preview, approval/change request/rejection and unpublishing. See [beta activation](company-procedures-setup.md) for role assignment and notification emails.
+- `#admin/procedures`: admin-only review queue, immutable revision preview, approval/change request/rejection and unpublishing. See [beta activation](company-procedures-setup.md) for role assignment and in-app notification setup.
 
 ## Access policy
 

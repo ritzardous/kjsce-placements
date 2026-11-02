@@ -91,6 +91,107 @@ test('notification counts and bounded batch read operations stay private to the 
   assert.equal((await call(owner,'notifications')).rows.length,2);
 });
 
+test('indexed unread pagination, archive restore and cutoff batches preserve new arrivals', async () => {
+  const owner = actor(), other = actor(), base = Date.now() - 10000, batch = db.batch();
+  for (let i = 0; i < 121; i++) batch.set(db.doc(`procedureNotifications/${owner.uid}/items/read-${i}`), { title: 'Old read update', read: true, createdAt: base + 1 });
+  for (let i = 0; i < 61; i++) batch.set(db.doc(`procedureNotifications/${owner.uid}/items/unread-${i}`), { title: 'Needs review', read: false, createdAt: base });
+  await batch.commit();
+  let cursor = null, more = true; const seen = new Set();
+  while (more) {
+    const result = await call(owner, 'notifications', { unread: true, cursor });
+    assert(result.scanned <= 20);
+    for (const row of result.rows) { assert(!seen.has(row.id)); seen.add(row.id); }
+    cursor = result.cursor; more = result.more;
+  }
+  assert.equal(seen.size, 61);
+  await assert.rejects(call(other, 'updateNotifications', { ids: ['unread-0'], archived: true }));
+  await call(owner, 'updateNotifications', { ids: ['unread-0'], archived: true });
+  assert.equal((await call(owner, 'notificationSummary')).unread, 60);
+  assert.equal((await call(owner, 'notifications', { view: 'archived' })).rows[0].id, 'unread-0');
+  await assert.rejects(call(owner, 'updateNotifications', { ids: ['unread-0'], read: false }));
+  await call(owner, 'updateNotifications', { ids: ['unread-0'], archived: false, read: false });
+  const first = await call(owner, 'readAllNotifications', { cutoff: base, cursor: null });
+  assert.equal(first.count, 50); assert.equal(first.more, true);
+  await db.doc(`procedureNotifications/${owner.uid}/items/new-arrival`).set({ title: 'New update', read: false, createdAt: base + 5 });
+  const second = await call(owner, 'readAllNotifications', { cutoff: base, cursor: first.cursor });
+  assert.equal(second.count, 11); assert.equal(second.more, false);
+  assert.equal((await call(owner, 'notificationSummary')).unread, 1);
+  assert.equal((await call(owner, 'notifications', { unread: true })).rows[0].id, 'new-arrival');
+});
+
+test('current tasks are independent of read state; private report outcomes survive hidden posts', async () => {
+  const { owner, id } = await publishedFixture(), reader = actor();
+  await db.doc(`procedureSubmissions/${id}`).update({ status: 'changes_requested', feedback: 'Clarify rounds.' });
+  const notices = await call(owner, 'notifications');
+  await call(owner, 'readNotifications', { ids: notices.rows.map((row: any) => row.id) });
+  assert((await call(owner, 'notifications', { view: 'attention' })).rows.every((row: any) => row.read && row.needsAction));
+  await call(reader, 'report', { postId: id, target: 'post', reason: 'privacy', details: 'Private information.' });
+  const reportId = `${reader.uid}-post-${id}`, report = (await db.doc(`procedureReports/${reportId}`).get()).data()!;
+  await call(admin, 'resolveReport', { id: reportId, action: 'hide', reason: 'Author-only sensitive feedback', updatedAt: report.updatedAt });
+  const notification = (await call(reader, 'notifications')).rows.find((row: any) => row.type === 'report_reviewed');
+  assert(!JSON.stringify(notification).includes('Author-only sensitive feedback'));
+  assert.equal((await call(reader, 'notificationOutcome', { id: notification.id })).status, 'resolved');
+  await assert.rejects(call(owner, 'notificationOutcome', { id: notification.id }));
+});
+
+test('following settings survive draft saves; discovery is opt-in, deduplicated and muteable', async () => {
+  const reader = actor(), { owner, id, draft } = await publishedFixture();
+  assert.equal((await call(reader, 'notificationSettings')).discovery, false);
+  const saved = await call(reader, 'saveNotificationSettings', { discovery: true, following: [{ kind: 'company', key: companyKey, label: 'Enhancement Company', muted: false, since: 0 }] });
+  const since = saved.following[0].since;
+  await assert.rejects(call(reader, 'saveNotificationSettings', { ...saved, version: 0 }), { code: 'aborted' });
+  await db.doc(`procedurePosts/${id}`).update({ publishedAt: since + 1 });
+  await call(reader, 'notificationSummary');
+  const first = (await call(reader, 'notifications', { view: 'following' })).rows;
+  assert.equal(first.length, 1);
+  await db.doc(`notificationSettings/${reader.uid}`).update({ lastDiscoveryAt: 0 });
+  await call(reader, 'notificationSummary');
+  assert.equal((await call(reader, 'notifications', { view: 'following' })).rows.length, 1);
+  await call(reader, 'saveNotificationSettings', { ...saved, following: saved.following.map((item: any) => ({ ...item, muted: true })) });
+  await db.doc(`procedurePosts/${id}`).update({ revision: 2, publishedAt: since + 2 });
+  await call(reader, 'notificationSummary');
+  assert.equal((await call(reader, 'notifications', { view: 'following' })).rows.length, 1);
+  await call(owner, 'saveNotificationSettings', { discovery: true, following: [{ kind: 'experience', key: id, label: 'My experience', muted: false, since: 0 }] });
+  await saveDraft(db, owner, { id, expectedVersion: 1, draft });
+  assert.equal((await call(owner, 'notificationSettings')).following.length, 1);
+});
+
+test('self-reports produce one actionable correction outcome and submission retries do not duplicate events', async () => {
+  const { owner, id } = await publishedFixture();
+  await review(db, admin, { id, revision: 1, decision: 'approved', feedback: '' });
+  assert.equal((await call(owner, 'notifications')).rows.length, 2);
+  const payload = { postId: id, target: 'post', reason: 'outdated', details: 'I need to update this experience.' };
+  await call(owner, 'report', payload); await call(owner, 'report', payload);
+  assert.equal((await call(owner, 'notifications')).rows.filter((row: any) => row.type === 'report_received').length, 1);
+  const reportId = `${owner.uid}-post-${id}`, report = (await db.doc(`procedureReports/${reportId}`).get()).data()!;
+  await call(admin, 'resolveReport', { id: reportId, action: 'request_correction', reason: 'Please update the round details.', updatedAt: report.updatedAt });
+  const rows = (await call(owner, 'notifications')).rows;
+  assert.equal(rows.filter((row: any) => row.type === 'correction_requested').length, 1);
+  const correction = rows.find((row: any) => row.type === 'correction_requested');
+  assert.equal(correction.needsAction, true);
+  assert.equal((await call(owner, 'notificationOutcome', { id: correction.id })).status, 'resolved');
+});
+
+test('batch follows baseline the active version and retention only deletes old read discovery', async () => {
+  const reader = actor(), manifestRef = db.doc('batches/2026'), original = (await manifestRef.get()).data()!;
+  const oldVersion = original.activeVersion, newVersion = 'a'.repeat(64);
+  try {
+    await call(reader, 'saveNotificationSettings', { discovery: true, following: [{ kind: 'batch', key: '2026', label: 'Class of 2026', muted: false, since: 0 }] });
+    await call(reader, 'notificationSummary');
+    assert.equal((await call(reader, 'notifications')).rows.length, 0);
+    await db.doc(`batches/2026/versions/${newVersion}`).set({ schemaVersion: 1, chunkCount: 1, payloadHash: newVersion });
+    await manifestRef.update({ activeVersion: newVersion });
+    await db.doc(`notificationSettings/${reader.uid}`).update({ lastDiscoveryAt: 0 });
+    await call(reader, 'notificationSummary');
+    assert.equal((await call(reader, 'notifications')).rows.filter((row: any) => row.type === 'batch_update').length, 1);
+    const old = Date.now() - 100 * 86400000;
+    for (const [id, category, read] of [['old-discovery', 'following', true], ['essential', 'contributions', true], ['unread-discovery', 'following', false]] as const) await db.doc(`procedureNotifications/${reader.uid}/items/${id}`).set({ category, title: 'History', read, createdAt: old });
+    assert.equal((await call(reader, 'cleanupNotifications')).removed, 1);
+    assert.equal((await db.doc(`procedureNotifications/${reader.uid}/items/essential`).get()).exists, true);
+    assert.equal((await db.doc(`procedureNotifications/${reader.uid}/items/unread-discovery`).get()).exists, true);
+  } finally { await manifestRef.set({ ...original, activeVersion: oldVersion }); }
+});
+
 test('company directory counts refresh after approval, hiding and deletion',async()=>{
  const reader=actor();
  const count=async()=>((await call(reader,'companyBrowse',{company:companyKey})).rows[0]?.count||0);

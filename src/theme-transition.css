@@ -1,0 +1,12 @@
+.theme-toggle{view-transition-name:theme-toggle;transform-origin:center;will-change:transform}
+.theme-transitioning::view-transition-old(root),
+.theme-transitioning::view-transition-new(root),
+.theme-transitioning::view-transition-old(theme-toggle),
+.theme-transitioning::view-transition-new(theme-toggle){animation:none;mix-blend-mode:normal}
+.theme-transitioning::view-transition-old(root){z-index:0}
+.theme-transitioning::view-transition-new(root){z-index:1}
+.theme-transitioning::view-transition-image-pair(root){isolation:auto}
+.theme-transitioning::view-transition-group(theme-toggle){z-index:2;animation-duration:0s}
+.theme-transitioning::view-transition-image-pair(theme-toggle){transform-origin:center}
+html.theme-transitioning *,html.theme-transitioning *::before,html.theme-transitioning *::after{transition:none!important}
+@media(prefers-reduced-motion:reduce){.theme-toggle{view-transition-name:none;will-change:auto}}

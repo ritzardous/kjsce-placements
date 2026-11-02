@@ -1,3 +1,5 @@
+import { notificationActions, notificationApi } from './notification-api.js';
+import { writeNotification } from './notifications.js';
 import { type Firestore, type Query, type DocumentData } from 'firebase-admin/firestore';
 import type { Auth } from 'firebase-admin/auth';
 import { z } from 'zod';
@@ -56,9 +58,6 @@ async function published(db: Firestore, postId: string) {
   required(snap.exists && snap.data()!.published, 'This experience is unavailable or has been unpublished.');
   return snap.data()!;
 }
-function notify(db: Firestore, tx: FirebaseFirestore.Transaction, uid: string, title: string, message: string, submissionId: string) {
-  tx.create(db.collection(`procedureNotifications/${uid}/items`).doc(), { title, message, submissionId, href: `#procedures/${submissionId}`, createdAt: Date.now(), read: false });
-}
 async function throttle(db: Firestore, tx: FirebaseFirestore.Transaction, uid: string, action: string) {
   const ref = db.doc(`procedureLimits/${uid}-${action}`), snap = await tx.get(ref), now = Date.now();
   if (snap.exists && now - snap.data()!.at < 3000) throw new HttpsError('resource-exhausted', 'Please wait a few seconds before trying again.');
@@ -69,6 +68,7 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
   const request = parse(z.object({ action: z.string().max(40), payload: z.record(z.string(), z.unknown()).default({}) }).strict(), input);
   const actor = authorize(actorValue, adminCommunityActions.has(request.action)), value = request.payload;
   if(['ask','answer'].includes(request.action))throw new HttpsError('failed-precondition','Questions and replies are no longer available.');
+  if (notificationActions.has(request.action)) return notificationApi(db, actor.uid, request.action, value);
   switch (request.action) {
     case 'syncAccount': {
       required(auth, 'Account sync is unavailable.');
@@ -153,21 +153,6 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
       const events = await db.collection('procedureModeration').where('submissionId', '==', data.submissionId).orderBy('createdAt', 'desc').limit(50).get();
       return events.docs.map(doc => { const row = doc.data(); return { id: doc.id, action: row.action, revision: row.revision || 0, feedback: row.feedback || '', createdAt: row.createdAt }; });
     }
-    case 'notifications': return page(db.collection(`procedureNotifications/${actor.uid}/items`), ['createdAt'], 'desc', parse(pageInput, value).cursor, row => !value.unread || row.read === false);
-    case 'notificationSummary': {
-      parse(z.object({}).strict(), value);
-      return { unread: (await db.collection(`procedureNotifications/${actor.uid}/items`).where('read', '==', false).count().get()).data().count };
-    }
-    case 'readNotifications': {
-      const data = parse(z.object({ ids: z.array(id).min(1).max(50) }).strict(), value);
-      const batch = db.batch();
-      for (const item of new Set(data.ids)) batch.update(db.doc(`procedureNotifications/${actor.uid}/items/${item}`), { read: true });
-      await batch.commit(); return { read: true };
-    }
-    case 'readNotification': {
-      const data = parse(z.object({ id }).strict(), value);
-      await db.doc(`procedureNotifications/${actor.uid}/items/${data.id}`).update({ read: true }); return { read: true };
-    }
     case 'questions': {
       const data = parse(z.object({ postId: id, cursor: cursorSchema }).strict(), value);
       await published(db, data.postId);
@@ -208,7 +193,10 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
         required(post.exists&&post.data()!.published,'Experience is unavailable.');
         const previous = await tx.get(ref); if (previous.data()?.status === 'open') return;
         const stamp = await throttle(db, tx, actor.uid, 'report');
-        tx.set(ref, { ...data, reporterUid: actor.uid, companyName: post.data()!.companyName, status: 'open', createdAt: Date.now(), updatedAt: Date.now() }); stamp();
+        const now = Date.now();
+        tx.set(ref, { ...data, reporterUid: actor.uid, companyName: post.data()!.companyName, status: 'open', createdAt: now, updatedAt: now });
+        writeNotification(db, tx, actor.uid, `report-received:${ref.id}:${now}`, { type: 'report_received', title: 'Report received', message: 'An admin will review your report. You can check its status here.', submissionId: data.postId, entityType: 'report', entityId: ref.id, reportId: ref.id, companyName: post.data()!.companyName || '' }, now);
+        stamp();
       });
       return { received: true };
     }
@@ -253,9 +241,9 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
         }
         tx.update(ref, data.target === 'question' ? { status: data.decision, updatedAt: Math.max(Date.now(), row.updatedAt + 1) } : { 'answer.status': data.decision, answered: data.decision === 'visible', replyPending: false, updatedAt: Math.max(Date.now(), row.updatedAt + 1) });
         tx.create(db.collection('procedureModeration').doc(), { submissionId: row.postId, questionId: data.id, action: `${data.target}_${data.decision}`, feedback: data.reason, adminUid: actor.uid, createdAt: Date.now() });
-        notify(db, tx, data.target === 'question' ? row.authorUid : row.answer.authorUid, 'Discussion reviewed', data.reason, row.postId);
-        if (data.target === 'question' && data.decision === 'visible') notify(db, tx, row.postAuthorUid, 'A reader has a question', row.body.slice(0, 200), row.postId);
-        if (data.target === 'answer' && data.decision === 'visible') notify(db, tx, row.authorUid, 'Your question has a reply', row.answer.body.slice(0, 200), row.postId);
+        writeNotification(db, tx, data.target === 'question' ? row.authorUid : row.answer.authorUid, `discussion:${data.id}:${row.updatedAt}:${data.target}`, { type: data.target === 'question' ? 'question_reviewed' : 'answer_reviewed', title: `${data.target === 'question' ? 'Question' : 'Reply'} ${data.decision === 'visible' ? 'approved' : 'hidden'}`, message: data.reason, submissionId: row.postId, questionId: data.id, entityId: data.id, entityType: 'question' });
+        if (data.target === 'question' && data.decision === 'visible' && row.postAuthorUid !== row.authorUid) writeNotification(db, tx, row.postAuthorUid, `question:${data.id}:${row.updatedAt}`, { type: 'question', title: 'A reader has a question', message: row.body.slice(0, 200), submissionId: row.postId, questionId: data.id });
+        if (data.target === 'answer' && data.decision === 'visible' && row.authorUid !== row.answer.authorUid) writeNotification(db, tx, row.authorUid, `reply:${data.id}:${row.updatedAt}`, { type: 'reply', title: 'Your question has a reply', message: row.answer.body.slice(0, 200), submissionId: row.postId, questionId: data.id });
       }); return { moderated: true };
     }
     case 'resolveReport': {
@@ -266,27 +254,32 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
         const row = report.data()!, postRef = db.doc(`procedurePosts/${row.postId}`), post = await tx.get(postRef);
         const questionRef = row.questionId ? db.doc(`procedureQuestions/${row.questionId}`) : null;
         const question = questionRef ? await tx.get(questionRef) : null;
+        const submissionRef = db.doc(`procedureSubmissions/${row.postId}`);
+        const submission = await tx.get(submissionRef);
+        if (data.action === 'request_correction' && submission.exists) tx.update(submissionRef, { feedback: data.reason, updatedAt: Date.now() });
         if (data.action === 'hide') {
           if (row.target === 'post') { required(post.exists, 'Experience no longer exists.'); tx.update(postRef, { published: false }); tx.update(db.doc(`procedureSubmissions/${row.postId}`), { hasPublished: false, feedback: data.reason, updatedAt: Date.now() }); }
           else { required(question?.exists, 'Question no longer exists.'); const updatedAt = Math.max(Date.now(), question!.data()!.updatedAt + 1); tx.update(questionRef!, row.target === 'answer' ? { 'answer.status': 'hidden', answered: false, replyPending: false, updatedAt } : { status: 'hidden', updatedAt }); }
         }
         tx.update(ref, { status: 'resolved', resolution: data.action, feedback: data.reason, adminUid: actor.uid, updatedAt: Math.max(Date.now(), row.updatedAt + 1) });
         tx.create(db.collection('procedureModeration').doc(), { submissionId: row.postId, reportId: data.id, action: `report_${data.action}`, feedback: data.reason, adminUid: actor.uid, createdAt: Date.now() });
-        if (post.exists && data.action !== 'dismiss') notify(db, tx, post.data()!.authorUid, data.action === 'hide' ? 'Reported content hidden' : 'Correction requested', data.reason, row.postId);
-        notify(db, tx, row.reporterUid, 'Report reviewed', data.reason, row.postId);
+        if (post.exists && data.action !== 'dismiss' && post.data()!.authorUid !== row.reporterUid) writeNotification(db, tx, post.data()!.authorUid, `report-author:${data.id}:${row.updatedAt}`, { type: data.action === 'hide' ? 'content_hidden' : 'correction_requested', title: data.action === 'hide' ? 'Reported content hidden' : 'Correction requested', message: data.reason, submissionId: row.postId, companyName: row.companyName || '', revision: post.data()!.revision });
+        const selfReport = post.exists && post.data()!.authorUid === row.reporterUid && data.action !== 'dismiss';
+        writeNotification(db, tx, row.reporterUid, `report-outcome:${data.id}:${row.updatedAt}`, { type: selfReport ? data.action === 'hide' ? 'content_hidden' : 'correction_requested' : 'report_reviewed', title: selfReport ? data.action === 'hide' ? 'Reported content hidden' : 'Correction requested' : 'Report reviewed', message: selfReport ? data.reason : data.action === 'hide' ? 'The reported content was hidden following review.' : data.action === 'request_correction' ? 'The contributor has been asked to review and correct the content.' : 'Your report was reviewed. No content change was made.', submissionId: row.postId, reportId: data.id, entityType: selfReport ? 'submission' : 'report', entityId: selfReport ? row.postId : data.id, companyName: row.companyName || '', ...(selfReport ? { revision: post.data()!.revision } : {}) });
       });
       if(data.action==='hide')invalidateCompanyDiscovery(db);
       return { resolved: true };
     }
     case 'overview': {
-      const [pending, oldest, reports, questions, replies, events] = await Promise.all([
+      const [pending, oldest, reports, questions, replies, events, oldestReport] = await Promise.all([
         db.collection('procedureSubmissions').where('status', '==', 'pending').count().get(), db.collection('procedureSubmissions').where('status', '==', 'pending').orderBy('updatedAt').limit(1).get(),
         db.collection('procedureReports').where('status', '==', 'open').count().get(), db.collection('procedureQuestions').where('status', '==', 'pending').count().get(),
         db.collection('procedureQuestions').where('answer.status', '==', 'pending').count().get(),
         db.collection('procedureModeration').orderBy('createdAt', 'desc').limit(50).get(),
+        db.collection('procedureReports').where('status', '==', 'open').orderBy('createdAt').limit(1).get(),
       ]);
       const turnaround = events.docs.map(doc => doc.data().turnaroundMs).filter(n => typeof n === 'number');
-      return { pending: pending.data().count, oldestAt: oldest.docs[0]?.data().updatedAt || null, reports: reports.data().count, questions: questions.data().count, replies: replies.data().count, reviewHours: turnaround.length ? turnaround.reduce((sum, n) => sum + n, 0) / turnaround.length / 3600000 : null, checkedAt: Date.now() };
+      return { oldestReportAt: oldestReport.docs[0]?.data().createdAt || null, pending: pending.data().count, oldestAt: oldest.docs[0]?.data().updatedAt || null, reports: reports.data().count, questions: questions.data().count, replies: replies.data().count, reviewHours: turnaround.length ? turnaround.reduce((sum, n) => sum + n, 0) / turnaround.length / 3600000 : null, checkedAt: Date.now() };
     }
     default: throw new HttpsError('invalid-argument', 'Unknown community action.');
   }

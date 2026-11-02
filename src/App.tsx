@@ -1,3 +1,4 @@
+import { NotificationProvider } from './notification-store';
 import { ThemeProvider } from './ThemeControl';
 import { FetchLoader } from './FetchLoader';
 import { Component, lazy, Suspense, useEffect, type ReactNode } from 'react';
@@ -46,5 +47,5 @@ class AppBoundary extends Component<{ children: ReactNode }, { failed: boolean }
 }
 export default function App() {
   const route = useRoute();
-  return <ThemeProvider><AuthProvider><AppBoundary key={statisticsPages.includes(route.page) ? 'dashboard' : route.page}><Application /></AppBoundary></AuthProvider></ThemeProvider>;
+  return <ThemeProvider><AuthProvider><NotificationProvider><AppBoundary key={statisticsPages.includes(route.page) ? 'dashboard' : route.page}><Application /></AppBoundary></NotificationProvider></AuthProvider></ThemeProvider>;
 }

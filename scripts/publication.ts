@@ -83,8 +83,8 @@ export async function activatePublication(db: Firestore, p: Publication, expecte
     const previous = await transaction.get(ref);
     if (previous.exists && previous.data()?.activeVersion !== p.version) {
       if (previous.data()?.activeVersion !== expectedVersion) throw new Error('A different version is active. Review it and pass --expected-version with its exact version ID before replacing it.');
-      transaction.update(ref, { activeVersion: p.version });
+      transaction.update(ref, { activeVersion: p.version, publishedAt: Date.now() });
     }
-    if (!previous.exists) transaction.create(ref, { year: p.batch.year, activeVersion: p.version });
+    if (!previous.exists) transaction.create(ref, { year: p.batch.year, activeVersion: p.version, publishedAt: Date.now() });
   });
 }

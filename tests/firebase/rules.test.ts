@@ -8,7 +8,7 @@ import { preparePublication } from '../../scripts/publication.js';
 // on the same Node module instance (avoids mixed ESM/CJS service registration).
 const require = createRequire(import.meta.url);
 const { initializeTestEnvironment, assertFails, assertSucceeds }: typeof import('@firebase/rules-unit-testing') = require('@firebase/rules-unit-testing');
-const { doc, getDoc, setDoc, updateDoc, collection, getDocs }: typeof import('firebase/firestore') = require('firebase/firestore');
+const { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs }: typeof import('firebase/firestore') = require('firebase/firestore');
 
 let env: RulesTestEnvironment;
 let version: string;
@@ -23,12 +23,13 @@ test('bookmarks and notifications are private; pending replies cannot bypass the
     const db = context.firestore();
     await setDoc(doc(db, 'procedureBookmarks/rules-alice/items/rules-public'), { postId: 'rules-public' });
     await setDoc(doc(db, 'procedureNotifications/rules-alice/items/private-note'), { message: 'Private feedback' });
+    await setDoc(doc(db, 'notificationSettings/rules-alice'), { discovery: true, following: [] });
     await setDoc(doc(db, 'procedureQuestions/privacy-question'), { status: 'visible', answer: { status: 'pending', body: 'Unapproved reply' } });
   });
   const alice = env.authenticatedContext('rules-alice', googleClaims).firestore();
   const bob = env.authenticatedContext('rules-bob', googleClaims).firestore();
   const admin = env.authenticatedContext('rules-admin', { ...googleClaims, role: 'admin' }).firestore();
-  for (const path of ['procedureBookmarks/rules-alice/items/rules-public', 'procedureNotifications/rules-alice/items/private-note']) {
+  for (const path of ['procedureBookmarks/rules-alice/items/rules-public', 'procedureNotifications/rules-alice/items/private-note', 'notificationSettings/rules-alice']) {
     await assertSucceeds(getDoc(doc(alice, path)));
     await assertFails(getDoc(doc(bob, path)));
     await assertFails(getDoc(doc(admin, path)));
@@ -38,7 +39,13 @@ test('bookmarks and notifications are private; pending replies cannot bypass the
   await assertFails(getDoc(doc(bob, 'procedureQuestions/privacy-question')));
   await assertSucceeds(getDoc(doc(admin, 'procedureQuestions/privacy-question')));
 });
-after(async () => { await env?.cleanup(); });
+after(async () => {
+  // Minimal permission fixtures are not real experiences; do not leak them into browser discovery tests.
+  await env?.withSecurityRulesDisabled(async context => {
+    for (const path of ['procedurePosts/rules-public/votes/rules-alice', 'procedurePosts/rules-public', 'procedurePosts/rules-hidden']) await deleteDoc(doc(context.firestore(), path));
+  });
+  await env?.cleanup();
+});
 const googleClaims = { email_verified: true, firebase: { sign_in_provider: 'google.com' as const } };
 test('only verified Google sessions can read active published manifests, versions and chunks', async () => {
   const db = env.authenticatedContext('google-reader', googleClaims).firestore();

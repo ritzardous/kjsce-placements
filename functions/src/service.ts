@@ -1,3 +1,4 @@
+import { writeNotification } from './notifications.js';
 import { invalidateCompanyDiscovery } from './company-discovery.js';
 import type { Firestore, Transaction } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
@@ -56,7 +57,7 @@ export async function submit(db: Firestore, actorValue: Actor | undefined, value
     tx.create(ref.collection('revisions').doc(String(revision)), { ...draft, customName: draft.attribution === 'custom' ? draft.customName : '', authorUid: actor.uid, authorName, companyName: company.data()!.name, revision, submittedAt: now });
     tx.update(ref, { status: 'pending', revision, companyName: company.data()!.name, feedback: '', updatedAt: now });
     tx.create(db.doc(`procedureModeration/${eventId}`), { submissionId: input.id, ownerUid: actor.uid, actorUid: actor.uid, revision, action: 'submitted', companyName: company.data()!.name, createdAt: now });
-    tx.set(db.doc(`procedureNotifications/${actor.uid}/items/${eventId}`), { submissionId: input.id, title: 'Submitted for review', message: `${company.data()!.name}: revision ${revision} is awaiting approval.`, createdAt: now, read: false });
+    writeNotification(db, tx, actor.uid, eventId, { type: 'submitted', submissionId: input.id, title: 'Submitted for review', message: `${company.data()!.name}: revision ${revision} is awaiting approval.`, revision, companyKey: draft.companyKey, companyName: company.data()!.name, experienceTitle: draft.title || '' }, now, eventId);
     stampLimit();
     return { revision };
   });
@@ -79,7 +80,7 @@ export async function review(db: Firestore, actorValue: Actor | undefined, value
     }
     tx.update(ref, { status: input.decision, feedback: input.feedback, updatedAt: now, hasPublished: input.decision === 'approved' || old.hasPublished === true });
     tx.create(db.doc(`procedureModeration/${input.id}-${input.revision}-reviewed`), { submissionId: input.id, ownerUid: old.ownerUid, actorUid: actor.uid, revision: input.revision, action: input.decision, feedback: input.feedback, adminUid: actor.uid, turnaroundMs: now - revision.data()!.submittedAt, createdAt: now });
-    tx.set(db.doc(`procedureNotifications/${old.ownerUid}/items/${input.id}-${input.revision}-reviewed`), { submissionId: input.id, title: input.decision === 'approved' ? 'Experience approved' : input.decision === 'changes_requested' ? 'Changes requested' : 'Submission rejected', message: input.feedback || 'Your experience is now available to readers.', createdAt: now, read: false });
+    writeNotification(db, tx, old.ownerUid, `${input.id}-${input.revision}-reviewed`, { type: input.decision, submissionId: input.id, title: input.decision === 'approved' ? 'Experience approved' : input.decision === 'changes_requested' ? 'Changes requested' : 'Submission rejected', message: input.feedback || 'Your experience is now available to readers.', revision: input.revision, companyName: old.companyName || '', experienceTitle: revision.data()!.title || '' }, now, `${input.id}-${input.revision}-reviewed`);
     return { status: input.decision };
   });
   invalidateCompanyDiscovery(db);
@@ -95,7 +96,7 @@ export async function unpublish(db: Firestore, actorValue: Actor | undefined, va
     tx.update(ref, { published: false });
     tx.update(db.doc(`procedureSubmissions/${input.id}`), { hasPublished: false, feedback: input.reason, updatedAt: Date.now() });
     tx.create(db.collection('procedureModeration').doc(), { submissionId: input.id, revision: post.data()!.revision, action: 'unpublished', feedback: input.reason, adminUid: actor.uid, createdAt: Date.now() });
-    tx.set(db.collection(`procedureNotifications/${post.data()!.authorUid}/items`).doc(), { submissionId: input.id, title: 'Experience unpublished', message: input.reason, createdAt: Date.now(), read: false });
+    writeNotification(db, tx, post.data()!.authorUid, `unpublished:${input.id}:${post.data()!.revision}:${post.data()!.publishedAt}`, { type: 'unpublished', submissionId: input.id, title: 'Experience unpublished', message: input.reason, revision: post.data()!.revision, companyName: post.data()!.companyName || '' });
     return { unpublished: true };
   });
   invalidateCompanyDiscovery(db);

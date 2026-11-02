@@ -6,11 +6,15 @@ import { getFirebase } from './firebase';
 
 export type Cursor = { id: string; values: number[] } | null;
 export type Page<T> = { rows: T[]; cursor: Cursor; more: boolean; scanned?: number };
-export type Notification = { id: string; title: string; message: string; submissionId: string; createdAt: number; read: boolean };
+export type { AppNotification as Notification } from '../shared/notifications';
 export type Question = { id: string; postId: string; body: string; authorUid: string; authorName: string; companyName: string; status: string; updatedAt: number; createdAt: number; answered: boolean; answer?: { body: string; authorUid: string; authorName: string; status: string } | null };
 export type Report = { id: string; postId: string; questionId?: string; target: 'post' | 'question' | 'answer'; companyName: string; reason: string; details: string; content?: string; updatedAt: number; createdAt: number };
 const pendingReads = new Map<string, Promise<unknown>>();
-const readActions = new Set(['companyBrowse','browse','saved','contributions','notifications','notificationSummary','impact','preferences','timeline','bookmarkState','queue','moderationInbox','moderationOverview','reviewContext']);
+export function invalidateCommunityReads(action: string) {
+  const prefix = `${getFirebase().auth.currentUser?.uid}:${action}:`;
+  for (const key of pendingReads.keys()) if (key.startsWith(prefix)) pendingReads.delete(key);
+}
+const readActions = new Set(['notificationSettings','notificationOutcome','companyBrowse','browse','saved','contributions','notifications','notificationSummary','impact','preferences','timeline','bookmarkState','queue','moderationInbox','moderationOverview','reviewContext']);
 export function community<T>(action: string, payload: unknown = {}): Promise<T> {
   if (!readActions.has(action)) return callProcedure<T>('procedureCommunity', { action, payload });
   const key = `${getFirebase().auth.currentUser?.uid}:${action}:${JSON.stringify(payload)}`;

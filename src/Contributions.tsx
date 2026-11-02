@@ -1,36 +1,19 @@
-import {notify} from './AppUtilities';
 import { useBackgroundSync } from './background-sync';
+import {notify} from './AppUtilities';
+export { NotificationInbox as ProcedureNotifications } from './NotificationInbox';
 import { AppIcon } from './AppIcon';
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from './auth';
-import { community, usePaged, invalidatePages, safeStored, storeSession, type Notification } from './community-api';
+import { community, usePaged, invalidatePages, safeStored, storeSession } from './community-api';
 import { PageState } from './CommunityPageState';
 import { procedureError } from './procedures-api';
 import { statusLabels, type ProcedureSubmission } from '../shared/procedures';
 import { ConfirmAction } from './ProcedureUX';
 
-export function NotificationLink() {
-  const { user } = useAuth(), [count, setCount] = useState<number|null>(null),generation=useRef(0);
-  const refresh = async () => {
-    const token = generation.current;
-    try { const value = await community<{unread:number}>('notificationSummary'); if (token === generation.current) setCount(value.unread); return true; }
-    catch { return false; }
-  };
-  useBackgroundSync(refresh, 60000, Boolean(user));
-  useEffect(() => { generation.current++; void refresh(); return () => { generation.current++; }; }, [user?.uid]);
-  return <a href="#procedures/notifications" aria-current={location.hash.split('?')[0]==='#procedures/notifications'?'page':undefined} title="Notifications update automatically"><AppIcon name="bell"/>Notifications{count?` (${count})`:''}</a>;
-}
-
 type Event = {id:string;action:string;revision:number;feedback:string;createdAt:number};
 function SubmissionTimeline({ id }: {id:string}) {
   const [events,setEvents]=useState<Event[]|null>(null),[error,setError]=useState('');
   return <details onToggle={event=>{if(event.currentTarget.open&&!events)void community<Event[]>('timeline',{submissionId:id}).then(setEvents).catch(cause=>setError(procedureError(cause)));}}><summary>Submission timeline</summary>{error&&<p role="alert">{error}</p>}{!events&&!error&&<p>Loading review history…</p>}{events?.map(event=><p key={event.id}>{new Date(event.createdAt).toLocaleString('en-GB')} · {statusLabels[event.action as keyof typeof statusLabels]||event.action.replaceAll('_',' ')} · Revision {event.revision}{event.feedback&&`. ${event.feedback}`}</p>)}{events?.length===50&&<p>Latest 50 events shown.</p>}</details>;
-}
-export function ProcedureNotifications() {
-  const [unread,setUnread]=useState(false),state=usePaged<Notification & {href?:string}>('notifications',{unread}),[error,setError]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState('');
-  async function mark(ids:string[]){setBusy(true);setError('');try{await community('readNotifications',{ids});ids.forEach(id=>{if(unread)state.remove(id);else state.update(id,{read:true});});setMessage(`${ids.length} notification${ids.length===1?'':'s'} marked as read.`);window.dispatchEvent(new Event('procedure-notifications-changed'));}catch(cause){setError(procedureError(cause));}finally{setBusy(false);}}
-  const unreadRows=state.rows.filter(row=>!row.read),visibleUnread=unreadRows.slice(0,50);
-  return <section><div className="procedure-heading"><p>Review decisions and updates, all in one place.</p><span className="sync-indicator"><span aria-hidden="true"/>Automatic updates</span></div><div className="procedure-actions"><button aria-pressed={!unread} onClick={()=>setUnread(false)}>All notifications</button><button aria-pressed={unread} onClick={()=>setUnread(true)}>Unread notifications</button><button disabled={busy||!visibleUnread.length} onClick={()=>void mark(visibleUnread.map(row=>row.id))}>{unreadRows.length>50?'Mark first 50 unread notifications as read':'Mark displayed notifications as read'}</button></div>{message&&<p className="procedure-success" role="status">{message}</p>}{error&&<p role="alert">{error}</p>}{!state.loading&&!state.rows.length&&!state.error&&<p>{state.more?'Checking older notifications as you scroll.':unread?'You are caught up. View all notifications to revisit earlier updates.':'No notifications yet. Review decisions and updates appear here.'}</p>}<div className="procedure-list">{state.rows.map(row=><article className="procedure-card" key={row.id}><h3>{row.title} {!row.read&&<span className="procedure-badge status-pending">New</span>}</h3><p>{row.message}</p><time dateTime={new Date(row.createdAt).toISOString()}>{new Date(row.createdAt).toLocaleString('en-GB')}</time><div className="procedure-actions"><a href={row.href||`#procedures/contribute?draft=${row.submissionId}`}>Open related item ↗</a>{!row.read&&<button disabled={busy} onClick={()=>void mark([row.id])}>Mark as read</button>}</div></article>)}</div><PageState state={state}/></section>;
 }
 function DeviceDrafts() {
   const {user}=useAuth(),[refresh,setRefresh]=useState(0),[error,setError]=useState('');
