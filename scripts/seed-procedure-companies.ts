@@ -1,3 +1,4 @@
+import { mergeCompanyDirectory } from '../shared/company-identity.js';
 import { createAdminTarget, safeMigrationError } from './firebase-admin.js';
 import { preparePublication } from './publication.js';
 import type { ProcedureCompany } from '../shared/procedures.js';
@@ -17,9 +18,9 @@ try {
   if (!process.argv.includes('--dry-run')) {
     target = createAdminTarget();
     const batch = target.db.batch();
-    for (const entry of directory.values()) batch.set(target.db.doc(`procedureCompanies/${entry.key}`), entry);
+    for (const entry of mergeCompanyDirectory([...directory.values()])) batch.set(target.db.doc(`procedureCompanies/${entry.key}`), entry);
     await batch.commit();
   }
-  console.log(`Prepared ${directory.size} source-backed campus recruiters${target ? ' and seeded Firestore' : ' (dry run)'}.`);
+  console.log(`Prepared ${mergeCompanyDirectory([...directory.values()]).length} source-backed campus recruiters${target ? ' and seeded Firestore' : ' (dry run)'}.`);
 } catch (cause) { console.error(safeMigrationError(cause)); process.exitCode = 1; }
 finally { await target?.close(); }

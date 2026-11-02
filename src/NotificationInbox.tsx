@@ -1,3 +1,4 @@
+import { ActionMenu } from './ActionMenu';
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { community, invalidateCommunityReads, safeStored, storeSession } from './community-api';
 import { useAuth } from './auth';
@@ -24,6 +25,8 @@ export function NotificationInbox() {
   const preference = `notification-view:${user?.uid}`;
   const selectedItem = new URLSearchParams(location.hash.split('?')[1]).get('item');
   const [view, setView] = useState(() => { if (selectedItem) return 'all'; const selected = safeStored(preference, 'all'); return views.some(([key]) => key === selected) ? selected : 'all'; });
+  const [unreadOnly,setUnreadOnly]=useState(()=>!selectedItem&&(view==='unread'||safeStored(`notification-unread:${user?.uid}`,false)));
+  const readFilter=useRef(unreadOnly);readFilter.current=unreadOnly;
   const [page, setPage] = useState<InboxPage>(() => inboxCache.get(view) || { rows: [], cursor: null, more: false, checkedAt: 0 });
   const [loading, setLoading] = useState(false), [error, setError] = useState(''), [message, setMessage] = useState(''), [busy, setBusy] = useState(false), [staged, setStaged] = useState<InboxPage | null>(null), [undo, setUndo] = useState<{ id: string; read: boolean } | null>(null), [outcome, setOutcome] = useState<string | null>(null), [batch, setBatch] = useState<{ cutoff: number; cursor: InboxPage['cursor']; count: number } | null>(null);
   const latest = useRef(page), mounted = useRef(true), generation = useRef(0), running = useRef(false), currentView = useRef(view), focusedItem = useRef('');
@@ -46,7 +49,7 @@ export function NotificationInbox() {
     running.current = true; const token = generation.current; const selected = currentView.current;
     if (!quiet) setLoading(true);
     try {
-      const next = await community<InboxPage>('notifications', { view: selected, cursor: append ? latest.current.cursor : null });
+      const next = await community<InboxPage>('notifications', { view: selected, unread:readFilter.current, cursor: append ? latest.current.cursor : null });
       if (!mounted.current || token !== generation.current) return false;
       setError('');
       if (quiet && latest.current.rows.length) {
@@ -59,7 +62,7 @@ export function NotificationInbox() {
             const boundary = next.rows.at(-1)?.createdAt ?? Infinity;
             reconciled = { ...latest.current, checkedAt: next.checkedAt, rows: latest.current.rows.filter(row => updates.has(row.id) || row.createdAt < boundary).map(row => updates.get(row.id) || row) };
           }
-          if (selected === 'unread' && openedInView.current.size) {
+          if ((selected === 'unread'||readFilter.current) && openedInView.current.size) {
             const refreshed = new Map(reconciled.rows.map(row => [row.id, row]));
             reconciled = { ...reconciled, rows: latest.current.rows.filter(row => openedInView.current.has(row.id) || refreshed.has(row.id)).map(row => refreshed.get(row.id) || { ...row, read: true }) };
           }
@@ -76,7 +79,8 @@ export function NotificationInbox() {
     return () => { mounted.current = false; generation.current++; };
   }, []);
   useEffect(() => { void store.refresh(); }, [store.refresh]);
-  useEffect(() => { if (selectedItem) setView('all'); }, [selectedItem]);
+  useEffect(()=>{storeSession(`notification-unread:${user?.uid}`,unreadOnly);generation.current++;running.current=false;inboxCache.clear();commit({rows:[],cursor:null,more:false,checkedAt:0});void load();},[unreadOnly,commit,load,inboxCache,user?.uid]);
+  useEffect(() => { if (selectedItem) {setView('all');setUnreadOnly(false);} }, [selectedItem]);
   useEffect(() => {
     generation.current++; running.current = false; setError(''); setStaged(null); setMessage('');
     openedInView.current.clear();
@@ -113,7 +117,7 @@ export function NotificationInbox() {
       invalidateCommunityReads('notifications');
       // Invalidate cached filters so a back navigation cannot resurrect stale unread cards.
       inboxCache.clear();
-      const nextRows = latest.current.rows.map(row => ids.includes(row.id) ? { ...row, ...values, ...(values.archived ? { read: true } : {}) } : row).filter(row => view === 'archived' ? row.archived : !row.archived && (view !== 'unread' || !row.read));
+      const nextRows = latest.current.rows.map(row => ids.includes(row.id) ? { ...row, ...values, ...(values.archived ? { read: true } : {}) } : row).filter(row => view === 'archived' ? row.archived : !row.archived && ((view !== 'unread'&&!unreadOnly) || !row.read));
       commit({ ...latest.current, rows: nextRows }); setMessage(notice); if (values.archived === true) setUndo({ id: ids[0], read: originalRead }); else if (values.archived === false) setUndo(null); mutating.current = false; changed();
     } catch (cause) { if (mounted.current) setError(procedureError(cause)); } finally { mutating.current = false; if (mounted.current) { setBusy(false); setLoading(false); } }
   }
@@ -151,8 +155,8 @@ export function NotificationInbox() {
     {store.summary?.discoveryError && <p role="alert">Followed updates couldn't refresh. Your direct notifications are available. Try Refresh notifications again.</p>}
     {store.error && <p role="alert">Unread count couldn't refresh. <button onClick={() => void store.refresh()}>Retry unread count</button></p>}
     {autoRead.error && <p role="alert">Couldn't save read status automatically. {autoRead.error} <button onClick={autoRead.retry}>Retry read status</button></p>}
-    <div className="procedure-actions notification-filters" aria-label="Notification views">{views.map(([key, label]) => <button key={key} disabled={busy} aria-pressed={view === key} onClick={() => setView(key)}>{label}</button>)}</div>
-    <div className="procedure-actions"><button disabled={busy || !unread.length} onClick={() => void update(unread.map(row => row.id), { read: true }, `${unread.length} notification${unread.length === 1 ? '' : 's'} marked as read.`)}>{page.rows.filter(row => !row.read).length > 50 ? 'Mark first 50 displayed unread notifications as read' : 'Mark displayed notifications as read'}</button><button disabled={busy || (!batch && !store.summary?.unread)} onClick={() => void markAll()}>{batch ? 'Continue marking all read (next 50)' : 'Mark all read (up to 50 at a time)'}</button>{batch && <button disabled={busy} onClick={() => { setBatch(null); setMessage('Batch stopped. Completed changes are saved.'); }}>Stop batch</button>}</div>
+    <div className="workspace-toolbar notification-toolbar"><div className="workspace-view-switch" aria-label="Notification views">{views.filter(([key])=>['all','unread'].includes(key)).map(([key,label])=><button key={key} disabled={busy} aria-pressed={key==='unread'?(unreadOnly||view==='unread'):(!unreadOnly&&view!=='unread')} onClick={()=>{setUnreadOnly(key==='unread');if(view==='unread')setView('all');}}>{label}</button>)}</div><label>Activity type<select disabled={busy} value={['all','unread'].includes(view)?'':view} onChange={event=>setView(event.target.value||'all')}><option value="">All activity</option>{views.filter(([key])=>!['all','unread'].includes(key)).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select></label><ActionMenu label="Inbox actions"><div className="procedure-actions"><button disabled={busy || !unread.length} onClick={() => void update(unread.map(row => row.id), { read: true }, `${unread.length} notification${unread.length === 1 ? '' : 's'} marked as read.`)}>{page.rows.filter(row => !row.read).length > 50 ? 'Mark first 50 displayed unread notifications as read' : 'Mark displayed notifications as read'}</button><button disabled={busy || (!batch && !store.summary?.unread)} onClick={() => void markAll()}>{batch ? 'Continue marking all read (next 50)' : 'Mark all read (up to 50 at a time)'}</button>{batch && <button disabled={busy} onClick={() => { setBatch(null); setMessage('Batch stopped. Completed changes are saved.'); }}>Stop batch</button>}</div>
+</ActionMenu></div>
     {message && <p className="procedure-success" role="status">{message}</p>}{undo && <p>Update archived. <button disabled={busy} onClick={() => { void update([undo.id], { archived: false, read: undo.read }, 'Update restored.'); }}>Undo archive</button></p>}
     {error && <p role="alert">{error} <button disabled={loading} onClick={() => void load()}>Retry notifications</button></p>}
     <div aria-live="polite">{staged && <button className="notification-new-updates" onClick={() => { commit(staged); setStaged(null); }}>New updates available. Show latest</button>}</div>
@@ -168,8 +172,8 @@ export function NotificationInbox() {
         <p className="notification-message">{row.message}</p>{row.currentStatus && <p>Current submission status: {row.currentStatus.replaceAll('_', ' ')}. {row.currentStatus === 'unavailable' ? 'This experience may have been removed.' : ''}</p>}
         <time dateTime={new Date(row.createdAt).toISOString()} title={new Date(row.createdAt).toLocaleString()}>{new Date(row.createdAt).toLocaleString()}</time>
         <div className="procedure-actions">{action && row.currentStatus !== 'unavailable' && <a href={action.href}>{action.label} ↗</a>}{(row.category === 'reports' || row.reportId) && <button data-open-notification onClick={() => setOutcome(outcome === row.id ? null : row.id)} aria-expanded={outcome === row.id}>View private report outcome</button>}
-          {!row.archived && <button disabled={busy} onClick={() => void update([row.id], { read: !row.read }, row.read ? 'Notification marked unread.' : 'Notification marked as read.')}>{row.read ? 'Mark unread' : 'Mark as read'}</button>}
-          <button disabled={busy} onClick={() => { void update([row.id], { archived: !row.archived }, row.archived ? 'Update restored.' : 'Update archived.'); }}>{row.archived ? 'Restore' : 'Archive'}</button>
+          <ActionMenu label={`More actions for ${row.title}`}>{!row.archived && <button disabled={busy} onClick={() => void update([row.id], { read: !row.read }, row.read ? 'Notification marked unread.' : 'Notification marked as read.')}>{row.read ? 'Mark unread' : 'Mark as read'}</button>}
+          <button disabled={busy} onClick={() => { void update([row.id], { archived: !row.archived }, row.archived ? 'Update restored.' : 'Update archived.'); }}>{row.archived ? 'Restore' : 'Archive'}</button></ActionMenu>
         </div>{outcome === row.id && <Outcome id={row.id}/>}</article></Fragment>;
     })}</div>
     {loading && <p>Loading notifications…</p>}{page.more && <button disabled={loading} onClick={() => void load(true)}>Load more notifications</button>}

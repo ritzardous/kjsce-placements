@@ -15,7 +15,7 @@ function app() {
   if (account.project_id !== projectId || projectId.startsWith('demo-')) throw new HttpsError('unavailable', 'The community API configuration does not match the live project.');
   return serverApp = getApps().find(value => value.name === 'procedures-api') ?? initializeApp({ projectId, credential: cert(account) }, 'procedures-api');
 }
-const statuses: Record<string, number> = { unauthenticated: 401, 'permission-denied': 403, 'invalid-argument': 400, 'failed-precondition': 409, 'resource-exhausted': 429, 'not-found': 404, unavailable: 503 };
+const statuses: Record<string, number> = { unauthenticated: 401, 'permission-denied': 403, 'invalid-argument': 400, 'failed-precondition': 409, 'resource-exhausted': 429, 'not-found': 404, aborted:409, unavailable: 503 };
 type Request = IncomingMessage & { body?: unknown };
 async function readBody(req: Request) {
   if (req.body !== undefined) {
@@ -39,7 +39,8 @@ export default async function handler(req: Request, res: ServerResponse) {
     authorize(actor);
     let body;
     try { body = await readBody(req); } catch (cause) { if (cause instanceof HttpsError) throw cause; throw new HttpsError('invalid-argument', 'Send a valid JSON request.'); }
-    const name = body?.name;
+    if (!body || typeof body !== 'object' || Array.isArray(body) || Object.keys(body).some(key=>!['name','data'].includes(key)) || typeof body.name !== 'string') throw new HttpsError('invalid-argument','Invalid request envelope.');
+    const name = body.name;
     if (['reviewProcedure', 'unpublishProcedure'].includes(name) || name === 'procedureCommunity' && (adminCommunityActions.has(body.data?.action) || actor.token.role === 'admin')) {
       authorize(actor, true);
       const account = await auth.getUser(actor.uid);

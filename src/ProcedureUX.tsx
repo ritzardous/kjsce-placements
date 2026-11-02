@@ -1,9 +1,35 @@
 import { type ProcedureCompany, roundOptions } from '../shared/procedures';
 import {type IconName, AppIcon } from './AppIcon';
-import { useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { useAuth } from './auth';
-import { safeStored } from './community-api';
+import { safeStored, storeSession } from './community-api';
 import { safeBrowseReturn } from './procedure-navigation';
+import { experienceOrigin } from './navigation-context';
+
+export function BackToContext({ fallback = '#procedures/contributions', label = 'My contributions' }: { fallback?: string; label?: string }) {
+  const { user } = useAuth(), origin = experienceOrigin(user?.uid);
+  return <a className="procedure-back-link" href={origin?.href || fallback} onClick={()=>{if(origin)storeSession(`workspace-focus:${user?.uid}`,{href:origin.href,target:origin.target});}}>← Back to {origin?.label || label}</a>;
+}
+
+export function useWorkspaceFocus() {
+  const {user}=useAuth(),hash=location.hash;
+  useEffect(()=>{
+    const key=`workspace-focus:${user?.uid}`,value=safeStored<{href:string;target:string}|null>(key,null);
+    if(!value||value.href!==location.hash)return;
+    let observer:MutationObserver|undefined;
+    const restore=()=>{
+      const anchor=Array.from(document.querySelectorAll<HTMLAnchorElement>('main a[href]')).find(node=>node.getAttribute('href')===value.target);
+      if(!anchor)return false;
+      const collapsed=anchor.closest<HTMLDetailsElement>('details:not([open])');
+      const target=collapsed?.querySelector<HTMLElement>('summary')||anchor;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{if(location.hash===value.href&&document.contains(target))target.focus({preventScroll:true});}));storeSession(key,null);observer?.disconnect();return true;
+    };
+    if(restore())return;
+    observer=new MutationObserver(restore);observer.observe(document.querySelector('main')||document.body,{childList:true,subtree:true});
+    const timer=setTimeout(()=>{observer?.disconnect();storeSession(key,null);},15000);
+    return()=>{clearTimeout(timer);observer?.disconnect();};
+  },[hash,user?.uid]);
+}
 
 export function BackToExperiences({ children = '← Back to experiences' }: { children?: ReactNode }) {
   const { user } = useAuth();

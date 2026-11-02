@@ -140,7 +140,6 @@ body:has(:is(#app,.portal-shell,.login-page)) { background:#f7f8fa; }
 :is(#app,.portal-shell) .account-content-shortcuts > a:first-child { background:var(--neo-lime); }
 :is(#app,.portal-shell) .account-content-shortcuts span { color:var(--ink); }
 :is(#app,.portal-shell) .contribution-view-buttons { gap:10px; padding:16px 0; }
-:is(#app,.portal-shell) .contribution-management { border-top:1px solid var(--line-soft); gap:12px; padding-top:20px; }
 :is(#app,.portal-shell) .contribution-management > button:last-of-type { color:var(--ui-danger); background:var(--ui-danger-bg); border-color:var(--line); }
 :is(#app,.portal-shell) .contribution-content-actions > a { min-height:48px; }
 :is(#app,.portal-shell) .sync-indicator { display:inline-flex; align-items:center; gap:8px; color:var(--ink-soft); font:500 11px var(--font-mono); }
@@ -222,7 +221,6 @@ body:has(:is(#app,.portal-shell,.login-page)) { background:#f7f8fa; }
 :is(#app,.portal-shell) :is(button,.action-button,.auth-button,.procedure-actions>a,.procedure-utilities>a,.account-content-shortcuts>a,.year-card):not(:disabled):active { transform:translate(2px,2px); box-shadow:none; }
 @media(min-width:1050px) {
  .portal-shell .procedure-list:has(>.procedure-card .procedure-card-title) { grid-template-columns:repeat(2,minmax(0,1fr)); }
- .portal-shell .account-contributions .procedure-list { grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; }
 }
 @media(max-width:720px) {
  :is(#app,.portal-shell) { font-size:16px; }
@@ -426,9 +424,7 @@ body:has(:is(#app,.portal-shell,.login-page)) { background:#f7f8fa; }
 :is(#app,.portal-shell) .feedback-progress > .app-icon { animation:feedback-pulse 900ms ease-in-out infinite alternate; }
 :is(#app,.portal-shell) button.article-bookmark[aria-busy=true] { opacity:1; cursor:progress; }
 :is(#app,.portal-shell) button.article-bookmark[data-saving=true] .app-icon { animation:bookmark-settle 350ms ease-out; }
-:is(#app,.portal-shell) .contribution-content-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; align-items:stretch; }
 :is(#app,.portal-shell) :is(.contribution-content-actions,.contribution-management) :is(a,button) { min-height:48px; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px 14px; font-size:14px; line-height:1.4; text-align:center; }
-:is(#app,.portal-shell) .contribution-management { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:stretch; }
 :is(#app,.portal-shell) :is(.contribution-view-buttons,.admin-queue-toolbar,.admin-workspace-tabs) :is(a,button) { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:48px; }
 :is(#app,.portal-shell) :is(.contribution-management,.contribution-content-actions,.admin-workspace) .app-icon { width:18px; height:18px; flex:none; }
 :is(#app,.portal-shell) .admin-workspace-tabs { padding:12px; border:2px solid var(--line); background:var(--surface); gap:12px; }

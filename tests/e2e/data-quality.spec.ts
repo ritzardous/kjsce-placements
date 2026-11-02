@@ -1,0 +1,21 @@
+import { test, expect } from '@playwright/test';
+import { signInGoogle } from './auth-helper';
+test('company picker has one JPMorgan identity and keeps aliases searchable', async ({ page }, info) => {
+  if (process.env.E2E_FIREBASE !== 'true') throw new Error('Emulators required.');
+  await signInGoogle(page);
+  await page.goto('/#procedures/contribute');
+  const picker = page.getByRole('combobox', { name: 'Company', exact: true });
+  await picker.fill('JP');
+  await expect(page.getByRole('listbox', {name:'Companies'}).getByRole('option')).toHaveCount(1);
+  await expect(page.getByRole('listbox', {name:'Companies'}).getByRole('option')).toContainText('JPMorgan Chase & Co.');
+  await page.getByRole('listbox', {name:'Companies'}).getByRole('option').click();
+  await expect(picker).toHaveValue('JPMorgan Chase & Co.');
+  await picker.fill('not a company');
+  await picker.press('Escape');
+  await expect(picker).toHaveValue('');
+  await picker.fill('JPMC');
+  await expect(page.getByRole('listbox', {name:'Companies'}).getByRole('option')).toHaveCount(1);
+  await page.getByRole('listbox', {name:'Companies'}).getByRole('option').click();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: `artifacts/company-identity-${info.project.name}.png`, fullPage: true });
+});

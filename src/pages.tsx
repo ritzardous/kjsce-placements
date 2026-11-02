@@ -94,7 +94,7 @@ export function Companies({ statistics: s, filters, setFilters }: { statistics: 
   ];
   return <Section title="Companies" note={`${s.companies.length} companies represented`}>
     <div className="controls"><div className="search-box"><AppIcon name="search"/><input aria-label="Search companies" placeholder="Search company or role…" value={filters.search} onChange={e => set({ search: e.target.value })} /></div><select className="filter" aria-label="Company type" value={filters.type} onChange={e => set({ type: e.target.value })}><option value="ALL">All company types</option>{s.types.map(t => <option key={t.label}>{t.label}</option>)}</select><div className="result-count">{rows.length} / {s.companies.length}</div></div>
-    <div className="chip-row company-salary-filters" role="group" aria-label="Salary range">{['ALL', '<5L', '5–10L', '10–15L', '15L+'].map(ctc => <button key={ctc} aria-pressed={filters.ctc === ctc} className={'chip ' + (filters.ctc === ctc ? 'active' : '')} onClick={() => set({ ctc })}>{ctc}</button>)}</div>
+    <label className="statistics-salary-filter">Salary range<select value={filters.ctc} onChange={event=>set({ctc:event.target.value})}>{['ALL','<5L','5–10L','10–15L','15L+'].map(value=><option key={value} value={value}>{value==='ALL'?'All salary ranges':value}</option>)}</select></label>
     <Table rows={rows} columns={columns} rowHref={c => companyHref(c.key)} rowKey={c => c.key} sort={filters.sort} onSort={key => set({ sort: { key, direction: key === filters.sort.key ? (filters.sort.direction === 'asc' ? 'desc' : 'asc') : key === 'name' ? 'asc' : 'desc' } })} />
   </Section>;
 }

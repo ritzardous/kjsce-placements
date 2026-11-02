@@ -1,3 +1,4 @@
+import { rememberExperienceOrigin } from './navigation-context';
 import { NotificationProvider } from './notification-store';
 import { ThemeProvider } from './ThemeControl';
 import { FetchLoader } from './FetchLoader';
@@ -14,6 +15,7 @@ const communityLoading = <PortalShell active="procedures"><FetchLoader label="Lo
 function Application() {
   const route = useRoute();
   const auth = useAuth();
+  useEffect(()=>{const capture=(event:MouseEvent)=>{const anchor=(event.target as HTMLElement).closest?.('a[href]');if(anchor instanceof HTMLAnchorElement)rememberExperienceOrigin(auth.user?.uid,anchor);};document.addEventListener('click',capture,true);return()=>document.removeEventListener('click',capture,true);},[auth.user?.uid]);
   useEffect(() => { initAnalytics(); }, []);
   useEffect(()=>{if(!auth.allowed)return;if(statisticsPages.includes(route.page)&&hiddenYears.has(route.year)){location.replace('#home');return;}rememberBatch(route);if(route.page==='statistics'&&selectedBatch())location.replace(batchHref(selectedBatch()!));},[auth.allowed,route.page,route.year]);
   useEffect(() => {

@@ -1,3 +1,4 @@
+import { canonicalCompanyKey } from '../shared/company-identity';
 import { useEffect, useState } from 'react';
 import type { ProcedureCompany } from '../shared/procedures';
 import type { DashboardResponse } from '../shared/statistics';
@@ -25,7 +26,7 @@ export function ProcedureCompanyPreview({ company, appearanceYear }: {company:Pr
     let active=true;
     if(!user||!Number.isFinite(year)){setState({key,error:true});return;}
     // Community IDs use hyphens; published statistics retain underscore IDs.
-    void companyStats(user.uid,year).then(rows=>{if(active)setState({key,company:rows.find(row=>row.key.replaceAll('_','-')===company.key.replaceAll('_','-'))});}).catch(()=>{if(active)setState({key,error:true});});
+    void companyStats(user.uid,year).then(rows=>{if(active)setState({key,company:rows.find(row=>canonicalCompanyKey(row.key)===canonicalCompanyKey(company.key))});}).catch(()=>{if(active)setState({key,error:true});});
     return()=>{active=false;};
   },[user?.uid,company.key,year,key]);
   return <aside className="procedure-company-preview" aria-label="Selected company information">

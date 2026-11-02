@@ -1,3 +1,4 @@
+import { mergeCompanyDirectory, canonicalCompanyKey } from '../shared/company-identity';
 import { httpsCallable } from 'firebase/functions';
 import { collection, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, startAfter, where, type DocumentData, type QueryConstraint, type QueryDocumentSnapshot } from 'firebase/firestore';
 import { getFirebase } from './firebase';
@@ -25,7 +26,7 @@ const companyCache = new Map<string, {at:number;request:Promise<ProcedureCompany
 export function procedureCompanies():Promise<ProcedureCompany[]> {
   const {db,auth}=getFirebase(), key=auth.currentUser?.uid || '', cached=companyCache.get(key);
   if(cached && Date.now()-cached.at<300000) return cached.request;
-  const request=withTimeout(getDocs(query(collection(db,'procedureCompanies'),orderBy('name')))).then(result=>result.docs.map(d=>({...d.data(),key:d.id}) as ProcedureCompany));
+  const request=withTimeout(getDocs(query(collection(db,'procedureCompanies'),orderBy('name')))).then(result=>mergeCompanyDirectory(result.docs.map(d=>({...d.data(),key:d.id}) as ProcedureCompany)));
   const entry={at:Date.now(),request};companyCache.set(key,entry);
   while(companyCache.size>6)companyCache.delete(companyCache.keys().next().value!);
   void request.catch(()=>{if(companyCache.get(key)===entry)companyCache.delete(key);});
@@ -36,7 +37,7 @@ export function watchContributions(uid: string, callback: (rows: ProcedureSubmis
   const stop = onSnapshot(query(collection(getFirebase().db, 'procedureSubmissions'), where('ownerUid', '==', uid), orderBy('updatedAt', 'desc'), limit(100)), s => { clearTimeout(timer); callback(s.docs.map(d => ({ ...d.data(), id: d.id }) as ProcedureSubmission)); }, cause => { clearTimeout(timer); error(cause); });
   return () => { clearTimeout(timer); stop(); };
 }
-export async function getSubmission(id: string): Promise<ProcedureSubmission | null> { const d = await withTimeout(getDoc(doc(getFirebase().db, 'procedureSubmissions', id))); return d.exists() && !d.data().deleted ? { ...d.data(), id: d.id } as ProcedureSubmission : null; }
+export async function getSubmission(id: string): Promise<ProcedureSubmission | null> { const d = await withTimeout(getDoc(doc(getFirebase().db, 'procedureSubmissions', id))); return d.exists() && !d.data().deleted ? { ...d.data(), draft: {...d.data().draft,companyKey:canonicalCompanyKey(d.data().draft.companyKey)}, id: d.id } as ProcedureSubmission : null; }
 export async function saveProcedure(id: string, expectedVersion: number, draft: ProcedureDraft) { return callProcedure<{ version: number }>('saveProcedureDraft', { id, expectedVersion, draft }); }
 export type PostFilters = { company: string; year: string; coverage: string; outcome: string; sort: string };
 export const defaultPostFilters: PostFilters = { company: '', year: '', coverage: '', outcome: '', sort: 'newest' };

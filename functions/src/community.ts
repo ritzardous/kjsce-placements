@@ -1,3 +1,4 @@
+import { canonicalCompanyKey, canonicalCompanyName } from '../../shared/company-identity.js';
 import { notificationActions, notificationApi } from './notification-api.js';
 import { writeNotification } from './notifications.js';
 import { type Firestore, type Query, type DocumentData } from 'firebase-admin/firestore';
@@ -17,12 +18,12 @@ function parse<T>(schema: z.ZodType<T>, input: unknown): T {
   return result.data;
 }
 function required(condition: unknown, message: string): asserts condition { if (!condition) throw new HttpsError('failed-precondition', message); }
-const pageInput = z.object({ cursor: cursorSchema }).passthrough();
+const pageInput = z.object({ cursor: cursorSchema, status: z.enum(['','attention','published','draft','pending','approved','changes_requested','rejected']).optional() }).strict();
 const normalize = (text: unknown) => String(text || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 function matches(row: DocumentData, filters: DocumentData) {
   const draft = row.draft || row;
   const text = `${row.companyName || draft.companyKey} ${draft.title || ''} ${draft.role || ''} ${draft.summary || ''}`;
-  return (!filters.company || draft.companyKey === filters.company)
+  return (!filters.company || canonicalCompanyKey(draft.companyKey || '') === canonicalCompanyKey(filters.company))
     && (!filters.year || draft.appearanceYear === Number(filters.year))
     && (!filters.coverage || draft.coverage === filters.coverage)
     && (!filters.outcome || draft.outcome === filters.outcome)
@@ -65,12 +66,14 @@ async function throttle(db: Firestore, tx: FirebaseFirestore.Transaction, uid: s
 }
 
 export async function community(db: Firestore, actorValue: Actor | undefined, input: unknown, auth?: Auth) {
+  if (Buffer.byteLength(JSON.stringify(input) || '') > 100000) throw new HttpsError('invalid-argument', 'Request too large.');
   const request = parse(z.object({ action: z.string().max(40), payload: z.record(z.string(), z.unknown()).default({}) }).strict(), input);
   const actor = authorize(actorValue, adminCommunityActions.has(request.action)), value = request.payload;
   if(['ask','answer'].includes(request.action))throw new HttpsError('failed-precondition','Questions and replies are no longer available.');
   if (notificationActions.has(request.action)) return notificationApi(db, actor.uid, request.action, value);
   switch (request.action) {
     case 'syncAccount': {
+      parse(z.object({}).strict(),value);
       required(auth, 'Account sync is unavailable.');
       const account = await auth.getUser(actor.uid);
       if (account.disabled || !account.emailVerified || !account.providerData.some(provider => provider.providerId === 'google.com')) throw new HttpsError('permission-denied', 'Verified Google sign-in is required.');
@@ -97,6 +100,7 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
       const groups=new Map<string,{id:string;companyKey:string;companyName:string;count:number;publishedAt:number;score:number}>();
       for(const row of await publishedCompanyMetadata(db)) {
         if(!matches(row,filters))continue;
+        row.companyKey=canonicalCompanyKey(row.companyKey || '');row.companyName=canonicalCompanyName(row.companyKey,row.companyName);if(!row.companyKey||!row.companyName)continue;
         const group=groups.get(row.companyKey)||{id:row.companyKey,companyKey:row.companyKey,companyName:row.companyName,count:0,publishedAt:0,score:0};
         group.count++;group.publishedAt=Math.max(group.publishedAt,Number(row.publishedAt)||0);group.score+=Number(row.score)||0;groups.set(row.companyKey,group);
       }
@@ -108,7 +112,7 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
       const fields = filters.sort === 'helpful' ? ['score', 'publishedAt'] : ['publishedAt'];
       const results = await page(db.collection('procedurePosts').where('published', '==', true), fields, 'desc', filters.cursor, row => matches(row, filters), 12);
       const bookmarks = results.rows.length ? await db.getAll(...results.rows.map(row=>db.doc(`procedureBookmarks/${actor.uid}/items/${row.id}`))) : [];
-      return {...results,rows:results.rows.map((row,index)=>({...row,saved:bookmarks[index].exists}))};
+      return {...results,rows:results.rows.map((row,index)=>({...row,companyKey:canonicalCompanyKey(row.companyKey),companyName:canonicalCompanyName(row.companyKey,row.companyName),saved:bookmarks[index].exists}))};
     }
     case 'bookmark': {
       const data = parse(z.object({ postId: id, saved: z.boolean() }).strict(), value);
@@ -136,6 +140,7 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
       return page(db.collection('procedureSubmissions').where('ownerUid', '==', actor.uid), ['updatedAt'], 'desc', data.cursor, row => !row.deleted && (value.status === 'published' ? row.hasPublished === true : value.status === 'attention' ? ['changes_requested','rejected'].includes(row.status) : !value.status || row.status === value.status));
     }
     case 'impact': {
+      parse(z.object({}).strict(),value);
       const submissions = db.collection('procedureSubmissions').where('ownerUid', '==', actor.uid);
       const [total, drafts, pending, approved, votes, questions] = await Promise.all([
         submissions.count().get(), submissions.where('status', '==', 'draft').count().get(), submissions.where('status', '==', 'pending').count().get(), submissions.where('hasPublished', '==', true).count().get(),
@@ -145,7 +150,7 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
       const deleted=await submissions.where('deleted','==',true).count().get();
       return { total: total.data().count-deleted.data().count, drafts: drafts.data().count, pending: pending.data().count, published: approved.data().count, helpful: votes.data().helpful || 0, unanswered: questions.data().count };
     }
-    case 'preferences': return (await db.doc(`procedurePreferences/${actor.uid}`).get()).data() || {};
+    case 'preferences': parse(z.object({}).strict(),value); return (await db.doc(`procedurePreferences/${actor.uid}`).get()).data() || {};
     case 'timeline': {
       const data = parse(z.object({ submissionId: id }).strict(), value);
       const submission = await db.doc(`procedureSubmissions/${data.submissionId}`).get();

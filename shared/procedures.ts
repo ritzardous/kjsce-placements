@@ -1,3 +1,4 @@
+import { canonicalCompanyKey } from './company-identity.js';
 import { z } from 'zod';
 
 export const procedureStarter = `## Rounds I appeared for
@@ -10,10 +11,10 @@ export const procedureStarter = `## Rounds I appeared for
 <!-- What helped, and what would you do differently? -->
 `;
 export const procedureDraftSchema = z.object({
-  title: z.string().trim().max(120).default(''),
+  title: z.string().trim().max(120).refine(value=>!/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u202a-\u202e\u2066-\u2069]/.test(value),'Remove hidden control characters.').default(''),
   summary: z.string().trim().max(320).default(''),
-  rounds: z.array(z.enum(['Aptitude', 'Coding', 'Technical interview', 'HR', 'Group discussion', 'Assignment', 'Other'])).max(7).default([]),
-  companyKey: z.string().max(120),
+  rounds: z.array(z.enum(['Aptitude', 'Coding', 'Technical interview', 'HR', 'Group discussion', 'Assignment', 'Other'])).max(7).refine(values=>new Set(values).size===values.length,'Choose each round once.').default([]),
+  companyKey: z.string().trim().max(100).regex(/^[a-zA-Z0-9_-]*$/, 'Choose a valid company.').transform(canonicalCompanyKey),
   appearanceYear: z.number().int().min(2000).max(new Date().getFullYear() + 1),
   graduationYear: z.number().int().min(2000).max(2100).nullable(),
   coverage: z.enum(['Full', 'Partial']),
@@ -22,7 +23,7 @@ export const procedureDraftSchema = z.object({
   attribution: z.enum(['anonymous', 'name', 'custom']),
   customName: z.string().trim().max(60).default(''),
   body: z.string().max(20_000),
-}).strict();
+}).strict().refine(draft=>Object.values(draft).filter(value=>typeof value==='string').every(value=>!/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u202a-\u202e\u2066-\u2069]/.test(value)),{message:'Remove hidden control characters from your writing.',path:['body']});
 export type ProcedureDraft = z.infer<typeof procedureDraftSchema>;
 export const submissionSchema = procedureDraftSchema.refine(d => d.companyKey.length > 0, {message:'Choose a company.',path:['companyKey']}).refine(d => meaningfulBody(d.body).length >= 60, {message:'Write at least 60 characters about your experience beyond the starter headings.',path:['body']}).refine(d => d.attribution !== 'custom' || d.customName.length > 0, {message:'Enter the public name you want readers to see.',path:['customName']});
 export function meaningfulBody(body: string) { return body.replace(/<!--[\s\S]*?-->/g, '').replace(/^#{1,6}.*$/gm, '').replace(/\s+/g, ' ').trim(); }

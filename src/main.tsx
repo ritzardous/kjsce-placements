@@ -10,5 +10,6 @@ import './enhancements.css';
 import './app-polish.css';
 import './neobrutal.css';
 import './notifications.css';
+import './data-quality.css';
 
 createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);

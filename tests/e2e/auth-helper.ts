@@ -10,7 +10,7 @@ export async function signInGoogle(page: Page, navigate = true, photoURL?: strin
     const id = crypto.randomUUID();
     await signInWithCredential(getFirebase().auth, GoogleAuthProvider.credential(JSON.stringify({sub:id,email:id+'@example.test',email_verified:true,name:'Test Student',picture:${JSON.stringify(photoURL ?? '')}})));
   })()`);
-  await expect(page.getByRole('button', { name: 'Log out', exact: true })).toBeVisible();
+  await expect(page.locator('.auth-controls .account-menu>summary')).toBeVisible();
   if(navigate)await expect(page).toHaveURL(/#home$/);
   return page.evaluate(`(async () => { const {getFirebase} = await import('/src/firebase.ts'); return getFirebase().auth.currentUser.uid; })()` ) as Promise<string>;
 }

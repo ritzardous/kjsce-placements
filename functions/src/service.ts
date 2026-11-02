@@ -31,6 +31,7 @@ export async function saveDraft(db: Firestore, actorValue: Actor | undefined, va
     requireCondition(!old?.deleted, 'This experience was deleted. Start a new experience instead.');
     requireCondition((old?.draftVersion ?? 0) === input.expectedVersion, 'This draft changed in another tab. Reload before editing.');
     requireCondition(old?.status !== 'pending', 'This revision is awaiting review.');
+    if (input.draft.companyKey) { const company = await tx.get(db.doc(`procedureCompanies/${input.draft.companyKey}`)); requireCondition(company.exists && !company.data()!.aliasOf, 'Choose a company from the recruiter directory.'); }
     const stampLimit = await limit(db, tx, actor, 'draft', 300);
     const version = input.expectedVersion + 1;
     tx.set(ref, { ownerUid: actor.uid, draft: input.draft, draftVersion: version, revision: old?.revision ?? 0, status: 'draft', feedback: old?.feedback ?? '', updatedAt: Date.now(), hasPublished: old?.hasPublished ?? false }, { merge: true });
