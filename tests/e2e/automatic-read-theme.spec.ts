@@ -21,7 +21,7 @@ test('opening visible notifications marks them read without consuming unseen his
   await expect(first).toHaveClass(/is-read/);
   expect(await first.boundingBox()).toEqual(before);
   expect((await db.doc(`procedureNotifications/${uid}/items/${ids[24]}`).get()).data()?.read).toBe(false);
-  await first.getByRole('button', { name: 'Mark unread', exact: true }).click();
+  await first.locator('.action-disclosure>summary').click();await page.getByRole('button', { name: 'Mark unread', exact: true }).click();
   await expect(first).toHaveClass(/is-unread/);
   // A deliberate manual unread action must not immediately be undone by visibility tracking.
   await page.clock.install(); await page.clock.runFor(1500);
@@ -32,7 +32,7 @@ test('preview reads only the five opened items and updates the shared count', as
   test.skip(info.project.name === 'mobile', 'Phones open the full inbox directly.');
   const uid = await signInGoogle(page), ids = Array.from({ length: 7 }, () => randomUUID()), now = Date.now();
   await Promise.all(ids.map((id, index) => db.doc(`procedureNotifications/${uid}/items/${id}`).set({ title: `Preview auto read ${index}`, read: false, createdAt: now - index })));
-  await page.getByRole('button', { name: 'Show recent notifications' }).click();
+  await page.locator('.notification-entry').click();
   await expect(page.getByRole('region', { name: 'Recent notifications' }).getByRole('link', { name: /Preview auto read/ })).toHaveCount(5);
   await expect.poll(async () => (await db.doc(`procedureNotifications/${uid}/items/${ids[0]}`).get()).data()?.read).toBe(true);
   await expect(page.getByRole('link', { name: 'Notifications (2)', exact: true })).toBeVisible();

@@ -1,3 +1,4 @@
+import { DialogPortal, openTaskDialog } from './overlay';
 import { type ProcedureCompany, roundOptions } from '../shared/procedures';
 import {type IconName, AppIcon } from './AppIcon';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
@@ -42,12 +43,12 @@ export function ConfirmAction({ label, title, description, confirmLabel, onConfi
   onConfirm: () => void; disabled?: boolean; tone?: 'danger' | 'warning'; icon?:IconName;
 }) {
   const dialog = useRef<HTMLDialogElement>(null), heading = useId();
-  return <><button className={`control-${tone}`} type="button" disabled={disabled} onClick={() => dialog.current?.showModal()}><AppIcon name={icon|| (tone==='danger'?'trash':'back')}/>{label}</button>
-    <dialog className="procedure-card procedure-confirmation" ref={dialog} aria-labelledby={heading}>
+  return <><button className={`control-${tone}`} type="button" disabled={disabled} aria-haspopup="dialog" onClick={event => openTaskDialog(dialog.current,event.currentTarget)}><AppIcon name={icon|| (tone==='danger'?'trash':'back')}/>{label}</button>
+    <DialogPortal><dialog className="procedure-card procedure-confirmation" ref={dialog} aria-labelledby={heading}>
       <h2 id={heading}>{title}</h2><p>{description}</p>
       <div className="procedure-actions"><button type="button" autoFocus onClick={() => dialog.current?.close()}>Cancel</button>
         <button className={`control-${tone}`} type="button" onClick={() => { dialog.current?.close(); onConfirm(); }}>{confirmLabel}</button></div>
-    </dialog></>;
+    </dialog></DialogPortal></>;
 }
 
 

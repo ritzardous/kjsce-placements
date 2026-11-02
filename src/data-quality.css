@@ -23,16 +23,6 @@
 .action-disclosure{position:relative;display:inline-block;margin:0!important;flex-shrink:0}
 .action-disclosure>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;padding:8px 12px;border:1px solid var(--line-soft);cursor:pointer;box-sizing:border-box;background:var(--surface);font-size:13px;font-weight:600}
 .action-disclosure>summary::-webkit-details-marker{display:none}
-.action-disclosure[open]{z-index:30}.action-disclosure-content{position:absolute;right:0;top:calc(100% + 6px);width:max-content;min-width:220px;max-width:min(360px,calc(100vw - 40px));padding:12px;border:1px solid var(--line);background:var(--surface);box-shadow:0 8px 28px #0002;z-index:30;max-height:65vh;overflow:auto}
-.action-disclosure:not([open])>.action-disclosure-content{display:none}
-.action-disclosure-content>*,.action-disclosure-content .procedure-actions{margin:0!important}
-.action-disclosure-content :is(a,button){display:flex;align-items:center;justify-content:flex-start;width:100%;min-height:44px;box-sizing:border-box;text-align:left}
-:is(#app,.portal-shell) .action-disclosure-content button{box-shadow:none;border:0;background:transparent;padding:10px 12px}
-.action-disclosure-content a{padding:10px 12px;color:var(--ink)}.action-disclosure-content :is(a,button):hover{background:var(--accent-soft)}
-.action-disclosure-content .procedure-actions,.action-disclosure-content .contribution-management{display:flex;flex-direction:column;gap:4px}
-.action-disclosure-content dialog{position:fixed}.account-menu .action-disclosure-content{min-width:210px}
-.action-disclosure-content .action-disclosure-close{display:none}
-.account-menu-link .profile-avatar{margin-right:8px}
 :is(#app,.portal-shell) .procedure-navigation{margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid var(--line-soft)}
 :is(#app,.portal-shell) .procedure-navigation .procedure-tabs a{border:0;box-shadow:none;background:transparent;padding:10px 14px;min-height:44px}
 :is(#app,.portal-shell) .procedure-navigation .procedure-tabs a[aria-current=page]{color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 -2px var(--accent)}
@@ -74,10 +64,41 @@
  :is(#app,.portal-shell) .account-contributions .contribution-content-actions{grid-column:1;grid-row:auto}
  :is(#app,.portal-shell) .account-contributions .procedure-card>.action-disclosure{grid-column:2;grid-row:auto}
  .notification-toolbar .workspace-view-switch{width:100%}.notification-toolbar .workspace-view-switch>button{flex:1}
- .action-disclosure-content{position:fixed;left:16px;right:16px;bottom:80px;top:auto;max-width:none;width:auto;max-height:65vh;padding:16px}
- .action-disclosure-content:before{content:'Options · Escape or tap outside to close';display:block;color:var(--ink-soft);font-size:12px;padding:8px}
- .action-disclosure-content .action-disclosure-close{display:flex;border-top:1px solid var(--line-soft);margin-top:12px!important}
  .notification-toolbar .action-disclosure{margin-left:0!important}.procedure-editor-page .procedure-composer{padding:12px!important}
  .account-menu>summary{width:44px;padding:4px;justify-content:center}.account-menu>summary>span:last-child[aria-hidden]{display:none}
  .editor-save-indicator{margin-left:0;flex-wrap:wrap;order:3;width:100%}
 }
+
+/* Action surfaces own their spacing; top-layer placement is measured against the visual viewport. */
+:is(#app,.portal-shell) .action-disclosure-content{position:fixed;inset:auto;margin:0;box-sizing:border-box;min-width:0;padding:6px;border:1px solid var(--line-soft);background:var(--surface);color:var(--ink);box-shadow:0 10px 32px #0003;overflow:auto;overscroll-behavior:contain;font:400 14px/1.4 var(--font-body);overflow-wrap:anywhere}
+.action-disclosure-content:not([open]):not(:popover-open){display:none}
+:is(#app,.portal-shell) .action-disclosure-content :is(a,button){display:flex;align-items:center;justify-content:flex-start;gap:10px;width:100%;min-height:44px;box-sizing:border-box;margin:0;padding:9px 12px;border:0;box-shadow:none;background:transparent;color:var(--ink);text-align:left;font:inherit;text-decoration:none;white-space:normal}
+:is(#app,.portal-shell) .action-disclosure-content :is(a,button):hover{background:var(--accent-soft)}
+.action-disclosure-content :is(.procedure-actions,.contribution-management){display:flex;flex-direction:column;gap:0;margin:0}
+:is(#app,.portal-shell) .action-disclosure-content .control-danger{color:var(--ui-danger);border-top:1px solid var(--line-faint);margin-top:4px}
+:is(#app,.portal-shell) .action-disclosure-content .action-sheet-close{display:none}
+:is(#app,.portal-shell) .action-disclosure-content.is-sheet .action-sheet-close{display:flex;justify-content:center;border-top:1px solid var(--line-faint);margin-top:6px}
+:is(#app,.portal-shell) .account-panel{padding:10px}
+.account-panel-identity{display:flex;align-items:center;gap:12px;padding:12px 8px 18px;border-bottom:1px solid var(--line-faint);margin-bottom:6px}
+.account-panel-identity .profile-avatar{width:48px;height:48px;flex-shrink:0}
+.account-panel-identity>div{min-width:0}.account-panel-identity strong,.account-panel-identity span:not(.profile-avatar){display:block;overflow-wrap:anywhere}
+.account-panel-identity>div>span{color:var(--ink-soft);font-size:12px;margin-top:4px}
+:is(#app,.portal-shell) .account-panel .logout-button{border-top:1px solid var(--line-faint);margin-top:6px;color:var(--ui-danger)}
+:is(#app,.portal-shell) :is(.task-dialog,.procedure-confirmation,.procedure-filter-sheet){box-sizing:border-box;width:min(520px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px);padding:24px;overflow:auto;overscroll-behavior:contain;overflow-wrap:anywhere}
+.task-dialog-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}.task-dialog-heading h2{margin:0;font-size:22px}
+:is(#app,.portal-shell) .task-dialog-heading button{display:grid;place-items:center;flex-shrink:0;width:44px;min-height:44px;padding:8px;box-shadow:none;border:0;background:transparent}
+.report-dialog textarea{resize:vertical;max-height:35dvh}.report-dialog .report-context{font-weight:600}.report-dialog small{color:var(--ink-soft)}
+:is(#app,.portal-shell) .task-dialog .procedure-actions{justify-content:flex-end;margin-bottom:0}
+/* Ordinary prose wraps; only inherently wide data has its own horizontal scroll. */
+:is(.submission-detail,.procedure-editor-page,.procedure-markdown,.notification-card,.notification-preview,.workspace-page-header,.procedure-heading,.reader-footer,.procedure-compare,.procedure-admin-grid)>*{min-width:0;max-width:100%;box-sizing:border-box}
+:is(.submission-detail,.procedure-editor-page,.procedure-markdown,.notification-card,.notification-preview,.procedure-feedback,.procedure-timeline,.workspace-breadcrumb){min-width:0;overflow-wrap:anywhere}
+.procedure-markdown :is(pre,table){max-inline-size:100%;box-sizing:border-box;overflow-x:auto;overscroll-behavior-x:contain}
+.procedure-markdown pre{white-space:pre;overflow-wrap:normal}.procedure-markdown pre code{white-space:inherit;overflow-wrap:normal}
+.procedure-markdown :not(pre)>code{white-space:break-spaces;overflow-wrap:anywhere}.procedure-markdown img{max-width:100%;height:auto}
+.notification-preview{box-sizing:border-box;max-width:calc(100vw - 24px)}
+@media(max-width:600px){
+ :is(#app,.portal-shell) .action-disclosure-content.is-sheet{width:calc(100vw - 24px)!important;max-height:calc(100dvh - 24px);padding:10px 10px max(10px,env(safe-area-inset-bottom))}
+ :is(#app,.portal-shell) :is(.task-dialog,.procedure-confirmation,.procedure-filter-sheet){padding:18px;max-height:calc(100dvh - 24px);width:calc(100vw - 24px);max-width:calc(100vw - 24px)}
+}
+
+.portal-shell.workspace-overlays{display:contents}

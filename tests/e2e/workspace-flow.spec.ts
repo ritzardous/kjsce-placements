@@ -19,7 +19,7 @@ test('contributor workspace has one filter, compact rows and confirmed secondary
  await expect(page.getByRole('button',{name:'Delete experience',exact:true})).toHaveCount(0);
  const a=await rows.nth(0).boundingBox(),b=await rows.nth(1).boundingBox(),list=await page.locator('.account-contributions .procedure-list').boundingBox();expect(a!.x).toBe(b!.x);expect(a!.width).toBe(b!.width);expect(Math.abs(a!.width-list!.width)).toBeLessThan(2);
  await rows.nth(0).locator('.action-disclosure>summary').click();
- await rows.nth(0).getByRole('button',{name:'Delete experience',exact:true}).click();
+ await page.getByRole('button',{name:'Delete experience',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'Permanently delete this experience?'});await expect(dialog).toBeVisible();await dialog.getByRole('button',{name:'Cancel',exact:true}).click();
  await page.keyboard.press('Escape');await expect(rows.nth(0).locator('.action-disclosure')).not.toHaveAttribute('open','');
  await page.screenshot({path:`artifacts/workspace-contributions-${info.project.name}.png`,fullPage:true});

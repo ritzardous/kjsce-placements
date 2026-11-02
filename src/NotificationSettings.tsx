@@ -22,8 +22,11 @@ export function FollowButton({ kind, itemKey, label }: { kind: 'company' | 'expe
 }
 
 export function NotificationSettings() {
-  const [opened, setOpened] = useState(false);
-  return <details className="notification-settings procedure-card" onToggle={event => { if (event.currentTarget.open) setOpened(true); }}><summary>Notification preferences and following</summary>{opened && <SettingsBody/>}</details>;
+  const requested = new URLSearchParams(location.hash.split('?')[1]).get('preferences') === '1';
+  const [opened, setOpened] = useState(requested);
+  const preferences=useRef<HTMLDetailsElement>(null);
+  useEffect(()=>{if(requested&&preferences.current){preferences.current.open=true;setOpened(true);preferences.current.scrollIntoView({block:'start'});}},[requested]);
+  return <details ref={preferences} id="notification-preferences" className="notification-settings procedure-card" onToggle={event => { if (event.currentTarget.open) setOpened(true); }}><summary>Notification preferences and following</summary>{opened && <SettingsBody/>}</details>;
 }
 function SettingsBody() {
   const [settings, setSettings] = useState<Settings | null>(null), [error, setError] = useState(''), [message, setMessage] = useState(''), [busy, setBusy] = useState(false), [options, setOptions] = useState<{ key: string; name: string }[]>([]), [selection, setSelection] = useState('');

@@ -46,11 +46,11 @@ test('discovery, clean reading, saved prep and report moderation work together',
     await admin.locator('summary').filter({hasText:'Moderation overview'}).click();
     await expect(admin.getByText('All notifications are delivered in the app.', {exact:false})).toBeVisible();
     await expect(admin.getByRole('button',{name:'Retry failed emails'})).toHaveCount(0);
-    await reader.locator('.reader-footer > details').filter({hasText:'Report experience'}).locator('summary').click();
-    const report=reader.locator('.reader-footer > details').filter({hasText:'Report experience'});
+    await reader.locator('summary[aria-label="Experience options"]').click();await reader.getByRole('button',{name:'Report experience',exact:true}).click();
+    const report=reader.getByRole('dialog',{name:'Report experience',exact:true});
     await report.getByLabel('Details (optional)').fill(`Please check whether the coding format has changed. ${tag}`);
     await report.getByRole('button',{name:'Send report'}).click();
-    await expect(report.getByText('Report received',{exact:false})).toBeVisible();
+    await expect(report).toBeHidden();
     await admin.getByRole('button',{name:'Reports',exact:true}).click();
     const reportCard=admin.locator('.procedure-card').filter({hasText:`Please check whether the coding format has changed. ${tag}`});
     await reportCard.getByLabel('Moderation reason').fill('Contributor should confirm the latest format.');await reportCard.getByRole('button',{name:'Request correction'}).click();
