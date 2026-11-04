@@ -1,6 +1,6 @@
 # Placement Stats KJSCE
 
-React + TypeScript with cloud Firebase Authentication and Cloud Firestore. Public landing → Google-only login → Home with three placement years and separate community destinations. No Express server is required.
+React + TypeScript with cloud Firebase Authentication and Cloud Firestore. Public landing → Google-only login → Home with three placement years and separate community destinations. No Express server is required
 
 Preserves overview, company/branch views, candidate search, timeline, insights, source notes, styling, and hash navigation. Baseline: 100 announcements, 311 selections, 299 unique students, 82 companies. Source counters remain separate from calculated totals.
 
