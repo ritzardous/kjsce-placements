@@ -85,7 +85,10 @@ test('concurrent readers have exact totals; vote switching/removal, self-votes a
   await vote(db, readers[0], { id, value: 0 });
   data = (await db.doc(`procedurePosts/${id}`).get()).data()!;
   assert.deepEqual([data.score, data.upvotes, data.downvotes], [5, 5, 0]);
-  await unpublish(db, admin, { id, reason: 'Needs correction' });
+  await assert.rejects(unpublish(db,admin,{id,expectedRevision:0,reason:'Stale publication view'}),/published version changed/);
+  const unpublished=await unpublish(db, admin, { id, expectedRevision:1, reason: 'Needs correction' });
+  assert.ok(unpublished.auditId);
+  assert.equal((await db.doc(`procedureModeration/${unpublished.auditId}`).get()).data()!.action,'unpublished');
   assert.equal((await db.doc(`procedurePosts/${id}`).get()).data()!.published, false);
   await assert.rejects(vote(db, contributor(), { id, value: 1 }));
 });

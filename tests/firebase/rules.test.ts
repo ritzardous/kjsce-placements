@@ -126,3 +126,15 @@ test('community snapshots are readable only when published; drafts, revisions an
     await assertFails(setDoc(doc(db, 'procedureCompanies/forged-company'), { name: 'Forged' }));
   }
 });
+
+test('suspension and session revocation deny already-issued Google sessions and admin data stays private',async()=>{
+  const uid='rules-suspended-session',old=env.authenticatedContext(uid,{...googleClaims,auth_time:100}).firestore();
+  await assertSucceeds(getDoc(doc(old,'batches/2026')));
+  await env.withSecurityRulesDisabled(context=>setDoc(doc(context.firestore(),`accountAccess/${uid}`),{suspended:true,revokedBefore:150}));
+  await assertFails(getDoc(doc(old,'batches/2026')));
+  await env.withSecurityRulesDisabled(context=>updateDoc(doc(context.firestore(),`accountAccess/${uid}`),{suspended:false}));
+  await assertFails(getDoc(doc(old,'batches/2026')));
+  const fresh=env.authenticatedContext(uid,{...googleClaims,auth_time:200}).firestore();await assertSucceeds(getDoc(doc(fresh,'batches/2026')));
+  const admin=env.authenticatedContext('rules-admin-workspace',{...googleClaims,role:'admin'}).firestore();
+  for(const path of ['adminJobs/private-job','adminAudit/private-event','accountAccess/rules-suspended-session']){await assertFails(getDoc(doc(admin,path)));await assertFails(setDoc(doc(admin,path),{forged:true}));}
+});

@@ -88,17 +88,19 @@ export async function review(db: Firestore, actorValue: Actor | undefined, value
   return result;
 }
 
-export async function unpublish(db: Firestore, actorValue: Actor | undefined, value: unknown) {
-  const actor = authorize(actorValue, true), input = parse(z.object({ id: idSchema, reason: z.string().trim().min(1).max(2000) }).strict(), value);
+export async function unpublish(db: Firestore, actorValue: Actor | undefined, value: unknown):Promise<{unpublished:boolean;auditId?:string}> {
+  const actor = authorize(actorValue, true), input = parse(z.object({ id: idSchema, expectedRevision:versionSchema, reason: z.string().trim().min(1).max(2000) }).strict(), value);
   const result=await db.runTransaction(async tx => {
     const ref = db.doc(`procedurePosts/${input.id}`), post = await tx.get(ref);
     requireCondition(post.exists, 'Post not found.');
+    requireCondition(post.data()!.revision === input.expectedRevision, 'The published version changed. Reload it before unpublishing.');
     if (!post.data()!.published) return { unpublished: true };
     tx.update(ref, { published: false });
     tx.update(db.doc(`procedureSubmissions/${input.id}`), { hasPublished: false, feedback: input.reason, updatedAt: Date.now() });
-    tx.create(db.collection('procedureModeration').doc(), { submissionId: input.id, revision: post.data()!.revision, action: 'unpublished', feedback: input.reason, adminUid: actor.uid, createdAt: Date.now() });
+    const auditRef=db.collection('procedureModeration').doc();
+    tx.create(auditRef, { submissionId: input.id, revision: post.data()!.revision, action: 'unpublished', feedback: input.reason, adminUid: actor.uid, createdAt: Date.now() });
     writeNotification(db, tx, post.data()!.authorUid, `unpublished:${input.id}:${post.data()!.revision}:${post.data()!.publishedAt}`, { type: 'unpublished', submissionId: input.id, title: 'Experience unpublished', message: input.reason, revision: post.data()!.revision, companyName: post.data()!.companyName || '' });
-    return { unpublished: true };
+    return { unpublished: true, auditId: auditRef.id };
   });
   invalidateCompanyDiscovery(db);
   return result;

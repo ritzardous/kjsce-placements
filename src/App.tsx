@@ -10,7 +10,7 @@ import {rememberBatch,selectedBatch,batchHref} from './statistics-navigation';
 import {hiddenYears,statisticsPages} from './routing';
 import { useRoute } from './routing';
 const Procedures = lazy(() => import('./Procedures'));
-const AdminProcedures = lazy(() => import('./Procedures').then(module => ({ default: module.AdminProcedures })));
+const AdminWorkspace = lazy(() => import('./AdminWorkspace'));
 const communityLoading = <PortalShell active="procedures"><FetchLoader label="Loading community…"/></PortalShell>;
 function Application() {
   const route = useRoute();
@@ -34,7 +34,7 @@ function Application() {
   if (route.page === 'statistics') return selectedBatch()?<PortalShell active="statistics"><FetchLoader label="Opening your selected batch…"/></PortalShell>:<Home statisticsOnly />;
   if(statisticsPages.includes(route.page)&&hiddenYears.has(route.year))return <Home />;
   if (route.page === 'procedures') return <Suspense fallback={communityLoading}><Procedures parameter={route.parameter} draftId={new URLSearchParams(location.hash.split('?')[1]).get('draft') || undefined} /></Suspense>;
-  if (route.page === 'admin' && route.parameter === 'procedures') return <Suspense fallback={communityLoading}><AdminProcedures /></Suspense>;
+  if (route.page === 'admin') return <Suspense fallback={communityLoading}><AdminWorkspace section={route.parameter}/></Suspense>;
   if (route.page === 'account' || route.page === 'contributions') return <Account />;
   if (route.page === 'alumni') return <Home statisticsOnly />;
   if (statisticsPages.includes(route.page)) return <Dashboard route={route} />;

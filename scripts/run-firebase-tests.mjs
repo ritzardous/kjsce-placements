@@ -10,7 +10,8 @@ const commands = [
   ['node_modules/tsx/dist/cli.mjs', 'scripts/verify-firestore.ts', '--year', '2027', '--emulator'],
   ['node_modules/tsx/dist/cli.mjs', 'scripts/seed-procedure-companies.ts', '--emulator'],
   ['node_modules/tsx/dist/cli.mjs', '--test', 'tests/firebase/rules.test.ts', 'tests/firebase/migration.test.ts', 'tests/firebase/procedures.test.ts', 'tests/firebase/procedures-api.test.ts', 'tests/firebase/community.test.ts'],
-  ['node_modules/@playwright/test/cli.js', 'test'],
+  ['node_modules/tsx/dist/cli.mjs','--test','tests/firebase/admin-workspace.test.ts'],
+  ['node_modules/@playwright/test/cli.js', 'test', ...(process.env.E2E_ADMIN_ONLY==='true'?['tests/e2e/admin-workspace.spec.ts','tests/e2e/workspace-flow.spec.ts','--workers=1']:[])],
 ];
 for (const args of commands) {
   const code = await new Promise((resolve, reject) => {

@@ -1,3 +1,5 @@
+import { adminApi } from './admin.js';
+import { currentActor, recordServiceFailure } from './access.js';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { cert, getApps, initializeApp, type App } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
@@ -30,17 +32,18 @@ async function readBody(req: Request) {
 export default async function handler(req: Request, res: ServerResponse) {
   res.setHeader('Content-Type', 'application/json'); res.setHeader('Cache-Control', 'no-store');
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); res.statusCode = 405; res.end(JSON.stringify({ error: { code: 'invalid-argument', message: 'POST required.' } })); return; }
+  let authorized:Actor|undefined,operation='';
   try {
     const bearer = req.headers.authorization?.match(/^Bearer (\S+)$/)?.[1];
     if (!bearer) throw new HttpsError('unauthenticated', 'Sign in with Google.');
     const auth = getAuth(app());
     const token = await auth.verifyIdToken(bearer, true).catch(() => { throw new HttpsError('unauthenticated', 'Your session expired. Sign in again.'); });
-    const actor: Actor = { uid: token.uid, token };
-    authorize(actor);
+    const actor = await currentActor(getFirestore(app()),auth,{uid:token.uid,token});
+    authorize(actor);authorized=actor;
     let body;
     try { body = await readBody(req); } catch (cause) { if (cause instanceof HttpsError) throw cause; throw new HttpsError('invalid-argument', 'Send a valid JSON request.'); }
     if (!body || typeof body !== 'object' || Array.isArray(body) || Object.keys(body).some(key=>!['name','data'].includes(key)) || typeof body.name !== 'string') throw new HttpsError('invalid-argument','Invalid request envelope.');
-    const name = body.name;
+    const name = body.name;operation=name;
     if (['reviewProcedure', 'unpublishProcedure'].includes(name) || name === 'procedureCommunity' && (adminCommunityActions.has(body.data?.action) || actor.token.role === 'admin')) {
       authorize(actor, true);
       const account = await auth.getUser(actor.uid);
@@ -49,6 +52,7 @@ export default async function handler(req: Request, res: ServerResponse) {
     const db = getFirestore(app());
     let data;
     switch (name) {
+      case 'adminWorkspace': data = await adminApi(db,auth,actor,body.data); break;
       case 'procedureCommunity': data = await community(db, actor, body.data, auth); break;
       case 'saveProcedureDraft': data = await saveDraft(db, actor, body.data); break;
       case 'submitProcedure': data = await submit(db, actor, body.data); break;
@@ -61,6 +65,7 @@ export default async function handler(req: Request, res: ServerResponse) {
   } catch (cause) {
     const known = cause instanceof HttpsError;
     const code = known ? cause.code : 'unavailable';
+    if(authorized&&operation)await recordServiceFailure(getFirestore(app()),authorized.uid,operation,code);
     res.statusCode = statuses[code] ?? 500;
     res.end(JSON.stringify({ error: { code, message: known ? cause.message : 'The community service could not complete the request. Retry or check its server configuration.' } }));
   }

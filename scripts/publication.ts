@@ -22,7 +22,15 @@ export async function preparePublication(year = 2026) {
   const batch = batches[year];
   if (!batch) throw new Error('Unsupported batch year.');
   const raw = await readFile(new URL(`../data/placements-${year}.json`, import.meta.url), 'utf8');
+  return prepareUploadedPublication(raw,year);
+}
+export function prepareUploadedPublication(raw:string, year:number) {
+  const batch=batches[year];
+  if(!batch)throw new Error('Unsupported batch year.');
   const dataset = datasetSchema.parse(JSON.parse(raw));
+  if(Buffer.byteLength(JSON.stringify(dataset.metadata))>100000||dataset.placements.some(record=>Buffer.byteLength(JSON.stringify(record))>700000))throw new Error('Source metadata or an individual announcement is too large.');
+  if(dataset.placements.length>5000)throw new Error('Imports support up to 5,000 announcements.');
+  if(dataset.placements.some(record=>!/^[-a-zA-Z0-9_]{1,120}$/.test(record.placement_id)))throw new Error('Announcement IDs must be safe document identifiers.');
   const dashboard = parseDashboard({ metadata: dataset.metadata, statistics: buildStatistics(dataset, batch) });
   const payload = JSON.stringify(dashboard);
   const sourceHash = sha256(raw);
@@ -34,7 +42,7 @@ export async function preparePublication(year = 2026) {
 }
 export type Publication = Awaited<ReturnType<typeof preparePublication>>;
 
-export async function stagePublication(db: Firestore, p: Publication) {
+export async function stagePublication(db: Firestore, p: Publication, offset=0, maximum=Infinity) {
   const sourcePath = `imports/${p.batch.year}-${p.version}`;
   const versionPath = `batches/${p.batch.year}/versions/${p.version}`;
   const documents = [
@@ -44,8 +52,9 @@ export async function stagePublication(db: Firestore, p: Publication) {
     { path: versionPath, data: { schemaVersion: 1, sourceHash: p.sourceHash, payloadHash: p.payloadHash, chunkCount: p.chunks.length } },
   ];
   // Bounded transactions create only missing documents and reject changed contents.
-  for (let offset = 0; offset < documents.length; offset += 100) {
-    const group = documents.slice(offset, offset + 100);
+  const end=Math.min(documents.length,offset+maximum);
+  for (let position = offset; position < end; position += 100) {
+    const group = documents.slice(position, Math.min(position + 100,end));
     await db.runTransaction(async transaction => {
       const refs = group.map(item => db.doc(item.path));
       const existing = await transaction.getAll(...refs);
@@ -56,13 +65,14 @@ export async function stagePublication(db: Firestore, p: Publication) {
       });
     });
   }
+  return {offset:end,total:documents.length,done:end===documents.length};
 }
 export async function verifyPublication(db: Firestore, p: Publication, requireActive = true) {
   const sourcePath = `imports/${p.batch.year}-${p.version}`;
   const source = await db.doc(sourcePath).get();
   if (!source.exists || !isDeepStrictEqual(source.data()?.metadata, p.dataset.metadata) || !isDeepStrictEqual(source.data()?.config, p.batch) || source.data()?.sourceHash !== p.sourceHash) throw new Error('Private source metadata reconciliation failed.');
   const records = await db.collection(`${sourcePath}/announcements`).orderBy('__name__').get();
-  if (!isDeepStrictEqual(records.docs.map(d => d.data().record), p.dataset.placements)) throw new Error('Full source record reconciliation failed.');
+  if (!isDeepStrictEqual(records.docs.map(d => d.data().record), [...p.dataset.placements].sort((a,b)=>a.placement_id<b.placement_id?-1:a.placement_id>b.placement_id?1:0))) throw new Error('Full source record reconciliation failed.');
   const path = `batches/${p.batch.year}/versions/${p.version}`;
   const versionDoc = await db.doc(path).get();
   const version = versionSchema.parse(versionDoc.data());

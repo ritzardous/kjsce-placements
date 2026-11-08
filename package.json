@@ -32,7 +32,8 @@
     "procedures:verify": "tsx scripts/verify-procedures.ts",
     "dev:api": "tsx watch scripts/dev-api.ts",
     "data:linkedin": "tsx scripts/build-linkedin.ts",
-    "predev:web": "npm run data:linkedin"
+    "predev:web": "npm run data:linkedin",
+    "test:admin": "node scripts/test-firebase.mjs --admin"
   },
   "dependencies": {
     "dotenv": "^18.0.6",
