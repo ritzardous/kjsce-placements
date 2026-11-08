@@ -8,8 +8,7 @@ const ThemeContext = createContext<{ dark: boolean; toggle: (origin: ToggleOrigi
 function preference() { try { return localStorage.getItem('placement-theme'); } catch { return null; } }
 function initialTheme() { const saved = preference(); return saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
 function applyTheme(dark: boolean) {
-  const publicPage = !location.hash || /^#(?:landing|login)(?:\?|$)/.test(location.hash);
-  document.documentElement.dataset.theme = dark && !publicPage ? 'dark' : 'light';
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
 }
 const slapFrames: Keyframe[] = [
   { scale: '1', rotate: '0deg', offset: 0 },

@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 
 async function run(args) {
   const result = await new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, args, { stdio: 'inherit', env: { ...process.env, ...(process.argv.includes('--admin')?{E2E_ADMIN_ONLY:'true'}:{}), FUNCTIONS_DISCOVERY_TIMEOUT: '60', E2E_PORT: process.env.E2E_PORT ?? '5174' } });
+    const child = spawn(process.execPath, args, { stdio: 'inherit', env: { ...process.env, ...(process.argv.includes('--admin')?{E2E_ADMIN_ONLY:'true'}:{}), ...(process.argv.includes('--landing')?{E2E_LANDING_ONLY:'true'}:{}), FUNCTIONS_DISCOVERY_TIMEOUT: '60', E2E_PORT: process.env.E2E_PORT ?? '5174' } });
     child.on('error', reject); child.on('exit', resolve);
   });
   if (result !== 0) throw new Error('Firebase beta verification failed.');

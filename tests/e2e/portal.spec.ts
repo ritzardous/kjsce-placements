@@ -7,11 +7,11 @@ test('public landing and protected deep links never read placement documents bef
   const reads: string[] = [];
   page.on('request', request => { if (request.url().includes(':8080')) reads.push(request.url()); });
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: /Your placement prep/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Know more/ })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeEnabled();
   await expect(page.getByRole('textbox')).toHaveCount(0);
   await page.goto('/#2025/company/google');
-  await expect(page.getByRole('heading', { name: 'Good to see you.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Your next chapter. A clearer start.' })).toBeVisible();
   await expect(page.getByText(/take you back to the page/)).toBeVisible();
   expect(reads).toEqual([]);
   await signInGoogle(page, false);
@@ -63,9 +63,9 @@ test('main navigation has two areas, company stats own contacts, and account own
   await expect(page.getByRole('heading', { name: /KJSCE '25/ })).toBeVisible();
   if(await page.getByRole('navigation',{name:'Quick navigation'}).isVisible())await page.getByRole('navigation',{name:'Quick navigation'}).getByRole('link',{name:'Account',exact:true}).click();else await page.getByRole('link', { name: 'My Account', exact: true }).click();
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
-  await expect(page.getByRole('heading', { name: /Your placement prep/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Know more/ })).toBeVisible();
   await page.goto('/#companies');
-  await expect(page.getByRole('heading', { name: 'Good to see you.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Your next chapter. A clearer start.' })).toBeVisible();
   await expect(page.locator('.source-notes')).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

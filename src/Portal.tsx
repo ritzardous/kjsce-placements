@@ -1,9 +1,10 @@
+import LandingPage from './landing/LandingPage';
+import LoginPage from './landing/LoginPage';
 import {AppUtilities} from './AppUtilities';
 import { ProfileAvatar } from './ProfileAvatar';
 import { type ReactNode } from 'react';
 import AuthControls from './AuthControls';
-import { GoogleButton, useAuth } from './auth';
-import { CompanyIdentity } from './CompanyIdentity';
+import { useAuth } from './auth';
 import { academicYear, routeHref } from './components';
 import { visibleYears } from './routing';
 import {useStatisticsHref} from './statistics-navigation';
@@ -24,21 +25,8 @@ export function PortalFooter() { return <footer className="portal-footer"><span 
 export function PortalShell({ active, children }: { active: string; children: ReactNode }) {
   return <div className="portal-shell" data-app-page={active}><a className="skip-link" href="#portal-main" onClick={event => { event.preventDefault(); document.getElementById('portal-main')?.focus(); }}>Skip to content</a><AppHeader active={active}/><main className="portal-main" id="portal-main" tabIndex={-1}>{children}</main><PortalFooter /><MobileAppNav active={active}/><AppUtilities/></div>;
 }
-export function Landing() {
-  const { error } = useAuth();
-  return <div className="landing"><header className="landing-header"><a className="brand" href="#landing"><span className="brand-mark">KJSCE</span><span className="brand-name">Placement Stats</span></a><a className="landing-login" href="#login">Sign in ↗</a></header><main className="landing-main">
-    <section className="landing-hero"><div className="hero-copy"><span className="eyebrow">FOR KJSCE. BY YOUR PEERS.</span><h1>Your placement prep,<br />with <span>the facts.</span></h1><p>Explore placement stats by batch and company procedures across batches. Find selected candidates within each company’s stats page, with alumni contacts coming there next.</p><GoogleButton /><p className="access-note">Free access with your Google account.</p>{error && <p className="auth-message" role="alert">{error}</p>}</div>
-      <div className="landing-preview" aria-label="Available placement batches"><div className="preview-label"><span>THE PLACEMENT ARCHIVE</span><span>2025 &amp; 2026</span></div><h2>Every batch.<br />Its own story.</h2>{visibleYears.map(year => <div className="preview-year" key={year}><strong>{academicYear(year)}</strong><span>Class of {year}</span><span>{year === 2027 ? 'Ongoing' : 'Historical'}</span></div>)}<div className="preview-companies">{[['google','Google'],['jpmc','JPMorganChase'],['ibm-india','IBM India'],['barclays','Barclays']].map(([key,name]) => <CompanyIdentity key={key} companyKey={key} name={name} size="small" />)}</div><p>Source-backed records. Visible gaps. No made-up numbers.</p></div>
-    </section>
-    <section className="landing-pillars" aria-labelledby="pillars-title"><div className="portal-section-heading"><span className="eyebrow">KNOW MORE. PREPARE BETTER.</span><h2 id="pillars-title">Numbers are the starting point.</h2></div><div className="pillar-grid"><article><span className="pillar-number">01 / AVAILABLE NOW</span><h3>See the full picture.</h3><p>Explore companies, packages, branches, roles and hiring timelines across available batches. Sources and missing information stay visible. Selected candidates and future alumni contacts belong to each company’s stats page.</p></article><article><span className="pillar-number">02 / COMMUNITY BETA</span><h3>Understand the rounds.</h3><p>Firsthand test and interview experiences, reviewed before publication. A separate company archive that grows with each batch.</p></article></div></section>
-    <section className="landing-trust"><div><span className="eyebrow">CLARITY OVER HYPE</span><h2>Know where every claim comes from.</h2><p>Statistics use college reports and placement emails. Unknown details stay unknown. Experience submissions are reviewed before publication. Contributors report their own outcomes; the next drive may follow a different process.</p></div><a className="portal-link" href="#login">Explore with Google ↗</a></section>
-    <details className="landing-privacy"><summary>Privacy & contribution principles</summary><p>Google sign-in uses your account identity to manage access. Signing in does not publish your profile or prove alumni status. Contributions let you choose whether to display your Google profile name. Emails and drafts stay private; only approved experiences appear to signed-in readers. Alumni contacts remain upcoming.</p></details>
-  </main><PortalFooter /></div>;
-}
-export function Login({ deepLink = false }: { deepLink?: boolean }) {
-  const { error, user, logout, busy } = useAuth();
-  return <div className="login-page"><header className="landing-header"><a className="brand" href="#landing"><span className="brand-mark">KJSCE</span><span className="brand-name">Placement Stats</span></a><a href="#landing">← Back</a></header><main className="login-main"><div className="login-card"><span className="eyebrow">PLACEMENT STATS</span><h1>Your next opportunity starts here.</h1><p>Sign in to explore placements and interview experiences.</p>{deepLink && <p className="login-return">We’ll take you back to the page you opened after sign-in.</p>}{user && <p className="login-return">Sign in again with your existing Google account.</p>}<GoogleButton />{user && <button className="text-button" disabled={busy} onClick={() => void logout()}>Sign out of the current account</button>}{error && <p className="auth-message" role="alert">{error}</p>}<p className="access-note">Your email and drafts stay private.</p></div></main><PortalFooter /></div>;
-}
+export function Landing() { return <LandingPage/>; }
+export function Login({ deepLink = false }: { deepLink?: boolean }) { return <LoginPage deepLink={deepLink}/>; }
 export function YearChoices() {
   return <section aria-labelledby="years-title"><div className="portal-section-heading"><span className="eyebrow">PLACEMENT STATISTICS</span><h2 id="years-title">Choose your batch.</h2><p>Choose a batch to explore its companies and placement outcomes.</p></div><div className="year-grid">{visibleYears.map(year => <a className={`year-card home-card ${year === 2027 ? 'year-card-live' : ''}`} key={year} href={routeHref('overview',year)}><div className="year-card-top"><span>{academicYear(year)}</span>{year === 2027 ? <span className="live-badge">LIVE</span> : <span className="year-status">HISTORICAL</span>}</div><h3>Class of {year}</h3><p>{year === 2027 ? 'Placements ongoing. Provisional results, updated from reviewed placement emails.' : year === 2025 ? 'Explore companies, packages and placement outcomes.' : 'Explore companies, packages and hiring timelines.'}</p><span className="year-card-link">View statistics <span aria-hidden="true">↗</span></span></a>)}</div></section>;
 }

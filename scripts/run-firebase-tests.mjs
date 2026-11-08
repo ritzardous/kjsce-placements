@@ -11,9 +11,10 @@ const commands = [
   ['node_modules/tsx/dist/cli.mjs', 'scripts/seed-procedure-companies.ts', '--emulator'],
   ['node_modules/tsx/dist/cli.mjs', '--test', 'tests/firebase/rules.test.ts', 'tests/firebase/migration.test.ts', 'tests/firebase/procedures.test.ts', 'tests/firebase/procedures-api.test.ts', 'tests/firebase/community.test.ts'],
   ['node_modules/tsx/dist/cli.mjs','--test','tests/firebase/admin-workspace.test.ts'],
-  ['node_modules/@playwright/test/cli.js', 'test', ...(process.env.E2E_ADMIN_ONLY==='true'?['tests/e2e/admin-workspace.spec.ts','tests/e2e/workspace-flow.spec.ts','--workers=1']:[])],
+  ['node_modules/@playwright/test/cli.js', 'test', ...(process.env.E2E_LANDING_ONLY==='true'?['tests/e2e/landing-redesign.spec.ts','--workers=2']:process.env.E2E_ADMIN_ONLY==='true'?['tests/e2e/admin-workspace.spec.ts','tests/e2e/workspace-flow.spec.ts','--workers=1']:[])],
 ];
 for (const args of commands) {
+  if(process.env.E2E_LANDING_ONLY==='true'&&args.includes('--test'))continue;
   const code = await new Promise((resolve, reject) => {
     const child = spawn(process.execPath, args, { stdio: 'inherit', env: { ...process.env, E2E_FIREBASE: 'true' } });
     child.on('error', reject); child.on('exit', code => resolve(code));
