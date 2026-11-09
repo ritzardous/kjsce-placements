@@ -167,8 +167,19 @@ export default function LandingPage() {
                     aria-label={`${item.name}: ${item.role}${item.roleInference ? " (inferred)" : ""}, ${item.ctc}. Open source record`}
                   >
                     <span className="lp-record-company">
-                      <img src={item.logo} alt="" width="26" height="26" />
-                      {item.name}
+                      <img
+                        src={item.logo}
+                        alt=""
+                        width="26"
+                        height="26"
+                        onError={(event) => {
+                          event.currentTarget.hidden = true;
+                          event.currentTarget.parentElement?.classList.add(
+                            "logo-unavailable",
+                          );
+                        }}
+                      />
+                      <span>{item.name}</span>
                     </span>
                     <span
                       className="lp-record-role"
@@ -195,62 +206,80 @@ export default function LandingPage() {
           </div>
         </section>
         <section className="lp-experiences" aria-labelledby="experience-title">
-          <div className="lp-experience-heading" data-reveal>
-            <p className="lp-section-label">The experiences · beta</p>
-            <h2 id="experience-title">
-              They went first.
-              <br />
-              <em>You don’t go blind.</em>
-            </h2>
-            <p>
-              Someone from your college has faced that process.
-              <br />
-              Learn from the experiences shared with the next batch.
-            </p>
-          </div>
-          <div className="lp-experience-workbench" data-reveal>
-            <div
-              className="lp-round-track"
-              role="group"
-              aria-label="Explore hiring experiences"
-            >
-              {rounds.map((item, index) => (
-                <button
-                  key={item.label}
-                  aria-pressed={round === index}
-                  aria-controls="experience-detail"
-                  onClick={() => setRound(index)}
-                >
-                  <span className="lp-round-node" aria-hidden="true">
-                    {round > index ? "✓" : index + 1}
-                  </span>
-                  <span>{item.label}</span>
-                  <span className="lp-round-arrow" aria-hidden="true">
-                    ↗
-                  </span>
-                </button>
-              ))}
+          <div className="lp-experience-spread">
+            <div className="lp-experience-heading" data-reveal>
+              <p className="lp-section-label">The experiences</p>
+              <h2 id="experience-title">
+                They went first.
+                <br />
+                <em>You don’t go blind.</em>
+              </h2>
+              <p>
+                Someone from your college has faced that process. Learn from the
+                experiences shared with the next batch.
+              </p>
+              <svg
+                className="lp-notebook-mark"
+                viewBox="0 0 160 76"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M18 17H72V65H18Z M32 7H86V55 M51 31H118M105 18L119 31L105 44"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                />
+                <path
+                  d="M138 10V26M130 18H146"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                />
+              </svg>
             </div>
-            <div
-              key={round}
-              id="experience-detail"
-              className="lp-round-detail"
-              aria-live="polite"
-            >
-              <span className="lp-round-watermark" aria-hidden="true">
-                {String(round + 1).padStart(2, "0")}
-              </span>
-              <h3>{current.title}</h3>
-              <p>{current.copy}</p>
-              <div className="lp-round-tags">
-                {current.tags.map((tag) => (
-                  <span key={tag}>{tag}</span>
+            <div className="lp-experience-workbench" data-reveal>
+              <div
+                className="lp-round-track"
+                role="group"
+                aria-label="Explore hiring experiences"
+              >
+                {rounds.map((item, index) => (
+                  <button
+                    key={item.label}
+                    aria-pressed={round === index}
+                    aria-controls="experience-detail"
+                    onClick={() => setRound(index)}
+                  >
+                    <span className="lp-round-node" aria-hidden="true">
+                      {round > index ? "✓" : index + 1}
+                    </span>
+                    <span>{item.label}</span>
+                    <span className="lp-round-arrow" aria-hidden="true">
+                      ↗
+                    </span>
+                  </button>
                 ))}
               </div>
+              <div
+                key={round}
+                id="experience-detail"
+                className="lp-round-detail"
+                aria-live="polite"
+              >
+                <span className="lp-round-watermark" aria-hidden="true">
+                  {String(round + 1).padStart(2, "0")}
+                </span>
+                <h3>{current.title}</h3>
+                <p>{current.copy}</p>
+                <div className="lp-round-tags">
+                  {current.tags.map((tag) => (
+                    <span key={tag}>{tag}</span>
+                  ))}
+                </div>
+              </div>
+              <a className="lp-text-link" href="#procedures">
+                Read firsthand experiences <span aria-hidden="true">↗</span>
+              </a>
             </div>
-            <a className="lp-text-link" href="#procedures">
-              Read firsthand experiences <span aria-hidden="true">↗</span>
-            </a>
           </div>
         </section>
         <section

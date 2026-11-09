@@ -1,6 +1,7 @@
 import { ThemeControl } from "../ThemeControl";
 import { GoogleButton } from "../auth";
 import { useMagnet } from "./motion";
+import { useScrollHeader } from "./useScrollHeader";
 export function LandingHeader({
   login = false,
   onExplore,
@@ -8,8 +9,9 @@ export function LandingHeader({
   login?: boolean;
   onExplore?: () => void;
 }) {
+  const header = useScrollHeader();
   return (
-    <header className="lp-header">
+    <header ref={header} className="lp-header" data-collapsed="false">
       <a
         className="lp-brand"
         href="#landing"

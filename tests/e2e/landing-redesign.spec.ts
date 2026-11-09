@@ -551,6 +551,7 @@ test("landing removes redundant helper copy and labels inferred preview roles ho
 test("closing Voronoi loads near the footer, responds to theme and pointer, and pauses", async ({
   page,
 }, info) => {
+  test.setTimeout(60000); // High-DPI shader readback can be slow on software GPUs.
   const requests: string[] = [],
     errors: string[] = [];
   page.on("request", (request) => {
@@ -570,8 +571,26 @@ test("closing Voronoi loads near the footer, responds to theme and pointer, and 
   const before = await frame();
   await expect.poll(frame).toBeGreaterThan(before);
   const canvas = page.locator(".lp-finale-canvas canvas");
+  // Inspect rendered pixels, not just the clock: a ticking uniform alone does
+  // not prove that a background is visibly animated or responds to the cursor.
+  const pixels = (fixedTime = false) => page.locator(".lp-finale-canvas")
+    .evaluate((element: any, fixed) => {
+      const shader = element.paperShaderMount, gl = shader.gl;
+      shader.setFrame(fixed ? 68000 : shader.getCurrentFrame());
+      const sample = new Uint8Array(128 * 128 * 4);
+      gl.readPixels(Math.floor(gl.canvas.width * .75),
+        Math.floor(gl.canvas.height * .45), 128, 128,
+        gl.RGBA, gl.UNSIGNED_BYTE, sample);
+      let hash = 2166136261;
+      for (const value of sample) hash = Math.imul(hash ^ value, 16777619);
+      return hash;
+    }, fixedTime);
+  const initialPixels = await pixels();
+  await expect.poll(pixels).not.toBe(initialPixels);
   const box = await canvas.boundingBox();
-  await page.mouse.move(box!.x + box!.width * 0.9, box!.y + box!.height * 0.5);
+  const restingPixels = await pixels(true);
+  await page.mouse.move(box!.x + box!.width * 0.8, box!.y + box!.height * 0.5);
+  await expect.poll(() => pixels(true)).not.toBe(restingPixels);
   expect(
     await page.evaluate(
       () =>
@@ -583,8 +602,11 @@ test("closing Voronoi loads near the footer, responds to theme and pointer, and 
     .getByRole("button", { name: "Pause background animation", exact: true })
     .click();
   const frozen = await frame();
+  const frozenPixels = await pixels();
   await page.mouse.move(box!.x + box!.width * 0.15, box!.y + box!.height * 0.5);
+  await page.waitForTimeout(150);
   expect(await frame()).toBe(frozen);
+  expect(await pixels()).toBe(frozenPixels);
   await expect(page.locator(".ps-landing")).toHaveAttribute(
     "data-motion",
     "off",
@@ -683,4 +705,214 @@ test("closing shader failure preserves the static pattern and usable sign-in act
         document.documentElement.clientWidth,
     ),
   ).toBe(true);
+});
+
+test("floating navigation hides down and reveals on tiny upward scrolls", async ({
+  page,
+}) => {
+  await ready(page);
+  const header = page.locator(".lp-header");
+  await expect(header).toHaveCSS("position", "sticky");
+  expect(
+    parseFloat(
+      await header.evaluate(
+        (element) => getComputedStyle(element).borderRadius,
+      ),
+    ),
+  ).toBeGreaterThanOrEqual(16);
+  await page.evaluate(() => scrollTo(0, 600));
+  await expect(header).toHaveAttribute("data-collapsed", "true");
+  await expect
+    .poll(async () => {
+      const box = await header.boundingBox();
+      return box!.y + box!.height;
+    })
+    .toBeLessThanOrEqual(0);
+  await page.evaluate(() => scrollBy(0, -1));
+  await expect(header).toHaveAttribute("data-collapsed", "false");
+  await expect(header).toHaveCSS("opacity", "1");
+  const shown = await header.boundingBox();
+  expect(shown!.y).toBeGreaterThanOrEqual(10);
+  await page.evaluate(() => scrollBy(0, 100));
+  await expect(header).toHaveAttribute("data-collapsed", "true");
+  await page.keyboard.press("Tab");
+  await expect(header).toHaveAttribute("data-collapsed", "false");
+  await page.getByRole("link", { name: "Explore", exact: true }).click();
+  await expect(page.locator("#archive-overview")).toBeFocused();
+  await expect
+    .poll(async () => {
+      const title = await page
+        .getByRole("heading", {
+          name: "The full picture. Not just the headline.",
+        })
+        .boundingBox();
+      const nav = await header.boundingBox();
+      return title!.y - nav!.y - nav!.height;
+    })
+    .toBeGreaterThanOrEqual(8);
+  for (const size of [
+    { width: 320, height: 640 },
+    { width: 393, height: 851 },
+    { width: 768, height: 1024 },
+    { width: 1366, height: 768 },
+    { width: 1920, height: 1080 },
+  ]) {
+    await page.setViewportSize(size);
+    await page.evaluate(() => {
+      (document.activeElement as HTMLElement)?.blur();
+      scrollTo({ top: 0, behavior: "instant" });
+    });
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(true);
+    await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
+    expect(
+      await page
+        .locator(".ps-landing")
+        .evaluate((element) => element.getBoundingClientRect().top),
+    ).toBe(0);
+    const nav = await header.boundingBox();
+    expect(nav!.x).toBeGreaterThan(0);
+    expect(nav!.x + nav!.width).toBeLessThan(size.width);
+    await expect(page.getByRole("link", { name: /^Sign in/ })).toBeVisible();
+  }
+});
+
+test("experience section is restrained in both themes and authentic JPMC logos remain visible", async ({
+  page,
+}, info) => {
+  await ready(page);
+  const selector = 'img[src="/company-logos/jpmorgan.svg"]';
+  await expect(page.locator(selector)).toHaveCount(3);
+  await expect(page.locator(".lp-experiences")).not.toContainText(/beta/i);
+  for (const theme of ["light", "dark"]) {
+    if (theme === "dark") {
+      await page.evaluate(() => scrollBy(0, -2));
+      await page.getByRole("button", { name: "Switch to dark mode" }).click();
+    }
+    await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
+    await page.locator(".lp-experiences").scrollIntoViewIfNeeded();
+    const result = await page.locator(".lp-experiences").evaluate((element) => {
+      const rgb = (value: string) =>
+        value
+          .match(/[\d.]+/g)!
+          .slice(0, 3)
+          .map(Number);
+      const background = rgb(
+        getComputedStyle(element.querySelector(".lp-experience-heading")!)
+          .backgroundColor,
+      );
+      const foreground = rgb(
+        getComputedStyle(
+          element.querySelector(
+            ".lp-experience-heading>p:not(.lp-section-label)",
+          )!,
+        ).color,
+      );
+      const lum = (channels: number[]) =>
+        channels
+          .map((channel) => {
+            const v = channel / 255;
+            return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+          })
+          .reduce(
+            (sum, v, index) => sum + v * [0.2126, 0.7152, 0.0722][index],
+            0,
+          );
+      const a = lum(background),
+        b = lum(foreground);
+      return {
+        spread: Math.max(...background) - Math.min(...background),
+        contrast: (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05),
+      };
+    });
+    expect(result.spread).toBeLessThan(65);
+    expect(result.contrast).toBeGreaterThanOrEqual(4.5);
+    await page
+      .getByRole("button", { name: "The interview", exact: false })
+      .click();
+    await expect(page.locator("#experience-detail")).toContainText(
+      "Get past the job description.",
+    );
+    await page.screenshot({
+      path: `artifacts/floating-nav-${theme}-${info.project.name}.png`,
+    });
+    for (const image of await page.locator(selector).all()) {
+      await image.scrollIntoViewIfNeeded();
+      await expect(image).toBeVisible();
+      expect(
+        await image.evaluate((node: HTMLImageElement) => node.naturalWidth),
+      ).toBeGreaterThan(0);
+      const box = await image.boundingBox();
+      expect(box!.width).toBeGreaterThan(40);
+      await expect(image).toHaveCSS("object-fit", "contain");
+    }
+  }
+});
+
+test("scroll navigation respects reduced motion and the notebook works at phone widths", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await ready(page);
+  const header = page.locator(".lp-header");
+  await expect(header).toHaveCSS("transition-duration", "0s");
+  await page.evaluate(() => scrollTo(0, 600));
+  await expect(header).toHaveAttribute("data-collapsed", "true");
+  await page.evaluate(() => scrollBy(0, -1));
+  await expect(header).toHaveAttribute("data-collapsed", "false");
+  for (const width of [320, 393, 600, 768, 1024]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.locator(".lp-experiences").scrollIntoViewIfNeeded();
+    await expect(
+      page.getByRole("button", { name: "What helped", exact: false }),
+    ).toBeVisible();
+    await page
+      .getByRole("button", { name: "What helped", exact: false })
+      .click();
+    await expect(page.locator("#experience-detail")).toContainText(
+      "Prepare with a little perspective.",
+    );
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(true);
+  }
+  await expect(page.locator(".lp-experiences")).not.toContainText(
+    "process.Learn",
+  );
+});
+
+test("Voronoi canvas has native-or-better edge resolution on desktop and retina phones", async ({
+  page,
+}) => {
+  await ready(page);
+  for (const size of [
+    { width: 1920, height: 1080 },
+    { width: 393, height: 851 },
+  ]) {
+    await page.setViewportSize(size);
+    await page.locator(".lp-finale").scrollIntoViewIfNeeded();
+    await expect(page.locator(".lp-finale-pattern")).toHaveClass(/is-ready/);
+    await expect
+      .poll(() =>
+        page
+          .locator(".lp-finale-canvas canvas")
+          .evaluate((canvas: HTMLCanvasElement) => {
+            const box = canvas.getBoundingClientRect();
+            return Math.min(
+              canvas.width / box.width,
+              canvas.height / box.height,
+            );
+          }),
+      )
+      .toBeGreaterThanOrEqual(1.4);
+  }
 });

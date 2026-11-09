@@ -17,18 +17,40 @@ const palette = (dark: boolean) => ({
   u_colorGap: getShaderColorFromString(dark ? "#101411" : "#f7f7ef"),
   u_colorGlow: getShaderColorFromString(dark ? "#7495ed" : "#5076d8"),
 });
-/** Paper's Voronoi shader, with scoped pointer parallax and bounded resolution. */
+// Keep Paper's cell rendering, adding a soft, local displacement in screen space.
+// The cursor bends the cells themselves instead of moving a flat background image.
+const interactiveVoronoi = voronoiFragmentShader
+  .replace("precision mediump float;", "precision highp float;")
+  .replace("uniform float u_time;", `uniform float u_time;
+uniform vec2 u_resolution;
+uniform vec2 u_pointer;
+uniform float u_pointerStrength;`)
+  .replace("float t = u_time;", `vec2 cursorDelta = gl_FragCoord.xy / u_resolution - u_pointer;
+  cursorDelta.x *= u_resolution.x / u_resolution.y;
+  float influence = exp(-dot(cursorDelta, cursorDelta) * 12.) * u_pointerStrength;
+  shape_uv += cursorDelta * influence * 2.4;
+  float t = u_time + influence * .9;`);
+
+/** Paper's Voronoi shader, with scoped pointer deformation and bounded resolution. */
 export async function mountFinaleScene(
   host: HTMLElement,
   onFailure: () => void,
 ): Promise<FinaleController> {
   const noise = getShaderNoiseTexture();
   if (noise) await noise.decode();
+  const resolutionBudget = () => {
+    const box = host.getBoundingClientRect();
+    const pixels = Math.max(1, box.width * box.height),
+      ratio = Math.min(2, Math.max(1.5, devicePixelRatio || 1));
+    return Math.ceil(
+      Math.max(pixels, Math.min(3500000, pixels * ratio * ratio)),
+    );
+  };
   let shader: ShaderMount;
   try {
     shader = new ShaderMount(
       host,
-      voronoiFragmentShader,
+      interactiveVoronoi,
       {
         ...palette(document.documentElement.dataset.theme === "dark"),
         u_colorsCount: 5,
@@ -42,16 +64,18 @@ export async function mountFinaleScene(
         u_rotation: -12,
         u_offsetX: 0,
         u_offsetY: 0,
+        u_pointer: [0.5, 0.5],
+        u_pointerStrength: 0,
         u_originX: 0.5,
         u_originY: 0.5,
         u_worldWidth: 0,
         u_worldHeight: 0,
       },
       { alpha: true, antialias: false, powerPreference: "low-power" },
-      0.12,
+      0,
       68000,
-      0.75,
-      innerWidth < 761 ? 140000 : 380000,
+      2 * Math.max(1, devicePixelRatio || 1),
+      resolutionBudget(),
     );
   } catch (error) {
     host.replaceChildren();
@@ -59,64 +83,71 @@ export async function mountFinaleScene(
   }
   shader.canvasElement.setAttribute("aria-hidden", "true");
   const section = host.closest("section")!,
-    target = { x: 0, y: 0 },
-    current = { x: 0, y: 0 };
+    target = { x: 0.5, y: 0.5, strength: 0 },
+    current = { ...target };
   let playing = true,
     disposed = false,
     frame = 0,
-    last = 0,
-    inView = true;
+    last = performance.now(),
+    inView = false,
+    animationFrame = 68000;
   function tick(now: number) {
     frame = 0;
     if (disposed || !playing || !inView || document.hidden) return;
-    if (now - last < 1000 / 30) {
-      frame = requestAnimationFrame(tick);
-      return;
+    const delta = now - last;
+    if (delta >= 1000 / 30) {
+      last = now;
+      // A full cell cycle takes about eleven seconds. Cap long tab/GPU stalls,
+      // but don't slow the experience to a crawl on a 15–30fps device.
+      animationFrame += Math.min(delta, 200) * 0.55;
+      const ease = 1 - Math.exp(-Math.min(delta, 200) / 110);
+      if (Math.abs(target.x - current.x) + Math.abs(target.y - current.y) +
+          Math.abs(target.strength - current.strength) > 0.0001) {
+        current.x += (target.x - current.x) * ease;
+        current.y += (target.y - current.y) * ease;
+        current.strength += (target.strength - current.strength) * ease;
+        shader.setUniforms({
+          u_pointer: [current.x, current.y],
+          u_pointerStrength: current.strength,
+        });
+      }
+      shader.setFrame(animationFrame);
     }
-    last = now;
-    current.x += (target.x - current.x) * 0.09;
-    current.y += (target.y - current.y) * 0.09;
-    shader.setUniforms({
-      u_offsetX: current.x * 0.027,
-      u_offsetY: current.y * 0.02,
-      u_rotation: -12 + current.x * 1.8,
-    });
-    if (Math.abs(target.x - current.x) + Math.abs(target.y - current.y) > 0.002)
-      frame = requestAnimationFrame(tick);
+    frame = requestAnimationFrame(tick);
   }
-  const wake = () => {
-    if (!frame && playing && inView && !document.hidden)
+  const sync = () => {
+    cancelAnimationFrame(frame);
+    frame = 0;
+    last = performance.now();
+    if (!disposed && playing && inView && !document.hidden)
       frame = requestAnimationFrame(tick);
   };
   const move = (event: PointerEvent) => {
-    if (event.pointerType !== "mouse" || !playing) return;
+    if (event.pointerType === "touch" || !playing) return;
     const box = section.getBoundingClientRect();
-    target.x = ((event.clientX - box.left) / box.width) * 2 - 1;
-    target.y = ((event.clientY - box.top) / box.height) * 2 - 1;
-    wake();
+    target.x = Math.max(0, Math.min(1, (event.clientX - box.left) / box.width));
+    target.y = 1 - Math.max(0, Math.min(1, (event.clientY - box.top) / box.height));
+    target.strength = 1;
   };
   const leave = () => {
-    target.x = 0;
-    target.y = 0;
-    wake();
+    target.strength = 0;
   };
-  const visibility = () => {
-    if (document.hidden) {
-      cancelAnimationFrame(frame);
-      frame = 0;
-    }
-  };
+  const visibility = () => sync();
   const observer = new IntersectionObserver(
     (entries) => {
       inView = entries[0].isIntersecting;
-      if (!inView) {
-        cancelAnimationFrame(frame);
-        frame = 0;
-      }
+      sync();
     },
     { threshold: 0 },
   );
   observer.observe(host);
+  // The pixel budget is the quality cap. A high floor also avoids fractional-DPR
+  // observers (including browser zoom/emulation) undersampling the CSS surface.
+  const quality = new ResizeObserver(() => {
+    shader.setMinPixelRatio(2 * Math.max(1, devicePixelRatio || 1));
+    shader.setMaxPixelCount(resolutionBudget());
+  });
+  quality.observe(host);
   const lost = (event: Event) => {
     event.preventDefault();
     playing = false;
@@ -132,11 +163,7 @@ export async function mountFinaleScene(
   return {
     setMotion(value) {
       playing = value;
-      shader.setSpeed(value ? 0.12 : 0);
-      if (!value) {
-        cancelAnimationFrame(frame);
-        frame = 0;
-      }
+      sync();
     },
     setTheme(dark) {
       shader.setUniforms(palette(dark));
@@ -145,6 +172,7 @@ export async function mountFinaleScene(
       disposed = true;
       cancelAnimationFrame(frame);
       observer.disconnect();
+      quality.disconnect();
       section.removeEventListener("pointermove", move);
       section.removeEventListener("pointerleave", leave);
       document.removeEventListener("visibilitychange", visibility);

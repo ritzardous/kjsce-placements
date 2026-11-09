@@ -91,3 +91,34 @@ The closing chapter now uses the selected [Paper Voronoi shader](https://shaders
 A deterministic local SVG tessellation supplies the static background when motion/data-saving preferences disable GPU loading or graphics fail. The texture stays within the section and does not intercept links or scrolling. The npm package retains its Apache-2.0 license and NOTICE.
 
 Final pre-push validation: production build/typecheck and all 55 unit checks passed. Ten focused desktop/mobile browser scenarios passed for record previews, copy cleanup, inferred-role indicators, lazy shader loading, themes, pointer response, pause, reduced motion/save-data and graphics/context-loss fallbacks. Rendered closing sections in both themes and mobile were inspected with no runtime errors.
+
+## Floating navigation and quieter experiences
+
+The public header now floats within inset paper/ink borders and uses native sticky positioning throughout scrolling. Section and focus scroll margins keep headings clear of the bar. The root establishes its own formatting context to prevent the header margin exposing an unthemed strip; login retains its flex layout.
+
+The experiences section now uses pale blue paper in light mode and muted ink-blue in dark mode, with a static low-contrast assessment-sheet dot/rule texture. Blue is concentrated on the active step and editorial emphasis. A neutral workbench surface separates interactive content from the patterned background.
+
+The authentic JPMorgan wordmark now appears in hero, records and people controls, with preserved proportions on a neutral brand surface. Failed logos fall back to readable company labels. Verification: production build/typecheck, all 55 unit checks and four focused desktop/mobile browser checks passed. Browser checks cover persistent navigation, unobscured exploration headings, narrow layouts, visible logo assets, interactive rounds and text contrast of at least 4.5:1 in both themes. Rendered light/dark desktop and mobile previews were inspected.
+
+## Rounded directional navigation and interview field guide
+
+The floating public navbar now has rounded corners and compositor-only compression/reveal transitions. `useScrollHeader.ts` accumulates downward scroll intent, hides the surface after leaving the page top, and reveals it on any upward movement. Keyboard navigation and focus restore it; reduced motion disables transition animation. Passive scroll events are coalesced through one animation frame, with no layout-height changes.
+
+The experiences feature is now an open field-guide composition: a textured ink-blue cover, understated binding and an interactive paper leaf. Light mode has crisp blue-white paper; dark mode has neutral charcoal and blue-gray surfaces. The existing assessment/interview/preparation controls still update the page. The beta label is removed.
+
+## Sharper Voronoi edges
+
+The previous 380k/140k raster budgets stretched a low-resolution canvas across the footer. Rendering now targets roughly 1.5–2 pixels per CSS pixel (bounded by an adaptive 3.5M-pixel budget, with native CSS resolution as the floor). The Voronoi shader uses high-precision float arithmetic to avoid coarse edge calculations. A fractional-DPR-safe resolution floor handles browser zoom correctly; a 125%-DPR visual check rendered a 1521×558 CSS surface at 2282×837 backing pixels.
+
+Animation advances at 30fps and stops offscreen, in hidden tabs, or when paused. The static SVG fallback remains available for reduced-motion/save-data and graphics failure.
+
+Verification: production build/typecheck and 55 unit checks passed. Fourteen focused desktop/mobile checks passed across navigation, notebook interactions/contrast, logo visibility and Voronoi behavior; eight shader-specific checks passed again after the fractional-DPR refinement. Light/dark desktop and mobile screenshots were inspected, including native-resolution cell edges and the compress/reveal behavior.
+
+
+The field-guide palette was refined to remove teal, olive and yellow casts: neutral graphite cover, blue-white page and pale blue surround in light mode; ink-black, slate-blue and cool white in dark mode. Layout and interactions are unchanged. The build and two desktop/mobile contrast/interaction checks passed; both themes were visually inspected.
+
+## Visible motion and cursor-responsive Voronoi
+
+The sharp renderer was advancing, but a 0.12 time multiplier made the cell cycle take about 52 seconds and its small whole-surface parallax barely registered. The shader now advances at 0.55 (roughly an eleven-second cycle), with frame-rate-independent pointer easing. A local screen-space lens bends nearby cells and shifts their animation phase around the cursor, then eases away when the pointer leaves. Text and buttons remain stationary; touch scrolling is unaffected.
+
+The 30fps scheduling, high-resolution canvas, offscreen/hidden-tab suspension, shared pause control and reduced-motion/save-data fallbacks remain intact. Regression checks now sample actual GPU pixels at a fixed animation time to distinguish cursor deformation from clock changes, and verify frozen pixels while paused. All eight focused desktop/mobile shader checks, all 55 unit tests and the production build/typecheck passed. The rendered dark-mode footer was visually inspected. The existing large-bundle build advisory remains.

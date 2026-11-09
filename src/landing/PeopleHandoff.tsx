@@ -40,11 +40,23 @@ export function PeopleHandoff() {
             <button
               type="button"
               key={item.id}
+              data-company={item.id}
               aria-label={`Find seniors at ${item.name}`}
               aria-pressed={selected === index}
               onClick={() => setSelected(index)}
             >
-              <img src={item.logo} width="28" height="28" alt="" />
+              <img
+                src={item.logo}
+                width="28"
+                height="28"
+                alt=""
+                onError={(event) => {
+                  event.currentTarget.hidden = true;
+                  event.currentTarget.parentElement?.classList.add(
+                    "logo-unavailable",
+                  );
+                }}
+              />
               <span>{item.short}</span>
             </button>
           ))}
