@@ -575,29 +575,6 @@
   justify-content: space-between;
   gap: 16px;
 }
-.index-batches {
-  display: flex;
-  gap: 0;
-  border-bottom: 1px solid var(--lp-rule);
-}
-.ps-landing .index-batches button {
-  min-height: 44px;
-  min-width: 72px;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  background: transparent;
-  padding: 10px 17px;
-  color: var(--lp-muted);
-  font: 500 12px var(--font-mono);
-  transition:
-    background 0.2s,
-    border-color 0.2s;
-}
-.ps-landing .index-batches button[aria-pressed="true"] {
-  color: var(--lp-blue);
-  border-bottom-color: var(--lp-blue);
-  background: var(--lp-soft);
-}
 .ps-landing .index-motion {
   background: transparent;
   color: var(--lp-muted);
@@ -803,15 +780,6 @@
   object-fit: contain;
   background: white;
 }
-.lp-record-rows > a > span:last-child {
-  text-align: right;
-  font-size: 22px;
-}
-.lp-record-line {
-  width: 50px;
-  border-bottom: 1px dashed var(--lp-muted);
-  opacity: 0.5;
-}
 .lp-record-bottom {
   display: flex;
   justify-content: space-between;
@@ -952,121 +920,6 @@
   padding-top: 100px;
   padding-bottom: 100px;
 }
-.lp-people-map {
-  position: relative;
-  min-height: 490px;
-}
-.lp-people-orbits {
-  height: 330px;
-  position: relative;
-  display: grid;
-  place-items: center;
-  isolation: isolate;
-}
-.lp-people-orbits > span:not(.lp-person) {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 255px;
-  height: 255px;
-  border: 1px solid var(--lp-rule);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-}
-.lp-people-orbits > span:nth-child(2) {
-  width: 320px;
-  height: 200px;
-  transform: translate(-50%, -50%) rotate(-40deg);
-  border-style: dashed;
-  animation: orbit-dash 35s linear infinite;
-}
-.lp-people-orbits > span:nth-child(3) {
-  height: 320px;
-  width: 200px;
-  transform: translate(-50%, -50%) rotate(-40deg);
-  border-color: var(--lp-blue);
-}
-.lp-people-center {
-  width: 85px;
-  height: 85px;
-  border-radius: 50%;
-  background: var(--lp-blue);
-  color: var(--lp-paper);
-  display: grid;
-  place-items: center;
-  font: italic 32px var(--lp-serif);
-  box-shadow: 0 0 0 12px var(--lp-paper);
-}
-.lp-person {
-  position: absolute;
-  display: grid;
-  place-items: center;
-  width: 52px;
-  height: 52px;
-  background: var(--lp-surface);
-  border: 1px solid var(--lp-ink);
-  box-shadow: 3px 3px 0 var(--lp-shadow);
-  font: 500 23px var(--font-display);
-  color: var(--lp-blue);
-  animation: people-float 5s ease-in-out infinite;
-}
-.person-one {
-  left: 19%;
-  top: 16%;
-  rotate: -9deg;
-}
-.person-two {
-  right: 12%;
-  top: 45%;
-  rotate: 7deg;
-  animation-delay: -1.8s;
-}
-.person-three {
-  left: 32%;
-  bottom: 4%;
-  rotate: -4deg;
-  animation-delay: -3s;
-}
-.lp-people-directory {
-  position: relative;
-  width: 85%;
-  margin: -12px auto 0;
-  background: var(--lp-surface);
-  border: 1px solid var(--lp-ink);
-  padding: 19px;
-  box-shadow: 5px 5px 0 var(--lp-shadow);
-  transform: rotate(-2deg);
-}
-.lp-people-directory > div:first-child {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-.ps-landing .lp-people-directory button {
-  height: 48px;
-  width: 64px;
-  background: white;
-  border: 1px solid #bec2b8;
-  display: grid;
-  place-items: center;
-  transition:
-    transform 0.25s,
-    box-shadow 0.25s;
-}
-.lp-people-directory button img {
-  object-fit: contain;
-}
-.lp-people-directory button:nth-child(2) {
-  width: 105px;
-}
-.lp-people-directory button:nth-child(2) img {
-  width: 86px;
-}
-.lp-people-directory button[aria-pressed="true"] {
-  transform: translateY(-3px);
-  box-shadow: 0 3px 0 var(--lp-blue);
-  border-color: var(--lp-blue);
-}
 .lp-contact-caption strong {
   display: block;
   font-weight: 500;
@@ -1076,11 +929,6 @@
 .lp-contact-caption > span {
   font-size: 11px;
   color: var(--lp-muted);
-}
-.lp-people-directory .lp-text-link {
-  display: flex;
-  width: 100%;
-  margin-top: 10px;
 }
 .lp-finale {
   padding: 80px 7% 90px;
@@ -1099,19 +947,6 @@
   color: var(--lp-muted);
   font-size: 14px;
   margin-block: 28px;
-}
-.lp-finale-arrow {
-  position: absolute;
-  right: 4%;
-  top: 40px;
-  font: 400 clamp(180px, 30vw, 480px) / 1 var(--font-body);
-  color: var(--lp-blue);
-  transform: translate(
-    calc(var(--pointer-x) * -1),
-    calc(var(--pointer-y) * -1)
-  );
-  z-index: -1;
-  opacity: 0.8;
 }
 .lp-action-link {
   display: inline-flex;
@@ -1261,9 +1096,6 @@
   .lp-record-year button:hover {
     color: var(--lp-blue);
   }
-  .lp-people-directory button:hover {
-    transform: translateY(-4px);
-  }
 }
 @media (prefers-reduced-motion: no-preference) {
   [data-motion="on"] [data-reveal] {
@@ -1308,16 +1140,6 @@
   to {
     opacity: 1;
     transform: none;
-  }
-}
-@keyframes people-float {
-  50% {
-    translate: 0 -8px;
-  }
-}
-@keyframes orbit-dash {
-  to {
-    transform: translate(-50%, -50%) rotate(320deg);
   }
 }
 @keyframes signing-spin {
@@ -1440,9 +1262,6 @@
   .lp-experiences {
     padding: 75px 5%;
     gap: 6%;
-  }
-  .lp-people-directory {
-    width: 92%;
   }
   .lp-login-main {
     padding-inline: 5%;
@@ -1568,9 +1387,6 @@
   .index-controls {
     gap: 12px;
   }
-  .index-batches button {
-    min-width: 65px !important;
-  }
   .index-motion {
     font-size: 10px !important;
   }
@@ -1641,9 +1457,6 @@
     width: 23px;
     height: 23px;
   }
-  .lp-record-line {
-    width: 35px;
-  }
   .lp-record-bottom {
     font-size: 8px;
     flex-direction: column;
@@ -1699,57 +1512,12 @@
   .lp-people .lp-section-copy {
     grid-row: 1;
   }
-  .lp-people-map {
-    min-height: 450px;
-  }
-  .lp-people-orbits {
-    height: 290px;
-  }
-  .lp-people-orbits > span:not(.lp-person) {
-    height: 225px;
-    width: 225px;
-  }
-  .lp-people-orbits > span:nth-child(2) {
-    width: 290px;
-    height: 180px;
-  }
-  .lp-people-orbits > span:nth-child(3) {
-    height: 290px;
-    width: 180px;
-  }
-  .lp-people-center {
-    height: 75px;
-    width: 75px;
-    font-size: 29px;
-  }
-  .lp-person {
-    height: 46px;
-    width: 46px;
-    font-size: 20px;
-  }
-  .person-one {
-    left: 15%;
-  }
-  .person-two {
-    right: 9%;
-  }
-  .lp-people-directory {
-    width: 92%;
-    padding: 17px;
-    margin-top: 0;
-  }
   .lp-finale {
     padding: 60px 6% 65px;
   }
   .lp-finale h2 {
     font-size: clamp(60px, 15vw, 100px);
     line-height: 0.9;
-  }
-  .lp-finale-arrow {
-    font-size: 180px;
-    right: -10px;
-    top: 45px;
-    opacity: 0.15;
   }
   .lp-finale p {
     font-size: 12px;
@@ -1895,15 +1663,6 @@
   .lp-contact-caption strong {
     font-size: 13px;
   }
-  .lp-people-directory button:nth-child(2) {
-    width: 90px;
-  }
-  .lp-people-directory button:nth-child(2) img {
-    width: 75px;
-  }
-  .lp-people-orbits > span:nth-child(2) {
-    width: 260px;
-  }
   .lp-login h1 {
     font-size: 65px;
   }
@@ -1967,4 +1726,766 @@
   .lp-round-detail h3 {
     font-size: 34px;
   }
+}
+/* The viewport-sized mask stays fixed; only its overscanned artwork moves.
+   Translating the mask itself created scrollable overflow at the right edge. */
+.lp-pathway-field {
+  transform: none;
+  contain: paint;
+}
+.lp-pathway-field svg {
+  width: calc(100% + 24px);
+  height: calc(100% + 24px);
+  margin: -12px;
+  transform: translate(var(--pointer-x), var(--pointer-y));
+}
+.ps-landing[data-motion="off"] .lp-pathway-field svg {
+  transform: none;
+}
+.index-caption {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.index-controls {
+  order: 2;
+  flex-shrink: 0;
+  justify-content: flex-end;
+}
+.index-selected {
+  flex: 1;
+  min-width: 0;
+}
+.index-selected > a {
+  white-space: nowrap;
+}
+.index-selected strong {
+  max-width: 50%;
+  overflow-wrap: anywhere;
+}
+.lp-record-columns,
+.lp-record-rows > a {
+  grid-template-columns: 1.05fr 1.4fr 0.9fr;
+  gap: 14px;
+}
+.lp-record-rows > a {
+  min-height: 79px;
+  padding: 12px 0;
+  line-height: 1.5;
+  align-items: center;
+}
+.lp-record-rows > a .lp-record-company {
+  font-size: 12px;
+  gap: 8px;
+}
+.lp-record-company img {
+  flex-shrink: 0;
+}
+.lp-record-company img[src$="jpmorgan.svg"] {
+  width: 0;
+  visibility: hidden;
+}
+.lp-record-company:has(img[src$="jpmorgan.svg"]) {
+  gap: 0 !important;
+}
+.lp-record-role {
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.lp-record-rows > a > .lp-record-compensation {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  font: 500 11px var(--font-mono);
+  white-space: nowrap;
+}
+.lp-record-compensation > span {
+  font: 400 19px var(--font-body);
+}
+/* A placement handoff board: route a target company into a useful conversation. */
+.lp-handoff {
+  position: relative;
+  max-width: 580px;
+  width: 100%;
+  isolation: isolate;
+  background: var(--lp-soft);
+  border: 1px solid var(--lp-ink);
+  padding: 24px;
+  box-shadow: 7px 7px 0 var(--lp-shadow);
+}
+.lp-handoff:before {
+  content: "";
+  position: absolute;
+  top: 9px;
+  bottom: 9px;
+  left: 8px;
+  width: 1px;
+  border-left: 1px dashed var(--lp-rule);
+  pointer-events: none;
+}
+.lp-handoff-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 1px solid var(--lp-rule);
+  padding-bottom: 20px;
+  font-size: 11px;
+  color: var(--lp-muted);
+}
+.lp-handoff-school {
+  font: 600 15px var(--font-display);
+  color: var(--lp-ink);
+  letter-spacing: -0.03em;
+}
+.lp-handoff-school > span {
+  color: var(--lp-blue);
+  margin-left: 7px;
+}
+.lp-handoff-target {
+  padding-top: 23px;
+}
+.lp-handoff-target > span {
+  display: block;
+  font-size: 11px;
+  color: var(--lp-muted);
+  margin-bottom: 12px;
+}
+.lp-handoff-target > div {
+  display: flex;
+  gap: 9px;
+  align-items: stretch;
+}
+.ps-landing .lp-handoff-target button {
+  min-height: 50px;
+  flex: 1;
+  min-width: 0;
+  padding: 9px;
+  background: var(--lp-surface);
+  color: var(--lp-ink);
+  border: 1px solid var(--lp-rule);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition:
+    transform 0.25s,
+    box-shadow 0.25s;
+  font-size: 11px;
+}
+.lp-handoff-target img {
+  object-fit: contain;
+  flex-shrink: 0;
+  background: white;
+}
+.lp-handoff-target button:nth-child(2) img {
+  width: 0;
+  visibility: hidden;
+}
+.lp-handoff-target button:nth-child(2) {
+  font-family: var(--lp-serif);
+  font-size: 20px;
+  gap: 0;
+}
+.ps-landing .lp-handoff-target button[aria-pressed="true"] {
+  border-color: var(--lp-blue);
+  box-shadow: 0 4px 0 var(--lp-blue);
+  transform: translateY(-4px);
+}
+.lp-handoff-route {
+  display: grid;
+  grid-template-columns: 65px 1fr 118px;
+  align-items: center;
+  padding: 26px 0 21px;
+  position: relative;
+  min-height: 144px;
+}
+.lp-handoff-route > span {
+  width: 59px;
+  height: 59px;
+  border-radius: 50%;
+  border: 1px solid var(--lp-blue);
+  color: var(--lp-blue);
+  display: grid;
+  place-items: center;
+  font: italic 29px var(--lp-serif);
+  background: var(--lp-paper);
+}
+.lp-handoff-route svg {
+  width: 100%;
+  height: 90px;
+  overflow: visible;
+}
+.handoff-rail {
+  stroke: var(--lp-blue);
+  stroke-width: 1;
+  fill: none;
+  opacity: 0.35;
+}
+.handoff-signal {
+  stroke: var(--lp-blue);
+  stroke-width: 2;
+  fill: none;
+  stroke-dasharray: 25 500;
+  animation: handoff-travel 8s linear infinite;
+}
+.lp-handoff-route > div {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+  padding-left: 10px;
+  font-size: 10px;
+  color: var(--lp-muted);
+}
+.lp-handoff-ticket {
+  background: var(--lp-surface);
+  border: 1px solid var(--lp-ink);
+  position: relative;
+  padding: 19px;
+  transform: rotate(-1.5deg);
+  box-shadow: 4px 4px 0 var(--lp-blue);
+  transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.lp-handoff-ticket:hover {
+  transform: rotate(0);
+}
+.lp-handoff-ticket-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px dashed var(--lp-rule);
+  padding-bottom: 18px;
+}
+.lp-handoff-monogram {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  background: var(--lp-blue);
+  color: var(--lp-paper);
+  font: 600 22px var(--font-display);
+}
+.lp-handoff-ticket-heading > span:last-child {
+  margin-left: auto;
+  color: var(--lp-blue);
+  font-size: 23px;
+}
+.lp-handoff-ticket-heading .lp-contact-caption strong {
+  font-size: 14px;
+}
+.lp-handoff-ticket-heading .lp-contact-caption > span {
+  font-size: 10px;
+}
+.lp-handoff-question {
+  padding-top: 20px;
+}
+.lp-handoff-question > span {
+  font-size: 10px;
+  color: var(--lp-muted);
+}
+.lp-handoff-question > p {
+  font: 400 30px/1.1 var(--lp-serif);
+  letter-spacing: -0.02em;
+  margin: 10px 0 12px;
+  min-height: 66px;
+  max-width: 340px;
+  animation: round-in 0.3s ease;
+}
+.lp-handoff-question > div {
+  display: flex;
+  gap: 8px;
+}
+.ps-landing .lp-handoff-question button {
+  min-height: 44px;
+  min-width: 44px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  color: var(--lp-muted);
+  border: 0;
+  border-bottom: 2px solid var(--lp-rule);
+  font: 400 10px var(--font-mono);
+  transition:
+    border-color 0.2s,
+    color 0.2s;
+}
+.ps-landing .lp-handoff-question button[aria-pressed="true"] {
+  color: var(--lp-blue);
+  border-bottom-color: var(--lp-blue);
+}
+.lp-handoff-ticket .lp-text-link {
+  display: flex;
+  width: 100%;
+  margin-top: 14px;
+  font-size: 12px;
+}
+.lp-handoff-note {
+  font-size: 10px;
+  color: var(--lp-muted);
+  line-height: 1.6;
+  margin: 20px 0 0 !important;
+  max-width: 350px;
+}
+@keyframes handoff-travel {
+  to {
+    stroke-dashoffset: -525;
+  }
+}
+@media (hover: hover) {
+  .lp-handoff-target button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 3px 0 var(--lp-blue);
+  }
+}
+@media (max-width: 1100px) {
+  .lp-handoff {
+    padding: 20px;
+  }
+  .lp-handoff-top {
+    font-size: 10px;
+    gap: 10px;
+  }
+  .lp-handoff-route {
+    grid-template-columns: 55px 1fr 95px;
+  }
+  .lp-handoff-route > span {
+    width: 50px;
+    height: 50px;
+    font-size: 25px;
+  }
+  .lp-handoff-route > div {
+    font-size: 9px;
+    padding-left: 7px;
+  }
+  .lp-handoff-target button {
+    font-size: 10px !important;
+    padding: 8px !important;
+    gap: 5px !important;
+  }
+  .lp-handoff-target button:nth-child(2) {
+    font-size: 18px !important;
+  }
+  .lp-handoff-target img {
+    height: 22px;
+    width: 22px;
+  }
+  .lp-handoff-ticket {
+    padding: 16px;
+  }
+  .lp-handoff-question > p {
+    font-size: 27px;
+  }
+  .lp-record-columns,
+  .lp-record-rows > a {
+    gap: 9px;
+  }
+  .lp-record-rows > a .lp-record-company {
+    font-size: 11px;
+  }
+  .lp-record-role {
+    font-size: 10px;
+  }
+  .lp-record-rows > a > .lp-record-compensation {
+    font-size: 10px;
+    gap: 5px;
+  }
+  .lp-record-compensation > span {
+    font-size: 16px;
+  }
+}
+@media (min-width: 761px) and (max-width: 1000px) {
+  .lp-records {
+    grid-template-columns: 0.9fr 1.3fr;
+    gap: 4%;
+  }
+  .lp-record-sheet {
+    padding: 17px;
+  }
+  .lp-handoff-top {
+    align-items: flex-start;
+  }
+  .lp-handoff-top > span:last-child {
+    max-width: 100px;
+    text-align: right;
+  }
+  .lp-handoff-target button {
+    flex-direction: column;
+    gap: 5px !important;
+  }
+  .lp-handoff-target button:nth-child(2) {
+    font-size: 16px !important;
+  }
+  .lp-handoff-route {
+    grid-template-columns: 48px 1fr 80px;
+  }
+  .lp-handoff-route > div {
+    font-size: 8px;
+  }
+  .lp-handoff-ticket-heading .lp-contact-caption strong {
+    font-size: 12px;
+  }
+  .lp-handoff-ticket-heading .lp-contact-caption > span {
+    font-size: 9px;
+  }
+  .lp-handoff-ticket-heading {
+    gap: 8px;
+  }
+  .lp-handoff-monogram {
+    width: 30px;
+    height: 30px;
+    font-size: 19px;
+  }
+  .lp-handoff-question > p {
+    font-size: 26px;
+  }
+  .lp-handoff-ticket .lp-text-link {
+    font-size: 10px;
+    gap: 10px;
+  }
+}
+@media (max-width: 760px) {
+  .index-caption {
+    gap: 10px;
+    padding-inline: 3%;
+  }
+  .index-selected {
+    gap: 10px;
+  }
+  .index-selected > a {
+    font-size: 10px;
+    gap: 7px;
+  }
+  .index-selected strong {
+    font-size: 10px;
+  }
+  .index-motion {
+    padding-inline: 5px !important;
+  }
+  .lp-record-columns,
+  .lp-record-rows > a {
+    grid-template-columns: 1fr 1.3fr 0.9fr;
+    gap: 9px;
+  }
+  .lp-record-columns {
+    font-size: 8px;
+  }
+  .lp-record-rows > a {
+    min-height: 85px;
+  }
+  .lp-record-rows > a .lp-record-company {
+    font-size: 10px;
+    gap: 5px;
+  }
+  .lp-record-rows > a > .lp-record-compensation {
+    font-size: 9px;
+    gap: 5px;
+  }
+  .lp-record-role {
+    font-size: 10px;
+  }
+  .lp-handoff {
+    max-width: 500px;
+    margin: auto;
+    padding: 21px;
+  }
+  .lp-handoff-target button {
+    font-size: 11px !important;
+  }
+  .lp-handoff-target button:nth-child(2) {
+    font-size: 20px !important;
+  }
+  .lp-handoff-route {
+    grid-template-columns: 54px 1fr 100px;
+  }
+  .lp-handoff-route > div {
+    font-size: 9px;
+  }
+  .lp-handoff-question > p {
+    font-size: 30px;
+  }
+  .lp-handoff-top {
+    font-size: 10px;
+  }
+  .lp-handoff-ticket {
+    padding: 16px;
+  }
+}
+@media (max-width: 360px) {
+  .lp-record-sheet {
+    padding: 13px;
+  }
+  .lp-record-columns,
+  .lp-record-rows > a {
+    gap: 6px;
+    grid-template-columns: 0.95fr 1.2fr 0.9fr;
+  }
+  .lp-record-rows > a .lp-record-company {
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 10px;
+    gap: 4px;
+  }
+  .lp-record-rows > a > .lp-record-compensation {
+    font-size: 8px;
+    gap: 3px;
+  }
+  .lp-record-role {
+    font-size: 9px;
+  }
+  .lp-record-compensation > span {
+    font-size: 13px;
+  }
+  .lp-handoff {
+    padding: 17px;
+  }
+  .lp-handoff-target button {
+    font-size: 9px !important;
+    padding: 7px !important;
+    gap: 5px !important;
+  }
+  .lp-handoff-target button:nth-child(2) {
+    font-size: 18px !important;
+  }
+  .lp-handoff-route {
+    grid-template-columns: 45px 1fr 82px;
+  }
+  .lp-handoff-route > span {
+    height: 43px;
+    width: 43px;
+    font-size: 24px;
+  }
+  .lp-handoff-route > div {
+    font-size: 8px;
+    gap: 18px;
+  }
+  .lp-handoff-ticket-heading {
+    gap: 9px;
+  }
+  .lp-handoff-ticket-heading .lp-contact-caption strong {
+    font-size: 12px;
+  }
+  .lp-handoff-ticket-heading .lp-contact-caption > span {
+    font-size: 9px;
+  }
+  .lp-handoff-monogram {
+    height: 31px;
+    width: 31px;
+    font-size: 19px;
+  }
+  .lp-handoff-question > p {
+    font-size: 27px;
+  }
+  .lp-handoff-note {
+    font-size: 9px;
+  }
+  .lp-handoff-top {
+    gap: 10px;
+    font-size: 9px;
+  }
+  .lp-handoff-school {
+    font-size: 13px;
+  }
+}
+.lp-handoff-route .handoff-signal {
+  opacity: 0;
+}
+.lp-handoff-route .is-active .handoff-signal {
+  opacity: 1;
+}
+.lp-handoff-route .is-active .handoff-rail {
+  opacity: 0.8;
+  stroke-width: 1.5;
+}
+.lp-handoff-question > div[aria-live] > p {
+  font: 400 30px/1.1 var(--lp-serif);
+  letter-spacing: -0.02em;
+  margin: 10px 0 12px;
+  min-height: 66px;
+  max-width: 340px;
+  animation: round-in 0.3s ease;
+}
+.lp-handoff-question > div[role="group"] {
+  display: flex;
+  gap: 8px;
+}
+.ps-landing .lp-handoff-question button {
+  flex: 1;
+  min-width: 0;
+  font-size: 9px;
+}
+.lp-handoff-question > div[aria-live] {
+  display: block;
+}
+@media (max-width: 1100px) {
+  .lp-handoff-question > div[aria-live] > p {
+    font-size: 27px;
+  }
+}
+@media (max-width: 760px) {
+  .lp-handoff-question > div[aria-live] > p {
+    font-size: 30px;
+  }
+}
+@media (max-width: 360px) {
+  .lp-handoff-question > div[aria-live] > p {
+    font-size: 27px;
+  }
+  .ps-landing .lp-handoff-question button {
+    font-size: 8px;
+  }
+}
+/* Keep real record text readable on phones; the entire row already opens the record. */
+@media (max-width: 760px) {
+  .lp-record-columns {
+    font-size: 9px;
+  }
+  .lp-record-rows > a > .lp-record-compensation {
+    font-size: 10px;
+  }
+  .lp-record-compensation > span {
+    display: none;
+  }
+  .lp-record-role {
+    font-size: 10px;
+  }
+}
+.ps-landing .index-motion-icon {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--lp-rule);
+  border-radius: 50%;
+  color: var(--lp-muted);
+  background: var(--lp-paper);
+  transition:
+    color 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
+  z-index: 5;
+}
+.ps-landing .index-motion-icon:hover {
+  color: var(--lp-blue);
+  border-color: var(--lp-blue);
+  transform: scale(1.05);
+}
+.ps-landing .index-motion-icon:disabled {
+  display: none;
+}
+.lp-hero-copy .lp-intro {
+  margin-bottom: 28px;
+}
+/* Closing chapter: animated Paper Voronoi cells fade into the reading surface. */
+.lp-finale {
+  background: var(--lp-paper);
+  min-height: 560px;
+  display: flex;
+  align-items: center;
+}
+.lp-finale-copy {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  pointer-events: none;
+}
+.lp-finale-copy a {
+  pointer-events: auto;
+}
+.lp-finale-pattern {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  contain: paint;
+  opacity: 0.94;
+  mask-image: linear-gradient(
+    90deg,
+    transparent 3%,
+    #00000012 35%,
+    #00000088 66%,
+    #000 100%
+  );
+}
+.lp-finale-poster,
+.lp-finale-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.lp-finale-poster {
+  background: url("/patterns/closing-voronoi.svg") center/cover no-repeat;
+  opacity: 1;
+  transition: opacity 0.6s;
+}
+.lp-finale-canvas {
+  opacity: 0;
+  transition: opacity 1s;
+}
+.lp-finale-canvas canvas {
+  display: block;
+  max-width: 100%;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.lp-finale-pattern.is-ready .lp-finale-canvas {
+  opacity: 1;
+}
+.lp-finale-pattern.is-ready .lp-finale-poster {
+  opacity: 0;
+}
+.ps-landing .lp-finale-motion {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: var(--lp-paper);
+  border: 1px solid var(--lp-rule);
+  color: var(--lp-muted);
+  border-radius: 50%;
+  z-index: 3;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+.ps-landing .lp-finale-motion:hover {
+  color: var(--lp-blue);
+  border-color: var(--lp-blue);
+}
+[data-theme="dark"] .lp-finale-pattern {
+  opacity: 0.9;
+}
+@media (max-width: 760px) {
+  .lp-finale {
+    min-height: 470px;
+    padding-bottom: 85px;
+  }
+  .lp-finale-pattern {
+    mask-image: linear-gradient(
+      160deg,
+      transparent 2%,
+      #00000016 40%,
+      #00000088 75%,
+      #000 100%
+    );
+  }
+  .ps-landing .lp-finale-motion {
+    right: 18px;
+    bottom: 18px;
+  }
+}
+.lp-inferred-mark {
+  font-size: 0.8em;
+  color: var(--lp-blue);
+  margin-left: 2px;
+  vertical-align: super;
 }

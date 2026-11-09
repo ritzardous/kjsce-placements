@@ -3,7 +3,10 @@ import { useAuth } from "../auth";
 import { ArchiveIndex } from "./ArchiveIndex";
 import { LandingFooter, LandingHeader, SignInCTA } from "./LandingChrome";
 import { PathwayField, useMotionPolicy, usePageMotion } from "./motion";
-import { archiveCompanies, companyRoute, companyYears } from "./archive-data";
+import { recordPreviews } from "./archive-data";
+import { visibleYears } from "../routing";
+import { PeopleHandoff } from "./PeopleHandoff";
+import { ClosingSection } from "./ClosingSection";
 import "./landing.css";
 const rounds = [
   {
@@ -33,7 +36,6 @@ export default function LandingPage() {
     [paused, setPaused] = useState(false),
     [batch, setBatch] = useState(2026),
     [round, setRound] = useState(0),
-    [contact, setContact] = useState(1),
     current = rounds[round];
   usePageMotion(root, allowed && !paused);
   const explore = () => {
@@ -49,8 +51,6 @@ export default function LandingPage() {
     )
       support.current?.scrollIntoView();
   }, []);
-  const company = archiveCompanies[contact],
-    contactYear = companyYears(company).at(-1)!;
   return (
     <div
       ref={root}
@@ -86,19 +86,12 @@ export default function LandingPage() {
               Your placement prep.
               <br /> With the <span>whole picture.</span>
             </p>
-            <p className="lp-description">
-              Real placement records. Firsthand hiring experiences. The seniors
-              who’ve been there.
-            </p>
             <SignInCTA />
             {error && (
               <p className="lp-auth-error" role="alert">
                 {error}
               </p>
             )}
-            <p className="lp-access-note">
-              Free for students. Sign in with Google.
-            </p>
           </div>
           <ArchiveIndex
             paused={paused}
@@ -148,15 +141,17 @@ export default function LandingPage() {
               <div className="lp-record-year">
                 <span className="lp-serif">Class of</span>
                 <div role="group" aria-label="Preview placement batch">
-                  {[2025, 2026].map((value) => (
-                    <button
-                      key={value}
-                      aria-pressed={batch === value}
-                      onClick={() => setBatch(value)}
-                    >
-                      {value}
-                    </button>
-                  ))}
+                  {visibleYears
+                    .filter((value) => recordPreviews[value])
+                    .map((value) => (
+                      <button
+                        key={value}
+                        aria-pressed={batch === value}
+                        onClick={() => setBatch(value)}
+                      >
+                        {value}
+                      </button>
+                    ))}
                 </div>
               </div>
               <div className="lp-record-columns">
@@ -165,26 +160,36 @@ export default function LandingPage() {
                 <span>Compensation</span>
               </div>
               <div className="lp-record-rows">
-                {archiveCompanies
-                  .filter((item) => companyYears(item).includes(batch))
-                  .slice(0, 3)
-                  .map((item) => (
-                    <a key={item.id} href={companyRoute(item, batch)}>
-                      <span>
-                        <img src={item.logo} alt="" width="26" height="26" />
-                        {item.short}
-                      </span>
-                      <span
-                        className="lp-record-line"
-                        aria-label="Open record for role details"
-                      />
+                {recordPreviews[batch].map((item) => (
+                  <a
+                    key={item.key}
+                    href={`#${batch}/company/${item.key}`}
+                    aria-label={`${item.name}: ${item.role}${item.roleInference ? " (inferred)" : ""}, ${item.ctc}. Open source record`}
+                  >
+                    <span className="lp-record-company">
+                      <img src={item.logo} alt="" width="26" height="26" />
+                      {item.name}
+                    </span>
+                    <span
+                      className="lp-record-role"
+                      title={item.roleInference?.note}
+                    >
+                      {item.role}
+                      {item.roleInference && (
+                        <sup
+                          className="lp-inferred-mark"
+                          aria-label="Inferred role; not confirmed in the placement source"
+                        >
+                          *
+                        </sup>
+                      )}
+                    </span>
+                    <span className="lp-record-compensation">
+                      {item.ctc}
                       <span aria-hidden="true">↗</span>
-                    </a>
-                  ))}
-              </div>
-              <div className="lp-record-bottom">
-                <span>2025 & 2026 archives</span>
-                <span>Missing information stays visible.</span>
+                    </span>
+                  </a>
+                ))}
               </div>
             </div>
           </div>
@@ -252,45 +257,7 @@ export default function LandingPage() {
           className="lp-people lp-section"
           aria-labelledby="people-title"
         >
-          <div className="lp-people-map" data-reveal>
-            <div className="lp-people-orbits" aria-hidden="true">
-              <span />
-              <span />
-              <span />
-              <div className="lp-people-center">You</div>
-              <span className="lp-person person-one">↗</span>
-              <span className="lp-person person-two">in</span>
-              <span className="lp-person person-three">↗</span>
-            </div>
-            <div className="lp-people-directory">
-              <div
-                role="group"
-                aria-label="Choose a company for senior connections"
-              >
-                {archiveCompanies.slice(0, 3).map((item, index) => (
-                  <button
-                    type="button"
-                    key={item.id}
-                    aria-label={`Find seniors at ${item.name}`}
-                    aria-pressed={contact === index}
-                    onClick={() => setContact(index)}
-                  >
-                    <img src={item.logo} alt="" width="28" height="28" />
-                  </button>
-                ))}
-              </div>
-              <div className="lp-contact-caption" aria-live="polite">
-                <strong>{company.name}</strong>
-                <span>People who know the path.</span>
-              </div>
-              <a
-                className="lp-text-link"
-                href={companyRoute(company, contactYear)}
-              >
-                Find available profiles <span aria-hidden="true">↗</span>
-              </a>
-            </div>
-          </div>
+          <PeopleHandoff />
           <div className="lp-section-copy" data-reveal>
             <p className="lp-section-label">The people</p>
             <h2 id="people-title">
@@ -303,27 +270,13 @@ export default function LandingPage() {
               available LinkedIn profiles to ask better questions, with the
               right context.
             </p>
-            <p className="lp-quiet">
-              Sign-in required. Profile availability varies.
-            </p>
           </div>
         </section>
-        <section className="lp-finale" aria-labelledby="finale-title">
-          <div className="lp-finale-arrow" aria-hidden="true">
-            ↗
-          </div>
-          <div data-reveal>
-            <h2 id="finale-title">
-              Their experience.
-              <br />
-              <em>Your next move.</em>
-            </h2>
-            <p>A clearer view of placements. A better place to start.</p>
-            <a className="lp-action-link" href="#login">
-              Find your perspective <span aria-hidden="true">↗</span>
-            </a>
-          </div>
-        </section>
+        <ClosingSection
+          allowed={allowed}
+          paused={paused}
+          onToggleMotion={() => setPaused((value) => !value)}
+        />
       </main>
       <LandingFooter />
     </div>

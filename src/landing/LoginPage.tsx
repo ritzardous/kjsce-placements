@@ -60,7 +60,6 @@ export default function LoginPage({
               {error}
             </p>
           )}
-          <p className="lp-access-note">Your email and drafts stay private.</p>
         </div>
         <div className="lp-login-visual">
           <ArchiveIndex

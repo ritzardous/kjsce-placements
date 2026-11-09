@@ -37,6 +37,7 @@
     "test:landing": "node scripts/test-firebase.mjs --landing"
   },
   "dependencies": {
+    "@paper-design/shaders": "0.0.82",
     "dotenv": "^18.0.6",
     "firebase": "^12.19.0",
     "firebase-admin": "^14.5.0",

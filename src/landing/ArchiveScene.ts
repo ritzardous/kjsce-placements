@@ -1,6 +1,6 @@
 import * as THREE from "three";
+import { flameOutline, flameHeart } from "./flame-mark";
 export type ArchiveController = {
-  setYear: (year: number) => void;
   setCompany: (index: number) => void;
   setMotion: (playing: boolean) => void;
   setPointer: (x: number, y: number) => void;
@@ -33,10 +33,8 @@ export function mountArchiveScene(
   const loom = new THREE.Group();
   scene.add(loom);
   const materials: THREE.Material[] = [],
-    textures: THREE.Texture[] = [],
     geometries: THREE.BufferGeometry[] = [];
-  let year = 2026,
-    company = 0,
+  let company = 0,
     motion = true,
     dark = document.documentElement.dataset.theme === "dark",
     disposed = false,
@@ -210,43 +208,78 @@ export function mountArchiveScene(
     focusMaterial,
   );
   loom.add(focusRing);
-  const canvas = document.createElement("canvas");
-  canvas.width = 1024;
-  canvas.height = 512;
-  const context = canvas.getContext("2d");
-  if (!context) {
-    renderer.dispose();
-    renderer.forceContextLoss();
-    renderer.domElement.remove();
-    geometries.forEach((g) => g.dispose());
-    materials.forEach((m) => m.dispose());
-    throw Error("Canvas texture unavailable");
-  }
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  textures.push(texture);
-  const typeMaterial = new THREE.MeshBasicMaterial({
-    map: texture,
-    transparent: true,
-    depthWrite: false,
-    color: uniforms.uBlue.value,
+  // A beveled flame shell, open heart and suspended inner ember. No lighting maps
+  // or post-processing: a normal-based shader supplies the polished blue finish.
+  const trace = (path: THREE.Path, contour: typeof flameOutline) => {
+    path.moveTo(...contour.start);
+    contour.curves.forEach((curve) => path.bezierCurveTo(...curve));
+    path.closePath();
+  };
+  const flameShape = new THREE.Shape();
+  trace(flameShape, flameOutline);
+  const aperture = new THREE.Path();
+  trace(aperture, flameHeart);
+  flameShape.holes.push(aperture);
+  const flameMaterial = new THREE.ShaderMaterial({
+    uniforms,
+    vertexShader: `
+    varying vec3 vNormal;varying vec3 vLocal;
+    void main(){vNormal=normalize(normalMatrix*normal);vLocal=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}
+  `,
+    fragmentShader: `
+    uniform vec3 uBlue;uniform float uTime;varying vec3 vNormal;varying vec3 vLocal;
+    void main(){
+      vec3 n=normalize(vNormal);
+      float diffuse=.55+.45*max(0.,dot(n,normalize(vec3(-.4,.7,1.))));
+      float sheen=pow(max(0.,dot(n,normalize(vec3(-.45,.55,1.)))),22.);
+      float rim=pow(1.-abs(n.z),2.);
+      float band=pow(.5+.5*sin(vLocal.y*2.4-uTime*.7),5.);
+      vec3 color=uBlue*diffuse+vec3(.28,.38,.6)*sheen*.5+uBlue*rim*.18+uBlue*band*.04;
+      gl_FragColor=linearToOutputTexel(vec4(color,1.));
+    }
+  `,
   });
-  materials.push(typeMaterial);
-  const typography = new THREE.Mesh(
-    keep(new THREE.PlaneGeometry(3.6, 1.8)),
-    typeMaterial,
+  const coreMaterial = new THREE.MeshBasicMaterial({
+    color: uniforms.uBlue.value.clone().lerp(new THREE.Color("#dce6ff"), 0.35),
+  });
+  materials.push(flameMaterial, coreMaterial);
+  const flameMark = new THREE.Group();
+  const shell = new THREE.Mesh(
+    keep(
+      new THREE.ExtrudeGeometry(flameShape, {
+        depth: 0.16,
+        bevelEnabled: true,
+        bevelThickness: 0.055,
+        bevelSize: 0.045,
+        bevelSegments: 4,
+        curveSegments: 36,
+        steps: 1,
+      }),
+    ),
+    flameMaterial,
   );
-  typography.position.z = 1.8;
-  scene.add(typography);
-  function drawYear() {
-    context!.clearRect(0, 0, 1024, 512);
-    context!.fillStyle = "white";
-    context!.textAlign = "center";
-    context!.font = "400 240px monospace";
-    context!.fillText(String(year), 512, 302);
-    texture.needsUpdate = true;
-  }
-  drawYear();
+  flameMark.add(shell);
+  const coreShape = new THREE.Shape();
+  trace(coreShape, flameHeart);
+  const ember = new THREE.Mesh(
+    keep(
+      new THREE.ExtrudeGeometry(coreShape, {
+        depth: 0.06,
+        bevelEnabled: true,
+        bevelThickness: 0.025,
+        bevelSize: 0.02,
+        bevelSegments: 3,
+        curveSegments: 28,
+        steps: 1,
+      }),
+    ),
+    coreMaterial,
+  );
+  ember.scale.setScalar(0.65);
+  ember.position.set(0.025, -0.12, 0.28);
+  flameMark.add(ember);
+  flameMark.position.set(0, -0.05, 1.65);
+  scene.add(flameMark);
   function render(delta = 1 / 30) {
     if (disposed || lost) return;
     const blend = motion ? 1 - Math.exp(-delta * 4) : 1;
@@ -256,11 +289,7 @@ export function mountArchiveScene(
         ? THREE.MathUtils.clamp(-box.top / Math.max(innerHeight, 1), 0, 1)
         : 0;
     loom.rotation.x +=
-      (currentPointer.y * 0.18 +
-        (year === 2026 ? 0.14 : -0.24) +
-        scroll * 0.7 -
-        loom.rotation.x) *
-      blend;
+      (currentPointer.y * 0.18 + 0.14 + scroll * 0.7 - loom.rotation.x) * blend;
     loom.rotation.y +=
       (currentPointer.x * 0.28 +
         Math.sin(time * 0.22) * 0.14 +
@@ -275,11 +304,6 @@ export function mountArchiveScene(
     focusRing.scale.setScalar(1 + impulse * 2);
     focusMaterial.opacity = 0.35 + impulse * 0.6;
     selectionMaterial.opacity = 0.5 + Math.sin(time * 2) * 0.18;
-    const targetScale = year === 2026 ? 1 : 1.06;
-    loom.scale.lerp(
-      new THREE.Vector3(targetScale, targetScale, targetScale),
-      blend,
-    );
     for (let i = 0; i < 48; i++) {
       const v = orbit((i / 16 + time * (0.018 + (i % 3) * 0.006)) % 1, i % 3);
       dummy.position.copy(v);
@@ -300,8 +324,12 @@ export function mountArchiveScene(
     positions.needsUpdate = true;
     halo.rotation.z = time * 0.1;
     halo.scale.setScalar(1 + Math.sin(time * 0.8) * 0.035);
-    typography.position.x = currentPointer.x * 0.06;
-    typography.position.y = -currentPointer.y * 0.04;
+    flameMark.rotation.set(
+      currentPointer.y * 0.12,
+      currentPointer.x * 0.18,
+      Math.sin(time * 0.25) * 0.025,
+    );
+    ember.position.y = -0.12 + Math.sin(time * 1.25) * 0.025;
     renderer.render(scene, camera);
     loom.updateMatrixWorld();
     onProject?.(
@@ -370,13 +398,6 @@ export function mountArchiveScene(
   sync();
   onReady();
   return {
-    setYear(value) {
-      if (year !== value) {
-        year = value;
-        drawYear();
-      }
-      if (!motion) render(1);
-    },
     setCompany(value) {
       if (company !== value) impulse = 1;
       company = value;
@@ -399,9 +420,10 @@ export function mountArchiveScene(
         linkMaterial,
         selectionMaterial,
         haloMaterial,
-        typeMaterial,
+        coreMaterial,
         focusMaterial,
       ].forEach((material) => material.color.copy(uniforms.uBlue.value));
+      coreMaterial.color.lerp(new THREE.Color("#dce6ff"), 0.35);
       render(1);
     },
     dispose() {
@@ -414,7 +436,6 @@ export function mountArchiveScene(
       packets.dispose();
       geometries.forEach((g) => g.dispose());
       materials.forEach((m) => m.dispose());
-      textures.forEach((t) => t.dispose());
       renderer.dispose();
       if (!lost) renderer.forceContextLoss();
       renderer.domElement.remove();

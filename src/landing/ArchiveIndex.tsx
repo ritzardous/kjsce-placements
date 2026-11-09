@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { archiveCompanies, companyYears, companyRoute } from "./archive-data";
-import { visibleYears } from "../routing";
+import { archiveCompanies } from "./archive-data";
 import { useMotionPolicy } from "./motion";
 import type { ArchiveController } from "./ArchiveScene";
-function ArchivePoster({ year }: { year: number }) {
+import { flameOutline, flameHeart, flameSvgPath } from "./flame-mark";
+function ArchivePoster() {
   return (
     <svg className="index-poster" viewBox="0 0 650 520" aria-hidden="true">
       <g fill="none" stroke="currentColor">
@@ -44,16 +44,19 @@ function ArchivePoster({ year }: { year: number }) {
         stroke="currentColor"
         strokeDasharray="2 6"
       />
-      <text
-        x="325"
-        y="268"
-        textAnchor="middle"
-        fill="currentColor"
-        fontFamily="monospace"
-        fontSize="55"
-      >
-        {year}
-      </text>
+      <g transform="translate(325 250) scale(53 -53)">
+        <path
+          d={flameSvgPath(flameOutline) + flameSvgPath(flameHeart)}
+          fill="currentColor"
+          fillRule="evenodd"
+        />
+        <path
+          d={flameSvgPath(flameHeart)}
+          fill="currentColor"
+          transform="translate(.025 -.12) scale(.65)"
+          opacity=".65"
+        />
+      </g>
     </svg>
   );
 }
@@ -64,16 +67,15 @@ export function ArchiveIndex({
   paused?: boolean;
   onToggleMotion: () => void;
 }) {
-  const [year, setYear] = useState(2026),
-    [selected, setSelected] = useState(0),
+  const [selected, setSelected] = useState(0),
     [ready, setReady] = useState(false),
     [failedLogos, setFailedLogos] = useState<string[]>([]),
     motionAllowed = useMotionPolicy();
   const host = useRef<HTMLDivElement>(null),
     companyNodes = useRef<HTMLDivElement>(null),
     controller = useRef<ArchiveController | null>(null),
-    selection = useRef({ year, selected, paused });
-  selection.current = { year, selected, paused };
+    selection = useRef({ selected, paused });
+  selection.current = { selected, paused };
   useEffect(() => {
     if (!motionAllowed || !host.current) return;
     let disposed = false,
@@ -116,7 +118,6 @@ export function ArchiveIndex({
                   },
                 );
                 controller.current = scene;
-                scene.setYear(selection.current.year);
                 scene.setCompany(selection.current.selected);
                 scene.setMotion(!selection.current.paused);
               } catch {
@@ -141,10 +142,9 @@ export function ArchiveIndex({
     };
   }, [motionAllowed]);
   useEffect(() => {
-    controller.current?.setYear(year);
     controller.current?.setCompany(selected);
     controller.current?.setMotion(!paused);
-  }, [year, selected, paused]);
+  }, [selected, paused]);
   useEffect(() => {
     const observer = new MutationObserver(() =>
       controller.current?.setTheme(
@@ -157,13 +157,8 @@ export function ArchiveIndex({
     });
     return () => observer.disconnect();
   }, []);
-  const company = archiveCompanies[selected],
-    years = companyYears(company),
-    route = companyRoute(company, years.includes(year) ? year : years.at(-1)!);
   function choose(index: number) {
     setSelected(index);
-    const supported = companyYears(archiveCompanies[index]);
-    if (!supported.includes(year)) setYear(supported.at(-1)!);
   }
   return (
     <figure
@@ -182,7 +177,7 @@ export function ArchiveIndex({
         }}
         onPointerLeave={() => controller.current?.setPointer(0, 0)}
       >
-        <ArchivePoster year={year} />
+        <ArchivePoster />
         <div ref={host} className="index-world" aria-hidden="true" />
         <div
           ref={companyNodes}
@@ -225,50 +220,32 @@ export function ArchiveIndex({
           ))}
         </div>
       </div>
-      <figcaption className="index-caption">
-        <div className="index-controls">
-          <div
-            className="index-batches"
-            role="group"
-            aria-label="Select archive batch"
-          >
-            {visibleYears.map((value) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={year === value}
-                onClick={() => {
-                  setYear(value);
-                  if (!companyYears(company).includes(value)) setSelected(0);
-                }}
-              >
-                {value}
-              </button>
-            ))}
-          </div>
-          <button
-            className="index-motion"
-            type="button"
-            disabled={!motionAllowed}
-            aria-label={
-              paused ? "Play archive animation" : "Pause archive animation"
-            }
-            onClick={onToggleMotion}
-          >
-            {motionAllowed
-              ? paused
-                ? "▶ Motion"
-                : "Ⅱ Motion"
-              : "Static view"}
-          </button>
-        </div>
-        <div className="index-selected" aria-live="polite" aria-atomic="true">
-          <strong>{company.name}</strong>
-          <a href={route} aria-label={`Open ${company.name} placement records`}>
-            Explore record <span aria-hidden="true">↗</span>
-          </a>
-        </div>
-      </figcaption>
+      <button
+        className="index-motion-icon"
+        type="button"
+        disabled={!motionAllowed}
+        aria-label={
+          paused ? "Play archive animation" : "Pause archive animation"
+        }
+        title={paused ? "Play animation" : "Pause animation"}
+        onClick={onToggleMotion}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          aria-hidden="true"
+        >
+          {paused ? (
+            <path d="M8 5L19 12L8 19Z" />
+          ) : (
+            <path d="M8 5V19M16 5V19" />
+          )}
+        </svg>
+      </button>
     </figure>
   );
 }

@@ -78,10 +78,10 @@ export function LandingFooter() {
           Statistics come from college reports and placement emails. Gaps are
           shown where information is unavailable. Community experiences are
           self-reported and reviewed, not verified alumni identities. Available
-          LinkedIn links are accessible after sign-in. Your email and drafts
-          stay private. Company names and logos identify records, with no
-          affiliation or endorsement. Historical outcomes do not guarantee
-          future results.
+          LinkedIn links are accessible after sign-in. Roles marked * are
+          estimates from public information, not confirmed placement roles.
+          Company names and logos identify records, with no affiliation or
+          endorsement. Historical outcomes do not guarantee future results.
         </p>
       </details>
       <span>
