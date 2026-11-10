@@ -109,13 +109,13 @@ export function ClosingSection({
       <FinalePattern allowed={allowed} paused={paused} onReady={setReady} />
       <div className="lp-finale-copy" data-reveal>
         <h2 id="finale-title">
-          Their experience.
+          Stats. Rounds.
           <br />
-          <em>Your next move.</em>
+          <em>People to ask.</em>
         </h2>
-        <p>A clearer view of placements. A better place to start.</p>
+        <p>Clearer stats. Campus rounds. Alumni within reach.</p>
         <button type="button" className="lp-action-link" disabled={auth.busy || !auth.ready} onClick={() => void auth.login()}>
-          Find your perspective <span aria-hidden="true">↗</span>
+          Explore your toolkit <span aria-hidden="true">↗</span>
         </button>
       </div>
       {allowed && ready && (

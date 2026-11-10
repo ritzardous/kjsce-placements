@@ -61,8 +61,8 @@ test('phone formatting, preview and static actions preserve drafts in both theme
  expect(await page.locator('.procedure-submit-bar').evaluate(node=>getComputedStyle(node).position)).toBe('static');
  expect(await page.locator('.app-header').evaluate(node=>getComputedStyle(node).position)).toBe('static');
  await page.getByRole('button',{name:'Switch to dark mode'}).click();
- expect(await page.locator('.portal-shell').evaluate(node=>getComputedStyle(node).backgroundColor)).toBe('rgb(16, 16, 16)');
- expect(await page.locator('.procedure-composer').evaluate(node=>getComputedStyle(node).color)).toBe('rgb(222, 222, 222)');
+ expect(await page.locator('.portal-shell').evaluate(node=>getComputedStyle(node).backgroundColor)).toBe('rgb(16, 20, 17)');
+ expect(await page.locator('.procedure-composer').evaluate(node=>getComputedStyle(node).color)).toBe('rgb(240, 241, 231)');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await body.scrollIntoViewIfNeeded();
  await page.screenshot({path:`artifacts/current-editor-dark-${info.project.name}.png`});

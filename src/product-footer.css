@@ -1,0 +1,37 @@
+/* Shared structure and tokens keep the footer identical across both shells. */
+:is(#app,.portal-shell,.ps-landing) .product-footer {
+  display:block; width:100%; max-width:none; margin:0; margin-top:auto;
+  padding:24px 28px calc(24px + env(safe-area-inset-bottom,0px));
+  border:0; border-top:1px solid var(--identity-rule);
+  background:var(--identity-paper); color:var(--identity-muted);
+  font:400 12px/1.6 var(--font-body); box-sizing:border-box;
+}
+.product-footer .product-footer-inner {
+  display:grid; grid-template-columns:minmax(180px,1fr) minmax(220px,470px) minmax(180px,1fr);
+  align-items:start; gap:32px; width:100%; max-width:1352px; margin:auto;
+}
+.product-footer .product-footer-brand { display:inline-flex; align-items:center; flex-wrap:wrap; gap:10px; min-height:44px; font-weight:600; color:var(--identity-ink); text-decoration:none; }
+.product-footer .product-footer-brand span { font-weight:400; color:var(--identity-muted); }
+.product-footer .product-footer-privacy { width:100%; max-width:none; margin:0; font:inherit; order:0; }
+:is(#app,.portal-shell,.ps-landing) .product-footer .product-footer-privacy summary {
+  display:flex; align-items:center; justify-content:space-between; gap:24px;
+  list-style:none; min-height:44px; padding:0; font:inherit; color:var(--identity-muted);
+  background:transparent; border:0; cursor:pointer;
+}
+.product-footer .product-footer-privacy summary::-webkit-details-marker { display:none; }
+.product-footer .product-footer-privacy summary>span { color:var(--identity-blue); font-size:20px; transition:rotate 180ms ease; }
+.product-footer .product-footer-privacy[open] summary>span { rotate:45deg; }
+.product-footer .product-footer-privacy p { margin:10px 0 0; line-height:1.8; overflow-wrap:anywhere; }
+.product-footer .product-footer-end { display:flex; align-items:center; justify-content:flex-end; gap:20px; flex-wrap:wrap; min-height:44px; }
+.product-footer .product-footer-credit { white-space:nowrap; }
+.product-footer .product-footer-credit a { display:inline-flex; align-items:center; min-height:44px; color:inherit; text-decoration:none; }
+.product-footer .product-footer-actions:empty { display:none; }
+.product-footer a:hover { text-decoration:underline; text-underline-offset:4px; color:var(--identity-ink); }
+.product-footer :is(a,summary,button):focus-visible { outline:2px solid var(--identity-blue); outline-offset:4px; }
+@media(max-width:760px) {
+  :is(#app,.portal-shell,.ps-landing) .product-footer { padding:20px 20px calc(20px + env(safe-area-inset-bottom,0px)); }
+  .product-footer .product-footer-inner { grid-template-columns:1fr; gap:8px; }
+  .product-footer .product-footer-end { justify-content:space-between; }
+  :is(#app,.portal-shell) .product-footer { padding-bottom:calc(100px + env(safe-area-inset-bottom,0px)); }
+}
+@media(prefers-reduced-motion:reduce) { .product-footer .product-footer-privacy summary>span { transition:none; } }

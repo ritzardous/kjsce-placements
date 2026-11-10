@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
+import './identity.css';
 import './styles.css';
 import './migration.css';
 import './portal.css';
@@ -11,5 +12,8 @@ import './app-polish.css';
 import './neobrutal.css';
 import './notifications.css';
 import './data-quality.css';
+import './workspace-identity.css';
+import './product-header.css';
+import './product-footer.css';
 
 createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);

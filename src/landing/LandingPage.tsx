@@ -12,21 +12,21 @@ import "./landing.css";
 const rounds = [
   {
     label: "The assessment",
-    title: "Know what you’re walking into.",
-    copy: "Read written accounts of assessment formats, topics and questions.",
-    tags: ["Assessment format", "Questions", "Round structure"],
+    title: "See what that company tested.",
+    copy: "Read alumni’s accounts of assessment formats, topics and questions.",
+    tags: ["Assessment topics", "Questions", "How rounds ran"],
   },
   {
     label: "The interview",
-    title: "Get past the job description.",
-    copy: "Follow contributors’ round-by-round interview accounts and the questions they faced.",
+    title: "Read what interviewers asked.",
+    copy: "Follow alumni’s round-by-round accounts of the questions and interviews at KJSCE.",
     tags: ["Technical rounds", "Interview questions", "Selection process"],
   },
   {
     label: "What helped",
-    title: "Prepare with a little perspective.",
-    copy: "Browse preparation tips and lessons saved in contributors’ experience write-ups.",
-    tags: ["Preparation tips", "Lessons learned", "Firsthand context"],
+    title: "Make your preparation count.",
+    copy: "Use alumni’s preparation tips, lessons and mistakes to plan your own approach.",
+    tags: ["What to practise", "What to avoid", "Alumni’s advice"],
   },
 ];
 export default function LandingPage({ deepLink = false }: { deepLink?: boolean }) {
@@ -77,19 +77,19 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
               <span className="lp-spark" aria-hidden="true">
                 ✳
               </span>{" "}
-              Built for the next batch. Built for KJSCE.
+              The placement toolkit for KJSCE’s final year.
             </p>
             <h1 id="landing-title">
-              <span>Know more.</span>
-              <em>Go further.</em>
+              <span>Don’t prep</span>
+              <em>in the dark.</em>
             </h1>
             <p className="lp-intro">
-              Your placement prep.
-              <br /> With the <span>whole picture.</span>
+              Clear stats. Campus rounds.
+              <br /> Alumni. <span>One toolkit.</span>
             </p>
             <SignInCTA />
-            {deepLink && <p className="lp-return">Sign in to continue to the page you opened.</p>}
-            {user && <button type="button" className="lp-text-button" disabled={busy} onClick={() => void logout()}>Sign out of the current account</button>}
+            {deepLink && <p className="lp-return">Sign in to pick up where that link takes you.</p>}
+            {user && <button type="button" className="lp-text-button" disabled={busy} onClick={() => void logout()}>Sign out and use another account</button>}
             {error && (
               <p className="lp-auth-error" role="alert">
                 {error}
@@ -108,7 +108,7 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
               explore();
             }}
           >
-            <span>More than a placement report</span>
+            <span>The numbers. The rounds. The people.</span>
             <span aria-hidden="true">↓</span>
           </a>
         </section>
@@ -120,18 +120,18 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
           aria-labelledby="records-title"
         >
           <div className="lp-section-copy" data-reveal>
-            <p className="lp-section-label">The records</p>
+            <p className="lp-section-label">Clear stats</p>
             <h2 id="records-title">
-              The full picture.
+              Look at the data.
               <br />
-              <em>Not just the headline.</em>
+              <em>Not just the headlines.</em>
             </h2>
             <p>
-              Look past the highest package. Explore outcomes, roles and
-              compensation by company and batch, with sources and gaps in view.
+              Compare typical pay, hiring patterns and roles across batches.
+              Check the source records and see where information is missing.
             </p>
             <a className="lp-text-link" href={`#${batch}/overview`}>
-              Explore placement statistics <span aria-hidden="true">↗</span>
+              Explore the placement data <span aria-hidden="true">↗</span>
             </a>
           </div>
           <div className="lp-record-desk" data-reveal>
@@ -139,7 +139,7 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
             <div className="lp-record-sheet">
               <div className="lp-sheet-top">
                 <span>KJSCE / Placement records</span>
-                <span className="lp-sheet-stamp">Source-backed</span>
+                <span className="lp-sheet-stamp">Sources linked</span>
               </div>
               <div className="lp-record-year">
                 <span className="lp-serif">Class of</span>
@@ -213,15 +213,15 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
             <div className="lp-story-meter" aria-hidden="true"><span /></div>
             <div className="lp-experience-spread" data-step={round}>
               <div className="lp-experience-heading" data-reveal>
-                <p className="lp-section-label">The experience archive</p>
+                <p className="lp-section-label">Your college’s rounds</p>
                 <h2 id="experience-title">
-                  The process.
+                  Their rounds.
                   <br />
-                  <em>In their words.</em>
+                  <em>Your head start.</em>
                 </h2>
                 <p>
-                  Written assessment and interview experiences, shared by KJSCE
-                  students. Read what happened, round by round.
+                  See how alumni tackled company tests and interviews at KJSCE,
+                  with round-by-round accounts and preparation tips.
                 </p>
                 <svg
                   className="lp-notebook-mark"
@@ -282,7 +282,7 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
                   </div>
                 </div>
                 <a className="lp-text-link" href="#procedures">
-                  Read the experience archive <span aria-hidden="true">↗</span>
+                  Explore company procedures <span aria-hidden="true">↗</span>
                 </a>
               </div>
             </div>
@@ -297,15 +297,15 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
             <div className="lp-story-meter" aria-hidden="true"><span /></div>
             <PeopleHandoff prompt={people.index} onPrompt={people.select} />
             <div className="lp-section-copy" data-reveal>
-              <p className="lp-section-label">The senior directory</p>
+              <p className="lp-section-label">Alumni by company</p>
               <h2 id="people-title">
-                Find a senior.
+                Your seniors.
                 <br />
                 <em>Start a conversation.</em>
               </h2>
               <p>
-                Find KJSCE seniors by company. Open their available LinkedIn
-                profiles and reach out directly about their role and career path.
+                Find KJSCE alumni by company instead of searching group chats.
+                Open available LinkedIn profiles and ask about their work or career path.
               </p>
             </div>
           </div>

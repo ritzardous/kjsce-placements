@@ -4,8 +4,8 @@ import { chromium } from '@playwright/test';
 import { readFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 const root = new URL('../', import.meta.url);
-const regular = await readFile(new URL('public/fonts/instrument-serif/normal.woff2', root));
-const italic = await readFile(new URL('public/fonts/instrument-serif/italic.woff2', root));
+const regular = await readFile(new URL('public/fonts/lora/normal-latin.woff2', root));
+const italic = await readFile(new URL('public/fonts/lora/italic-latin.woff2', root));
 const browser = await chromium.launch();
 try {
   const page = await browser.newPage({ viewport: { width: 1200, height: 630 }, deviceScaleFactor: 1 });
@@ -17,7 +17,7 @@ try {
     header{display:flex;align-items:center;gap:14px;font-size:22px;line-height:1;font-weight:700}
     .logo{width:51px;height:51px;background:#2845ff;color:white;font-family:Editorial;font-style:italic;font-size:62px;line-height:42px;padding-left:7px;font-weight:400}
     .brand{line-height:1.05;letter-spacing:-.7px}.college{margin-left:auto;font-size:16px;font-weight:400;letter-spacing:2px}
-    h1{position:relative;z-index:2;font:122px/.94 Editorial;margin:50px 0 23px;letter-spacing:-5px}
+    h1{position:relative;z-index:2;font:100px/1.12 Editorial;margin:45px 0 23px;letter-spacing:-4px}
     h1 em{color:#2845ff;font-weight:400}p{position:relative;z-index:2;font-size:23px;margin:0;line-height:1.5}
     footer{position:absolute;bottom:34px;left:54px;right:54px;border-top:1px solid #171a1b;padding-top:20px;display:flex;justify-content:space-between;font-size:16px}
     .visual{position:absolute;right:37px;top:128px;width:420px;height:383px}

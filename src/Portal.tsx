@@ -1,3 +1,4 @@
+import { ProductFooter } from './ProductFooter';
 import LandingPage from './landing/LandingPage';
 import {AppUtilities} from './AppUtilities';
 import { ProfileAvatar } from './ProfileAvatar';
@@ -16,11 +17,11 @@ export function AreaNav({ active }: { active: string }) {
   const statisticsHref=useStatisticsHref();
   return <nav className="area-nav" aria-label="App"><div className="area-switcher">{areas.map(([key, label]) => <a key={key} href={key==='statistics'?statisticsHref:`#${key}`} aria-current={active === key ? 'page' : undefined}><AppIcon name={key==='statistics'?'chart':'book'}/><span>{label}</span></a>)}</div></nav>;
 }
-function Brand() { return <a className="brand" href="#home"><span className="brand-mark">KJSCE</span><span className="brand-name">Placement Stats</span></a>; }
+function Brand() { return <a className="brand" href="#home" aria-label="Placement Stats KJSCE home"><span className="brand-mark workspace-brand-mark" aria-hidden="true"><span>p</span><svg viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3M5 3H13V11" stroke="currentColor" strokeWidth="1.5"/></svg></span><span className="brand-name">Placement<br/>Stats.</span></a>; }
 export function AppHeader({active}:{active:string}) {
- return <header className="app-header"><div className="app-header-inner"><Brand/>{location.hash.split('?')[0]!=='#home'&&<a className="batch-back home-control" href="#home" aria-label="Back to Home / change batch" title="Home and placement batches"><AppIcon name="back"/></a>}<AuthControls/></div><AreaNav active={active}/></header>;
+ return <><header className="app-header"><div className="app-header-inner"><Brand/>{location.hash.split('?')[0]!=='#home'&&<a className="batch-back home-control" href="#home" aria-label="Back to Home / change batch" title="Home and placement batches"><AppIcon name="back"/></a>}<AuthControls/></div></header><div className="workspace-area-navigation"><AreaNav active={active}/></div></>;
 }
-export function PortalFooter() { return <footer className="portal-footer"><span className="footer-brand">KJSCE <span>Placement Stats</span></span><div className="footer-actions" id="footer-actions"><span className="footer-credit">Made with <span className="footer-heart" aria-label="love">♥</span> by <a className="footer-author" href="https://github.com/ritzardous" target="_blank" rel="noopener noreferrer"><strong>Ritesh</strong></a> & <a className="footer-author" href="https://github.com/Saksham-Varshney07" target="_blank" rel="noopener noreferrer"><strong>Saksham</strong></a><AppIcon name="arrow"/></span></div></footer>; }
+export function PortalFooter() { return <ProductFooter/>; }
 export function PortalShell({ active, children }: { active: string; children: ReactNode }) {
   return <div className="portal-shell" data-app-page={active}><a className="skip-link" href="#portal-main" onClick={event => { event.preventDefault(); document.getElementById('portal-main')?.focus(); }}>Skip to content</a><AppHeader active={active}/><main className="portal-main" id="portal-main" tabIndex={-1}>{children}</main><PortalFooter /><MobileAppNav active={active}/><AppUtilities/></div>;
 }

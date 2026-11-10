@@ -1,3 +1,4 @@
+import { ProductFooter } from '../ProductFooter';
 import { ThemeControl } from "../ThemeControl";
 import { GoogleButton, useAuth } from "../auth";
 import { useMagnet } from "./motion";
@@ -39,44 +40,4 @@ export function SignInCTA() {
     </div>
   );
 }
-export function LandingFooter() {
-  return (
-    <footer className="lp-footer">
-      <a className="lp-footer-brand" href="#landing">
-        Placement Stats <span>× KJSCE</span>
-      </a>
-      <details className="lp-privacy">
-        <summary>
-          Sources & privacy <span aria-hidden="true">+</span>
-        </summary>
-        <p>
-          Statistics come from college reports and placement emails. Gaps are
-          shown where information is unavailable. Community experiences are
-          self-reported and reviewed, not verified alumni identities. Available
-          LinkedIn links are accessible after sign-in. Roles marked * are
-          estimates from public information, not confirmed placement roles.
-          Company names and logos identify records, with no affiliation or
-          endorsement. Historical outcomes do not guarantee future results.
-        </p>
-      </details>
-      <span>
-        By{" "}
-        <a
-          href="https://github.com/ritzardous"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Ritesh
-        </a>{" "}
-        &{" "}
-        <a
-          href="https://github.com/Saksham-Varshney07"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Saksham
-        </a>
-      </span>
-    </footer>
-  );
-}
+export function LandingFooter() { return <ProductFooter publicView/>; }

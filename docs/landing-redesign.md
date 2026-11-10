@@ -174,3 +174,47 @@ The written-experience section now leads with “The process. In their words.”
 The connection graphic now normalizes all paths to the same length. A rounded moving head and soft trailing stroke follow only the selected branch on a 3.2-second loop, replacing the eight-second dash with its long inactive gap. Endpoints reinforce the selected destination. No text or card motion is added; reduced motion/pause stop the trace.
 
 Production build/typecheck and eight focused desktop/mobile checks passed for distinct messaging and destinations, actual trace movement, reduced motion, keyboard controls, layout/overflow, privacy and stable laptop card visibility. Both sections were visually inspected in light and dark laptop viewports.
+
+## Consistent identity inside the application
+
+`identity.css` owns the locally hosted Lora faces and the light/dark paper, ink, blue and surface tokens. The landing page aliases those shared values; the signed-in workspace uses the same foundation. Dark mode restores blue accents and distinct success/warning/error colors instead of monochrome controls. The app header now carries the same blue editorial mark and an inset rounded frame. Selected areas/tabs use blue underlines, page introductions use the editorial serif, and data labels, tables and form controls keep their readable sans/monospace typography. Surface borders and offset shadows are quieter, with modest corner radii on major cards.
+
+The changes apply through the existing shell to statistics, community browsing/writing, account, notifications and admin. Navigation destinations, authentication, data, permissions and application behavior are unchanged. `workspace-identity.css` scopes presentation to the authenticated app; no landing animation or scroll effects are introduced into working screens.
+
+Validation: 55 unit tests passed. Four browser scenarios passed with isolated Auth/Firestore/Functions emulators, covering public landing regression and seven signed-in screens in light/dark themes on desktop/mobile, plus 320px containment, account menus, actual admin overview data, heading typography and text contrast (primary ≥7:1, secondary ≥4.5:1 against the page). Home, procedures, dashboard, admin and account-menu screenshots were visually inspected. Existing theme assertions were updated to the shared palette. Production build/typecheck passed; the existing large-bundle advisory remains.
+
+## Detached workspace navigation and Lora typography
+
+The Placement Stats / Company Procedures switcher now sits directly below, and outside, the rounded header frame. Its desktop alignment and destinations remain unchanged; phones retain the existing bottom navigation. Lora replaces Instrument Serif throughout headings, editorial marks and the generated social-preview image, paired with the existing sans-serif interface and monospace metadata. Variable normal/italic fonts are hosted locally with their OFL license, including Latin extended coverage. The former font files are removed.
+
+Headline sizes and line heights are adjusted for Lora's wider proportions across the landing page and workspace. Browser checks cover detached navigation placement, typography, light/dark themes, narrow layouts, delayed font loading, stable alumni cards and authenticated screens.
+
+## Workspace navigation refinement
+
+The detached boxed switcher becomes an open navigation rail with a shared baseline, larger section names and a single blue active underline. This establishes the two application areas above the smaller page-level navigation without adding another card. The header uses a compact surface, soft shadow, quiet rounded utility buttons and a separated account anchor. Link destinations, unread indicators, keyboard focus and the existing mobile bottom navigation remain intact.
+
+Validation: production build/typecheck and both focused desktop/mobile workspace scenarios passed. Screens in both themes, account controls, active-rail styling, 320px containment and admin navigation were checked; desktop and mobile screenshots were visually reviewed.
+
+## Shared header chrome and icon-only notifications
+
+`product-header.css` applies one paper background, ink border, rounded capsule, shadow, width, brand typography and circular utility treatment to both the landing and signed-in headers. Existing landing scroll behavior and workspace routes are retained. Notification navigation displays the bell and unread badge, with the name retained through aria-label and tooltip. The section rail explicitly uses visible overflow: the inherited horizontal-auto rule had also made the active underline create a tiny vertical scroll container.
+
+Validation: four focused public/workspace desktop/mobile browser scenarios passed, including both themes, icon-only accessible notification entry, rail overflow and 320px containment. The shared circular border was additionally checked against the resolved CSS cascade; production build/typecheck passed.
+
+## Shared product footer
+
+The landing page and workspace now render `ProductFooter` with the same brand lockup, source/privacy disclosure and author links. Shared styling sets their typography, paper/ink colors, divider and responsive layout. Only the home destination and space for the existing mobile app navigation differ. The workspace retains its existing back-to-top portal target. Six browser-rendered layout checks compared public/workspace footer styles and opened disclosures at 1280, 393 and 320px in both themes; desktop and mobile screenshots were reviewed. Production build/typecheck passed.
+
+## Landing copy pass
+
+Rewrote marketing headings, descriptions, round explanations, senior prompts and calls to action around student questions: who hired, what was asked, and whom to contact. Fixed navigation labels, company/role/pay values and auth control names remain literal. The shared footer disclosure uses plainer wording with its factual limits intact. No styles, structure, routes or animation behavior changed for this pass.
+
+Copy length and rendered height were compared before/after at 320, 393, 1280 and 1440px; the measured main headings and paragraphs keep their original heights. A laptop visual review prompted one shorter senior heading to retain its line count there too. Eight focused desktop/mobile browser scenarios passed for delayed fonts, real records, overflow, distinct directory content and stable scroll cards. Production build/typecheck passed, and both supporting sections were visually reviewed in light/dark mode.
+
+## Placement-season toolkit positioning
+
+The hero now introduces a KJSCE-specific toolkit for final-year placement season: “Your season. Your edge.” followed by clear stats, campus rounds and alumni in one toolkit. Supporting copy separates typical pay/hiring analysis with visible sources and gaps, alumni accounts of KJSCE company rounds, and company-wise LinkedIn discovery for direct seniors. No claim of exclusive access, verified alumni identities, guaranteed outcomes or misconduct in college reporting is introduced. Legal/source disclosure and data are unchanged.
+
+The main text blocks retain their previous heights at 320, 393, 1280 and 1440px. Eight focused desktop/mobile scenarios and the production build/typecheck passed. Desktop/mobile hero and the supporting laptop sections were visually reviewed. This pass changes copy and matching test expectations only.
+
+Final headline refinement: the hero reads ‘Don’t prep / in the dark.’ and the closing section reads ‘Stats. Rounds. / People to ask.’ Text heights remain unchanged at the four checked widths, with no layout or behavior changes. Browser containment checks, typecheck and production bundle generation passed.

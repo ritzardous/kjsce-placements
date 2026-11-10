@@ -1,42 +1,14 @@
-@font-face {
-  font-family: "Instrument Serif Metrics";
-  font-style: normal;
-  font-weight: 400;
-  src: local("Georgia");
-  size-adjust: 75.5%;
-}
-@font-face {
-  font-family: "Instrument Serif Metrics";
-  font-style: italic;
-  font-weight: 400;
-  src: local("Georgia Italic"), local("Georgia-Italic");
-  size-adjust: 75.5%;
-}
-@font-face {
-  font-family: "Instrument Serif";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/instrument-serif/normal.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Instrument Serif";
-  font-style: italic;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/instrument-serif/italic.woff2") format("woff2");
-}
-/* Public pages share the app's ThemeProvider; these tokens do not affect the app. */
+/* Public aliases use the shared product identity; landing layouts remain scoped. */
 .ps-landing {
-  --lp-paper: #f7f7ef;
-  --lp-surface: #fffef8;
-  --lp-ink: #171a19;
-  --lp-muted: #60635f;
-  --lp-blue: #2445eb;
-  --lp-rule: #c8cbc0;
-  --lp-soft: #e9ecdf;
-  --lp-shadow: #171a19;
-  --lp-serif: "Instrument Serif", "Instrument Serif Metrics", Georgia, serif;
+  --lp-paper: var(--identity-paper);
+  --lp-surface: var(--identity-surface);
+  --lp-ink: var(--identity-ink);
+  --lp-muted: var(--identity-muted);
+  --lp-blue: var(--identity-blue);
+  --lp-rule: var(--identity-rule);
+  --lp-soft: var(--identity-soft);
+  --lp-shadow: var(--identity-shadow);
+  --lp-serif: var(--font-editorial);
   --pointer-x: 0px;
   --pointer-y: 0px;
   background: var(--lp-paper);
@@ -47,14 +19,14 @@
   color-scheme: light;
 }
 [data-theme="dark"] .ps-landing {
-  --lp-paper: #101411;
-  --lp-surface: #191e1a;
-  --lp-ink: #f0f1e7;
-  --lp-muted: #abb4ac;
-  --lp-blue: #8da3ff;
-  --lp-rule: #3b463e;
-  --lp-soft: #202a23;
-  --lp-shadow: #050806;
+  --lp-paper: var(--identity-paper);
+  --lp-surface: var(--identity-surface);
+  --lp-ink: var(--identity-ink);
+  --lp-muted: var(--identity-muted);
+  --lp-blue: var(--identity-blue);
+  --lp-rule: var(--identity-rule);
+  --lp-soft: var(--identity-soft);
+  --lp-shadow: var(--identity-shadow);
   color-scheme: dark;
 }
 .ps-landing :is(section, div, figure, main, footer, header) {
@@ -1574,7 +1546,7 @@
     font-size: 7px;
   }
   .lp-record-year button {
-    font-size: 34px !important;
+    font-size: 24px;
   }
   .lp-serif {
     font-size: 23px;
@@ -2952,4 +2924,30 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .lp-scroll-story .lp-handoff-ticket { transform: none; }
+}
+
+/* Lora has a broader, calmer rhythm than the previous condensed display face. */
+.ps-landing .lp-hero h1 {
+  font-size:clamp(56px,min(6.4vw,12svh),116px);
+  line-height:1.08;
+  letter-spacing:-.045em;
+}
+.ps-landing .lp-section h2,
+.ps-landing .lp-experience-heading h2 {
+  font-size:clamp(36px,4.2vw,64px);
+  line-height:1.15;
+  letter-spacing:-.035em;
+  overflow-wrap:anywhere;
+}
+.ps-landing .lp-round-detail h3 { font-size:clamp(26px,2.6vw,36px); line-height:1.2; }
+.ps-landing .lp-finale h2 { font-size:clamp(44px,6.8vw,104px); line-height:1.13; }
+.ps-landing .lp-handoff-question > div[aria-live] > p { font-size:clamp(23px,2vw,28px); line-height:1.25; }
+@media(max-width:760px) {
+  .ps-landing .lp-hero h1 { font-size:clamp(42px,11.2vw,78px); }
+  .ps-landing .lp-record-year { gap:8px; }
+  .ps-landing .lp-record-year .lp-serif { font-size:18px; }
+  .ps-landing .lp-record-year button { font-size:clamp(24px,6.6vw,30px); padding-inline:4px; }
+  .ps-landing .lp-section h2,
+  .ps-landing .lp-experience-heading h2 { font-size:clamp(32px,8.7vw,52px); }
+  .ps-landing .lp-finale h2 { font-size:clamp(35px,9vw,64px); }
 }

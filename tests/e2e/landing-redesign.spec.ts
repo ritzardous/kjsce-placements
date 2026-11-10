@@ -9,7 +9,7 @@ test.beforeEach(() => {
 async function ready(page: import("@playwright/test").Page) {
   await page.goto("/#landing");
   await expect(
-    page.getByRole("heading", { name: "Know more. Go further.", exact: true }),
+    page.getByRole("heading", { name: "Don’t prep in the dark.", exact: true }),
   ).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
 }
@@ -83,7 +83,7 @@ test("alumni card stays flat and fully visible throughout laptop scroll stages",
     const story = page.locator('.lp-people');
     if (size.width < 1101) {
       await expect(story).toHaveAttribute('data-scroll-story', 'manual');
-      const role = page.getByRole('button', { name: 'How did you get to this team?' });
+      const role = page.getByRole('button', { name: 'How did you land this role?' });
       await role.click();
       await page.evaluate(() => scrollBy({ top: 100, behavior: 'instant' }));
       await expect(role).toHaveAttribute('aria-pressed', 'true');
@@ -118,9 +118,9 @@ test("reduced motion keeps scroll stories in normal flow with manual steps", asy
     await expect(page.locator(`${selector} .lp-story-pin`)).toHaveCSS('position', 'relative');
   }
   await page.getByRole('button', { name: 'What helped' }).click();
-  await expect(page.locator('#experience-detail')).toContainText('Prepare with a little perspective.');
-  await page.getByRole('button', { name: 'Could I ask you about your work?' }).click();
-  await expect(page.locator('.lp-handoff-question [aria-live]')).toContainText('Could I ask you about your work?');
+  await expect(page.locator('#experience-detail')).toContainText('Make your preparation count.');
+  await page.getByRole('button', { name: 'Could I ask about your team?' }).click();
+  await expect(page.locator('.lp-handoff-question [aria-live]')).toContainText('Could I ask about your team?');
 });
 
 test("landing sign-in controls open Google directly without a login page", async ({ page }) => {
@@ -143,7 +143,7 @@ test("landing sign-in controls open Google directly without a login page", async
 test("protected destinations survive direct Google sign-in from the landing page", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/#2026/companies");
-  await expect(page.getByRole("heading", { name: "Know more. Go further." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Don’t prep in the dark." })).toBeVisible();
   await expect(page.locator(".lp-login")).toHaveCount(0);
   await expect(page).toHaveURL(/#2026\/companies$/);
   await signInGoogle(page, false);
@@ -166,7 +166,7 @@ test("student-first landing has genuine examples and no private reads or overflo
     page.getByRole("button", { name: "Continue with Google", exact: true }),
   ).toBeEnabled();
   expect(
-    await page.evaluate(() => document.fonts.check('16px "Instrument Serif"')),
+    await page.evaluate(() => document.fonts.check('16px "Lora"')),
   ).toBe(true);
   expect(reads).toEqual([]);
   for (const { width, height } of [
@@ -272,23 +272,23 @@ test("keyboard, source controls and three product stories work without exposing 
   await page.keyboard.press("Enter");
   await expect(batch).toHaveAttribute("aria-pressed", "true");
   await expect(
-    page.getByRole("link", { name: "Explore placement statistics" }),
+    page.getByRole("link", { name: "Explore the placement data" }),
   ).toHaveAttribute("href", "#2025/overview");
   await page
     .getByRole("button", { name: "The interview", exact: false })
     .click();
   await expect(page.locator("#experience-detail")).toContainText(
-    "Get past the job description.",
+    "Read what interviewers asked.",
   );
   await expect(
-    page.getByRole("link", { name: "Read the experience archive" }),
+    page.getByRole("link", { name: "Explore company procedures" }),
   ).toHaveAttribute("href", "#procedures");
   await page
-    .getByRole("button", { name: "Find seniors at Barclays", exact: true })
+    .getByRole("button", { name: "Find alumni at Barclays", exact: true })
     .click();
   await expect(page.locator(".lp-contact-caption")).toContainText("Barclays");
   await expect(
-    page.getByRole("link", { name: "Find seniors at Barclays" }),
+    page.getByRole("link", { name: "Find alumni at Barclays" }),
   ).toHaveAttribute("href", "#2026/company/barclays");
   await expect(page.locator('a[href*="linkedin.com"]')).toHaveCount(0);
   await page.getByText("Sources & privacy", { exact: false }).click();
@@ -326,7 +326,7 @@ test("reduced motion and save-data retain the diagram without downloading Three.
     }),
   );
   await page.goto("/#landing");
-  await expect(page.getByRole("heading", { name: /Know more/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Don’t prep/ })).toBeVisible();
   await expect(page.locator(".ps-landing")).toHaveAttribute(
     "data-motion",
     "off",
@@ -443,14 +443,14 @@ test("delayed headline fonts retain the mobile line count", async ({
   const gate = new Promise<void>((resolve) => {
     release = resolve;
   });
-  await page.route("**/fonts/instrument-serif/*.woff2", async (route) => {
+  await page.route("**/fonts/lora/*.woff2", async (route) => {
     await gate;
     await route.continue();
   });
   try {
     await page.goto("/#landing", { waitUntil: "domcontentloaded" });
     const heading = page.getByRole("heading", {
-      name: "Know more. Go further.",
+      name: "Don’t prep in the dark.",
       exact: true,
     });
     await expect(heading).toBeVisible();
@@ -489,7 +489,7 @@ test("legacy login returns to landing and protected destinations keep the active
   await page.goto("/#login");
   await expect(page).toHaveURL(/#landing$/);
   await expect(
-    page.getByRole("heading", { name: "Know more. Go further." }),
+    page.getByRole("heading", { name: "Don’t prep in the dark." }),
   ).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(
@@ -643,25 +643,25 @@ test("senior directory is distinct from written experiences and its connection t
   page,
 }) => {
   await ready(page);
-  await expect(page.locator('#experience-title')).toHaveText('The process.In their words.');
-  await expect(page.locator('.lp-experience-heading')).toContainText('Written assessment and interview experiences');
-  await expect(page.locator('#people-title')).toHaveText('Find a senior.Start a conversation.');
+  await expect(page.locator('#experience-title')).toHaveText('Their rounds.Your head start.');
+  await expect(page.locator('.lp-experience-heading')).toContainText('See how alumni tackled company tests and interviews at KJSCE');
+  await expect(page.locator('#people-title')).toHaveText('Your seniors.Start a conversation.');
   await expect(page.locator('.lp-people .lp-section-copy')).toContainText('LinkedIn');
   await page
-    .getByRole("button", { name: "Find seniors at Google", exact: true })
+    .getByRole("button", { name: "Find alumni at Google", exact: true })
     .click();
   await expect(page.locator(".lp-contact-caption")).toContainText("Google");
   await expect(
-    page.getByRole("link", { name: "Find seniors at Google" }),
+    page.getByRole("link", { name: "Find alumni at Google" }),
   ).toHaveAttribute("href", "#2026/company/google");
   const question = page.getByRole("button", {
-    name: "How did you get to this team?",
+    name: "How did you land this role?",
     exact: true,
   });
   await question.click();
   await expect(question).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator(".lp-handoff-question [aria-live]")).toContainText(
-    "How did you get to this team?",
+    "How did you land this role?",
   );
   await expect(page.locator(".lp-handoff-route g.is-active")).toHaveCount(1);
   const trace = page.locator('.lp-handoff-route g.is-active .handoff-signal');
@@ -762,7 +762,7 @@ test("closing Voronoi loads near the footer, responds to theme and pointer, and 
     "off",
   );
   await expect(
-    page.getByRole("button", { name: "Find your perspective", exact: true }),
+    page.getByRole("button", { name: "Explore your toolkit", exact: true }),
   ).toBeEnabled();
   const light = await canvas.screenshot();
   await page.getByRole("button", { name: "Switch to dark mode" }).click();
@@ -858,7 +858,7 @@ test("closing shader failure uses moving interactive cells without WebGL", async
   await page.getByRole("button", { name: "Play background animation", exact: true }).click();
   await expect.poll(pixels).not.toBe(frozen);
   await expect(
-    page.getByRole("button", { name: "Find your perspective", exact: true }),
+    page.getByRole("button", { name: "Explore your toolkit", exact: true }),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -919,7 +919,7 @@ test("floating navigation ignores scroll jitter and reveals after deliberate upw
     .poll(async () => {
       const title = await page
         .getByRole("heading", {
-          name: "The full picture. Not just the headline.",
+          name: "Look at the data. Not just the headlines.",
         })
         .boundingBox();
       const nav = await header.boundingBox();
@@ -1020,7 +1020,7 @@ test("experience section is restrained in both themes and authentic JPMC logos r
       .getByRole("button", { name: "The interview", exact: false })
       .click();
     await expect(page.locator("#experience-detail")).toContainText(
-      "Get past the job description.",
+      "Read what interviewers asked.",
     );
     await page.screenshot({
       path: `artifacts/floating-nav-${theme}-${info.project.name}.png`,
@@ -1059,7 +1059,7 @@ test("scroll navigation respects reduced motion and the notebook works at phone 
       .getByRole("button", { name: "What helped", exact: false })
       .click();
     await expect(page.locator("#experience-detail")).toContainText(
-      "Prepare with a little perspective.",
+      "Make your preparation count.",
     );
     expect(
       await page.evaluate(

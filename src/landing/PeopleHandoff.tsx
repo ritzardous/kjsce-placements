@@ -3,18 +3,18 @@ import { archiveCompanies, companyRoute, companyYears } from "./archive-data";
 const connectionCompanies = archiveCompanies.slice(0, 3);
 const prompts = [
   {
-    label: "The role",
-    text: "What’s a typical day on your team?",
+    label: "The work",
+    text: "What do you work on day to day?",
     path: "M0 50H135Q160 50 175 30L185 17Q197 0 215 0H400",
   },
   {
-    label: "Career path",
-    text: "How did you get to this team?",
+    label: "Their route",
+    text: "How did you land this role?",
     path: "M0 50H400",
   },
   {
-    label: "Say hello",
-    text: "Could I ask you about your work?",
+    label: "Reach out",
+    text: "Could I ask about your team?",
     path: "M0 50H135Q160 50 175 70L185 83Q197 100 215 100H400",
   },
 ];
@@ -30,17 +30,17 @@ export function PeopleHandoff({ prompt, onPrompt }: { prompt: number; onPrompt: 
         <span className="lp-handoff-school">
           KJSCE <span>↗</span>
         </span>
-        <span>Your college network.</span>
+        <span>Your college. Your alumni.</span>
       </div>
       <div className="lp-handoff-target">
-        <span>Your target company</span>
+        <span>Your next target company</span>
         <div role="group" aria-label="Choose a company for senior connections">
           {connectionCompanies.map((item, index) => (
             <button
               type="button"
               key={item.id}
               data-company={item.id}
-              aria-label={`Find seniors at ${item.name}`}
+              aria-label={`Find alumni at ${item.name}`}
               aria-pressed={selected === index}
               onClick={() => setSelected(index)}
             >
@@ -84,12 +84,12 @@ export function PeopleHandoff({ prompt, onPrompt }: { prompt: number; onPrompt: 
           </span>
           <div className="lp-contact-caption" aria-live="polite">
             <strong>{company.name}</strong>
-            <span>Available LinkedIn profiles</span>
+            <span>Available alumni on LinkedIn</span>
           </div>
           <span aria-hidden="true">↗</span>
         </div>
         <div className="lp-handoff-question" data-story-focus>
-          <span>Start a conversation</span>
+          <span>A question to start with</span>
           <div aria-live="polite" aria-atomic="true">
             <p key={prompt}>{prompts[prompt].text}</p>
           </div>
@@ -108,7 +108,7 @@ export function PeopleHandoff({ prompt, onPrompt }: { prompt: number; onPrompt: 
           </div>
         </div>
         <a className="lp-text-link" href={companyRoute(company, year)}>
-          Find seniors at {company.short} <span aria-hidden="true">↗</span>
+          Find alumni at {company.short} <span aria-hidden="true">↗</span>
         </a>
       </div>
     </div>

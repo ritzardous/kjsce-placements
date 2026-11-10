@@ -41,7 +41,7 @@ test('footer is flush with the page and both themes keep restrained surfaces',as
   const layout=await footer.evaluate(node=>{const r=node.getBoundingClientRect(),shell=node.closest('.portal-shell')!,main=shell.querySelector('main')!;return {left:r.left,right:r.right,width:shell.getBoundingClientRect().right,bg:getComputedStyle(node).backgroundColor,pageBg:getComputedStyle(shell).backgroundColor,padding:getComputedStyle(main).paddingBottom,after:document.documentElement.scrollHeight-(r.bottom+scrollY)};});
   expect(layout.left).toBe(0);expect(layout.right).toBe(layout.width);expect(layout.bg).toBe(layout.pageBg);expect(parseFloat(layout.padding)).toBeLessThanOrEqual(36);
   if(info.project.name==='desktop')expect(layout.after).toBeLessThanOrEqual(1);
-  if(theme==='dark'){expect(layout.bg).toBe('rgb(16, 16, 16)');expect(await page.locator('.year-card').first().evaluate(node=>getComputedStyle(node).color)).toBe('rgb(222, 222, 222)');}
+  if(theme==='dark'){expect(layout.bg).toBe('rgb(16, 20, 17)');expect(await page.locator('.year-card').first().evaluate(node=>getComputedStyle(node).color)).toBe('rgb(240, 241, 231)');}
   await page.screenshot({path:`artifacts/company-footer-${theme}-${info.project.name}.png`,fullPage:true});
   await footer.getByRole('button',{name:'Scroll to top'}).click();
   await expect.poll(()=>page.evaluate(()=>scrollY)).toBeLessThan(20);

@@ -1,24 +1,23 @@
 /* The authenticated archive: paper, ink, geometry and tactile controls.
    Deliberately scoped so the public landing keeps its existing design. */
 :is(#app,.portal-shell,.login-page,.mobile-statistics-sheet) {
- --bg:#f7f8fa; --surface:#fff; --ink:#151515; --ink-soft:#515766; --ink-faint:#626978;
- --line:#151515; --line-soft:#9aa2b0; --line-faint:#dce0e7;
- --accent:#2445eb; --accent-ink:#fff; --accent-soft:#eef0ff; --accent-dim:#d7ddff;
+ --bg:var(--identity-paper); --surface:var(--identity-surface); --ink:var(--identity-ink); --ink-soft:var(--identity-muted); --ink-faint:#686e68;
+ --line:var(--identity-ink); --line-soft:var(--identity-rule); --line-faint:color-mix(in srgb,var(--identity-rule) 50%,transparent);
+ --accent:var(--identity-blue); --accent-ink:#fff; --accent-soft:#eef0ff; --accent-dim:#d7ddff;
  --ui-success:#235228; --ui-success-bg:#dcf5c0; --ui-warning:#68440b; --ui-warning-bg:#ffeab1;
  --ui-danger:#922b24; --ui-danger-bg:#ffe0d9; --warn:#8b3918;
- --neo-lime:#eef1ff; --neo-yellow:#eef1ff; --neo-shadow:#151515;
+ --neo-lime:#eef1ff; --neo-yellow:#eef1ff; --neo-shadow:var(--identity-shadow);
  color:var(--ink); background:var(--bg); color-scheme:light;
 }
 [data-theme=dark] :is(#app,.portal-shell,.mobile-statistics-sheet) {
- --bg:#101010; --surface:#1b1b1b; --ink:#dedede; --ink-soft:#b7b7b7; --ink-faint:#a3a3a3;
- --line:#707070; --line-soft:#595959; --line-faint:#353535;
- --accent:#c8c8c8; --accent-ink:#151515; --accent-soft:#303030; --accent-dim:#444444;
- --ui-success:#cecece; --ui-success-bg:#292929; --ui-warning:#d0d0d0; --ui-warning-bg:#303030;
- --ui-danger:#dedede; --ui-danger-bg:#303030; --warn:#d0d0d0;
- --neo-lime:#303030; --neo-yellow:#303030; --neo-shadow:#080808; color-scheme:dark;
+ --bg:var(--identity-paper); --surface:var(--identity-surface); --ink:var(--identity-ink); --ink-soft:var(--identity-muted); --ink-faint:#a2ada5;
+ --line:#78877c; --line-soft:var(--identity-rule); --line-faint:#2a332d;
+ --accent:var(--identity-blue); --accent-ink:#101411; --accent-soft:#202940; --accent-dim:#2c3856;
+ --ui-success:#b9e6b7; --ui-success-bg:#1e3527; --ui-warning:#f3d59b; --ui-warning-bg:#392f1f;
+ --ui-danger:#f5b4ad; --ui-danger-bg:#3b2525; --warn:#f3d59b;
+ --neo-lime:#202940; --neo-yellow:#202940; --neo-shadow:var(--identity-shadow); color-scheme:dark;
 }
-body:has(:is(#app,.portal-shell,.login-page)) { background:#f7f8fa; }
-[data-theme=dark] body:has(:is(#app,.portal-shell)) { background:#101010; }
+body:has(:is(#app,.portal-shell,.login-page)) { background:var(--identity-paper); }
 :is(#app,.portal-shell,.login-page) { font-size:15px; }
 :is(#app,.portal-shell,.login-page) :is(h1,h2,h3) { font-family:var(--font-display); font-weight:700; letter-spacing:-.035em; }
 :is(#app,.portal-shell) :is(.portal-welcome,.procedure-intro,.hero) h1 { font-size:clamp(34px,4.6vw,60px); line-height:1.06; max-width:22ch; margin:16px 0 20px; }

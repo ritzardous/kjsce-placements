@@ -21,17 +21,17 @@ test('home starts light, shows the account photo, and its community card is a fu
   await page.screenshot({animations:'disabled',path:`artifacts/home-personal-light-${info.project.name}.png`,fullPage:true});
   await page.getByRole('button',{name:'Switch to dark mode'}).click();
   const year=page.locator('.year-card').filter({has:page.getByRole('heading',{name:'Class of 2026',exact:true})});
-  expect(await year.locator('h3').evaluate(element=>getComputedStyle(element).color)).toBe('rgb(222, 222, 222)');
-  expect(await year.evaluate(element=>getComputedStyle(element).backgroundColor)).toBe('rgb(27, 27, 27)');
+  expect(await year.locator('h3').evaluate(element=>getComputedStyle(element).color)).toBe('rgb(240, 241, 231)');
+  expect(await year.evaluate(element=>getComputedStyle(element).backgroundColor)).toBe('rgb(25, 30, 26)');
   for(const destination of await page.locator('.home-card').all()) {
-    expect(await destination.evaluate(element=>getComputedStyle(element).backgroundColor)).toBe('rgb(27, 27, 27)');
-    expect(await destination.locator('h2,h3').evaluate(element=>getComputedStyle(element).color)).toBe('rgb(222, 222, 222)');
+    expect(await destination.evaluate(element=>getComputedStyle(element).backgroundColor)).toBe('rgb(25, 30, 26)');
+    expect(await destination.locator('h2,h3').evaluate(element=>getComputedStyle(element).color)).toBe('rgb(240, 241, 231)');
     if(info.project.name==='desktop') {
       await destination.hover();
-      await expect(destination).toHaveCSS('background-color','rgb(48, 48, 48)');
-      expect(await destination.locator('p').evaluate(element=>getComputedStyle(element).color)).toBe('rgb(183, 183, 183)');
+      await expect(destination).toHaveCSS('background-color','rgb(32, 41, 64)');
+      expect(await destination.locator('p').evaluate(element=>getComputedStyle(element).color)).toBe('rgb(171, 180, 172)');
       await page.mouse.move(0,0);
-      await expect(destination).toHaveCSS('background-color','rgb(27, 27, 27)');
+      await expect(destination).toHaveCSS('background-color','rgb(25, 30, 26)');
     }
   }
   await page.screenshot({animations:'disabled',path:`artifacts/home-personal-dark-${info.project.name}.png`,fullPage:true});
