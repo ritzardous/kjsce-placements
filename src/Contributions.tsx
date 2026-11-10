@@ -1,3 +1,4 @@
+import { FetchLoader } from './FetchLoader';
 import { ActionMenu } from './ActionMenu';
 import { OperationStatus } from './OperationStatus';
 import { canonicalCompanyName } from '../shared/company-identity';
@@ -16,7 +17,7 @@ import { ConfirmAction } from './ProcedureUX';
 type Event = {id:string;action:string;revision:number;feedback:string;createdAt:number};
 export function SubmissionTimeline({ id }: {id:string}) {
   const [events,setEvents]=useState<Event[]|null>(null),[error,setError]=useState('');
-  return <details open={new URLSearchParams(location.hash.split('?')[1]).get('history')==='1'} onToggle={event=>{if(event.currentTarget.open&&!events)void community<Event[]>('timeline',{submissionId:id}).then(setEvents).catch(cause=>setError(procedureError(cause)));}}><summary>Submission timeline</summary>{error&&<p role="alert">{error}</p>}{!events&&!error&&<p>Loading review history…</p>}{events?.map(event=><p key={event.id}>{new Date(event.createdAt).toLocaleString('en-GB')} · {statusLabels[event.action as keyof typeof statusLabels]||event.action.replaceAll('_',' ')} · Revision {event.revision}{event.feedback&&`. ${event.feedback}`}</p>)}{events?.length===50&&<p>Latest 50 events shown.</p>}</details>;
+  return <details open={new URLSearchParams(location.hash.split('?')[1]).get('history')==='1'} onToggle={event=>{if(event.currentTarget.open&&!events)void community<Event[]>('timeline',{submissionId:id}).then(setEvents).catch(cause=>setError(procedureError(cause)));}}><summary>Submission timeline</summary>{error&&<p role="alert">{error}</p>}{!events&&!error&&<FetchLoader compact label="Loading review history…"/>}{events?.map(event=><p key={event.id}>{new Date(event.createdAt).toLocaleString('en-GB')} · {statusLabels[event.action as keyof typeof statusLabels]||event.action.replaceAll('_',' ')} · Revision {event.revision}{event.feedback&&`. ${event.feedback}`}</p>)}{events?.length===50&&<p>Latest 50 events shown.</p>}</details>;
 }
 function DeviceDrafts() {
   const {user}=useAuth(),[refresh,setRefresh]=useState(0),[error,setError]=useState('');

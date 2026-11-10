@@ -31,7 +31,7 @@ test('reader shows writing without comparison or questions; fetching respects re
  await page.goto(`/#procedures/${id}`);
  await expect(page.getByRole('status').filter({hasText:'Loading experience'})).toBeVisible();
  await page.emulateMedia({reducedMotion:'reduce'});
- expect(await page.locator('.fetch-hourglass').first().evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+ expect(await page.locator('.skeleton-hourglass').first().evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
  await expect(page.getByRole('heading',{name:'A clean reading experience'})).toBeVisible();
  await page.unroute('**/*');
  await expect(page.locator('.reader-view .procedure-markdown')).toContainText('I solved an array problem');

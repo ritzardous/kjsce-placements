@@ -28,7 +28,7 @@ test('global inbox works from statistics, supports unread/archive undo and follo
   await page.getByRole('button', { name: 'Undo archive', exact: true }).click();
   await page.getByRole('button', { name: 'Refresh notifications', exact: true }).click();
   await expect(card).toBeVisible();
-  await page.getByText('Notification preferences and following', { exact: true }).click();
+  await page.getByRole('link', { name: 'Notification preferences', exact: true }).click();
   await page.getByLabel('Follow a company or batch').selectOption('batch:2026');
   await page.getByRole('button', { name: 'Follow updates', exact: true }).click();
   await expect(page.locator('.notification-settings').getByRole('status')).toContainText('Notification settings saved.');

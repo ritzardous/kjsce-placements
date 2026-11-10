@@ -6,7 +6,7 @@ import './theme-transition.css';
 type ToggleOrigin = { x: number; y: number; button: HTMLButtonElement };
 const ThemeContext = createContext<{ dark: boolean; toggle: (origin: ToggleOrigin) => void }>({ dark: false, toggle: () => {} });
 function preference() { try { return localStorage.getItem('placement-theme'); } catch { return null; } }
-function initialTheme() { const saved = preference(); return saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
+function initialTheme() { const saved = preference(); return saved === 'dark' || saved === 'light' ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches; }
 function applyTheme(dark: boolean) {
   document.documentElement.dataset.theme = dark ? 'dark' : 'light';
 }

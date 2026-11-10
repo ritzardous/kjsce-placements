@@ -42,6 +42,6 @@ test('account identity, compact edge menus, popup switching and preference navig
  await page.screenshot({path:`artifacts/polish-account-${info.project.name}.png`});
  await page.keyboard.press('Escape');await expect(account).toBeFocused();
  if(info.project.name==='desktop'){await trigger.click();await account.click();await expect(page.locator('.action-disclosure-content:visible')).toHaveCount(1);await page.locator('.notification-entry').click();await expect(panel).toBeHidden();await expect(page.getByRole('region',{name:'Recent notifications'})).toBeVisible();await account.click();await expect(page.locator('.notification-preview')).toHaveCount(0);}else await account.click();
- await panel.getByRole('link',{name:'Notification preferences',exact:true}).click();await expect(page.locator('#notification-preferences')).toHaveAttribute('open','');await expect(page.getByText('Notification preferences and following',{exact:true})).toBeVisible();
+ await panel.getByRole('link',{name:'Notification preferences',exact:true}).click();await expect(page.locator('#notification-preferences')).toBeVisible();await expect(page.getByRole('heading',{name:'Notification preferences',exact:true})).toBeVisible();
  await page.evaluate(()=>document.documentElement.dataset.theme='dark');await account.click();await expect(panel).toBeVisible();expect(await panel.evaluate(node=>getComputedStyle(node).backgroundColor)).not.toBe('rgb(255, 255, 255)');await page.keyboard.press('Escape');
 });

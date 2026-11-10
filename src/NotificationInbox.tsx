@@ -1,3 +1,4 @@
+import { FetchLoader } from './FetchLoader';
 import { ActionMenu } from './ActionMenu';
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { community, invalidateCommunityReads, safeStored, storeSession } from './community-api';
@@ -16,10 +17,14 @@ function Outcome({ id }: { id: string }) {
   const [outcome, setOutcome] = useState<{ message: string; status?: string; resolution?: string } | null>(null), [error, setError] = useState('');
   const [attempt, setAttempt] = useState(0);
   useEffect(() => { let active = true; void community<typeof outcome>('notificationOutcome', { id }).then(value => { if (active) { setOutcome(value); setError(''); } }).catch(cause => { if (active) setError(procedureError(cause)); }); return () => { active = false; }; }, [id, attempt]);
-  return <div className="notification-outcome">{error ? <p role="alert">{error} <button onClick={() => setAttempt(value => value + 1)}>Retry outcome</button></p> : outcome ? <><p>{outcome.message}</p>{outcome.status && <p>Report status: {outcome.status.replaceAll('_', ' ')}{outcome.resolution ? ` · ${outcome.resolution.replaceAll('_', ' ')}` : ''}</p>}</> : <p>Loading your private outcome…</p>}</div>;
+  return <div className="notification-outcome">{error ? <p role="alert">{error} <button onClick={() => setAttempt(value => value + 1)}>Retry outcome</button></p> : outcome ? <><p>{outcome.message}</p>{outcome.status && <p>Report status: {outcome.status.replaceAll('_', ' ')}{outcome.resolution ? ` · ${outcome.resolution.replaceAll('_', ' ')}` : ''}</p>}</> : <FetchLoader compact label="Loading your private outcome…"/>}</div>;
 }
 
 export function NotificationInbox() {
+  if (new URLSearchParams(location.hash.split('?')[1]).get('preferences') === '1') return <div className="preferences-workspace"><a className="settings-back" href="#procedures/notifications">← Back to notifications</a><NotificationSettings standalone/></div>;
+  return <InboxContent/>;
+}
+function InboxContent() {
   const { user } = useAuth(), store = useNotifications();
   const { inboxCache, changed, revision } = store;
   const preference = `notification-view:${user?.uid}`;
@@ -150,7 +155,7 @@ export function NotificationInbox() {
       }
     }
   }}>
-    <div className="procedure-heading"><p>Decisions, feedback and followed updates, all in one place.</p><button disabled={loading} onClick={() => { void load(); void store.refresh(); }}>Refresh notifications</button></div>
+    <div className="procedure-heading notification-inbox-header"><p>Reviews, feedback and updates you follow.</p><div><a href="#procedures/notifications?preferences=1" aria-label="Notification preferences">Preferences</a><button aria-label="Refresh notifications" disabled={loading} onClick={() => { void load(); void store.refresh(); }}>Refresh</button></div></div>
     <p className="notification-freshness">{!store.online ? 'Offline. Showing your last loaded updates.' : loading ? 'Updating…' : error ? "Couldn't refresh. Showing previously loaded updates." : page.checkedAt ? `Last checked ${new Date(page.checkedAt).toLocaleTimeString()}` : 'Checking for updates…'}</p>
     {store.summary?.discoveryError && <p role="alert">Followed updates couldn't refresh. Your direct notifications are available. Try Refresh notifications again.</p>}
     {store.error && <p role="alert">Unread count couldn't refresh. <button onClick={() => void store.refresh()}>Retry unread count</button></p>}
@@ -176,7 +181,6 @@ export function NotificationInbox() {
           <button disabled={busy} onClick={() => { void update([row.id], { archived: !row.archived }, row.archived ? 'Update restored.' : 'Update archived.'); }}>{row.archived ? 'Restore' : 'Archive'}</button></ActionMenu>
         </div>{outcome === row.id && <Outcome id={row.id}/>}</article></Fragment>;
     })}</div>
-    {loading && <p>Loading notifications…</p>}{page.more && <button disabled={loading} onClick={() => void load(true)}>Load more notifications</button>}
-    <NotificationSettings/>
+    {loading && <FetchLoader compact={page.rows.length>0} label="Loading notifications…"/>}{page.more && <button disabled={loading} onClick={() => void load(true)}>Load more notifications</button>}
   </section>;
 }

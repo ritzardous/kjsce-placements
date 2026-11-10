@@ -1,3 +1,4 @@
+import { FetchLoader } from './FetchLoader';
 import { canonicalCompanyKey } from '../shared/company-identity';
 import { useEffect, useState } from 'react';
 import type { ProcedureCompany } from '../shared/procedures';
@@ -31,7 +32,7 @@ export function ProcedureCompanyPreview({ company, appearanceYear }: {company:Pr
   },[user?.uid,company.key,year,key]);
   return <aside className="procedure-company-preview" aria-label="Selected company information">
     <CompanyIdentity companyKey={company.key} name={company.name}/>
-    <div>{!current?<p className="procedure-note">Loading recorded placement details…</p>:current.company?<>
+    <div>{!current?<FetchLoader compact label="Loading recorded placement details…"/>:current.company?<>
       <p><strong>{current.company.highestCtc===null?'CTC not recorded':`₹${current.company.highestCtc.toFixed(2)} LPA`}</strong> <span>highest recorded CTC · Class of {year}</span></p>
       <p className="procedure-note">{current.company.totalHired} recorded selections{current.company.roles.length?` · ${current.company.roles.slice(0,2).join(' / ')}`:''}</p>
     </>:<p className="procedure-note">{current.error?'Could not load placement details. You can continue writing.':`No recorded placement details for Class of ${year}. You can continue writing.`}</p>}

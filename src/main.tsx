@@ -15,5 +15,7 @@ import './data-quality.css';
 import './workspace-identity.css';
 import './product-header.css';
 import './product-footer.css';
+import './loading.css';
+import './internal-pages.css';
 
 createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);

@@ -458,6 +458,10 @@
 .is-rendered .index-poster {
   opacity: 0;
 }
+.ps-landing .is-rendered .index-company {
+  left:var(--scene-company-x);
+  top:var(--scene-company-y);
+}
 .index-companies {
   position: absolute;
   inset: 0;

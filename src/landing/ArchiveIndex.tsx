@@ -79,7 +79,8 @@ export function ArchiveIndex({
   useEffect(() => {
     if (!motionAllowed || !host.current) return;
     let disposed = false,
-      scheduled = false;
+      scheduled = false,
+      revealFrame = 0;
     const target = host.current;
     let timer: ReturnType<typeof setTimeout>;
     const observer = new IntersectionObserver(
@@ -95,16 +96,21 @@ export function ArchiveIndex({
                 const scene = module.mountArchiveScene(
                   target,
                   () => {
-                    if (!disposed) setReady(true);
+                    // Keep the complete SVG poster until the first rendered scene
+                    // has had a paint opportunity; reveal geometry and labels together.
+                    revealFrame = requestAnimationFrame(() => {
+                      revealFrame = requestAnimationFrame(() => { if (!disposed) setReady(true); });
+                    });
                   },
                   () => {
                     if (!disposed) {
+                      cancelAnimationFrame(revealFrame);
                       setReady(false);
                       companyNodes.current
                         ?.querySelectorAll<HTMLButtonElement>("button")
                         .forEach((node) => {
-                          node.style.removeProperty("left");
-                          node.style.removeProperty("top");
+                          node.style.removeProperty("--scene-company-x");
+                          node.style.removeProperty("--scene-company-y");
                         });
                     }
                   },
@@ -112,8 +118,8 @@ export function ArchiveIndex({
                     companyNodes.current
                       ?.querySelectorAll<HTMLButtonElement>("button")
                       .forEach((node, index) => {
-                        node.style.left = `${Math.max(16, Math.min(82, points[index].x))}%`;
-                        node.style.top = `${Math.max(13, Math.min(86, points[index].y))}%`;
+                        node.style.setProperty('--scene-company-x', `${Math.max(16, Math.min(82, points[index].x))}%`);
+                        node.style.setProperty('--scene-company-y', `${Math.max(13, Math.min(86, points[index].y))}%`);
                       });
                   },
                 );
@@ -127,7 +133,7 @@ export function ArchiveIndex({
             .catch(() => {
               if (!disposed) setReady(false);
             });
-        }, 100);
+        }, 0);
       },
       { rootMargin: "100px" },
     );
@@ -135,6 +141,7 @@ export function ArchiveIndex({
     return () => {
       disposed = true;
       clearTimeout(timer);
+      cancelAnimationFrame(revealFrame);
       observer.disconnect();
       controller.current?.dispose();
       controller.current = null;

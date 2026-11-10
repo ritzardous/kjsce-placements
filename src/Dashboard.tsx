@@ -61,7 +61,7 @@ export default function Dashboard({ route }: { route: Route }) {
   const s = data?.statistics.batch.year === route.year ? data.statistics : undefined;
   const active = ['candidates','timeline','insights','explore'].includes(route.page)?'explore':route.page === 'company' ? 'companies' : nav.some(([key]) => key === route.page) ? route.page : 'overview';
   let page;
-  if (!s) page = !error?<FetchLoader label={`Loading ${route.year} placement statistics…`}/>:<div className="page-message" role={error ? 'alert' : 'status'}><h1>{error ? 'Placement data unavailable' : 'Loading placement statistics…'}</h1><p>{error ?? `Fetching the ${route.year} dataset.`}</p>{error && <button className="action-button" onClick={() => setAttempt(a => a + 1)}>Try again</button>}</div>;
+  if (!s) page = !error?<FetchLoader variant="dashboard" label={`Loading ${route.year} placement statistics…`}/>:<div className="page-message" role={error ? 'alert' : 'status'}><h1>{error ? 'Placement data unavailable' : 'Loading placement statistics…'}</h1><p>{error ?? `Fetching the ${route.year} dataset.`}</p>{error && <button className="action-button" onClick={() => setAttempt(a => a + 1)}>Try again</button>}</div>;
   else if (route.page === 'company') page = <CompanyDetail company={s.companies.find(c => c.key === route.parameter)} year={route.year} />;
   else if (active === 'companies') page = <Companies statistics={s} filters={companyFilters} setFilters={setCompanyFilters} />;
   else if (active === 'branches') page = <Branches statistics={s} selected={route.parameter} onCandidates={branch => setCandidateFilters({ search: branch, role: null })} />;

@@ -29,7 +29,7 @@ function Application() {
     if (route.page === 'contributions') location.replace('#procedures/contributions');
     if (route.page === 'alumni') location.replace('#statistics');
   }, [route.page]);
-  if (!auth.ready) return <div className="login-page session-loading"><FetchLoader label="Getting your session ready…"/></div>;
+  if (!auth.ready) return <div className="login-page session-loading"><FetchLoader variant="session" label="Getting your session ready…"/></div>;
   if (!auth.allowed) return <Landing deepLink={!['landing', 'login'].includes(route.page)} />;
   if (route.page === 'home' || route.page === 'landing' || route.page === 'login') return <Home />;
   if (route.page === 'statistics') return selectedBatch()?<PortalShell active="statistics"><FetchLoader label="Opening your selected batch…"/></PortalShell>:<Home statisticsOnly />;
