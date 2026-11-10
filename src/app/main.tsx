@@ -1,0 +1,21 @@
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App';
+import '../styles/identity.css';
+import '../styles/styles.css';
+import '../styles/migration.css';
+import '../styles/portal.css';
+import '../styles/procedures.css';
+import '../styles/mobile.css';
+import '../styles/enhancements.css';
+import '../styles/app-polish.css';
+import '../styles/neobrutal.css';
+import '../styles/notifications.css';
+import '../styles/data-quality.css';
+import '../styles/workspace-identity.css';
+import '../styles/product-header.css';
+import '../styles/product-footer.css';
+import '../styles/loading.css';
+import '../styles/internal-pages.css';
+
+createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);

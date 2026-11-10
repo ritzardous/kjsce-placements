@@ -1,6 +1,6 @@
 # Firebase operations
 
-Follow `4amchanges.md` for setup and testing.
+Use the setup steps in the root readme and [access structure](access-structure.md).
 
 - Keep Admin JSON outside Git, reference it through `GOOGLE_APPLICATION_CREDENTIALS`, and never place credentials in `VITE_*`.
 - Live commands require explicit project and `--allow-production`. Demo-only emulator commands cannot target live projects.

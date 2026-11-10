@@ -234,7 +234,7 @@ const presentation = {
 
 await mkdir('public/company-logos', { recursive: true });
 // Keep verified assets if a refresh fails; --missing adds only unmapped brands.
-const previous = JSON.parse(await readFile('src/company-logos.json', 'utf8').catch(() => '[]'));
+const previous = JSON.parse(await readFile('src/data/company-logos.json', 'utf8').catch(() => '[]'));
 const entries = [...previous];
 const only = process.argv.find(arg => arg.startsWith('--only='))?.slice(7).split(',');
 const selected = only ? brands.filter(([id]) => only.includes(id)) : process.argv.includes('--missing') ? brands.filter(([id]) => !previous.some(entry => entry.id === id)) : brands;
@@ -264,5 +264,5 @@ for (let start = 0; start < selected.length; start += 6) {
   }));
 }
 entries.sort((a, b) => a.id.localeCompare(b.id));
-await writeFile('src/company-logos.json', JSON.stringify(entries, null, 2) + '\n');
+await writeFile('src/data/company-logos.json', JSON.stringify(entries, null, 2) + '\n');
 console.log(`Saved ${entries.length} brand icons.`);

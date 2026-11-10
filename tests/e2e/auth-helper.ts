@@ -5,12 +5,12 @@ export async function signInGoogle(page: Page, navigate = true, photoURL?: strin
   // The isolated Auth emulator accepts a synthetic provider token. This uses the
   // actual Firebase SDK/session persistence and has no production app bypass.
   await page.evaluate(`(async () => {
-    const {getFirebase} = await import('/src/firebase.ts');
+    const {getFirebase} = await import('/src/lib/firebase.ts');
     const {GoogleAuthProvider,signInWithCredential} = await import('/node_modules/.vite/deps/firebase_auth.js');
     const id = crypto.randomUUID();
     await signInWithCredential(getFirebase().auth, GoogleAuthProvider.credential(JSON.stringify({sub:id,email:id+'@example.test',email_verified:true,name:'Test Student',picture:${JSON.stringify(photoURL ?? '')}})));
   })()`);
   await expect(page.locator('.auth-controls .account-menu>summary')).toBeVisible();
   if(navigate)await expect(page).toHaveURL(/#home$/);
-  return page.evaluate(`(async () => { const {getFirebase} = await import('/src/firebase.ts'); return getFirebase().auth.currentUser.uid; })()` ) as Promise<string>;
+  return page.evaluate(`(async () => { const {getFirebase} = await import('/src/lib/firebase.ts'); return getFirebase().auth.currentUser.uid; })()` ) as Promise<string>;
 }

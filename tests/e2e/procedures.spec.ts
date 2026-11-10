@@ -51,7 +51,7 @@ test('draft recovery, revision approval, voting and unpublishing work across con
   try {
     const adminUid = await signInGoogle(adminPage);
     await setClaims(adminUid, { role: 'admin' });
-    await adminPage.evaluate(`(async () => { const {getFirebase} = await import('/src/firebase.ts'); await getFirebase().auth.currentUser.getIdToken(true); })()`);
+    await adminPage.evaluate(`(async () => { const {getFirebase} = await import('/src/lib/firebase.ts'); await getFirebase().auth.currentUser.getIdToken(true); })()`);
     await adminPage.goto('/#admin/procedures');
     await adminPage.getByLabel('Review company', { exact: true }).selectOption('barclays');
     const pending = await db.collection('procedureSubmissions').where('ownerUid', '==', uid).get();
@@ -108,14 +108,14 @@ test('draft recovery, revision approval, voting and unpublishing work across con
     await expect(readerPage.getByRole('alert')).toContainText(/unavailable|unpublished/);
     await setClaims(adminUid, {});
     const revoked = await adminPage.evaluate(async postId => {
-      const api = await import('/src/procedures-api.ts' as string);
+      const api = await import('/src/procedures/procedures-api.ts' as string);
       try { await api.callProcedure('unpublishProcedure', { id: postId, reason: 'stale token test' }); return 'unexpected success'; }
       catch (cause) { return (cause as { code: string }).code; }
     }, id);
     expect(revoked).toBe('functions/permission-denied');
   } finally { await adminContext.close(); await readerContext.close(); }
 });
-async function signInGoogleUid(page: import('@playwright/test').Page): Promise<string> { return page.evaluate(`(async () => { const {getFirebase} = await import('/src/firebase.ts'); return getFirebase().auth.currentUser.uid; })()`); }
+async function signInGoogleUid(page: import('@playwright/test').Page): Promise<string> { return page.evaluate(`(async () => { const {getFirebase} = await import('/src/lib/firebase.ts'); return getFirebase().auth.currentUser.uid; })()`); }
 async function setClaims(uid: string, claims: Record<string, string>) {
   if (process.env.FIREBASE_AUTH_EMULATOR_HOST !== '127.0.0.1:9099') throw new Error('Role fixtures are emulator-only.');
   const response = await fetch('http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:update?key=demo-api-key', { method: 'POST', headers: { Authorization: 'Bearer owner', 'Content-Type': 'application/json' }, body: JSON.stringify({ localId: uid, customAttributes: JSON.stringify(claims) }) });

@@ -21,7 +21,7 @@
     "build:functions": "npm --prefix functions run build",
     "procedures:seed": "tsx scripts/seed-procedure-companies.ts",
     "cloud:firebase": "node scripts/cloud-firebase.mjs",
-    "test": "tsx --test tests/*.test.ts",
+    "test": "tsx --test tests/unit/*.test.ts",
     "test:e2e": "playwright test",
     "db:rules": "tsx scripts/deploy-rules.ts",
     "auth:verify": "tsx scripts/verify-auth.ts",

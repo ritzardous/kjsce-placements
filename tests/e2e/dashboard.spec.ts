@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import {hiddenYears} from '../../src/routing';
+import {hiddenYears} from '../../src/app/routing';
 import { signInGoogle } from './auth-helper';
 import { readFileSync } from 'node:fs';
 import { batch2026, datasetSchema } from '../../shared/dataset';
@@ -138,7 +138,7 @@ test('Firestore loading error displays retry and recovers using real emulator da
     body: `export function watchDashboardVersion(){return () => {}; }
     export async function loadDashboard(year) {
       if (!window.retryEnabled) throw new Error('Temporary Firestore outage');
-      const real = await import('/src/repository.ts?retry-real');
+      const real = await import('/src/dashboard/repository.ts?retry-real');
       return real.loadDashboard(year);
     }`,
   }));

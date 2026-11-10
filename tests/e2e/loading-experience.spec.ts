@@ -15,7 +15,7 @@ test('cold HTML shows themed skeletons before JavaScript arrives', async ({ page
   for (const theme of ['light', 'dark']) {
     let release!: () => void;
     const gate = new Promise<void>(resolve => { release = resolve; });
-    await page.route('**/src/main.tsx', async route => { await gate; await route.continue(); });
+    await page.route('**/src/app/main.tsx', async route => { await gate; await route.continue(); });
     try {
       await page.goto(`/?theme=${theme}#landing`, { waitUntil: 'commit' });
       await expect(page.locator('.boot-shell')).toBeVisible();
@@ -27,7 +27,7 @@ test('cold HTML shows themed skeletons before JavaScript arrives', async ({ page
     } finally { release(); }
     await expect(page.getByRole('heading', { name: 'Don’t prep in the dark.', exact: true })).toBeVisible();
     await expect(page.locator('.boot-shell')).toHaveCount(0);
-    await page.unroute('**/src/main.tsx');
+    await page.unroute('**/src/app/main.tsx');
   }
 });
 

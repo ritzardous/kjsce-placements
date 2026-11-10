@@ -17,7 +17,7 @@ try {
   await expect(page.getByRole('heading', { name: 'Good to see you.' })).toBeVisible();
   if (reads.length) throw new Error('Signed-out pages requested protected data.');
   const denied = await page.evaluate(`(async () => {
-    const { getFirebase } = await import('/src/firebase.ts');
+    const { getFirebase } = await import('/src/lib/firebase.ts');
     const { doc, getDocFromServer } = await import('/node_modules/.vite/deps/firebase_firestore.js');
     try { await getDocFromServer(doc(getFirebase().db, 'batches', '2026')); return false; }
     catch (error) { return error.code === 'permission-denied'; }

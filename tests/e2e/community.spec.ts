@@ -41,7 +41,7 @@ test('discovery, clean reading, saved prep and report moderation work together',
     await expect(reader.getByText('A newer approved revision is available.')).toBeVisible();
     await reader.goto(`/#procedures/${ids[0]}`);
     const adminUid=await signInGoogle(admin);await getAuth(app).setCustomUserClaims(adminUid,{role:'admin'});
-    await admin.evaluate(`(async()=>{const {getFirebase}=await import('/src/firebase.ts');await getFirebase().auth.currentUser.getIdToken(true);})()`);
+    await admin.evaluate(`(async()=>{const {getFirebase}=await import('/src/lib/firebase.ts');await getFirebase().auth.currentUser.getIdToken(true);})()`);
     await admin.goto('/#admin/procedures');
     await admin.locator('summary').filter({hasText:'Moderation overview'}).click();
     await expect(admin.getByText('All notifications are delivered in the app.', {exact:false})).toBeVisible();

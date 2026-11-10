@@ -1,6 +1,6 @@
-import { ProductFooter } from '../ProductFooter';
-import { ThemeControl } from "../ThemeControl";
-import { GoogleButton, useAuth } from "../auth";
+import { ProductFooter } from '../ui/ProductFooter';
+import { ThemeControl } from "../ui/ThemeControl";
+import { GoogleButton, useAuth } from "../lib/auth";
 import { useMagnet } from "./motion";
 import { useScrollHeader } from "./useScrollHeader";
 export function LandingHeader() {

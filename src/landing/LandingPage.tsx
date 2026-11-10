@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { useAuth } from "../auth";
+import { useAuth } from "../lib/auth";
 import { ArchiveIndex } from "./ArchiveIndex";
 import { LandingFooter, LandingHeader, SignInCTA } from "./LandingChrome";
 import { PathwayField, useMotionPolicy, usePageMotion } from "./motion";
 import { recordPreviews } from "./archive-data";
-import { visibleYears } from "../routing";
+import { visibleYears } from "../app/routing";
 import { PeopleHandoff } from "./PeopleHandoff";
 import { ClosingSection } from "./ClosingSection";
 import { useScrollStory } from "./useScrollStory";

@@ -20,7 +20,7 @@ if (occupied.length) {
   try {
     const [hub, page] = await Promise.all([
       fetch('http://127.0.0.1:4400/emulators', { signal: AbortSignal.timeout(3000) }).then(response => response.json()),
-      fetch('http://127.0.0.1:5174/src/auth.tsx', { signal: AbortSignal.timeout(3000) }).then(response => response.text()),
+      fetch('http://127.0.0.1:5174/src/lib/auth.tsx', { signal: AbortSignal.timeout(3000) }).then(response => response.text()),
     ]);
     existingBeta = occupied.length === requiredPorts.length && hub.auth?.port === 9099 && hub.firestore?.port === 8080 && hub.functions?.port === 5001
       && /"VITE_LOCAL_BETA"\s*:\s*"true"/.test(page) && /"VITE_FIREBASE_PROJECT_ID"\s*:\s*"demo-placementstats"/.test(page);

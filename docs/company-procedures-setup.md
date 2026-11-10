@@ -1,6 +1,6 @@
 # Company Procedures setup
 
-The live app uses Firebase Authentication and Firestore on Spark, with a trusted Node API hosted alongside the frontend on Vercel. It does not require Firebase Cloud Functions or a Blaze upgrade. See [the current setup and remaining external steps](../4amchanges.md).
+The live app uses Firebase Authentication and Firestore on Spark, with a trusted Node API hosted alongside the frontend on Vercel. It does not require Firebase Cloud Functions or a Blaze upgrade.
 
 - `npm run dev`: normal app and API on localhost:5173, using real Google accounts and live Firestore.
 - `npm run dev:beta`: isolated test backend and accounts on localhost:5174.
@@ -11,4 +11,4 @@ The Node API reuses the tested transaction services in `functions/src/service.ts
 
 Notifications are entirely in-app. The shared signed-in header bell opens the inbox from Home, statistics, Account or Company Procedures. Admin work queues remain separate from personal unread counts. Readers and contributors can filter activity, read/archive updates, view private report outcomes and opt into company, experience or batch updates through Notification preferences. No email provider, sender domain, notification secrets or scheduled worker is needed.
 
-The notification upgrade adds private `notificationSettings` documents and indexes for unread, archived and retention queries. Deploy rules/indexes before the updated API and frontend, and wait for indexes to build. Existing history needs no bulk migration. See [the implementation and rollout plan](in-app-notification-improvement-plan.md#implementation-record--3-november-2026) and [local validation](notification-implementation-checks.md).
+The notification upgrade adds private `notificationSettings` documents and indexes for unread, archived and retention queries. Deploy rules/indexes before the updated API and frontend, and wait for indexes to build. Existing history needs no bulk migration.

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { FinaleController } from "./VoronoiScene";
-import { useAuth } from "../auth";
+import { useAuth } from "../lib/auth";
 function FinalePattern({
   allowed,
   paused,

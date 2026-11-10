@@ -62,10 +62,10 @@ for(const width of [320,390,430]) {
     await expect(page).toHaveURL(/#explore\/insights$/);
     await expect(menu).not.toBeVisible();
     await fits(page);
-    const uid=await page.evaluate(`(async()=>{const {getFirebase}=await import('/src/firebase.ts');return getFirebase().auth.currentUser.uid;})()`);
+    const uid=await page.evaluate(`(async()=>{const {getFirebase}=await import('/src/lib/firebase.ts');return getFirebase().auth.currentUser.uid;})()`);
     const response=await fetch('http://127.0.0.1:9099/identitytoolkit.googleapis.com/v1/accounts:update?key=demo-api-key', {method:'POST',headers:{Authorization:'Bearer owner','Content-Type':'application/json'},body:JSON.stringify({localId:uid,customAttributes:JSON.stringify({role:'admin'})})});
     expect(response.ok).toBe(true);
-    await page.evaluate(`(async()=>{const {getFirebase}=await import('/src/firebase.ts');await getFirebase().auth.currentUser.getIdToken(true);})()`);
+    await page.evaluate(`(async()=>{const {getFirebase}=await import('/src/lib/firebase.ts');await getFirebase().auth.currentUser.getIdToken(true);})()`);
     await page.goto('/#admin/procedures');
     await expect(page.getByLabel('Review company',{exact:true})).toBeVisible();
     await fits(page);

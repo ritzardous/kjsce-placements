@@ -39,7 +39,7 @@ test('Google photo is displayed and server-verified identity syncs privately wit
   expect(before.authProfile.displayName).toBe('Test Student');
   expect(before.authProfile.emailVerified).toBe(true);
   expect(before.authProfile.provider).toBe('google.com');
-  await page.evaluate(`(async()=>{const {callProcedure}=await import('/src/procedures-api.ts');await callProcedure('procedureCommunity',{action:'syncAccount',payload:{email:'forged@example.test',role:'admin',uid:'another-user'}});})()`);
+  await page.evaluate(`(async()=>{const {callProcedure}=await import('/src/procedures/procedures-api.ts');await callProcedure('procedureCommunity',{action:'syncAccount',payload:{email:'forged@example.test',role:'admin',uid:'another-user'}});})()`);
   const after=(await ref.get()).data()!;
   expect(after.authProfile).toEqual(before.authProfile);
   expect(after.profileSyncedAt).toBe(before.profileSyncedAt);

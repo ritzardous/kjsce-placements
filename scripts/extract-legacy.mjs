@@ -8,9 +8,9 @@ if (start < 'const RAW_DATA = '.length || end === -1) throw new Error('Legacy da
 const data = JSON.parse(html.slice(start, end));
 mkdirSync('data', { recursive: true });
 mkdirSync('docs', { recursive: true });
-mkdirSync('src', { recursive: true });
+mkdirSync('src/styles', { recursive: true });
 writeFileSync('data/placements-2026.json', JSON.stringify(data, null, 2) + '\n');
-writeFileSync('src/styles.css', html.match(/<style>([\s\S]*?)<\/style>/)[1]);
+writeFileSync('src/styles/styles.css', html.match(/<style>([\s\S]*?)<\/style>/)[1]);
 const candidates = data.placements.flatMap(p => p.candidates);
 writeFileSync('docs/legacy-baseline.json', JSON.stringify({
   sourceSHA256: createHash('sha256').update(html).digest('hex'),

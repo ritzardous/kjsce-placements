@@ -1,0 +1,64 @@
+import { DialogPortal, openTaskDialog } from '../ui/overlay';
+import { type ProcedureCompany, roundOptions } from '../../shared/procedures';
+import {type IconName, AppIcon } from '../ui/AppIcon';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useAuth } from '../lib/auth';
+import { safeStored, storeSession } from '../community/community-api';
+import { safeBrowseReturn } from './procedure-navigation';
+import { experienceOrigin } from '../app/navigation-context';
+
+export function BackToContext({ fallback = '#procedures/contributions', label = 'My contributions' }: { fallback?: string; label?: string }) {
+  const { user } = useAuth(), origin = experienceOrigin(user?.uid);
+  return <a className="procedure-back-link" href={origin?.href || fallback} onClick={()=>{if(origin)storeSession(`workspace-focus:${user?.uid}`,{href:origin.href,target:origin.target});}}>← Back to {origin?.label || label}</a>;
+}
+
+export function useWorkspaceFocus() {
+  const {user}=useAuth(),hash=location.hash;
+  useEffect(()=>{
+    const key=`workspace-focus:${user?.uid}`,value=safeStored<{href:string;target:string}|null>(key,null);
+    if(!value||value.href!==location.hash)return;
+    let observer:MutationObserver|undefined;
+    const restore=()=>{
+      const anchor=Array.from(document.querySelectorAll<HTMLAnchorElement>('main a[href]')).find(node=>node.getAttribute('href')===value.target);
+      if(!anchor)return false;
+      const collapsed=anchor.closest<HTMLDetailsElement>('details:not([open])');
+      const target=collapsed?.querySelector<HTMLElement>('summary')||anchor;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{if(location.hash===value.href&&document.contains(target))target.focus({preventScroll:true});}));storeSession(key,null);observer?.disconnect();return true;
+    };
+    if(restore())return;
+    observer=new MutationObserver(restore);observer.observe(document.querySelector('main')||document.body,{childList:true,subtree:true});
+    const timer=setTimeout(()=>{observer?.disconnect();storeSession(key,null);},15000);
+    return()=>{clearTimeout(timer);observer?.disconnect();};
+  },[hash,user?.uid]);
+}
+
+export function BackToExperiences({ children = '← Back to experiences' }: { children?: ReactNode }) {
+  const { user } = useAuth();
+  return <a className="procedure-back-link" href={safeBrowseReturn(safeStored(`procedure-return:${user?.uid}`, '#procedures'))}>{children}</a>;
+}
+
+// Native dialog supplies focus containment, Escape and focus restoration without a new visual system.
+export function ConfirmAction({ label, title, description, confirmLabel, onConfirm, disabled = false, tone = 'danger', icon }: {
+  label: string; title: string; description: string; confirmLabel: string;
+  onConfirm: () => void; disabled?: boolean; tone?: 'danger' | 'warning'; icon?:IconName;
+}) {
+  const dialog = useRef<HTMLDialogElement>(null), heading = useId();
+  return <><button className={`control-${tone}`} type="button" disabled={disabled} aria-haspopup="dialog" onClick={event => openTaskDialog(dialog.current,event.currentTarget)}><AppIcon name={icon|| (tone==='danger'?'trash':'back')}/>{label}</button>
+    <DialogPortal><dialog className="procedure-card procedure-confirmation" ref={dialog} aria-labelledby={heading}>
+      <h2 id={heading}>{title}</h2><p>{description}</p>
+      <div className="procedure-actions"><button type="button" autoFocus onClick={() => dialog.current?.close()}>Cancel</button>
+        <button className={`control-${tone}`} type="button" onClick={() => { dialog.current?.close(); onConfirm(); }}>{confirmLabel}</button></div>
+    </dialog></DialogPortal></>;
+}
+
+
+// Advanced filters remain draft values until Apply, including keyboard/Escape cancellation.
+type ExperienceFilters={company:string;year:string;sort:string;coverage:string;outcome:string;round:string};
+export function AdvancedFilters({value,onApply,companies,lockedCompany=false}:{value:ExperienceFilters;onApply:(value:ExperienceFilters)=>void;companies:ProcedureCompany[];lockedCompany?:boolean}) {
+ const dialog=useRef<HTMLDialogElement>(null),heading=useId(),[draft,setDraft]=useState(value);
+ const count=Object.entries(value).filter(([key,item])=>key==='sort'?item!=='newest':key==='company'&&lockedCompany?false:Boolean(item)).length;
+ return <><button className="procedure-extra-filters" type="button" aria-haspopup="dialog" onClick={()=>{setDraft(value);dialog.current?.showModal();}}><AppIcon name="filter"/>More filters{count?` (${count})`:''}</button>
+ <dialog className="procedure-filter-sheet" ref={dialog} aria-label="Filter experiences"><header className="procedure-sheet-heading"><h2 id={heading}>Filter experiences</h2><button type="button" aria-label="Close filters" onClick={()=>dialog.current?.close()}><AppIcon name="close"/></button></header>
+ <div className="procedure-fields"><label>Company<select aria-label="Company" value={draft.company} disabled={lockedCompany} onChange={event=>setDraft(previous=>({...previous,company:event.target.value}))}><option value="">All companies</option>{companies.map(company=><option key={company.key} value={company.key}>{company.name}</option>)}</select></label><label>Sort<select aria-label="Sort" value={draft.sort} onChange={event=>setDraft(previous=>({...previous,sort:event.target.value}))}><option value="newest">Newest</option><option value="helpful">Most helpful</option></select></label><label>Appearance year<input aria-label="Appearance year" type="number" placeholder="Any year" value={draft.year} onChange={event=>setDraft(previous=>({...previous,year:event.target.value.slice(0,4)}))}/></label>{(['coverage','outcome','round'] as const).map(field=><label key={field}>{field==='round'?'Round':field==='coverage'?'Coverage':'Outcome'}<select aria-label={field==='round'?'Round':field==='coverage'?'Coverage':'Outcome'} value={draft[field]} onChange={event=>setDraft(previous=>({...previous,[field]:event.target.value}))}><option value="">Any {field}</option>{(field==='coverage'?['Full','Partial']:field==='outcome'?['Selected','Not selected','Result pending']:roundOptions).map(option=><option key={option}>{option}</option>)}</select></label>)}</div>
+ <div className="procedure-actions"><button type="button" onClick={()=>setDraft({company:lockedCompany?value.company:'',sort:'newest',year:'',coverage:'',outcome:'',round:''})}>Reset filters</button><button type="button" onClick={()=>dialog.current?.close()}>Cancel</button><button className="action-button" type="button" onClick={()=>{onApply(draft);dialog.current?.close();}}>Apply filters</button></div></dialog></>;
+}

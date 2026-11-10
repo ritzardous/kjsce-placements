@@ -79,7 +79,7 @@ test('landing identity carries through reader, contributor, account and admin sc
     await page.keyboard.press('Escape');
   }
   await getAuth(admin).setCustomUserClaims(uid, { role: 'admin' });
-  await page.evaluate(`(async()=>{const {getFirebase}=await import('/src/firebase.ts');await getFirebase().auth.currentUser.getIdToken(true);})()`);
+  await page.evaluate(`(async()=>{const {getFirebase}=await import('/src/lib/firebase.ts');await getFirebase().auth.currentUser.getIdToken(true);})()`);
   for (const theme of ['light', 'dark']) {
     await page.evaluate(value => { localStorage.setItem('placement-theme', value); dispatchEvent(new StorageEvent('storage', { key: 'placement-theme' })); }, theme);
     await page.goto('/#admin');
