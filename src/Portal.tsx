@@ -19,7 +19,7 @@ export function AreaNav({ active }: { active: string }) {
 }
 function Brand() { return <a className="brand" href="#home" aria-label="Placement Stats KJSCE home"><span className="brand-mark workspace-brand-mark" aria-hidden="true"><span>p</span><svg viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3M5 3H13V11" stroke="currentColor" strokeWidth="1.5"/></svg></span><span className="brand-name">Placement<br/>Stats.</span></a>; }
 export function AppHeader({active}:{active:string}) {
- return <><header className="app-header"><div className="app-header-inner"><Brand/>{location.hash.split('?')[0]!=='#home'&&<a className="batch-back home-control" href="#home" aria-label="Back to Home / change batch" title="Home and placement batches"><AppIcon name="back"/></a>}<AuthControls/></div></header><div className="workspace-area-navigation"><AreaNav active={active}/></div></>;
+ return <><header className="app-header"><div className="app-header-inner"><Brand/>{location.hash.split('?')[0]!=='#home'&&<button type="button" className="batch-back home-control" onClick={()=>window.history.back()} aria-label="Go back to the previous page" title="Go back to the previous page"><AppIcon name="back"/></button>}<AuthControls/></div></header><div className="workspace-area-navigation"><AreaNav active={active}/></div></>;
 }
 export function PortalFooter() { return <ProductFooter/>; }
 export function PortalShell({ active, children }: { active: string; children: ReactNode }) {
