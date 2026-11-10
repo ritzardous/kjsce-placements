@@ -707,7 +707,7 @@ test("closing shader failure preserves the static pattern and usable sign-in act
   ).toBe(true);
 });
 
-test("floating navigation hides down and reveals on tiny upward scrolls", async ({
+test("floating navigation ignores scroll jitter and reveals after deliberate upward travel", async ({
   page,
 }) => {
   await ready(page);
@@ -729,10 +729,24 @@ test("floating navigation hides down and reveals on tiny upward scrolls", async 
     })
     .toBeLessThanOrEqual(0);
   await page.evaluate(() => scrollBy(0, -1));
+  await page.waitForTimeout(100);
+  await expect(header).toHaveAttribute("data-collapsed", "true");
+  for (const delta of [-8, 6, -5, 7]) {
+    await page.evaluate((value) => scrollBy({ top: value, behavior: "instant" }), delta);
+    await page.waitForTimeout(40);
+    await expect(header).toHaveAttribute("data-collapsed", "true");
+  }
+  const viewport = page.viewportSize()!;
+  await page.setViewportSize({ ...viewport, height: viewport.height - 30 });
+  await expect(header).toHaveAttribute("data-collapsed", "true");
+  await page.evaluate(() => scrollBy(0, -80));
   await expect(header).toHaveAttribute("data-collapsed", "false");
   await expect(header).toHaveCSS("opacity", "1");
   const shown = await header.boundingBox();
   expect(shown!.y).toBeGreaterThanOrEqual(10);
+  await page.evaluate(() => scrollBy({ top: 10, behavior: "instant" }));
+  await page.waitForTimeout(100);
+  await expect(header).toHaveAttribute("data-collapsed", "false");
   await page.evaluate(() => scrollBy(0, 100));
   await expect(header).toHaveAttribute("data-collapsed", "true");
   await page.keyboard.press("Tab");
@@ -758,6 +772,9 @@ test("floating navigation hides down and reveals on tiny upward scrolls", async 
     { width: 1920, height: 1080 },
   ]) {
     await page.setViewportSize(size);
+    await page.evaluate(() => new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+    ));
     await page.evaluate(() => {
       (document.activeElement as HTMLElement)?.blur();
       scrollTo({ top: 0, behavior: "instant" });
@@ -769,7 +786,12 @@ test("floating navigation hides down and reveals on tiny upward scrolls", async 
           document.documentElement.clientWidth,
       ),
     ).toBe(true);
-    await expect.poll(() => page.evaluate(() => scrollY)).toBe(0);
+    // Resizing a sticky layout can apply a delayed browser scroll-anchor correction.
+    await expect.poll(() => page.evaluate(async () => {
+      scrollTo({ top: 0, behavior: "instant" });
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      return scrollY;
+    })).toBe(0);
     expect(
       await page
         .locator(".ps-landing")
@@ -791,7 +813,7 @@ test("experience section is restrained in both themes and authentic JPMC logos r
   await expect(page.locator(".lp-experiences")).not.toContainText(/beta/i);
   for (const theme of ["light", "dark"]) {
     if (theme === "dark") {
-      await page.evaluate(() => scrollBy(0, -2));
+      await page.evaluate(() => scrollBy(0, -90));
       await page.getByRole("button", { name: "Switch to dark mode" }).click();
     }
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
@@ -863,7 +885,7 @@ test("scroll navigation respects reduced motion and the notebook works at phone 
   await expect(header).toHaveCSS("transition-duration", "0s");
   await page.evaluate(() => scrollTo(0, 600));
   await expect(header).toHaveAttribute("data-collapsed", "true");
-  await page.evaluate(() => scrollBy(0, -1));
+  await page.evaluate(() => scrollBy(0, -80));
   await expect(header).toHaveAttribute("data-collapsed", "false");
   for (const width of [320, 393, 600, 768, 1024]) {
     await page.setViewportSize({ width, height: 900 });
