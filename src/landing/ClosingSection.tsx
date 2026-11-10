@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { FinaleController } from "./VoronoiScene";
+import { useAuth } from "../auth";
 function FinalePattern({
   allowed,
   paused,
@@ -102,6 +103,7 @@ export function ClosingSection({
   onToggleMotion: () => void;
 }) {
   const [ready, setReady] = useState(false);
+  const auth = useAuth();
   return (
     <section className="lp-finale" aria-labelledby="finale-title">
       <FinalePattern allowed={allowed} paused={paused} onReady={setReady} />
@@ -112,9 +114,9 @@ export function ClosingSection({
           <em>Your next move.</em>
         </h2>
         <p>A clearer view of placements. A better place to start.</p>
-        <a className="lp-action-link" href="#login">
+        <button type="button" className="lp-action-link" disabled={auth.busy || !auth.ready} onClick={() => void auth.login()}>
           Find your perspective <span aria-hidden="true">↗</span>
-        </a>
+        </button>
       </div>
       {allowed && ready && (
         <button

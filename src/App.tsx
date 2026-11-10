@@ -5,7 +5,7 @@ import { FetchLoader } from './FetchLoader';
 import { Component, lazy, Suspense, useEffect, type ReactNode } from 'react';
 import Dashboard, { initAnalytics } from './Dashboard';
 import { AuthProvider, useAuth } from './auth';
-import { Home, Landing, Login, Account, PortalShell } from './Portal';
+import { Home, Landing, Account, PortalShell } from './Portal';
 import {rememberBatch,selectedBatch,batchHref} from './statistics-navigation';
 import {hiddenYears,statisticsPages} from './routing';
 import { useRoute } from './routing';
@@ -20,6 +20,7 @@ function Application() {
   useEffect(()=>{if(!auth.allowed)return;if(statisticsPages.includes(route.page)&&hiddenYears.has(route.year)){location.replace('#home');return;}rememberBatch(route);if(route.page==='statistics'&&selectedBatch())location.replace(batchHref(selectedBatch()!));},[auth.allowed,route.page,route.year]);
   useEffect(() => {
     if (auth.ready && auth.allowed && ['login', 'landing'].includes(route.page)) location.replace('#home');
+    if (auth.ready && !auth.allowed && route.page === 'login') location.replace('#landing');
   }, [auth.ready, auth.allowed, route.page]);
   useEffect(() => {
     if (['landing','login','home','statistics','account'].includes(route.page)) document.title = route.page === 'account' ? 'My Account · Placement Stats KJSCE' : 'Placement Stats KJSCE';
@@ -29,7 +30,7 @@ function Application() {
     if (route.page === 'alumni') location.replace('#statistics');
   }, [route.page]);
   if (!auth.ready) return <div className="login-page session-loading"><FetchLoader label="Getting your session ready…"/></div>;
-  if (!auth.allowed) return route.page === 'landing' ? <Landing /> : <Login deepLink={route.page !== 'login'} />;
+  if (!auth.allowed) return <Landing deepLink={!['landing', 'login'].includes(route.page)} />;
   if (route.page === 'home' || route.page === 'landing' || route.page === 'login') return <Home />;
   if (route.page === 'statistics') return selectedBatch()?<PortalShell active="statistics"><FetchLoader label="Opening your selected batch…"/></PortalShell>:<Home statisticsOnly />;
   if(statisticsPages.includes(route.page)&&hiddenYears.has(route.year))return <Home />;

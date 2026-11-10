@@ -1,15 +1,10 @@
 import { ThemeControl } from "../ThemeControl";
-import { GoogleButton } from "../auth";
+import { GoogleButton, useAuth } from "../auth";
 import { useMagnet } from "./motion";
 import { useScrollHeader } from "./useScrollHeader";
-export function LandingHeader({
-  login = false,
-  onExplore,
-}: {
-  login?: boolean;
-  onExplore?: () => void;
-}) {
+export function LandingHeader() {
   const header = useScrollHeader();
+  const { login, busy, ready } = useAuth();
   return (
     <header ref={header} className="lp-header" data-collapsed="false">
       <a
@@ -26,33 +21,11 @@ export function LandingHeader({
           <strong>Stats.</strong>
         </span>
       </a>
-      <nav
-        aria-label={login ? "Authentication navigation" : "Landing navigation"}
-      >
-        {login ? (
-          <a href="#landing" className="lp-nav-link">
-            ← Back
-          </a>
-        ) : (
-          <a
-            href="#landing?section=archive"
-            className="lp-nav-link lp-index-link"
-            onClick={(event) => {
-              if (onExplore) {
-                event.preventDefault();
-                onExplore();
-              }
-            }}
-          >
-            Explore <span aria-hidden="true">↓</span>
-          </a>
-        )}
+      <nav aria-label="Landing navigation">
         <ThemeControl />
-        {!login && (
-          <a href="#login" className="lp-nav-link lp-signin">
-            Sign in <span aria-hidden="true">↗</span>
-          </a>
-        )}
+        <button type="button" className="lp-nav-link lp-signin" disabled={busy || !ready} onClick={() => void login()}>
+          {busy ? "Signing in…" : "Sign in"} <span aria-hidden="true">↗</span>
+        </button>
       </nav>
     </header>
   );

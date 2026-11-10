@@ -11,8 +11,8 @@ test('public landing and protected deep links never read placement documents bef
   await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeEnabled();
   await expect(page.getByRole('textbox')).toHaveCount(0);
   await page.goto('/#2025/company/google');
-  await expect(page.getByRole('heading', { name: 'Your next chapter. A clearer start.' })).toBeVisible();
-  await expect(page.getByText(/take you back to the page/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Know more. Go further.' })).toBeVisible();
+  await expect(page.getByText(/Sign in to continue to the page you opened/)).toBeVisible();
   expect(reads).toEqual([]);
   await signInGoogle(page, false);
   await expect(page).toHaveURL(/#2025\/company\/google$/);
@@ -65,11 +65,11 @@ test('main navigation has two areas, company stats own contacts, and account own
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
   await expect(page.getByRole('heading', { name: /Know more/ })).toBeVisible();
   await page.goto('/#companies');
-  await expect(page.getByRole('heading', { name: 'Your next chapter. A clearer start.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Know more. Go further.' })).toBeVisible();
   await expect(page.locator('.source-notes')).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
-test('a cancelled Google popup leaves the login page usable', async ({ page }) => {
+test('a cancelled Google popup leaves the landing page usable', async ({ page }) => {
   await page.goto('/#login');
   const popupEvent = page.waitForEvent('popup');
   await page.getByRole('button', { name: 'Continue with Google' }).click();

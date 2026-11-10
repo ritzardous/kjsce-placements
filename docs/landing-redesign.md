@@ -146,3 +146,31 @@ The production build now emits `/share/` with its own canonical/Open Graph URL a
 Validation: production build/typecheck, all 55 unit checks, raw production-output HTTP checks for both URLs and hashed PNG dimensions/content type, and a browser check of the share page's landing headline and Google button passed. Actual X DM rendering is not asserted by these checks.
 
 After pushing, Vercel reported a successful deployment and the public `/share/` HTML returned its own card URL. A request during alias rollout briefly received old SPA HTML for the new image path; later requests returned the correct PNG. Social-image paths are now excluded from the SPA catch-all, so unavailable images cannot masquerade as successful HTML responses. Verify both the HTML and image content type after deployment, rather than relying on HTTP 200 alone.
+
+## Direct sign-in without a separate login page
+
+The standalone login page and its styles are removed. Header sign-in, the hero Google button and the closing CTA all invoke the existing Google popup directly. Legacy `#login` links resolve to the landing page. Unauthenticated protected URLs render the landing page without changing their hash, so successful sign-in continues to the original destination; a short contextual hint explains this. Account recovery, auth errors, busy-state guards and Google-only access checks remain intact.
+
+Production build/typecheck and all 55 unit checks passed. Eight desktop/mobile Auth-emulator browser checks cover all three popup entry points, cancellation/retry, legacy login links, preserved protected destinations, theme persistence and narrow/short viewports. The protected-route checks validate authentication/navigation; they do not assert backend data availability in the auth-only emulator run.
+
+## Scroll-driven experience and alumni chapters
+
+Explore is removed from the navbar; the hero's existing archive cue remains. Two short native-scroll sequences now drive the assessment/interview/preparation pages and the alumni interview/role/preparation prompts. Panels pin only when they fit comfortably below navigation; smaller or shorter viewports use normal document flow, tracking the interactive content instead of trapping oversized panels. Scrolling upward reverses the sequence. A small threshold prevents boundary flicker; tab clicks take priority until meaningful scrolling resumes.
+
+The visual treatment adds a continuous progress rule, dimensional page/number entrances, active connection branches and subtle ticket perspective. No wheel/touch events are intercepted and no animation library is added. Updates use passive scroll events coalesced into one frame; React state changes only at stage boundaries. Reduced-motion/save-data retain manual stages without pinning or added animation. Background pause does not collapse chapter heights or move the page.
+
+Validation: production build/typecheck, 55 unit checks and ten focused desktop/mobile browser scenarios passed. Both scroll sequences passed again after the final pause-layout and boundary refinements. Checks cover forward/reverse progression, manual controls, pinned visibility, overflow, reduced motion, navigation, themes and notebook interactions. Desktop chapter previews and a dark-mode mobile viewport were visually inspected.
+
+## Stable, readable alumni card
+
+The alumni panel was about 708px tall, exceeding the pinning budget on typical laptop viewports. It therefore scrolled away while its questions advanced, with additional perspective/rotation moving the text. Laptop spacing now fits the full panel into approximately 576px without shrinking touch targets. The ticket remains flat; question changes use only a brief opacity transition, with no blur or translation. At 1536×730 the panel stays at y=112 and ends around y=688 throughout the sequence, including its profile link.
+
+The alumni story now auto-advances only when its entire composition can be pinned. Oversized/narrow layouts retain normal scrolling and manual question tabs, preventing text changes mid-read. The experience story is unaffected. Six focused desktop/mobile checks passed, including fixed card position, complete card/link visibility across all stages at 1280×720, 1366×768, 1536×730 and 1920×916, manual behavior on phones and reduced motion. The matching dark laptop viewport was visually inspected; production build/typecheck passed.
+
+## Distinct archive and directory stories
+
+The written-experience section now leads with “The process. In their words.” Its copy and CTA describe saved assessment/interview accounts and preparation write-ups. The people section leads with “Find a senior. Start a conversation.” It describes company-wise LinkedIn discovery and direct outreach. Its examples cover day-to-day work, a senior's career path and introducing yourself, rather than repeating interview/preparation topics from the archive. Company-specific links and the existing access controls are unchanged; no in-app messaging or fabricated conversations are implied.
+
+The connection graphic now normalizes all paths to the same length. A rounded moving head and soft trailing stroke follow only the selected branch on a 3.2-second loop, replacing the eight-second dash with its long inactive gap. Endpoints reinforce the selected destination. No text or card motion is added; reduced motion/pause stop the trace.
+
+Production build/typecheck and eight focused desktop/mobile checks passed for distinct messaging and destinations, actual trace movement, reduced motion, keyboard controls, layout/overflow, privacy and stable laptop card visibility. Both sections were visually inspected in light and dark laptop viewports.

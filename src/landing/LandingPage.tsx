@@ -7,41 +7,42 @@ import { recordPreviews } from "./archive-data";
 import { visibleYears } from "../routing";
 import { PeopleHandoff } from "./PeopleHandoff";
 import { ClosingSection } from "./ClosingSection";
+import { useScrollStory } from "./useScrollStory";
 import "./landing.css";
 const rounds = [
   {
     label: "The assessment",
     title: "Know what you’re walking into.",
-    copy: "Explore the rounds, formats and questions contributors remember.",
+    copy: "Read written accounts of assessment formats, topics and questions.",
     tags: ["Assessment format", "Questions", "Round structure"],
   },
   {
     label: "The interview",
     title: "Get past the job description.",
-    copy: "Read how company-specific interviews unfolded for other students.",
+    copy: "Follow contributors’ round-by-round interview accounts and the questions they faced.",
     tags: ["Technical rounds", "Interview questions", "Selection process"],
   },
   {
     label: "What helped",
     title: "Prepare with a little perspective.",
-    copy: "Learn what contributors found useful, then build your own approach.",
+    copy: "Browse preparation tips and lessons saved in contributors’ experience write-ups.",
     tags: ["Preparation tips", "Lessons learned", "Firsthand context"],
   },
 ];
-export default function LandingPage() {
-  const { error } = useAuth(),
+export default function LandingPage({ deepLink = false }: { deepLink?: boolean }) {
+  const { error, user, logout, busy } = useAuth(),
     root = useRef<HTMLDivElement>(null),
     support = useRef<HTMLElement>(null),
     allowed = useMotionPolicy(),
     [paused, setPaused] = useState(false),
-    [batch, setBatch] = useState(2026),
-    [round, setRound] = useState(0),
-    current = rounds[round];
+    [batch, setBatch] = useState(2026);
+  // Background playback must not collapse the scroll chapters and shift the page.
+  const experience = useScrollStory(3, allowed);
+  const people = useScrollStory(3, allowed, true);
+  const round = experience.index, current = rounds[round];
   usePageMotion(root, allowed && !paused);
   const explore = () => {
-    support.current?.scrollIntoView({
-      behavior: allowed ? "smooth" : "instant",
-    });
+    support.current?.scrollIntoView({ behavior: allowed ? "smooth" : "instant" });
     support.current?.focus({ preventScroll: true });
   };
   useEffect(() => {
@@ -67,7 +68,7 @@ export default function LandingPage() {
       >
         Skip to content
       </a>
-      <LandingHeader onExplore={explore} />
+      <LandingHeader />
       <main id="landing-content" className="lp-main" tabIndex={-1}>
         <section className="lp-hero" aria-labelledby="landing-title">
           <PathwayField />
@@ -87,6 +88,8 @@ export default function LandingPage() {
               <br /> With the <span>whole picture.</span>
             </p>
             <SignInCTA />
+            {deepLink && <p className="lp-return">Sign in to continue to the page you opened.</p>}
+            {user && <button type="button" className="lp-text-button" disabled={busy} onClick={() => void logout()}>Sign out of the current account</button>}
             {error && (
               <p className="lp-auth-error" role="alert">
                 {error}
@@ -205,100 +208,106 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-        <section className="lp-experiences" aria-labelledby="experience-title">
-          <div className="lp-experience-spread">
-            <div className="lp-experience-heading" data-reveal>
-              <p className="lp-section-label">The experiences</p>
-              <h2 id="experience-title">
-                They went first.
-                <br />
-                <em>You don’t go blind.</em>
-              </h2>
-              <p>
-                Someone from your college has faced that process. Learn from the
-                experiences shared with the next batch.
-              </p>
-              <svg
-                className="lp-notebook-mark"
-                viewBox="0 0 160 76"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M18 17H72V65H18Z M32 7H86V55 M51 31H118M105 18L119 31L105 44"
-                  stroke="currentColor"
-                  strokeWidth="1.3"
-                />
-                <path
-                  d="M138 10V26M130 18H146"
-                  stroke="currentColor"
-                  strokeWidth="1.3"
-                />
-              </svg>
-            </div>
-            <div className="lp-experience-workbench" data-reveal>
-              <div
-                className="lp-round-track"
-                role="group"
-                aria-label="Explore hiring experiences"
-              >
-                {rounds.map((item, index) => (
-                  <button
-                    key={item.label}
-                    aria-pressed={round === index}
-                    aria-controls="experience-detail"
-                    onClick={() => setRound(index)}
-                  >
-                    <span className="lp-round-node" aria-hidden="true">
-                      {round > index ? "✓" : index + 1}
-                    </span>
-                    <span>{item.label}</span>
-                    <span className="lp-round-arrow" aria-hidden="true">
-                      ↗
-                    </span>
-                  </button>
-                ))}
+        <section ref={experience.ref} className="lp-experiences lp-scroll-story" aria-labelledby="experience-title">
+          <div className="lp-story-pin">
+            <div className="lp-story-meter" aria-hidden="true"><span /></div>
+            <div className="lp-experience-spread" data-step={round}>
+              <div className="lp-experience-heading" data-reveal>
+                <p className="lp-section-label">The experience archive</p>
+                <h2 id="experience-title">
+                  The process.
+                  <br />
+                  <em>In their words.</em>
+                </h2>
+                <p>
+                  Written assessment and interview experiences, shared by KJSCE
+                  students. Read what happened, round by round.
+                </p>
+                <svg
+                  className="lp-notebook-mark"
+                  viewBox="0 0 160 76"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M18 17H72V65H18Z M32 7H86V55 M51 31H118M105 18L119 31L105 44"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                  />
+                  <path
+                    d="M138 10V26M130 18H146"
+                    stroke="currentColor"
+                    strokeWidth="1.3"
+                  />
+                </svg>
               </div>
-              <div
-                key={round}
-                id="experience-detail"
-                className="lp-round-detail"
-                aria-live="polite"
-              >
-                <span className="lp-round-watermark" aria-hidden="true">
-                  {String(round + 1).padStart(2, "0")}
-                </span>
-                <h3>{current.title}</h3>
-                <p>{current.copy}</p>
-                <div className="lp-round-tags">
-                  {current.tags.map((tag) => (
-                    <span key={tag}>{tag}</span>
+              <div className="lp-experience-workbench" data-reveal data-story-focus>
+                <div
+                  className="lp-round-track"
+                  role="group"
+                  aria-label="Explore hiring experiences"
+                >
+                  {rounds.map((item, index) => (
+                    <button
+                      key={item.label}
+                      aria-pressed={round === index}
+                      aria-controls="experience-detail"
+                      onClick={() => experience.select(index)}
+                    >
+                      <span className="lp-round-node" aria-hidden="true">
+                        {round > index ? "✓" : index + 1}
+                      </span>
+                      <span>{item.label}</span>
+                      <span className="lp-round-arrow" aria-hidden="true">
+                        ↗
+                      </span>
+                    </button>
                   ))}
                 </div>
+                <div
+                  key={round}
+                  id="experience-detail"
+                  className="lp-round-detail"
+                  aria-live="polite"
+                >
+                  <span className="lp-round-watermark" aria-hidden="true">
+                    {String(round + 1).padStart(2, "0")}
+                  </span>
+                  <h3>{current.title}</h3>
+                  <p>{current.copy}</p>
+                  <div className="lp-round-tags">
+                    {current.tags.map((tag) => (
+                      <span key={tag}>{tag}</span>
+                    ))}
+                  </div>
+                </div>
+                <a className="lp-text-link" href="#procedures">
+                  Read the experience archive <span aria-hidden="true">↗</span>
+                </a>
               </div>
-              <a className="lp-text-link" href="#procedures">
-                Read firsthand experiences <span aria-hidden="true">↗</span>
-              </a>
             </div>
           </div>
         </section>
         <section
-          className="lp-people lp-section"
+          ref={people.ref}
+          className="lp-people lp-section lp-scroll-story"
           aria-labelledby="people-title"
         >
-          <PeopleHandoff />
-          <div className="lp-section-copy" data-reveal>
-            <p className="lp-section-label">The people</p>
-            <h2 id="people-title">
-              Big company.
-              <br />
-              <em>Smaller world.</em>
-            </h2>
-            <p>
-              Find seniors and alumni alongside company records. Follow
-              available LinkedIn profiles to ask better questions, with the
-              right context.
-            </p>
+          <div className="lp-story-pin lp-people-layout">
+            <div className="lp-story-meter" aria-hidden="true"><span /></div>
+            <PeopleHandoff prompt={people.index} onPrompt={people.select} />
+            <div className="lp-section-copy" data-reveal>
+              <p className="lp-section-label">The senior directory</p>
+              <h2 id="people-title">
+                Find a senior.
+                <br />
+                <em>Start a conversation.</em>
+              </h2>
+              <p>
+                Find KJSCE seniors by company. Open their available LinkedIn
+                profiles and reach out directly about their role and career path.
+              </p>
+            </div>
           </div>
         </section>
         <ClosingSection

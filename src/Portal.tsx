@@ -1,5 +1,4 @@
 import LandingPage from './landing/LandingPage';
-import LoginPage from './landing/LoginPage';
 import {AppUtilities} from './AppUtilities';
 import { ProfileAvatar } from './ProfileAvatar';
 import { type ReactNode } from 'react';
@@ -25,8 +24,7 @@ export function PortalFooter() { return <footer className="portal-footer"><span 
 export function PortalShell({ active, children }: { active: string; children: ReactNode }) {
   return <div className="portal-shell" data-app-page={active}><a className="skip-link" href="#portal-main" onClick={event => { event.preventDefault(); document.getElementById('portal-main')?.focus(); }}>Skip to content</a><AppHeader active={active}/><main className="portal-main" id="portal-main" tabIndex={-1}>{children}</main><PortalFooter /><MobileAppNav active={active}/><AppUtilities/></div>;
 }
-export function Landing() { return <LandingPage/>; }
-export function Login({ deepLink = false }: { deepLink?: boolean }) { return <LoginPage deepLink={deepLink}/>; }
+export function Landing({ deepLink = false }: { deepLink?: boolean }) { return <LandingPage deepLink={deepLink}/>; }
 export function YearChoices() {
   return <section aria-labelledby="years-title"><div className="portal-section-heading"><span className="eyebrow">PLACEMENT STATISTICS</span><h2 id="years-title">Choose your batch.</h2><p>Choose a batch to explore its companies and placement outcomes.</p></div><div className="year-grid">{visibleYears.map(year => <a className={`year-card home-card ${year === 2027 ? 'year-card-live' : ''}`} key={year} href={routeHref('overview',year)}><div className="year-card-top"><span>{academicYear(year)}</span>{year === 2027 ? <span className="live-badge">LIVE</span> : <span className="year-status">HISTORICAL</span>}</div><h3>Class of {year}</h3><p>{year === 2027 ? 'Placements ongoing. Provisional results, updated from reviewed placement emails.' : year === 2025 ? 'Explore companies, packages and placement outcomes.' : 'Explore companies, packages and hiring timelines.'}</p><span className="year-card-link">View statistics <span aria-hidden="true">↗</span></span></a>)}</div></section>;
 }

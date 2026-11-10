@@ -14,6 +14,143 @@ async function ready(page: import("@playwright/test").Page) {
   await page.evaluate(() => document.fonts.ready);
 }
 
+test("scroll chapters advance and reverse both stories while retaining manual control", async ({ page }, info) => {
+  if (info.project.name === "desktop") await page.setViewportSize({ width: 1440, height: 1000 });
+  await ready(page);
+  await expect(page.locator('.lp-header .lp-index-link')).toHaveCount(0);
+  await expect(page.locator('.lp-experiences')).toHaveAttribute('data-scroll-story', /pinned|inline/);
+  await expect(page.locator('.lp-people')).toHaveAttribute('data-scroll-story', /pinned|manual/);
+  const pageHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+  await page.getByRole('button', { name: 'Pause archive animation', exact: true }).click();
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(pageHeight);
+  await page.getByRole('button', { name: 'Play archive animation', exact: true }).click();
+  for (const [section, group] of [
+    ['.lp-experiences', 'Explore hiring experiences'],
+    ['.lp-people', 'Example questions for a senior'],
+  ]) {
+    const story = page.locator(section);
+    await expect(story).toHaveAttribute('data-scroll-story', /pinned|inline|manual/);
+    if (await story.getAttribute('data-scroll-story') === 'manual') {
+      const controls = page.getByRole('group', { name: group }).getByRole('button');
+      for (const index of [0, 1, 2]) {
+        await controls.nth(index).click();
+        await page.mouse.wheel(0, 40);
+        await expect(controls.nth(index)).toHaveAttribute('aria-pressed', 'true');
+      }
+      continue;
+    }
+    const seek = async (progress: number) => {
+      await story.evaluate((element, p) => {
+        const style = getComputedStyle(element), box = element.getBoundingClientRect();
+        let y;
+        if ((element as HTMLElement).dataset.scrollStory === 'pinned') {
+          y = scrollY + box.top + parseFloat(style.paddingTop) - parseFloat(style.getPropertyValue('--story-top')) + p * parseFloat(style.getPropertyValue('--story-runway'));
+        } else {
+          const focus = element.querySelector('[data-story-focus]')!.getBoundingClientRect();
+          y = scrollY + focus.top - innerHeight * .75 + p * (focus.height + innerHeight * .25);
+        }
+        scrollTo({ top: y, behavior: 'instant' });
+      }, progress);
+    };
+    const controls = page.getByRole('group', { name: group }).getByRole('button');
+    for (const progress of [.1, .5, .9, .5, .1]) {
+      await seek(progress);
+      await expect(controls.nth(Math.floor(progress * 3))).toHaveAttribute('aria-pressed', 'true');
+      if (await story.getAttribute('data-scroll-story') === 'pinned') {
+        const pin = await story.locator('.lp-story-pin').boundingBox();
+        expect(pin!.y).toBeGreaterThanOrEqual(100);
+        expect(pin!.y + pin!.height).toBeLessThanOrEqual(page.viewportSize()!.height - 20);
+      }
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+    await controls.nth(2).click();
+    await expect(controls.nth(2)).toHaveAttribute('aria-pressed', 'true');
+    await page.waitForTimeout(150);
+    await expect(controls.nth(2)).toHaveAttribute('aria-pressed', 'true');
+    await seek(.5);
+    await expect(controls.nth(1)).toHaveAttribute('aria-pressed', 'true');
+    await story.locator('.lp-story-pin').screenshot({ animations: 'disabled', path: `artifacts/scroll-story-${section.slice(1)}-${info.project.name}.png` });
+  }
+});
+
+test("alumni card stays flat and fully visible throughout laptop scroll stages", async ({ page }, info) => {
+  await ready(page);
+  const sizes = info.project.name === 'desktop'
+    ? [{ width: 1280, height: 720 }, { width: 1366, height: 768 }, { width: 1536, height: 730 }, { width: 1920, height: 916 }]
+    : [{ width: 393, height: 851 }, { width: 320, height: 640 }];
+  for (const size of sizes) {
+    await page.setViewportSize(size);
+    const story = page.locator('.lp-people');
+    if (size.width < 1101) {
+      await expect(story).toHaveAttribute('data-scroll-story', 'manual');
+      const role = page.getByRole('button', { name: 'How did you get to this team?' });
+      await role.click();
+      await page.evaluate(() => scrollBy({ top: 100, behavior: 'instant' }));
+      await expect(role).toHaveAttribute('aria-pressed', 'true');
+      continue;
+    }
+    await expect(story).toHaveAttribute('data-scroll-story', 'pinned');
+    let firstTop: number | undefined;
+    for (const [index, progress] of [.1, .5, .9].entries()) {
+      await story.evaluate((element, p) => {
+        const style = getComputedStyle(element);
+        scrollTo({ top: scrollY + element.getBoundingClientRect().top + parseFloat(style.paddingTop) - parseFloat(style.getPropertyValue('--story-top')) + p * parseFloat(style.getPropertyValue('--story-runway')), behavior: 'instant' });
+      }, progress);
+      await expect(page.getByRole('group', { name: 'Example questions for a senior' }).getByRole('button').nth(index)).toHaveAttribute('aria-pressed', 'true');
+      const card = await page.locator('.lp-handoff').boundingBox();
+      const link = await page.locator('.lp-handoff-ticket .lp-text-link').boundingBox();
+      firstTop ??= card!.y;
+      expect(Math.abs(card!.y - firstTop)).toBeLessThanOrEqual(1);
+      expect(card!.y).toBeGreaterThanOrEqual(100);
+      expect(card!.y + card!.height).toBeLessThanOrEqual(size.height - 20);
+      expect(link!.y + link!.height).toBeLessThanOrEqual(size.height - 20);
+      await expect(page.locator('.lp-handoff-ticket')).toHaveCSS('transform', 'none');
+      await expect(page.locator('.lp-handoff-question [aria-live] p')).toHaveCSS('filter', 'none');
+    }
+  }
+});
+
+test("reduced motion keeps scroll stories in normal flow with manual steps", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await ready(page);
+  for (const selector of ['.lp-experiences', '.lp-people']) {
+    await expect(page.locator(selector)).toHaveAttribute('data-scroll-story', 'off');
+    await expect(page.locator(`${selector} .lp-story-pin`)).toHaveCSS('position', 'relative');
+  }
+  await page.getByRole('button', { name: 'What helped' }).click();
+  await expect(page.locator('#experience-detail')).toContainText('Prepare with a little perspective.');
+  await page.getByRole('button', { name: 'Could I ask you about your work?' }).click();
+  await expect(page.locator('.lp-handoff-question [aria-live]')).toContainText('Could I ask you about your work?');
+});
+
+test("landing sign-in controls open Google directly without a login page", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await ready(page);
+  for (const selector of [".lp-signin", ".google-button", ".lp-finale .lp-action-link"]) {
+    const action = page.locator(selector);
+    const popupEvent = page.waitForEvent("popup");
+    await action.click();
+    const popup = await popupEvent;
+    await popup.waitForLoadState("domcontentloaded");
+    await expect(page).toHaveURL(/#landing$/);
+    await expect(page.locator(".lp-login")).toHaveCount(0);
+    await popup.close();
+    await expect(page.getByRole("alert")).toContainText("Sign-in was cancelled");
+    await expect(action).toBeEnabled();
+  }
+});
+
+test("protected destinations survive direct Google sign-in from the landing page", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/#2026/companies");
+  await expect(page.getByRole("heading", { name: "Know more. Go further." })).toBeVisible();
+  await expect(page.locator(".lp-login")).toHaveCount(0);
+  await expect(page).toHaveURL(/#2026\/companies$/);
+  await signInGoogle(page, false);
+  await expect(page).toHaveURL(/#2026\/companies$/);
+  await expect(page.locator(".ps-landing")).toHaveCount(0);
+});
+
 test("student-first landing has genuine examples and no private reads or overflow", async ({
   page,
 }, info) => {
@@ -108,7 +245,7 @@ test("year-independent company controls preserve the Google sign-in destination"
   );
   await link.click();
   await expect(
-    page.getByText(/take you back to the page you opened/),
+    page.getByText(/Sign in to continue to the page you opened/),
   ).toBeVisible();
   await signInGoogle(page, false);
   await expect(page).toHaveURL(/#2026\/company\/jp_morgan_chase_co$/);
@@ -126,7 +263,7 @@ test("keyboard, source controls and three product stories work without exposing 
   ).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page.getByRole("main")).toBeFocused();
-  await page.getByRole("link", { name: "Explore", exact: true }).click();
+  await page.locator(".lp-hero-scroll").click();
   await expect(page.locator("#archive-overview")).toBeFocused();
   const batch = page
     .getByRole("group", { name: "Preview placement batch" })
@@ -144,14 +281,14 @@ test("keyboard, source controls and three product stories work without exposing 
     "Get past the job description.",
   );
   await expect(
-    page.getByRole("link", { name: "Read firsthand experiences" }),
+    page.getByRole("link", { name: "Read the experience archive" }),
   ).toHaveAttribute("href", "#procedures");
   await page
     .getByRole("button", { name: "Find seniors at Barclays", exact: true })
     .click();
   await expect(page.locator(".lp-contact-caption")).toContainText("Barclays");
   await expect(
-    page.getByRole("link", { name: "Find available profiles" }),
+    page.getByRole("link", { name: "Find seniors at Barclays" }),
   ).toHaveAttribute("href", "#2026/company/barclays");
   await expect(page.locator('a[href*="linkedin.com"]')).toHaveCount(0);
   await page.getByText("Sources & privacy", { exact: false }).click();
@@ -334,7 +471,7 @@ test("delayed headline fonts retain the mobile line count", async ({
   }
 });
 
-test("persisted dark theme carries across landing, login and protected authentication", async ({
+test("legacy login returns to landing and protected destinations keep the active theme", async ({
   page,
 }, info) => {
   await page.addInitScript(() => {
@@ -349,16 +486,17 @@ test("persisted dark theme carries across landing, login and protected authentic
     .locator(".ps-landing")
     .evaluate((el) => getComputedStyle(el).backgroundColor);
   expect(paper).toBe("rgb(16, 20, 17)");
-  await page.getByRole("link", { name: /^Sign in/ }).click();
+  await page.goto("/#login");
+  await expect(page).toHaveURL(/#landing$/);
   await expect(
-    page.getByRole("heading", { name: "Your next chapter. A clearer start." }),
+    page.getByRole("heading", { name: "Know more. Go further." }),
   ).toBeVisible();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await expect(
     page.getByRole("button", { name: "Continue with Google", exact: true }),
   ).toBeEnabled();
   await page.screenshot({
-    path: `artifacts/v2-login-dark-${info.project.name}.png`,
+    path: `artifacts/direct-signin-dark-${info.project.name}.png`,
     fullPage: true,
   });
   await page.getByRole("button", { name: "Switch to light mode" }).click();
@@ -369,11 +507,12 @@ test("persisted dark theme carries across landing, login and protected authentic
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.goto("/#2026/companies");
-  await expect(page.getByText(/take you back/)).toBeVisible();
+  await expect(page.getByText(/Sign in to continue to the page you opened/)).toBeVisible();
+  await expect(page).toHaveURL(/#2026\/companies$/);
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
 
-test("hero and login fit short laptop viewports at default scale in both themes", async ({
+test("landing and legacy login links fit short laptop viewports in both themes", async ({
   page,
 }) => {
   await ready(page);
@@ -500,27 +639,38 @@ test("record previews change companies, roles and reported CTC by batch", async 
   await expect(preview.locator(".lp-record-line")).toHaveCount(0);
 });
 
-test("placement handoff connects company choices with useful preparation questions", async ({
+test("senior directory is distinct from written experiences and its connection trace moves smoothly", async ({
   page,
 }) => {
   await ready(page);
+  await expect(page.locator('#experience-title')).toHaveText('The process.In their words.');
+  await expect(page.locator('.lp-experience-heading')).toContainText('Written assessment and interview experiences');
+  await expect(page.locator('#people-title')).toHaveText('Find a senior.Start a conversation.');
+  await expect(page.locator('.lp-people .lp-section-copy')).toContainText('LinkedIn');
   await page
     .getByRole("button", { name: "Find seniors at Google", exact: true })
     .click();
   await expect(page.locator(".lp-contact-caption")).toContainText("Google");
   await expect(
-    page.getByRole("link", { name: "Find available profiles" }),
+    page.getByRole("link", { name: "Find seniors at Google" }),
   ).toHaveAttribute("href", "#2026/company/google");
   const question = page.getByRole("button", {
-    name: "What does the role actually involve?",
+    name: "How did you get to this team?",
     exact: true,
   });
   await question.click();
   await expect(question).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator(".lp-handoff-question [aria-live]")).toContainText(
-    "What does the role actually involve?",
+    "How did you get to this team?",
   );
   await expect(page.locator(".lp-handoff-route g.is-active")).toHaveCount(1);
+  const trace = page.locator('.lp-handoff-route g.is-active .handoff-signal');
+  await expect(trace).toHaveCSS('animation-duration', '3.2s');
+  const offset = () => trace.evaluate(el => getComputedStyle(el).strokeDashoffset);
+  const before = await offset();
+  await expect.poll(offset).not.toBe(before);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(trace).toHaveCSS('animation-name', 'none');
   await expect(page.locator('a[href*="linkedin.com"]')).toHaveCount(0);
 });
 
@@ -612,8 +762,8 @@ test("closing Voronoi loads near the footer, responds to theme and pointer, and 
     "off",
   );
   await expect(
-    page.getByRole("link", { name: "Find your perspective", exact: true }),
-  ).toHaveAttribute("href", "#login");
+    page.getByRole("button", { name: "Find your perspective", exact: true }),
+  ).toBeEnabled();
   const light = await canvas.screenshot();
   await page.getByRole("button", { name: "Switch to dark mode" }).click();
   await page.locator(".lp-finale").scrollIntoViewIfNeeded();
@@ -708,7 +858,7 @@ test("closing shader failure uses moving interactive cells without WebGL", async
   await page.getByRole("button", { name: "Play background animation", exact: true }).click();
   await expect.poll(pixels).not.toBe(frozen);
   await expect(
-    page.getByRole("link", { name: "Find your perspective", exact: true }),
+    page.getByRole("button", { name: "Find your perspective", exact: true }),
   ).toBeVisible();
   expect(
     await page.evaluate(
@@ -763,7 +913,7 @@ test("floating navigation ignores scroll jitter and reveals after deliberate upw
   await expect(header).toHaveAttribute("data-collapsed", "true");
   await page.keyboard.press("Tab");
   await expect(header).toHaveAttribute("data-collapsed", "false");
-  await page.getByRole("link", { name: "Explore", exact: true }).click();
+  await page.locator(".lp-hero-scroll").click();
   await expect(page.locator("#archive-overview")).toBeFocused();
   await expect
     .poll(async () => {
@@ -812,7 +962,7 @@ test("floating navigation ignores scroll jitter and reveals after deliberate upw
     const nav = await header.boundingBox();
     expect(nav!.x).toBeGreaterThan(0);
     expect(nav!.x + nav!.width).toBeLessThan(size.width);
-    await expect(page.getByRole("link", { name: /^Sign in/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Sign in/ })).toBeVisible();
   }
 });
 
