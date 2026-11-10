@@ -628,8 +628,8 @@ test("closing Voronoi loads near the footer, responds to theme and pointer, and 
     .click();
   await expect.poll(frame).toBeGreaterThan(frozen);
   await canvas.dispatchEvent("webglcontextlost", { cancelable: true });
-  await expect(page.locator(".lp-finale-pattern")).not.toHaveClass(/is-ready/);
-  await expect(page.locator(".lp-finale-poster")).toHaveCSS("opacity", "1");
+  await expect(page.locator('.lp-finale-canvas canvas[data-renderer="canvas2d"]')).toHaveCount(1);
+  await expect(page.locator(".lp-finale-pattern")).toHaveClass(/is-ready/);
   expect(errors).toEqual([]);
 });
 
@@ -667,7 +667,7 @@ test("closing shader respects reduced motion and save-data without downloading G
   expect(requests).toEqual([]);
 });
 
-test("closing shader failure preserves the static pattern and usable sign-in action", async ({
+test("closing shader failure uses moving interactive cells without WebGL", async ({
   page,
 }) => {
   await page.addInitScript(() => {
@@ -693,8 +693,20 @@ test("closing shader failure preserves the static pattern and usable sign-in act
   await expect
     .poll(() => page.evaluate(() => (window as any).closingGraphicsAttempts))
     .toBeGreaterThan(0);
-  await expect(page.locator(".lp-finale-pattern")).not.toHaveClass(/is-ready/);
-  await expect(page.locator(".lp-finale-poster")).toBeVisible();
+  await expect(page.locator(".lp-finale-pattern")).toHaveClass(/is-ready/);
+  const canvas = page.locator('.lp-finale-canvas canvas[data-renderer="canvas2d"]');
+  await expect(canvas).toHaveCount(1);
+  const pixels = () => canvas.evaluate((element: HTMLCanvasElement) => element.toDataURL());
+  const initial = await pixels();
+  await expect.poll(pixels).not.toBe(initial);
+  const box = await canvas.boundingBox();
+  await page.mouse.move(box!.x + box!.width * .8, box!.y + box!.height * .5);
+  await page.getByRole("button", { name: "Pause background animation", exact: true }).click();
+  const frozen = await pixels();
+  await page.waitForTimeout(150);
+  expect(await pixels()).toBe(frozen);
+  await page.getByRole("button", { name: "Play background animation", exact: true }).click();
+  await expect.poll(pixels).not.toBe(frozen);
   await expect(
     page.getByRole("link", { name: "Find your perspective", exact: true }),
   ).toBeVisible();

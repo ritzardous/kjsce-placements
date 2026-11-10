@@ -8,7 +8,23 @@
       "includeFiles": "functions/lib/**"
     }
   },
+  "headers": [
+    {
+      "source": "/share/:path*",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    }
+  ],
   "rewrites": [
+    {
+      "source": "/share",
+      "destination": "/share/index.html"
+    },
+    {
+      "source": "/share/",
+      "destination": "/share/index.html"
+    },
     {
       "source": "/((?!api/|assets/).*)",
       "destination": "/index.html"

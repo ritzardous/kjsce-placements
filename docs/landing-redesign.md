@@ -128,3 +128,19 @@ The 30fps scheduling, high-resolution canvas, offscreen/hidden-tab suspension, s
 The public deployment returned HTTP 200 to `Twitterbot/1.0`, but its initial HTML contained neither Open Graph nor X card metadata. `index.html` now supplies a canonical production URL, title, description, absolute image URLs, image dimensions/alt text and `summary_large_image` card metadata before JavaScript runs. A static 1200×630 PNG in `public/social/` uses the landing page's serif typography, off-white background and electric-blue network motif. It contains no private data and is about 86KB. `public/robots.txt` provides a plain-text crawler policy.
 
 Regenerate the committed image with `node scripts/generate-social-preview.mjs`; it uses the existing Playwright dependency and local fonts, with no runtime image-generation service. Production build/typecheck passed. HTTP checks against the built site using the Twitterbot user agent verified the raw HTML metadata, matching Open Graph/X image URLs, PNG content type and dimensions, and robots response. The image was visually inspected. Deployment is required before the public URL receives these changes; an actual X DM preview was not tested.
+
+## Animation when WebGL fails
+
+The previous graphics-failure path silently displayed a static SVG while still exposing a pause control. The supplied screenshot appeared to show that fallback; WebGL animation itself was reproducible in a fresh Chromium session against the user's local server, so the exact failure in their existing browser session was not confirmed.
+
+Shared shader uniforms and varyings now explicitly match the vertex shader's precision for stricter GPU drivers, and failed program linking is detected. Initial GPU failure or context loss switches to a lazy Canvas 2D renderer with genuinely moving Voronoi sites and damped cursor repulsion. It preserves the theme, bounded high-resolution canvas and pause state, stops offscreen/in hidden tabs, and disposes its observers and handlers. The fallback adds about 1.5KB gzip and no dependency. Reduced motion/save-data still use the static SVG; if neither renderer is available, the static background remains and no misleading playback control is shown.
+
+Eight focused desktop/mobile scenarios passed across GPU rendering/pointer pixels, context-loss recovery, blocked-WebGL animation/pause/resume, resolution and motion/data-saving preferences. The desktop GPU scenario was rerun in isolation after a development reload interrupted its earlier run. The final Canvas fallback was visually inspected in dark mode.
+
+## Fresh sharing URL after the first empty X preview
+
+Live requests using `Twitterbot/1.0` confirmed that the deployed homepage already returned its card tags, the 1200×630 PNG returned `image/png` with HTTP 200, and robots allowed access. The remaining DM failure could therefore not be attributed to missing deployed metadata; X retaining the earlier empty result is a hypothesis, not a confirmed diagnosis.
+
+The production build now emits `/share/` with its own canonical/Open Graph URL and a content-hashed image path. This provides a fresh page/image identity instead of repeatedly sharing the previously fetched homepage URL. It serves the same built landing application and auth controls without crawler-only content, redirects, or JavaScript-generated metadata. Vercel routes `/share` and `/share/` to that document. Use `https://kjsce-placements.vercel.app/share/` when testing a new DM. The application cannot purge X's own cache or modify previews in existing messages.
+
+Validation: production build/typecheck, all 55 unit checks, raw production-output HTTP checks for both URLs and hashed PNG dimensions/content type, and a browser check of the share page's landing headline and Google button passed. Actual X DM rendering is not asserted by these checks.

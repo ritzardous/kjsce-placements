@@ -3,20 +3,40 @@ import type { FinaleController } from "./VoronoiScene";
 function FinalePattern({
   allowed,
   paused,
+  onReady,
 }: {
   allowed: boolean;
   paused: boolean;
+  onReady: (ready: boolean) => void;
 }) {
   const host = useRef<HTMLDivElement>(null),
     controller = useRef<FinaleController | null>(null),
     [ready, setReady] = useState(false),
     motion = useRef(!paused);
   motion.current = !paused;
+  useEffect(() => onReady(ready), [ready, onReady]);
   useEffect(() => {
     if (!allowed || !host.current) return;
     const element = host.current;
     let disposed = false,
-      scheduled = false;
+      scheduled = false,
+      fallbackStarted = false;
+    const startFallback = () => {
+      if (disposed || fallbackStarted) return;
+      fallbackStarted = true;
+      controller.current?.dispose();
+      controller.current = null;
+      setReady(false);
+      void import("./VoronoiFallback").then((module) => {
+        if (disposed) return;
+        const mounted = module.mountFallbackScene(element);
+        controller.current = mounted;
+        mounted.setMotion(motion.current);
+        setReady(true);
+      }).catch(() => {
+        if (!disposed) setReady(false);
+      });
+    };
     const observer = new IntersectionObserver(
       (entries) => {
         if (!entries[0].isIntersecting || scheduled) return;
@@ -25,9 +45,7 @@ function FinalePattern({
         void import("./VoronoiScene")
           .then(async (module) => {
             if (disposed) return;
-            const mounted = await module.mountFinaleScene(element, () => {
-              if (!disposed) setReady(false);
-            });
+            const mounted = await module.mountFinaleScene(element, startFallback);
             if (disposed) {
               mounted.dispose();
               return;
@@ -36,9 +54,7 @@ function FinalePattern({
             mounted.setMotion(motion.current);
             setReady(true);
           })
-          .catch(() => {
-            if (!disposed) setReady(false);
-          });
+          .catch(startFallback);
       },
       { rootMargin: "160px" },
     );
@@ -85,9 +101,10 @@ export function ClosingSection({
   paused: boolean;
   onToggleMotion: () => void;
 }) {
+  const [ready, setReady] = useState(false);
   return (
     <section className="lp-finale" aria-labelledby="finale-title">
-      <FinalePattern allowed={allowed} paused={paused} />
+      <FinalePattern allowed={allowed} paused={paused} onReady={setReady} />
       <div className="lp-finale-copy" data-reveal>
         <h2 id="finale-title">
           Their experience.
@@ -99,7 +116,7 @@ export function ClosingSection({
           Find your perspective <span aria-hidden="true">↗</span>
         </a>
       </div>
-      {allowed && (
+      {allowed && ready && (
         <button
           type="button"
           className="lp-finale-motion"

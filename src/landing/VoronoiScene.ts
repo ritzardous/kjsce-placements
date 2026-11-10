@@ -21,8 +21,11 @@ const palette = (dark: boolean) => ({
 // The cursor bends the cells themselves instead of moving a flat background image.
 const interactiveVoronoi = voronoiFragmentShader
   .replace("precision mediump float;", "precision highp float;")
+  // Shared vertex/fragment interfaces must retain identical precision on strict drivers.
+  .replace("uniform float u_scale;", "uniform mediump float u_scale;")
+  .replace("in vec2 v_patternUV;", "in mediump vec2 v_patternUV;")
   .replace("uniform float u_time;", `uniform float u_time;
-uniform vec2 u_resolution;
+uniform mediump vec2 u_resolution;
 uniform vec2 u_pointer;
 uniform float u_pointerStrength;`)
   .replace("float t = u_time;", `vec2 cursorDelta = gl_FragCoord.xy / u_resolution - u_pointer;
@@ -77,11 +80,17 @@ export async function mountFinaleScene(
       2 * Math.max(1, devicePixelRatio || 1),
       resolutionBudget(),
     );
+    const gl = shader.canvasElement.getContext("webgl2");
+    if (!gl?.getParameter(gl.CURRENT_PROGRAM)) {
+      shader.dispose();
+      throw new Error("Voronoi shader could not link on this GPU");
+    }
   } catch (error) {
     host.replaceChildren();
     throw error;
   }
   shader.canvasElement.setAttribute("aria-hidden", "true");
+  shader.canvasElement.dataset.renderer = "webgl";
   const section = host.closest("section")!,
     target = { x: 0.5, y: 0.5, strength: 0 },
     current = { ...target };
