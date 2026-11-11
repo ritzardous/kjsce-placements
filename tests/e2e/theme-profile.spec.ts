@@ -10,7 +10,7 @@ test('neutral light palette, search spacing and dark SVG labels remain readable'
   await expect(page.getByLabel('Search companies')).toBeVisible();
   const light=page.getByRole('button',{name:'Switch to light mode'});
   if(await light.count())await light.click();
-  expect(await page.locator('#app').evaluate(element=>getComputedStyle(element).backgroundColor)).toBe('rgb(247, 248, 250)');
+  expect(await page.locator('#app').evaluate(element=>getComputedStyle(element).backgroundColor)).toBe('rgb(247, 247, 239)');
   const input=page.getByLabel('Search companies'),icon=page.locator('.search-box > .app-icon');
   const inputBox=(await input.boundingBox())!,iconBox=(await icon.boundingBox())!;
   const padding=await input.evaluate(element=>parseFloat(getComputedStyle(element).paddingLeft));
@@ -21,7 +21,7 @@ test('neutral light palette, search spacing and dark SVG labels remain readable'
   await page.getByRole('button',{name:'Switch to dark mode'}).click();
   await page.goto('/#2026/overview');
   await expect(page.locator('.donut-total')).toHaveText('82');
-  expect(await page.locator('.donut-total').evaluate(element=>getComputedStyle(element).fill)).toBe('rgb(222, 222, 222)');
+  expect(await page.locator('.donut-total').evaluate(element=>getComputedStyle(element).fill)).toBe('rgb(240, 241, 231)');
   await page.locator('.react-donut').scrollIntoViewIfNeeded();
   await page.screenshot({path:`artifacts/dark-chart-label-${info.project.name}.png`});
 });
@@ -39,7 +39,7 @@ test('Google photo is displayed and server-verified identity syncs privately wit
   expect(before.authProfile.displayName).toBe('Test Student');
   expect(before.authProfile.emailVerified).toBe(true);
   expect(before.authProfile.provider).toBe('google.com');
-  await page.evaluate(`(async()=>{const {callProcedure}=await import('/src/procedures/procedures-api.ts');await callProcedure('procedureCommunity',{action:'syncAccount',payload:{email:'forged@example.test',role:'admin',uid:'another-user'}});})()`);
+  await expect(page.evaluate(`(async()=>{const {callProcedure}=await import('/src/procedures/procedures-api.ts');await callProcedure('procedureCommunity',{action:'syncAccount',payload:{email:'forged@example.test',role:'admin',uid:'another-user'}});})()`)).rejects.toThrow(/Unrecognized keys/);
   const after=(await ref.get()).data()!;
   expect(after.authProfile).toEqual(before.authProfile);
   expect(after.profileSyncedAt).toBe(before.profileSyncedAt);

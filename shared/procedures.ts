@@ -18,6 +18,7 @@ export const procedureDraftSchema = z.object({
   appearanceYear: z.number().int().min(2000).max(new Date().getFullYear() + 1),
   graduationYear: z.number().int().min(2000).max(2100).nullable(),
   coverage: z.enum(['Full', 'Partial']),
+  campus: z.enum(['On campus', 'Off campus']).optional(),
   outcome: z.enum(['Selected', 'Not selected', 'Result pending']),
   role: z.string().trim().max(100),
   attribution: z.enum(['anonymous', 'name', 'custom']),

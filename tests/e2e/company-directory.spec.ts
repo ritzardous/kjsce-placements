@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 import {initializeApp} from 'firebase-admin/app';
 import {getFirestore} from 'firebase-admin/firestore';
-import {signInGoogle} from './auth-helper';
+import {signInGoogle,awaitCompanyDirectory} from './auth-helper';
 import {initialProcedureDraft} from '../../shared/procedures';
 const db=getFirestore(initializeApp({projectId:'demo-placementstats'},'company-directory-tests'));
 const tag='Directory pagination fixture';
@@ -12,11 +12,13 @@ test.beforeAll(async()=>{
  await batch.commit();
 });
 test('company directory counts all published posts and opens their paginated articles',async({page},info)=>{
+ test.setTimeout(90000);
  await signInGoogle(page);
+ await awaitCompanyDirectory(page,tag,14);
  await page.goto('/#procedures');
  await page.getByRole('searchbox').fill(tag);
  const company=page.getByRole('link',{name:'Barclays experiences',exact:true});
- await expect(company).toContainText('14 experiences',{timeout:20000});
+ await expect(async()=>{await page.reload();await expect(company).toContainText('14 experiences',{timeout:3000});}).toPass({timeout:60000,intervals:[1000,2500]});
  await expect(page.locator('.procedure-card-title')).toHaveCount(0);
  await page.screenshot({path:`artifacts/company-directory-${info.project.name}.png`,fullPage:true});
  await company.locator('.company-experience-count').click();

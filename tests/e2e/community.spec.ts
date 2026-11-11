@@ -6,7 +6,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { randomUUID } from 'node:crypto';
 import { initialProcedureDraft } from '../../shared/procedures';
-import { signInGoogle } from './auth-helper';
+import { signInGoogle, awaitCompanyDirectory } from './auth-helper';
 
 const app=initializeApp({projectId:'demo-placementstats'},'community-browser-tests'),db=getFirestore(app);
 test.beforeEach(()=>{if(process.env.E2E_FIREBASE!=='true')throw new Error('Emulators required.');});
@@ -17,19 +17,22 @@ test('discovery, clean reading, saved prep and report moderation work together',
   const context=await browser.newContext({viewport:page.viewportSize()!,baseURL:new URL(page.url()).origin}),reader=await context.newPage();
   const adminContext=await browser.newContext({viewport:page.viewportSize()!,baseURL:new URL(page.url()).origin}),admin=await adminContext.newPage();
   try{
-    await signInGoogle(reader);await reader.goto('/#procedures');
+    await signInGoogle(reader);await awaitCompanyDirectory(reader,tag,2);await reader.goto('/#procedures');
     await reader.getByRole('searchbox',{name:/Search companies|Search experiences/}).fill(tag);
     await reader.getByRole('button',{name:'More filters',exact:true}).click();
     const sheet=reader.getByRole('dialog',{name:'Filter experiences'});
     await sheet.getByLabel('Round',{exact:true}).selectOption('Coding');
     await sheet.getByRole('button',{name:'Apply filters',exact:true}).click();
-    await expect(reader.getByRole('link',{name:'Barclays experiences',exact:true})).toContainText('2 experiences');
+    // Emulator callable workers have independent 45s metadata caches; fixtures
+    // are written outside the service, so verify the actual eventual UI result.
+    await expect(async()=>{await reader.reload();await expect(reader.getByRole('link',{name:'Barclays experiences',exact:true})).toContainText('2 experiences',{timeout:3000});}).toPass({timeout:60000,intervals:[1000,2500]});
     await reader.getByRole('link',{name:'Barclays experiences',exact:true}).click();
     await expect(reader.locator('.procedure-card h3').filter({hasText:tag})).toHaveCount(2);
     await expect(reader.getByRole('button',{name:'Compare',exact:true})).toHaveCount(0);
     await expect(reader.getByRole('link',{name:'Company details',exact:true})).toHaveCount(0);
     await expect(reader.getByRole('heading',{name:'Barclays experiences'})).toBeVisible();
-    await expect(reader.getByRole('link',{name:'2025 placement statistics',exact:false})).toBeVisible();
+    await reader.locator('.company-statistics-links > summary').click();
+    await expect(reader.getByRole('link',{name:'Class of 2025 company statistics',exact:false})).toBeVisible();
     await reader.goto(`/#procedures/${ids[0]}`);
     await expect(reader.getByRole('navigation',{name:'Experience sections'})).toHaveCount(0);
     await expect(reader.getByLabel('Ask a question')).toHaveCount(0);

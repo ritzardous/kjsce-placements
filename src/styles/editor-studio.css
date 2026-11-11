@@ -1030,3 +1030,5 @@
   :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio .studio-doc-title { font-size: 26px; }
   :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio .studio-save-status { font-size: 10px; }
 }
+
+.studio-campus-field{display:flex;flex-direction:column;gap:8px;font-size:13px;font-weight:600;margin-top:20px}.studio-campus-field select{width:100%;min-height:44px;padding:10px;background:var(--surface);color:var(--ink);border:1px solid var(--line-soft)}

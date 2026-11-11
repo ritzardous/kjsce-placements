@@ -177,8 +177,8 @@ function InboxContent() {
         <p className="notification-message">{row.message}</p>{row.currentStatus && <p>Current submission status: {row.currentStatus.replaceAll('_', ' ')}. {row.currentStatus === 'unavailable' ? 'This experience may have been removed.' : ''}</p>}
         <time dateTime={new Date(row.createdAt).toISOString()} title={new Date(row.createdAt).toLocaleString()}>{new Date(row.createdAt).toLocaleString()}</time>
         <div className="procedure-actions">{action && row.currentStatus !== 'unavailable' && <a href={action.href}>{action.label} ↗</a>}{(row.category === 'reports' || row.reportId) && <button data-open-notification onClick={() => setOutcome(outcome === row.id ? null : row.id)} aria-expanded={outcome === row.id}>View private report outcome</button>}
-          <ActionMenu label={`More actions for ${row.title}`}>{!row.archived && <button disabled={busy} onClick={() => void update([row.id], { read: !row.read }, row.read ? 'Notification marked unread.' : 'Notification marked as read.')}>{row.read ? 'Mark unread' : 'Mark as read'}</button>}
-          <button disabled={busy} onClick={() => { void update([row.id], { archived: !row.archived }, row.archived ? 'Update restored.' : 'Update archived.'); }}>{row.archived ? 'Restore' : 'Archive'}</button></ActionMenu>
+          <ActionMenu label={`More actions for ${row.title}`}>{!row.archived && <button aria-busy={busy} disabled={busy} onClick={() => void update([row.id], { read: !row.read }, row.read ? 'Notification marked unread.' : 'Notification marked as read.')}>{row.read ? 'Mark unread' : 'Mark as read'}</button>}
+          <button aria-busy={busy} disabled={busy} onClick={() => { void update([row.id], { archived: !row.archived }, row.archived ? 'Update restored.' : 'Update archived.'); }}>{row.archived ? 'Restore' : 'Archive'}</button></ActionMenu>
         </div>{outcome === row.id && <Outcome id={row.id}/>}</article></Fragment>;
     })}</div>
     {loading && <FetchLoader compact={page.rows.length>0} label="Loading notifications…"/>}{page.more && <button disabled={loading} onClick={() => void load(true)}>Load more notifications</button>}

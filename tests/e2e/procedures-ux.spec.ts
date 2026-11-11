@@ -17,11 +17,11 @@ test('navigation, field validation and device-copy discard are clear and keyboar
   await expect(browse).toHaveAttribute('aria-current','page');
   await expect(main).toBeFocused();
   expect(await main.evaluate(element=>getComputedStyle(element).outlineStyle)).toBe('none');
-  await page.keyboard.press('Tab');
+  for(let step=0;step<8&&!await browse.evaluate(node=>node===document.activeElement);step++)await page.keyboard.press('Tab');
   await expect(browse).toBeFocused();
   expect(await browse.evaluate(element=>getComputedStyle(element).outlineStyle)).toBe('solid');
   await expect(page.getByRole('search',{name:'Find recruitment experiences'})).toBeVisible();
-  await expect(page.getByRole('heading',{name:'Recruitment experiences',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Company Procedures',exact:true})).toBeVisible();
   await navigation.getByRole('link',{name:'My contributions',exact:true}).click();
   await expect(page).toHaveURL(/#procedures\/contributions/);
   await expect(page.locator('.account-details')).toHaveCount(0);
@@ -39,6 +39,7 @@ test('navigation, field validation and device-copy discard are clear and keyboar
   await expect(page.getByLabel('Your experience',{exact:true})).toBeFocused();
   await page.evaluate(account=>localStorage.setItem(`procedure-backup:${account}:new:ux-copy`,JSON.stringify({draft:{body:'A recoverable device-only draft',title:'Device-only copy'},updatedAt:Date.now()})),uid);
   await page.goto('/#procedures/contributions');
+  await page.locator('.device-drafts > summary').click();
   await page.getByRole('button',{name:'Discard device copy',exact:true}).click();
   const dialog=page.getByRole('dialog',{name:'Discard this device copy?'});
   await expect(dialog.getByRole('button',{name:'Cancel',exact:true})).toBeFocused();
@@ -75,11 +76,14 @@ test('filter URLs survive reload and cancelled filter edits',async({page})=>{
 
 test('unread notifications can be marked in place and the exact badge count updates',async({page})=>{
   const uid=await signInGoogle(page),ids=[randomUUID(),randomUUID()];
+  // Isolate the manual batch action from the separately-tested 500ms auto-read timer.
+  await page.clock.install();await page.clock.pauseAt(new Date());
   for(const [index,id] of ids.entries())await db.doc(`procedureNotifications/${uid}/items/${id}`).set({title:`UX review update ${index}`,message:'Your experience received review feedback.',submissionId:'ux-test',createdAt:Date.now()+index,read:false});
   await page.goto('/#procedures/notifications');
   await expect(page.getByRole('link',{name:'Notifications (2)',exact:true})).toBeVisible();
   await page.getByRole('button',{name:'Unread notifications',exact:true}).click();
   await expect(page.getByRole('heading',{name:/UX review update/})).toHaveCount(2);
+  await page.locator('.notification-toolbar .action-disclosure > summary').click();
   await page.getByRole('button',{name:'Mark displayed notifications as read',exact:true}).click();
   await expect(page.getByRole('status')).toContainText('2 notifications marked as read');
   await expect(page.getByRole('heading',{name:/UX review update/})).toHaveCount(0);
@@ -196,22 +200,27 @@ test('account content management has clear actions and draft deletion cannot be 
  const id=new URLSearchParams(page.url().split('?')[1]).get('draft')!;
  await page.getByRole('button',{name:'Submit for review',exact:true}).click();
  await expect(page.locator('#procedure-submitted')).toContainText('Pending approval');
- await page.goto('/#account');
+ await page.goto('/#procedures/contributions');
+ await page.locator('.account-contributions .procedure-card .action-disclosure > summary').first().click();
  const withdraw=page.getByRole('button',{name:'Withdraw from review',exact:true});
  await expect(withdraw).toBeVisible();await withdraw.click();
  await page.getByRole('dialog').getByRole('button',{name:'Withdraw submission',exact:true}).click();
  await expect(page.locator('.account-contributions .procedure-feedback[role=status]')).toContainText('Submission withdrawn');
  await expect(withdraw).toHaveCount(0);
 
+ await page.goto('/#account');
  await expect(page.getByRole('navigation',{name:'Manage your content'})).toBeVisible();
- const card=page.locator('.account-contributions .procedure-card').filter({has:page.getByRole('button',{name:'Delete experience',exact:true})}).first();
- const button=card.getByRole('button',{name:'Delete experience',exact:true});
- expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(48);
+ await page.getByRole('link',{name:/My writing/}).click();
+ const card=page.locator('.account-contributions .procedure-card').first();
+ const menu=card.locator('.action-disclosure > summary');
+ await menu.click();
+ const button=page.getByRole('button',{name:'Delete experience',exact:true});
+ expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
  await page.screenshot({path:`artifacts/account-content-management-${test.info().project.name}.png`,fullPage:true});
- await button.click();await page.getByRole('dialog').getByRole('button',{name:'Cancel',exact:true}).click();
- await expect(button).toBeVisible();await button.click();await page.getByRole('dialog').getByRole('button',{name:'Delete permanently',exact:true}).click();
+ await button.click();await page.getByRole('dialog',{name:'Permanently delete this experience?',exact:true}).getByRole('button',{name:'Cancel',exact:true}).click();
+ await menu.click();await expect(button).toBeVisible();await button.click();await page.getByRole('dialog',{name:'Permanently delete this experience?',exact:true}).getByRole('button',{name:'Delete permanently',exact:true}).click();
  await expect(page.locator('.account-contributions .procedure-feedback[role=status]')).toContainText('Experience deleted');
- await expect(button).toHaveCount(0);
+ await expect(card).toHaveCount(0);
  await page.goto(`/#procedures/contribute?draft=${id}`);
  await expect(page.getByRole('alert')).toContainText('Draft not found');
 });

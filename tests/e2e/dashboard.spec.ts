@@ -16,7 +16,7 @@ async function chooseSection(page: import('@playwright/test').Page, name: string
  if(views[name])await page.getByRole('navigation',{name:'Career explorer views'}).getByRole('link',{name:views[name],exact:true}).click();
 }
 async function chooseBatch(page:import('@playwright/test').Page,year:number) {
- await page.locator('.app-header .batch-back').click();
+ await page.getByRole('link',{name:'Go to the year selection',exact:true}).click();
  await page.getByRole('link',{name:new RegExp(`Class of ${year}`)}).click();
 }
 
@@ -32,7 +32,7 @@ test('ongoing 2027 season stays explicit across routes, reload, refresh and year
   await expect(page.locator('.live-notice')).toContainText('Placements ongoing');
   await expect(page.locator('.live-notice')).toContainText('08 Oct 2026');
   await expect(page.locator('.stat').filter({ hasText: 'Candidate selections recorded' }).locator('.stat-value')).toHaveText('121');
-  await expect(page.locator('.stat').filter({ hasText: 'Placement rate' }).locator('.stat-value')).toHaveText('—');
+  await expect(page.locator('.stat').filter({ hasText: 'Placement rate' }).locator('.stat-value')).toHaveText('Not available');
   await chooseSection(page,'Companies');
   await expect(page).toHaveURL(/#2027\/companies/);
   await page.getByRole('link', { name: 'Barclays', exact: true }).click();
@@ -56,7 +56,7 @@ test('year switching keeps 2025 links, refresh, missing data and campus filters 
   await expect(page.getByRole('heading', { name: /KJSCE '25/ })).toBeVisible();
   await expect(page.locator('.stat').filter({ hasText: 'Unique UG students placed' }).locator('.stat-value')).toHaveText('323');
   await expect(page.locator('.stat').filter({ hasText: 'Candidate selections recorded' }).locator('.stat-value')).toHaveText('360');
-  await expect(page.locator('.stat').filter({ hasText: 'Placement rate' }).locator('.stat-value')).toHaveText('—');
+  await expect(page.locator('.stat').filter({ hasText: 'Placement rate' }).locator('.stat-value')).toHaveText('Not available');
   await chooseSection(page,'Candidates & Roles');
   await expect(page).toHaveURL(/#2025\/explore/);
   await page.getByRole('combobox', { name: 'Campus status' }).selectOption('Off campus');
@@ -71,7 +71,7 @@ test('year switching keeps 2025 links, refresh, missing data and campus filters 
   await page.getByRole('link', { name: '← All Companies', exact: true }).click();
   await page.getByRole('textbox', { name: 'Search companies' }).fill('Goldman');
   await page.locator('tbody').getByRole('link', { name: 'Goldman Sachs', exact: true }).click();
-  await expect(page.locator('.a-date').first()).toContainText('—');
+  await expect(page.locator('.a-date').first()).toContainText('Not available');
   await expect(page.locator('.a-role').first()).toContainText('Role not provided');
   await chooseBatch(page,2026);
   await expect(page.getByRole('heading', { name: /KJSCE '26/ })).toBeVisible();
@@ -86,7 +86,7 @@ test('overview renders legacy totals, chart series, and fits viewport', async ({
   await expect(page.locator('.stat').filter({ hasText: 'Unique B.Tech students placed' }).locator('.stat-value')).toHaveText('299');
   await expect(page.locator('.stat').filter({ hasText: 'Candidate selections recorded' }).locator('.stat-value')).toHaveText('311');
   await page.getByRole('button', { name: 'Unique students', exact: true }).click();
-  await expect(page.getByRole('img', { name: 'Calculated unique students placed' })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Calculated unique students placed' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 test('companies search, type and CTC filters work; old detail URLs load', async ({ page }) => {
@@ -102,9 +102,9 @@ test('companies search, type and CTC filters work; old detail URLs load', async 
   await expect(page.locator('.announcement-block')).toHaveCount(payload.statistics.companies.find(c => c.key === 'barclays')!.announcements.length);
   await page.goBack();
   await page.getByRole('textbox', { name: 'Search companies' }).fill('Barclays');
-  await page.getByRole('button', { name: '<5L', exact: true }).click();
+  await page.getByRole('combobox', { name: 'Salary range' }).selectOption('<5L');
   await expect(page.getByText('No matches', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'ALL', exact: true }).click();
+  await page.getByRole('combobox', { name: 'Salary range' }).selectOption('ALL');
   await page.getByRole('combobox', { name: 'Company type' }).selectOption('IT');
   await expect(page.getByText('No matches', { exact: true })).toBeVisible();
 });
@@ -133,7 +133,7 @@ test('branches, timeline and insights render without browser exceptions', async 
   expect(errors).toEqual([]);
 });
 test('Firestore loading error displays retry and recovers using real emulator data', async ({ page }) => {
-  await page.route(/\/src\/repository\.ts(?:\?t=\d+)?$/, route => route.fulfill({
+  await page.route(/\/src\/dashboard\/repository\.ts(?:\?t=\d+)?$/, route => route.fulfill({
     contentType: 'application/javascript',
     body: `export function watchDashboardVersion(){return () => {}; }
     export async function loadDashboard(year) {

@@ -1,3 +1,4 @@
+import { playSignInClick } from "./signin-sound";
 import { ProductFooter } from '../ui/ProductFooter';
 import { ThemeControl } from "../ui/ThemeControl";
 import { GoogleButton, useAuth } from "../lib/auth";
@@ -14,7 +15,7 @@ export function LandingHeader() {
         aria-label="Placement Stats KJSCE home"
       >
         <span className="lp-brand-mark" aria-hidden="true">
-          p<span>↗</span>
+          p<span>✳</span>
         </span>
         <span>
           Placement
@@ -24,7 +25,7 @@ export function LandingHeader() {
       </a>
       <nav aria-label="Landing navigation">
         <ThemeControl />
-        <button type="button" className="lp-nav-link lp-signin" disabled={busy || !ready} onClick={() => void login()}>
+        <button type="button" className="lp-nav-link lp-signin" disabled={busy || !ready} onClick={() => { playSignInClick(); void login(); }}>
           {busy ? "Signing in…" : "Sign in"} <span aria-hidden="true">↗</span>
         </button>
       </nav>
@@ -35,7 +36,7 @@ export function SignInCTA() {
   const magnet = useMagnet();
   return (
     <div ref={magnet} className="lp-signin-cta">
-      <GoogleButton />
+      <GoogleButton onActivate={playSignInClick} />
       <span className="cta-shadow" aria-hidden="true" />
     </div>
   );

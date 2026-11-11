@@ -14,16 +14,46 @@ async function ready(page: import("@playwright/test").Page) {
   await page.evaluate(() => document.fonts.ready);
 }
 
+test('closing section fits one screen and browser icons are available', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await ready(page);
+  for (const theme of ['light', 'dark']) {
+    await page.evaluate(value => {
+      localStorage.setItem('placement-theme', value);
+      window.dispatchEvent(new StorageEvent('storage', { key: 'placement-theme' }));
+    }, theme);
+    for (const [width, height] of [[320, 568], [393, 851], [1280, 720], [1366, 768], [1920, 916]]) {
+      await page.setViewportSize({ width, height });
+      const section = page.locator('.lp-finale');
+      await section.scrollIntoViewIfNeeded();
+      const layout = await section.evaluate(element => {
+        const box = element.getBoundingClientRect();
+        const heading = element.querySelector('h2')!, button = element.querySelector('button')!;
+        return { height: box.height, headingTop: heading.getBoundingClientRect().top,
+          buttonBottom: button.getBoundingClientRect().bottom, overflow: document.documentElement.scrollWidth > innerWidth };
+      });
+      expect(layout.height).toBeLessThanOrEqual(height);
+      expect(layout.headingTop).toBeGreaterThanOrEqual(-1);
+      expect(layout.buttonBottom).toBeLessThanOrEqual(height + 1);
+      expect(layout.overflow).toBe(false);
+    }
+  }
+  const icons = await page.locator('link[rel="icon"],link[rel="apple-touch-icon"]').evaluateAll(nodes => nodes.map(node => node.getAttribute('href')!));
+  expect(icons).toHaveLength(4);
+  for (const icon of icons) {
+    const response = await page.request.get(new URL(icon, page.url()).href);
+    expect(response.status()).toBe(200);
+    expect((await response.body()).length).toBeGreaterThan(100);
+  }
+});
+
 test("scroll chapters advance and reverse both stories while retaining manual control", async ({ page }, info) => {
   if (info.project.name === "desktop") await page.setViewportSize({ width: 1440, height: 1000 });
   await ready(page);
   await expect(page.locator('.lp-header .lp-index-link')).toHaveCount(0);
   await expect(page.locator('.lp-experiences')).toHaveAttribute('data-scroll-story', /pinned|inline/);
   await expect(page.locator('.lp-people')).toHaveAttribute('data-scroll-story', /pinned|manual/);
-  const pageHeight = await page.evaluate(() => document.documentElement.scrollHeight);
-  await page.getByRole('button', { name: 'Pause archive animation', exact: true }).click();
-  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(pageHeight);
-  await page.getByRole('button', { name: 'Play archive animation', exact: true }).click();
+  await expect(page.getByRole("button", {name: /Pause .*animation/})).toHaveCount(0);
   for (const [section, group] of [
     ['.lp-experiences', 'Explore hiring experiences'],
     ['.lp-people', 'Example questions for a senior'],
@@ -135,7 +165,7 @@ test("landing sign-in controls open Google directly without a login page", async
     await expect(page).toHaveURL(/#landing$/);
     await expect(page.locator(".lp-login")).toHaveCount(0);
     await popup.close();
-    await expect(page.getByRole("alert")).toContainText("Sign-in was cancelled");
+    await expect(page.locator(".lp-auth-error")).toContainText("Sign-in cancelled");
     await expect(action).toBeEnabled();
   }
 });
@@ -235,7 +265,7 @@ test("year-independent company controls preserve the Google sign-in destination"
   await expect(page.locator(".opportunity-index figcaption")).toHaveCount(0);
   await expect(page.locator(".opportunity-index a")).toHaveCount(0);
   await expect(page.locator(".lp-hero .lp-description")).toHaveCount(0);
-  await expect(page.locator(".index-motion-icon")).toHaveText("");
+  await expect(page.locator(".index-motion-icon")).toHaveCount(0);
   const link = page
     .locator(".lp-record-sheet")
     .getByRole("link", { name: /JPMorgan: Software Engineer/ });
@@ -244,9 +274,7 @@ test("year-independent company controls preserve the Google sign-in destination"
     "#2026/company/jp_morgan_chase_co",
   );
   await link.click();
-  await expect(
-    page.getByText(/Sign in to continue to the page you opened/),
-  ).toBeVisible();
+  await expect(page.locator(".lp-return")).toHaveCount(0);
   await signInGoogle(page, false);
   await expect(page).toHaveURL(/#2026\/company\/jp_morgan_chase_co$/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Morgan");
@@ -292,7 +320,7 @@ test("keyboard, source controls and three product stories work without exposing 
   ).toHaveAttribute("href", "#2026/company/barclays");
   await expect(page.locator('a[href*="linkedin.com"]')).toHaveCount(0);
   await page.getByText("Sources & privacy", { exact: false }).click();
-  await expect(page.getByText(/no affiliation or endorsement/)).toBeVisible();
+  await expect(page.getByText(/not a partnership or endorsement/)).toBeVisible();
   await expect(page).toHaveURL(/#landing$/);
 });
 
@@ -381,25 +409,12 @@ test("WebGL or logo failure leaves a usable themed fallback", async ({
   ).toHaveAttribute("aria-pressed", "true");
 });
 
-test("pause stops all page motion and context loss restores the static diagram", async ({
+test("motion controls stay absent and context loss restores the static diagram", async ({
   page,
 }) => {
   await ready(page);
   await expect(page.locator(".opportunity-index")).toHaveClass(/is-rendered/);
-  await page
-    .getByRole("button", { name: "Pause archive animation", exact: true })
-    .click();
-  await expect(
-    page.getByRole("button", { name: "Play archive animation", exact: true }),
-  ).toBeVisible();
-  await expect(page.locator(".ps-landing")).toHaveAttribute(
-    "data-motion",
-    "off",
-  );
-  await expect(page.locator(".field-packet").first()).toHaveCSS(
-    "animation-name",
-    "none",
-  );
+  await expect(page.locator(".index-motion-icon")).toHaveCount(0);
   await page
     .getByRole("button", { name: "Explore Barclays", exact: true })
     .click();
@@ -427,7 +442,7 @@ test("Google popup cancellation leaves the CTA ready to retry", async ({
   await popup.waitForURL(/9099\/emulator\/auth\/handler/);
   await popup.locator("button").first().waitFor({ state: "visible" });
   await popup.close();
-  await expect(page.getByRole("alert")).toContainText(
+  await expect(page.locator(".lp-auth-error")).toContainText(
     /cancel|closed|try again/i,
   );
   await expect(
@@ -507,7 +522,7 @@ test("legacy login returns to landing and protected destinations keep the active
   await page.reload();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
   await page.goto("/#2026/companies");
-  await expect(page.getByText(/Sign in to continue to the page you opened/)).toBeVisible();
+  await expect(page.locator(".lp-return")).toHaveCount(0);
   await expect(page).toHaveURL(/#2026\/companies$/);
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
 });
@@ -698,10 +713,10 @@ test("landing removes redundant helper copy and labels inferred preview roles ho
   ).toHaveCount(0);
 });
 
-test("closing Voronoi loads near the footer, responds to theme and pointer, and pauses", async ({
+test("closing Voronoi loads near the footer and responds to theme and pointer without motion controls", async ({
   page,
 }, info) => {
-  test.setTimeout(60000); // High-DPI shader readback can be slow on software GPUs.
+  test.setTimeout(120000); // Pixel readback on shared software GPUs can approach one minute locally.
   const requests: string[] = [],
     errors: string[] = [];
   page.on("request", (request) => {
@@ -748,21 +763,9 @@ test("closing Voronoi loads near the footer, responds to theme and pointer, and 
         document.documentElement.clientWidth,
     ),
   ).toBe(true);
-  await page
-    .getByRole("button", { name: "Pause background animation", exact: true })
-    .click();
-  const frozen = await frame();
-  const frozenPixels = await pixels();
-  await page.mouse.move(box!.x + box!.width * 0.15, box!.y + box!.height * 0.5);
-  await page.waitForTimeout(150);
-  expect(await frame()).toBe(frozen);
-  expect(await pixels()).toBe(frozenPixels);
-  await expect(page.locator(".ps-landing")).toHaveAttribute(
-    "data-motion",
-    "off",
-  );
+  await expect(page.locator(".lp-finale-motion")).toHaveCount(0);
   await expect(
-    page.getByRole("button", { name: "Explore your toolkit", exact: true }),
+    page.getByRole("button", { name: "Build your next move", exact: true }),
   ).toBeEnabled();
   const light = await canvas.screenshot();
   await page.getByRole("button", { name: "Switch to dark mode" }).click();
@@ -773,10 +776,7 @@ test("closing Voronoi loads near the footer, responds to theme and pointer, and 
   await page.locator(".lp-finale").screenshot({
     path: `artifacts/voronoi-verified-${info.project.name}.png`,
   });
-  await page
-    .getByRole("button", { name: "Play background animation", exact: true })
-    .click();
-  await expect.poll(frame).toBeGreaterThan(frozen);
+
   await canvas.dispatchEvent("webglcontextlost", { cancelable: true });
   await expect(page.locator('.lp-finale-canvas canvas[data-renderer="canvas2d"]')).toHaveCount(1);
   await expect(page.locator(".lp-finale-pattern")).toHaveClass(/is-ready/);
@@ -851,14 +851,9 @@ test("closing shader failure uses moving interactive cells without WebGL", async
   await expect.poll(pixels).not.toBe(initial);
   const box = await canvas.boundingBox();
   await page.mouse.move(box!.x + box!.width * .8, box!.y + box!.height * .5);
-  await page.getByRole("button", { name: "Pause background animation", exact: true }).click();
-  const frozen = await pixels();
-  await page.waitForTimeout(150);
-  expect(await pixels()).toBe(frozen);
-  await page.getByRole("button", { name: "Play background animation", exact: true }).click();
-  await expect.poll(pixels).not.toBe(frozen);
+  await expect(page.locator(".lp-finale-motion")).toHaveCount(0);
   await expect(
-    page.getByRole("button", { name: "Explore your toolkit", exact: true }),
+    page.getByRole("button", { name: "Build your next move", exact: true }),
   ).toBeVisible();
   expect(
     await page.evaluate(

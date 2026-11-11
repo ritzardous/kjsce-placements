@@ -1,5 +1,7 @@
 # Class of 2027 / AY 2026–27 — ongoing season
 
+> Current visibility: the dataset is retained, but `hiddenYears` and `App.tsx` hide/redirect its statistics routes. The LIVE UI and browser checks below describe the original addition, not current availability. See [features](features.md) and [operations](operations.md).
+
 - Source: owner-supplied `27batchemailthread.pdf`, 16 image-based pages, exported 8 October 2026 at 17:03 IST. Its SHA-256 is stored in `data/sources-2027/source-manifest.json`.
 - All 22 result announcements were OCR-extracted and checked visually, including merged role cells and page continuations. Reviewed transcriptions are committed in `data/sources-2027/reviewed-announcements.json`; the PDF and intermediate OCR files are not bundled into the frontend.
 - 121 candidate selections, 121 distinct roll numbers, 19 normalized companies. Every announcement's running TPO counter reconciles to the cumulative source rows; final counter: 121.
@@ -25,7 +27,7 @@
 2. Run `npm run data:build-2027`, `npm test`, and `npm run build`. Counter discrepancies intentionally stop the build for review; document legitimate discrepancies before changing the reconciliation policy.
 3. Run `npm run db:seed -- --year 2027 --dry-run`.
 4. With Admin credentials configured outside Git, publish using `npm run db:seed -- --year 2027 --project placement-stats-kjsce --allow-production`, for the first publication. For later updates, review the active version ID in Firestore `batches/2027`, then append `--expected-version CURRENT_ACTIVE_VERSION_ID` to the seed command. Activation refuses to overwrite an unexpected version; the previous immutable version remains available for a controlled rollback. Then verify using `npm run db:verify -- --year 2027 --project placement-stats-kjsce --allow-production`.
-5. Open `/#2027/overview`; check the live banner, source date, counts, companies, new branch labels, candidate search, timeline, year switching, and mobile layout. `PREVIEW_YEAR=2027` is supported by `scripts/preview.mjs`; the Firebase test runner also seeds the 2027 fixture for isolated browser tests.
+5. Verify the dataset through unit/publication checks. Current `/#2027/overview` redirects Home because this year is hidden. If maintainers deliberately re-enable it in a separate application change, check the live banner, source dates, counts, companies, branches, candidate search, timeline, year switching and mobile layout. `PREVIEW_YEAR=2027` is accepted by `scripts/preview.mjs` but does not bypass route guards; the Firebase runner still seeds the fixture.
 6. Deploy frontend changes through the existing Vercel workflow. Publishing Firestore data does not deploy the React year selector. Future data-only updates do not require a frontend rebuild unless schemas or UI change.
 
 Keep the ongoing label until the owner supplies evidence that the season has ended; do not infer completion from inactivity.

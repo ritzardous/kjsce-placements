@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { signInGoogle } from './auth-helper';
+import { signInGoogle, openAccount } from './auth-helper';
 test.beforeEach(() => {
   if (process.env.E2E_FIREBASE !== 'true') throw new Error('Use the isolated Firebase test runner.');
 });
@@ -12,7 +12,7 @@ test('public landing and protected deep links never read placement documents bef
   await expect(page.getByRole('textbox')).toHaveCount(0);
   await page.goto('/#2025/company/google');
   await expect(page.getByRole('heading', { name: 'Don’t prep in the dark.' })).toBeVisible();
-  await expect(page.getByText(/Sign in to continue to the page you opened/)).toBeVisible();
+  await expect(page.locator(".lp-return")).toHaveCount(0);
   expect(reads).toEqual([]);
   await signInGoogle(page, false);
   await expect(page).toHaveURL(/#2025\/company\/google$/);
@@ -45,12 +45,13 @@ test('main navigation has two areas, company stats own contacts, and account own
   await expect(page.getByRole('heading', { name: 'Selected candidates', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Alumni contacts', exact: true })).toBeVisible();
   await expect(page.locator('.announcement-block').first()).toBeVisible();
-  if(await page.getByRole('navigation',{name:'Quick navigation'}).isVisible())await page.getByRole('navigation',{name:'Quick navigation'}).getByRole('link',{name:'Account',exact:true}).click();else await page.getByRole('link', { name: 'My Account', exact: true }).click();
+  if(await page.getByRole('navigation',{name:'Quick navigation'}).isVisible())await page.getByRole('navigation',{name:'Quick navigation'}).getByRole('link',{name:'Account',exact:true}).click();else await openAccount(page);
   await expect(page).toHaveURL(/#account$/);
   await expect(page.getByRole('heading', { name: 'My Account', exact: true })).toBeVisible();
   await expect(page.locator('.account-details')).toContainText('Test Student');
   await expect(page.locator('.account-details')).toContainText('@example.test');
-  await expect(page.getByRole('heading', { name: 'My Contributions', exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: /My writing/ })).toBeVisible();
+  await expect(page.locator('.account-contributions')).toHaveCount(0);
   await expect(appNav.locator('[aria-current="page"]')).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `artifacts/portal-account-${test.info().project.name}.png`, fullPage: true });
@@ -61,7 +62,7 @@ test('main navigation has two areas, company stats own contacts, and account own
   await page.goto('/#alumni');
   await expect(page).toHaveURL(/#2025\/overview$/);
   await expect(page.getByRole('heading', { name: /KJSCE '25/ })).toBeVisible();
-  if(await page.getByRole('navigation',{name:'Quick navigation'}).isVisible())await page.getByRole('navigation',{name:'Quick navigation'}).getByRole('link',{name:'Account',exact:true}).click();else await page.getByRole('link', { name: 'My Account', exact: true }).click();
+  if(await page.getByRole('navigation',{name:'Quick navigation'}).isVisible())await page.getByRole('navigation',{name:'Quick navigation'}).getByRole('link',{name:'Account',exact:true}).click();else await openAccount(page);
   await page.getByRole('button', { name: 'Sign out', exact: true }).click();
   await expect(page.getByRole('heading', { name: /Don’t prep/ })).toBeVisible();
   await page.goto('/#companies');
@@ -76,6 +77,6 @@ test('a cancelled Google popup leaves the landing page usable', async ({ page })
   const popup = await popupEvent;
   await popup.waitForLoadState('domcontentloaded');
   await popup.close();
-  await expect(page.getByRole('alert')).toContainText('Sign-in was cancelled', { timeout: 15000 });
+  await expect(page.locator('.lp-auth-error')).toContainText('Sign-in cancelled', { timeout: 15000 });
   await expect(page.getByRole('button', { name: 'Continue with Google' })).toBeEnabled();
 });

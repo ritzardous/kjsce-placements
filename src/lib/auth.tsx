@@ -81,7 +81,7 @@ export function useAuth() {
   if (!auth) throw new Error('Authentication must be used inside AuthProvider.');
   return auth;
 }
-export function GoogleButton() {
+export function GoogleButton({ onActivate }: { onActivate?: () => void } = {}) {
   const { login, betaLogin, busy, ready } = useAuth();
-  return <><button className="google-button" disabled={busy || !ready} onClick={() => void login()}><span className="google-letter" aria-hidden="true"><img src="/company-logos/google.png" width="20" height="20" alt="" /></span>{busy ? 'Signing in…' : 'Continue with Google'}<span aria-hidden="true">↗</span></button>{import.meta.env.DEV && import.meta.env.VITE_LOCAL_BETA === 'true' && import.meta.env.VITE_USE_FIREBASE_EMULATORS === 'true' && <div className="beta-accounts"><p>Local beta - isolated test data</p>{['contributor', 'admin', 'reader'].map(role => <button key={role} disabled={busy || !ready} onClick={() => void betaLogin(role)}>Test as {role}</button>)}</div>}</>;
+  return <><button className="google-button" disabled={busy || !ready} onClick={() => { onActivate?.(); void login(); }}><span className="google-letter" aria-hidden="true"><img src="/company-logos/google.png" width="20" height="20" alt="" /></span>{busy ? 'Signing in…' : 'Continue with Google'}<span aria-hidden="true">↗</span></button>{import.meta.env.DEV && import.meta.env.VITE_LOCAL_BETA === 'true' && import.meta.env.VITE_USE_FIREBASE_EMULATORS === 'true' && <div className="beta-accounts"><p>Local beta - isolated test data</p>{['contributor', 'admin', 'reader'].map(role => <button key={role} disabled={busy || !ready} onClick={() => void betaLogin(role)}>Test as {role}</button>)}</div>}</>;
 }

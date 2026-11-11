@@ -77,5 +77,6 @@
     },
     "@firebase/app-compat": "0.5.19",
     "@firebase/app": "0.16.3"
-  }
+  },
+  "license": "MIT"
 }

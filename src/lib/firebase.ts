@@ -45,7 +45,7 @@ export function firebaseMessage(error: unknown) {
   if (code.includes('auth/user-disabled')) return 'This account has been disabled. Contact the app owner.';
   if (code.includes('auth/user-token-expired') || code.includes('auth/invalid-user-token')) return 'Your session has expired. Sign in with Google again.';
   if (code.includes('auth/unauthorized-domain')) return 'Add this website domain to Firebase Authentication authorized domains.';
-  if (code.includes('auth/popup-closed-by-user') || code.includes('auth/cancelled-popup-request')) return 'Sign-in was cancelled. You can try again.';
+  if (code.includes('auth/popup-closed-by-user') || code.includes('auth/cancelled-popup-request')) return 'Sign-in cancelled. Try again whenever you’re ready.';
   if (code.includes('auth/too-many-requests')) return 'Too many attempts. Please wait and try again.';
   if (code.includes('auth/invalid-api-key')) return 'Check the Firebase web API key in your environment configuration.';
   return error instanceof Error && !code ? error.message : 'Firebase could not complete the request. Check the setup in 4amchanges.md and try again.';

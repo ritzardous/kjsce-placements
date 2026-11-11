@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-import {signInGoogle} from './auth-helper';
+import { signInGoogle, openAccount } from './auth-helper';
 
 test('selected batch survives app sections and refresh; changing batch starts at Home',async({page},info)=>{
  test.setTimeout(60000);
@@ -12,7 +12,7 @@ test('selected batch survives app sections and refresh; changing batch starts at
  if(phone){await expect(page.getByRole('navigation',{name:'App',exact:true})).not.toBeVisible();await expect(page.getByRole('navigation',{name:'Dashboard',exact:true})).not.toBeVisible();await quick.getByRole('link',{name:'Experiences',exact:true}).click();}
  else await page.getByRole('navigation',{name:'App',exact:true}).getByRole('link',{name:'Company Procedures',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Company Procedures',exact:true})).toBeVisible();
- if(phone)await quick.getByRole('link',{name:'Account',exact:true}).click();else await page.getByRole('link',{name:'My Account',exact:true}).click();
+ if(phone)await quick.getByRole('link',{name:'Account',exact:true}).click();else await openAccount(page);
  await page.reload();await expect(page.getByRole('heading',{name:'My Account',exact:true})).toBeVisible();
  if(phone)await quick.getByRole('link',{name:'Statistics',exact:true}).click();else await page.getByRole('navigation',{name:'App',exact:true}).getByRole('link',{name:'Placement Stats',exact:true}).click();
  await expect(page).toHaveURL(/#2025\/overview$/);
@@ -25,12 +25,14 @@ test('selected batch survives app sections and refresh; changing batch starts at
  await views.getByRole('link',{name:'Candidates & roles',exact:true}).click();await expect(page.getByRole('textbox',{name:'Search candidates'})).toHaveValue('Google');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:`artifacts/career-explorer-${info.project.name}.png`,fullPage:false});
- await page.locator('.app-header .batch-back').click();await expect(page).toHaveURL(/#home$/);
+ await page.locator('.app-header .batch-back').click();await expect(page).toHaveURL(/#2025\/explore\/insights$/);
+ await page.getByRole('link',{name:'Go to the year selection',exact:true}).click();await expect(page).toHaveURL(/#home$/);
  await page.getByRole('link',{name:/Class of 2026/}).click();await expect(page).toHaveURL(/#overview$/);
  const homeLink=page.getByRole('link',{name:'Go to the year selection'});await expect(homeLink).toBeVisible();await homeLink.click();await expect(page).toHaveURL(/#home$/);
  await page.getByRole('link',{name:/Class of 2026/}).click();await expect(page).toHaveURL(/#overview$/);
  await page.goto('/#company/barclays');await expect(page.getByRole('heading',{name:'Barclays',exact:true})).toBeVisible();
  const sources=page.locator('.company-source-details');await expect(sources.locator('.announcement-provenance').first()).not.toBeVisible();await sources.locator('summary').click();await expect(sources.locator('.announcement-provenance').first()).toContainText('Source:');
  await sources.locator('summary').click();await page.evaluate(()=>window.scrollTo(0,0));await page.screenshot({path:`artifacts/company-clean-${info.project.name}.png`,fullPage:false});
+ await page.locator('.auth-controls .account-menu > summary').click();
  await page.getByRole('button',{name:'Log out',exact:true}).click();await expect(page.getByRole('button',{name:'Continue with Google'})).toBeVisible();
 });

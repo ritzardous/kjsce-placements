@@ -1,5 +1,7 @@
 # Landing V2: the pathway loom
 
+> Current follow-up: animation pause controls have been removed at the user's request; operating-system reduced-motion/save-data and offscreen policies remain. The closing copy, sign-in feedback/sound and share artwork were refreshed. The implementation history below describes the original design; see [current features](features.md).
+
 The landing and login now share an editorial identity: Instrument Serif statements, electric-blue pathways, paper/ink structure and the application's existing theme state. The page explains three actual student benefits through distinct interactive compositions, rather than a generic feature grid.
 
 ## Experience

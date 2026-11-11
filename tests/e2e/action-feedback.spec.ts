@@ -21,9 +21,15 @@ test('bookmark responds before the network finishes, confirms and rolls back fai
     await gate;await route.continue();
   });
   try{
+    const before=await button.boundingBox();
     await button.click();
     await expect(button).toHaveAttribute('aria-pressed','true');
     await expect(button).toHaveAttribute('aria-busy','true');
+    const during=await button.boundingBox();
+    expect(during!.width).toBeCloseTo(before!.width,1);
+    expect(during!.height).toBeCloseTo(before!.height,1);
+    expect(await button.evaluate(element=>getComputedStyle(element,'::before').content)).toBe('none');
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
     await expect(page.locator('.app-feedback')).toContainText('Saving to your profile');
     expect((await db.doc(`procedureBookmarks/${uid}/items/${id}`).get()).exists).toBe(false);
     release();
@@ -37,6 +43,37 @@ test('bookmark responds before the network finishes, confirms and rolls back fai
     await expect(page.locator('.app-feedback')).toContainText('could not be saved');
     expect((await db.doc(`procedureBookmarks/${uid}/items/${id}`).get()).exists).toBe(true);
     await page.screenshot({animations:'disabled',path:`artifacts/bookmark-feedback-${info.project.name}.png`});
+  }finally{release();}
+});
+
+test('pending votes keep compact controls stable and remain retryable after failure',async({page})=>{
+  await signInGoogle(page);
+  const id=randomUUID();
+  await db.doc(`procedurePosts/${id}`).set({...initialProcedureDraft(),companyKey:'barclays',companyName:'Barclays',authorUid:'another-user',authorName:'Contributor',body:'Practise arrays and SQL joins, and be ready to explain your project decisions.',published:true,publishedAt:Date.now(),score:0,upvotes:0,downvotes:0,revision:1});
+  await page.goto(`/#procedures/${id}`);
+  const up=page.getByRole('button',{name:/Upvote/}),down=page.getByRole('button',{name:/Downvote/});
+  await expect(up).toBeVisible();
+  let release!:()=>void;
+  const gate=new Promise<void>(resolve=>{release=resolve;});
+  await page.route('**/setProcedureVote',async route=>{
+    await gate;
+    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({error:{status:'UNAVAILABLE',message:'Test connection failure'}})});
+  });
+  try{
+    const before=await Promise.all([up.boundingBox(),down.boundingBox()]);
+    await up.click();
+    await expect(up).toHaveAttribute('aria-busy','true');
+    await expect(up).toHaveAttribute('aria-pressed','true');
+    const during=await Promise.all([up.boundingBox(),down.boundingBox()]);
+    for(let i=0;i<2;i++){
+      expect(during[i]!.width).toBeCloseTo(before[i]!.width,1);
+      expect(during[i]!.height).toBeCloseTo(before[i]!.height,1);
+    }
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    release();
+    await expect(up).toHaveAttribute('aria-busy','false');
+    await expect(up).toHaveAttribute('aria-pressed','false');
+    await expect(page.locator('.app-feedback')).toContainText('could not be saved');
   }finally{release();}
 });
 

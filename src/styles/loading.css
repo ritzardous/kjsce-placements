@@ -59,3 +59,8 @@
   .skeleton-bar::after,.skeleton-hourglass,:is(#app,.portal-shell) .procedure-skeleton span { animation:none; }
   .skeleton-bar::after { display:none; }
 }
+
+/* Mutation feedback stays in its existing layout; never bounce compact controls. */
+:is(#app,.portal-shell) .feedback-progress>.app-icon{animation:none}
+:is(#app,.portal-shell) .app-feedback{min-height:56px;box-sizing:border-box}
+.operation-spinner{box-sizing:border-box;contain:layout paint;will-change:transform}

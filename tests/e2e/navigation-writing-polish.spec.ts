@@ -6,14 +6,16 @@ import {signInGoogle} from './auth-helper';
 import {initialProcedureDraft} from '../../shared/procedures';
 const db=getFirestore(initializeApp({projectId:'demo-placementstats'},'navigation-writing-polish'));
 
-test('home starts light, shows the account photo, and its community card is a full accessible link',async({page},info)=>{
+test('home follows the system theme, shows the account photo, and its community card is a full accessible link',async({page},info)=>{
   await page.emulateMedia({colorScheme:'dark'});
   const photo='https://lh3.googleusercontent.com/navigation-test-photo';
   await page.route(photo,route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="76" height="76"><rect width="76" height="76" fill="#2445eb"/></svg>'}));
   await signInGoogle(page,true,photo);
+  await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
+  await page.getByRole('button',{name:'Switch to light mode'}).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme','light');
   await expect(page.getByRole('link',{name:'Back to Home / change batch',exact:true})).toHaveCount(0);
-  const avatar=info.project.name==='mobile'?page.locator('.mobile-app-nav .navigation-avatar img'):page.locator('.account-header-link .navigation-avatar img');
+  const avatar=info.project.name==='mobile'?page.locator('.mobile-app-nav .navigation-avatar img'):page.locator('.auth-controls .account-menu > summary .navigation-avatar img');
   await expect(avatar).toBeVisible();
   await expect(avatar).toHaveAttribute('src',photo);
   const card=page.getByRole('link',{name:'Company Procedures',exact:true}).filter({has:page.locator('#home-community-title')});
@@ -40,7 +42,7 @@ test('home starts light, shows the account photo, and its community card is a fu
   await card.click({position:{x:12,y:12}});
   await expect(page).toHaveURL(/#procedures$/);
   await expect(avatar).toBeVisible();
-  expect((await page.getByRole('link',{name:'Back to Home / change batch',exact:true}).boundingBox())!.width).toBe(44);
+  expect((await page.getByRole('link',{name:'Go to the year selection',exact:true}).boundingBox())!.width).toBe(44);
   await page.getByRole('searchbox',{name:/Search companies|Search experiences/}).fill(`No matches ${randomUUID()}`);
   const empty=page.locator('.experience-empty');
   await expect(empty).toBeVisible({timeout:20000});

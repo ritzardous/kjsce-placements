@@ -18,3 +18,13 @@ test('editor query parameters preserve the route and admin deep links', () => {
   assert.deepEqual(parseRoute('#procedures/contribute?draft=123'), { page: 'procedures', parameter: 'contribute', year: 2026 });
   assert.deepEqual(parseRoute('#admin/procedures'), { page: 'admin', parameter: 'procedures', year: 2026 });
 });
+
+test('recruitment route preserves legacy drafts and validates campus tags', () => {
+  const draft = initialProcedureDraft();
+  assert.equal(procedureDraftSchema.parse(draft).campus, undefined);
+  for (const campus of ['On campus', 'Off campus'] as const) {
+    assert.equal(procedureDraftSchema.parse({ ...draft, campus }).campus, campus);
+    assert.equal(submissionSchema.parse({ ...draft, campus, companyKey: 'barclays', body: 'I attended a coding assessment followed by technical interviews covering SQL and project architecture.' }).campus, campus);
+  }
+  assert.equal(procedureDraftSchema.safeParse({ ...draft, campus: 'Verified campus' }).success, false);
+});

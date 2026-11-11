@@ -2955,3 +2955,39 @@
   .ps-landing .lp-experience-heading h2 { font-size:clamp(32px,8.7vw,52px); }
   .ps-landing .lp-finale h2 { font-size:clamp(35px,9vw,64px); }
 }
+
+/* Keep the hero promise and sign-in feedback clear at every width. */
+.ps-landing .lp-intro-second{display:block;color:inherit}
+.ps-landing .lp-intro-second>span{color:var(--lp-blue)}
+.ps-landing .lp-auth-error{position:relative;clear:both;max-width:34rem;margin:24px 0 0;padding:12px 14px;line-height:1.5;overflow-wrap:anywhere}
+.ps-landing .lp-auth-error.is-cancelled{color:var(--lp-ink);background:var(--lp-paper);border:1px solid var(--lp-ink)}
+.ps-landing .lp-record-compensation>.app-icon,.ps-landing .lp-text-link>.app-icon,.ps-landing .lp-hero-scroll>.app-icon{width:20px;height:20px;flex:none}
+/* A contained closing section, including on short laptop and phone screens. */
+.ps-landing .lp-finale {
+  min-height: clamp(360px, 60svh, 520px);
+  padding: clamp(36px, 7svh, 64px) clamp(24px, 7vw, 112px);
+}
+.ps-landing .lp-finale-copy { max-width: 1040px; }
+.ps-landing .lp-finale h2 {
+  max-width: none;
+  font-size: clamp(30px, min(3.8vw, 7svh), 58px);
+  line-height: 1.16;
+  letter-spacing: -.035em;
+  margin-bottom: 18px;
+  overflow-wrap: normal;
+}
+.ps-landing .lp-finale p {
+  max-width: 62ch;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-block: 0 24px;
+}
+.ps-landing .lp-finale .lp-action-link {
+  min-height: 52px;
+  padding: 14px 20px;
+  gap: 28px;
+  font-size: 14px;
+}
+@media (max-width: 760px) {
+  .ps-landing .lp-finale h2 { font-size: clamp(26px, 6.6vw, 38px); }
+}

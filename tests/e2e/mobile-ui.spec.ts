@@ -12,7 +12,7 @@ for(const width of [320,390,430]) {
     test.setTimeout(120000);
     await page.setViewportSize({width,height:844});
     await page.goto('/');
-    await expect(page.getByRole('heading',{name:/Your placement prep/})).toBeVisible();
+    await expect(page.getByRole('heading',{name:/Don’t prep/})).toBeVisible();
     await fits(page);
     await signInGoogle(page);
     const quick=page.getByRole('navigation',{name:'Quick navigation'});
@@ -67,6 +67,7 @@ for(const width of [320,390,430]) {
     expect(response.ok).toBe(true);
     await page.evaluate(`(async()=>{const {getFirebase}=await import('/src/lib/firebase.ts');await getFirebase().auth.currentUser.getIdToken(true);})()`);
     await page.goto('/#admin/procedures');
+    await page.locator('.workspace-filter-panel > summary').click();
     await expect(page.getByLabel('Review company',{exact:true})).toBeVisible();
     await fits(page);
     if(width===390)await page.screenshot({path:'artifacts/mobile-admin-refined.png',fullPage:false});

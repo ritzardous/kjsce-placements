@@ -4,7 +4,8 @@ import {signInGoogle} from './auth-helper';
 test('open login and consistent personal footer',async({page},info)=>{
  await page.goto('/#login');
  await expect(page.getByRole('button',{name:'Continue with Google'})).toBeEnabled();
- expect(await page.locator('.login-card').evaluate(element=>getComputedStyle(element).borderTopWidth)).toBe('0px');
+ await expect(page.locator('.lp-login, .login-card')).toHaveCount(0);
+ await expect(page.locator('.lp-hero-copy')).toBeVisible();
  await expect(page.getByRole('link',{name:'Ritesh',exact:true})).toHaveAttribute('href','https://github.com/ritzardous');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:`artifacts/current-login-${info.project.name}.png`,fullPage:true});
@@ -61,7 +62,7 @@ test('phone formatting, preview and static actions preserve drafts in both theme
  expect(await page.locator('.procedure-submit-bar').evaluate(node=>getComputedStyle(node).position)).toBe('static');
  expect(await page.locator('.app-header').evaluate(node=>getComputedStyle(node).position)).toBe('static');
  await page.getByRole('button',{name:'Switch to dark mode'}).click();
- expect(await page.locator('.portal-shell').evaluate(node=>getComputedStyle(node).backgroundColor)).toBe('rgb(16, 20, 17)');
+ expect(await page.locator('.portal-shell:not(.workspace-overlays)').evaluate(node=>getComputedStyle(node).backgroundColor)).toBe('rgb(16, 20, 17)');
  expect(await page.locator('.procedure-composer').evaluate(node=>getComputedStyle(node).color)).toBe('rgb(240, 241, 231)');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await body.scrollIntoViewIfNeeded();

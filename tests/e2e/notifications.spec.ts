@@ -16,14 +16,15 @@ test('global inbox works from statistics, supports unread/archive undo and follo
   const bell = page.getByRole('link', { name: /^Notifications/ });
   await expect(bell).toBeVisible();
   await bell.click();
-  await expect(page.getByRole('heading', { name: 'Notification regression update New' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Notifications (1)', exact: true })).toBeVisible();
+  if (await page.locator('.notification-preview').isVisible()) await page.getByRole('link',{name:'View all notifications',exact:true}).click();
+  await expect(page.getByRole('heading', { name: /Notification regression update/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /^Notifications/ })).toBeVisible();
   const card = page.locator(`#notification-${id}`);
-  await card.getByRole('button', { name: 'Mark as read', exact: true }).click();
-  await expect(card.getByRole('button', { name: 'Mark unread', exact: true })).toBeVisible();
-  await card.getByRole('button', { name: 'Mark unread', exact: true }).click();
+  await card.scrollIntoViewIfNeeded();
+  await expect(card).toHaveClass(/is-read/);
+  await itemAction(page, card, 'Mark unread');
   await expect(card.getByText('New', { exact: true })).toBeVisible();
-  await card.getByRole('button', { name: 'Archive', exact: true }).click();
+  await itemAction(page, card, 'Archive');
   await expect(card).toHaveCount(0);
   await page.getByRole('button', { name: 'Undo archive', exact: true }).click();
   await page.getByRole('button', { name: 'Refresh notifications', exact: true }).click();
@@ -44,11 +45,15 @@ test('failed refresh retains history, failed read retains unread state and accou
   await page.goto('/#procedures/notifications');
   const card = page.locator(`#notification-${id}`);
   await expect(card).toBeVisible();
+  await card.scrollIntoViewIfNeeded();
+  await expect(card).toHaveClass(/is-read/);
+  await itemAction(page, card, 'Mark unread');
   await page.context().setOffline(true);
   await expect(page.getByText('Offline. Showing your last loaded updates.')).toBeVisible();
-  await card.getByRole('button', { name: 'Mark as read', exact: true }).click();
+  await itemAction(page, card, 'Mark as read');
   await expect(card.getByText('New', { exact: true })).toBeVisible();
   await page.context().setOffline(false);
+  await page.locator('.auth-controls .account-menu > summary').click();
   await page.getByRole('button', { name: 'Log out', exact: true }).click();
   await expect(card).toHaveCount(0);
   await signInGoogle(page);
@@ -61,7 +66,7 @@ test('desktop preview dismisses with Escape and focuses the selected private upd
   test.skip(testInfo.project.name === 'mobile', 'Mobile opens the full inbox directly.');
   const uid = await signInGoogle(page), id = randomUUID();
   await db.doc(`procedureNotifications/${uid}/items/${id}`).set({ title: 'Preview regression update', read: false, createdAt: Date.now() });
-  const trigger = page.getByRole('button', { name: 'Show recent notifications', exact: true });
+  const trigger = page.getByRole('link', { name: /^Notifications/ });
   await trigger.click();
   await expect(page.getByRole('region', { name: 'Recent notifications' })).toBeVisible();
   await page.keyboard.press('Escape');
@@ -69,7 +74,8 @@ test('desktop preview dismisses with Escape and focuses the selected private upd
   await expect(page.getByRole('region', { name: 'Recent notifications' })).toHaveCount(0);
   await page.goto('/#procedures/notifications');
   await expect(page.locator(`#notification-${id}`)).toBeVisible();
-  await page.locator(`#notification-${id}`).getByRole('button', { name: 'Mark as read', exact: true }).click();
+  await page.locator(`#notification-${id}`).scrollIntoViewIfNeeded();
+  await expect(page.locator(`#notification-${id}`)).toHaveClass(/is-read/);
   await page.getByRole('button', { name: 'Unread notifications', exact: true }).click();
   await expect(page.locator(`#notification-${id}`)).toHaveCount(0);
   await trigger.click();
@@ -84,6 +90,9 @@ test('an old refresh cannot undo a successful read action', async ({ page }) => 
   await page.goto('/#procedures/notifications');
   const card = page.locator(`#notification-${id}`);
   await expect(card).toBeVisible();
+  await card.scrollIntoViewIfNeeded();
+  await expect(card).toHaveClass(/is-read/);
+  await itemAction(page, card, 'Mark unread');
   let release!: () => void, intercepted!: () => void, delay = true;
   const gate = new Promise<void>(resolve => { release = resolve; }), started = new Promise<void>(resolve => { intercepted = resolve; });
   await page.route('**/procedureCommunity', async route => {
@@ -94,10 +103,12 @@ test('an old refresh cannot undo a successful read action', async ({ page }) => 
   try {
     await page.getByRole('button', { name: 'Refresh notifications', exact: true }).click();
     await started;
-    await card.getByRole('button', { name: 'Mark as read', exact: true }).click();
-    await expect(card.getByRole('button', { name: 'Mark unread', exact: true })).toBeVisible();
+    await itemAction(page, card, 'Mark as read');
+    await card.scrollIntoViewIfNeeded();
+  await expect(card).toHaveClass(/is-read/);
     release();
-    await expect(card.getByRole('button', { name: 'Mark unread', exact: true })).toBeVisible();
+    await card.scrollIntoViewIfNeeded();
+  await expect(card).toHaveClass(/is-read/);
     await expect(card.getByText('An older snapshot.', { exact: true })).toHaveCount(0);
   } finally { release(); }
 });
@@ -138,3 +149,8 @@ test('shared summary polling stays bounded and stops while hidden', async ({ pag
   await page.clock.runFor(240000);
   expect(summaries).toBe(hidden);
 });
+
+async function itemAction(page: import('@playwright/test').Page, card: import('@playwright/test').Locator, label: string) {
+  await card.locator('.action-disclosure > summary').click();
+  await page.getByRole('button', {name:label,exact:true}).click();
+}

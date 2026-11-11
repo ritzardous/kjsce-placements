@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../lib/auth";
+import { AppIcon } from "../ui/AppIcon";
 import { ArchiveIndex } from "./ArchiveIndex";
 import { LandingFooter, LandingHeader, SignInCTA } from "./LandingChrome";
 import { PathwayField, useMotionPolicy, usePageMotion } from "./motion";
@@ -34,13 +35,12 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
     root = useRef<HTMLDivElement>(null),
     support = useRef<HTMLElement>(null),
     allowed = useMotionPolicy(),
-    [paused, setPaused] = useState(false),
     [batch, setBatch] = useState(2026);
   // Background playback must not collapse the scroll chapters and shift the page.
   const experience = useScrollStory(3, allowed);
   const people = useScrollStory(3, allowed, true);
   const round = experience.index, current = rounds[round];
-  usePageMotion(root, allowed && !paused);
+  usePageMotion(root, allowed);
   const explore = () => {
     support.current?.scrollIntoView({ behavior: allowed ? "smooth" : "instant" });
     support.current?.focus({ preventScroll: true });
@@ -56,7 +56,7 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
     <div
       ref={root}
       className="ps-landing"
-      data-motion={allowed && !paused ? "on" : "off"}
+      data-motion={allowed ? "on" : "off"}
     >
       <a
         className="lp-skip"
@@ -85,21 +85,18 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
             </h1>
             <p className="lp-intro">
               Clear stats. Campus rounds.
-              <br /> Alumni. <span>One toolkit.</span>
+              <span className="lp-intro-second">Alumni. <span>One toolkit.</span></span>
             </p>
             <SignInCTA />
-            {deepLink && <p className="lp-return">Sign in to pick up where that link takes you.</p>}
+
             {user && <button type="button" className="lp-text-button" disabled={busy} onClick={() => void logout()}>Sign out and use another account</button>}
             {error && (
-              <p className="lp-auth-error" role="alert">
+              <p className={`lp-auth-error${error.toLowerCase().includes("cancelled") ? " is-cancelled" : ""}`} role={error.toLowerCase().includes("cancelled") ? "status" : "alert"}>
                 {error}
               </p>
             )}
           </div>
-          <ArchiveIndex
-            paused={paused}
-            onToggleMotion={() => setPaused((value) => !value)}
-          />
+          <ArchiveIndex />
           <a
             className="lp-hero-scroll"
             href="#landing?section=archive"
@@ -109,7 +106,7 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
             }}
           >
             <span>The numbers. The rounds. The people.</span>
-            <span aria-hidden="true">↓</span>
+            <AppIcon name="compass"/>
           </a>
         </section>
         <section
@@ -131,7 +128,7 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
               Check the source records and see where information is missing.
             </p>
             <a className="lp-text-link" href={`#${batch}/overview`}>
-              Explore the placement data <span aria-hidden="true">↗</span>
+              Explore the placement data <AppIcon name="book"/>
             </a>
           </div>
           <div className="lp-record-desk" data-reveal>
@@ -200,7 +197,7 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
                     </span>
                     <span className="lp-record-compensation">
                       {item.ctc}
-                      <span aria-hidden="true">↗</span>
+                      <AppIcon name="book"/>
                     </span>
                   </a>
                 ))}
@@ -230,7 +227,7 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
                   aria-hidden="true"
                 >
                   <path
-                    d="M18 17H72V65H18Z M32 7H86V55 M51 31H118M105 18L119 31L105 44"
+                    d="M18 17H72V65H18Z M32 7H86V55 M51 31H118M111 24V38"
                     stroke="currentColor"
                     strokeWidth="1.3"
                   />
@@ -282,7 +279,7 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
                   </div>
                 </div>
                 <a className="lp-text-link" href="#procedures">
-                  Explore company procedures <span aria-hidden="true">↗</span>
+                  Explore company procedures <AppIcon name="book"/>
                 </a>
               </div>
             </div>
@@ -310,11 +307,7 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
             </div>
           </div>
         </section>
-        <ClosingSection
-          allowed={allowed}
-          paused={paused}
-          onToggleMotion={() => setPaused((value) => !value)}
-        />
+        <ClosingSection allowed={allowed} />
       </main>
       <LandingFooter />
     </div>

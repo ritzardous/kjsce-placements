@@ -18,7 +18,7 @@ test('shared shell stays stable and theme preference survives sections and reloa
  await page.getByRole('button',{name:'Switch to dark mode'}).click();
  await expect(page.locator('html')).toHaveAttribute('data-theme','dark');
  await page.reload();await expect(page.getByRole('button',{name:'Switch to light mode'})).toBeVisible();
- expect(await page.evaluate(()=>getComputedStyle(document.body).backgroundColor)).toBe('rgb(8, 8, 8)');
+ expect(await page.evaluate(()=>getComputedStyle(document.body).backgroundColor)).toBe('rgb(16, 20, 17)');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.screenshot({path:`artifacts/app-dark-${info.project.name}.png`});
  await page.getByRole('button',{name:'Switch to light mode'}).click();

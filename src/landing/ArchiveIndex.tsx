@@ -60,13 +60,8 @@ function ArchivePoster() {
     </svg>
   );
 }
-export function ArchiveIndex({
-  paused = false,
-  onToggleMotion,
-}: {
-  paused?: boolean;
-  onToggleMotion: () => void;
-}) {
+export function ArchiveIndex() {
+  const paused = false;
   const [selected, setSelected] = useState(0),
     [ready, setReady] = useState(false),
     [failedLogos, setFailedLogos] = useState<string[]>([]),
@@ -227,32 +222,7 @@ export function ArchiveIndex({
           ))}
         </div>
       </div>
-      <button
-        className="index-motion-icon"
-        type="button"
-        disabled={!motionAllowed}
-        aria-label={
-          paused ? "Play archive animation" : "Pause archive animation"
-        }
-        title={paused ? "Play animation" : "Pause animation"}
-        onClick={onToggleMotion}
-      >
-        <svg
-          viewBox="0 0 24 24"
-          width="16"
-          height="16"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          aria-hidden="true"
-        >
-          {paused ? (
-            <path d="M8 5L19 12L8 19Z" />
-          ) : (
-            <path d="M8 5V19M16 5V19" />
-          )}
-        </svg>
-      </button>
+
     </figure>
   );
 }

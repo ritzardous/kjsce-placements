@@ -34,7 +34,10 @@ export async function saveDraft(db: Firestore, actorValue: Actor | undefined, va
     if (input.draft.companyKey) { const company = await tx.get(db.doc(`procedureCompanies/${input.draft.companyKey}`)); requireCondition(company.exists && !company.data()!.aliasOf, 'Choose a company from the recruiter directory.'); }
     const stampLimit = await limit(db, tx, actor, 'draft', 300);
     const version = input.expectedVersion + 1;
-    tx.set(ref, { ownerUid: actor.uid, draft: input.draft, draftVersion: version, revision: old?.revision ?? 0, status: 'draft', feedback: old?.feedback ?? '', updatedAt: Date.now(), hasPublished: old?.hasPublished ?? false }, { merge: true });
+    const savedDraft = { ownerUid: actor.uid, draft: input.draft, draftVersion: version, revision: old?.revision ?? 0, status: 'draft', feedback: old?.feedback ?? '', updatedAt: Date.now(), hasPublished: old?.hasPublished ?? false };
+    // Replace the complete validated draft map so clearing optional metadata
+    // removes its old value, while preserving unrelated submission fields.
+    if (snap.exists) tx.update(ref, savedDraft); else tx.create(ref, savedDraft);
     tx.set(db.doc(`procedurePreferences/${actor.uid}`), { graduationYear: input.draft.graduationYear, role: input.draft.role, attribution: input.draft.attribution, customName: input.draft.customName });
     stampLimit();
     return { version };

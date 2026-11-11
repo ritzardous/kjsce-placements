@@ -1,3 +1,4 @@
+import { AppIcon } from "../ui/AppIcon";
 import { useState } from "react";
 import { archiveCompanies, companyRoute, companyYears } from "./archive-data";
 const connectionCompanies = archiveCompanies.slice(0, 3);
@@ -28,7 +29,7 @@ export function PeopleHandoff({ prompt, onPrompt }: { prompt: number; onPrompt: 
     <div className="lp-handoff" data-reveal>
       <div className="lp-handoff-top">
         <span className="lp-handoff-school">
-          KJSCE <span>↗</span>
+          KJSCE <AppIcon name="building"/>
         </span>
         <span>Your college. Your alumni.</span>
       </div>
@@ -86,7 +87,7 @@ export function PeopleHandoff({ prompt, onPrompt }: { prompt: number; onPrompt: 
             <strong>{company.name}</strong>
             <span>Available alumni on LinkedIn</span>
           </div>
-          <span aria-hidden="true">↗</span>
+          <AppIcon name="user"/>
         </div>
         <div className="lp-handoff-question" data-story-focus>
           <span>A question to start with</span>
@@ -108,7 +109,7 @@ export function PeopleHandoff({ prompt, onPrompt }: { prompt: number; onPrompt: 
           </div>
         </div>
         <a className="lp-text-link" href={companyRoute(company, year)}>
-          Find alumni at {company.short} <span aria-hidden="true">↗</span>
+          Find alumni at {company.short} <AppIcon name="user"/>
         </a>
       </div>
     </div>

@@ -26,8 +26,8 @@ try {
     .experiences{top:154px;left:133px;transform:rotate(4deg)}.people{top:281px;left:38px;transform:rotate(-3deg)}
   </style></head><body><main>
     <header><span class="logo">p</span><span class="brand">Placement<br>Stats.</span><span class="college">KJSCE</span></header>
-    <h1>Know more.<br><em>Go further.</em></h1>
-    <p>Placement intelligence.<br>Built for the next batch.</p>
+    <h1>Don’t prep<br><em>in the dark.</em></h1>
+    <p>Clear stats. Campus rounds.<br>Alumni. One toolkit.</p>
     <div class="visual">
       <svg width="420" height="383" viewBox="0 0 420 383" fill="none" aria-hidden="true">
         <defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#2845ff" opacity=".22"/></pattern></defs>
@@ -37,11 +37,11 @@ try {
         <path d="M208 65L285 185L172 310" stroke="#2845ff" stroke-width="3"/>
         <circle cx="208" cy="65" r="7" fill="#2845ff"/><circle cx="285" cy="185" r="7" fill="#2845ff"/><circle cx="172" cy="310" r="7" fill="#2845ff"/>
       </svg>
-      <div class="node records"><span>↗</span>Real records</div>
-      <div class="node experiences"><span>↗</span>Firsthand experiences</div>
-      <div class="node people"><span>↗</span>Alumni connections</div>
+      <div class="node records"><span>▤</span>Source-backed stats</div>
+      <div class="node experiences"><span>◎</span>Firsthand experiences</div>
+      <div class="node people"><span>✳</span>Alumni perspectives</div>
     </div>
-    <footer><span>A clearer perspective on placements.</span><span>kjsce-placements.vercel.app ↗</span></footer>
+    <footer><span>Placement intelligence. Your next move.</span><span>kjsce-placements.vercel.app ↗</span></footer>
   </main></body></html>`);
   await page.evaluate(() => document.fonts.ready);
   await mkdir(new URL('public/social/', root), { recursive: true });

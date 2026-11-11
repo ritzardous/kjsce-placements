@@ -19,7 +19,7 @@ before(async () => {
 });
 after(async () => { await deleteApp(app); });
 async function fixture() {
-  const actor = contributor(), id = randomUUID(), draft = { ...initialProcedureDraft(), companyKey: 'procedure-test-company', body };
+  const actor = contributor(), id = randomUUID(), draft = { ...initialProcedureDraft(), companyKey: 'procedure-test-company', campus: 'Off campus' as const, body };
   await saveDraft(db, actor, { id, expectedVersion: 0, draft });
   await submit(db, actor, { id, expectedVersion: 1 });
   return { actor, id, draft };
@@ -29,6 +29,23 @@ test('only verified Google accounts can mutate; admin claims are required for mo
   assert.throws(() => authorize(contributor(), true));
   assert.doesNotThrow(() => authorize(admin, true));
   await assert.rejects(review(db, contributor(), { id: 'a', revision: 1, decision: 'approved', feedback: '' }));
+});
+
+test('clearing optional recruitment metadata replaces the draft map without losing submission metadata', async () => {
+  const actor = contributor(), id = randomUUID(), ref = db.doc(`procedureSubmissions/${id}`);
+  const draft = { ...initialProcedureDraft(), companyKey: 'procedure-test-company', body };
+  await saveDraft(db, actor, { id, expectedVersion: 0, draft: { ...draft, campus: 'On campus' } });
+  await ref.update({ maintenanceMarker: 'preserved' });
+  await db.doc(`procedureLimits/${actor.uid}-draft`).delete();
+  await saveDraft(db, actor, { id, expectedVersion: 1, draft: { ...draft, campus: 'Off campus' } });
+  assert.equal((await ref.get()).data()!.draft.campus, 'Off campus');
+  await db.doc(`procedureLimits/${actor.uid}-draft`).delete();
+  await saveDraft(db, actor, { id, expectedVersion: 2, draft });
+  const saved = (await ref.get()).data()!;
+  assert.equal(Object.hasOwn(saved.draft, 'campus'), false);
+  assert.equal(saved.draft.body, body);
+  assert.equal(saved.draftVersion, 3);
+  assert.equal(saved.maintenanceMarker, 'preserved');
 });
 test('submission stays private; pending locks drafts; approval publishes only the exact revision without email', async () => {
   const { actor, id, draft } = await fixture();
@@ -44,6 +61,8 @@ test('submission stays private; pending locks drafts; approval publishes only th
   const published = (await db.doc(`procedurePosts/${id}`).get()).data()!;
   assert.equal(published.authorName, 'Community contributor');
   assert.equal(published.body, body);
+  assert.equal(published.campus, 'Off campus');
+  assert.equal((await db.doc(`procedureSubmissions/${id}/revisions/1`).get()).data()!.campus, 'Off campus');
   assert.equal(published.email, undefined);
   assert.equal(published.feedback, undefined);
   assert.equal(published.submittedAt, undefined);

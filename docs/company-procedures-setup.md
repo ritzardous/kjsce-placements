@@ -1,14 +1,28 @@
-# Company Procedures setup
+# Company Procedures activation
 
-The live app uses Firebase Authentication and Firestore on Spark, with a trusted Node API hosted alongside the frontend on Vercel. It does not require Firebase Cloud Functions or a Blaze upgrade.
+[Documentation index](README.md) · [Deployment](deployment.md) · [Operations](operations.md)
 
-- `npm run dev`: normal app and API on localhost:5173, using real Google accounts and live Firestore.
-- `npm run dev:beta`: isolated test backend and accounts on localhost:5174.
-- `npm run procedures:deploy`: publish live rules/indexes/catalog and assign the chosen admin; no billing change.
-- `npm run procedures:verify -- --project placement-stats-kjsce --allow-production --cli-auth`: read-only live setup verification.
+The configured production design uses Firebase Authentication/Firestore plus a trusted Node API on Vercel. It does not require production Cloud Functions. Backend source under `functions/src/` is compiled and reused by the HTTP adapter; callables support isolated local tests.
 
-The Node API reuses the tested transaction services in `functions/src/service.ts`. The Firebase Functions wrapper remains for isolated emulator testing. Production API credentials are server-only `FIREBASE_PROJECT_ID` and `FIREBASE_SERVICE_ACCOUNT_JSON`; Google tokens and current account status are verified before any mutation. Private submissions, revisions, limits, votes and notifications remain protected by the same rules.
+## Local use
 
-Notifications are entirely in-app. The shared signed-in header bell opens the inbox from Home, statistics, Account or Company Procedures. Admin work queues remain separate from personal unread counts. Readers and contributors can filter activity, read/archive updates, view private report outcomes and opt into company, experience or batch updates through Notification preferences. No email provider, sender domain, notification secrets or scheduled worker is needed.
+- First-time full stack: install both dependency trees and run `npm run dev:beta` on port 5174, as described in [getting started](getting-started.md).
+- Original-project authorized maintenance: `npm run dev` starts Vite on 5173 and a CLI-authenticated API on 5002. This server has a hard-coded live project, so changing `.env` does not retarget it.
+- Frontend-only: `npm run dev:web` needs cloud browser configuration and an independently configured API for community actions.
 
-The notification upgrade adds private `notificationSettings` documents and indexes for unread, archived and retention queries. Deploy rules/indexes before the updated API and frontend, and wait for indexes to build. Existing history needs no bulk migration.
+## Hosted activation
+
+1. Enable Google sign-in, authorize hostnames and configure browser Firebase values.
+2. Deploy reviewed rules and indexes. Wait for indexes to become ready.
+3. Seed/reconcile the company directory through explicit-target `procedures:seed`. Existing placement batches do not need blind reimport.
+4. Build the backend and deploy `/api/procedures` with matching server-only `FIREBASE_PROJECT_ID` and `FIREBASE_SERVICE_ACCOUNT_JSON`.
+5. Assign an administrator through the trusted explicit-target role command, refresh their session, and configure owner UIDs separately if needed.
+6. Verify contributor draft/submit, admin decision, approved reading, voting, reports and personal inbox; confirm owner-only/private boundaries.
+
+Detailed commands are centralized in [operations](operations.md). The `procedures:deploy` helper targets the original project and a hard-coded admin; it configures Firebase data/access but does not deploy Vercel. The `procedures:verify` script also expects a specific admin account/catalog entry. Neither is a generic fork setup/health command.
+
+## Notifications and retired discussions
+
+Notifications are entirely in-app. The shared header bell opens a private inbox; moderation work queues are separate from personal unread counts. Preferences support opt-in follows and version conflict checks. Deploy notification rules/indexes before compatible API/frontend changes; no bulk history migration is required by the current compatibility reader.
+
+No email provider, SMTP credentials, push integration or scheduled worker is configured. New questions/replies are disabled even though legacy discussion data, reports and moderation branches remain. See [API reference](api-reference.md) for the actual action surface.

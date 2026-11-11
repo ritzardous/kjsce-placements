@@ -25,7 +25,7 @@ test('contributor workspace has one filter, compact rows and confirmed secondary
  await page.screenshot({path:`artifacts/workspace-contributions-${info.project.name}.png`,fullPage:true});
  await rows.nth(0).getByRole('link',{name:'Continue writing',exact:true}).click();
  await expect(page.getByRole('link',{name:'← Back to My contributions',exact:true})).toBeVisible();
- await page.getByText('Experience details ·',{exact:false}).click();await expect(page.getByLabel('Year you appeared',{exact:true})).toBeVisible();
+ await page.locator('.studio-details > summary').click();await expect(page.getByLabel('Year you appeared',{exact:true})).toBeVisible();
  await page.screenshot({path:`artifacts/workspace-editor-${info.project.name}.png`,fullPage:true});
  await page.getByRole('link',{name:'← Back to My contributions',exact:true}).click();await expect(rows).toHaveCount(2);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);

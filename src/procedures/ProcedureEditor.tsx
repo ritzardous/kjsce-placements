@@ -90,7 +90,7 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
   }
   useEffect(()=>{if(!touched.current||!ready||pending.current||conflict||busy||JSON.stringify(draft)===savedBody.current)return;setSaved(deviceSaved?'Your writing is safe on this device. Saving to your account soon.':'Unsaved changes');const timer=setTimeout(()=>void enqueueSave().catch(failed),900);return()=>clearTimeout(timer);},[draft,ready,conflict,busy]);
   useEffect(()=>{const warn=(event:BeforeUnloadEvent)=>{if(JSON.stringify(latest.current)!==savedBody.current&&!pending.current){if(!deviceCopy(latest.current)){event.preventDefault();event.returnValue='';}}};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[]);
-  function update<K extends keyof ProcedureDraft>(key:K,value:ProcedureDraft[K]){touched.current=true;setIssues(previous=>{const next={...previous};delete next[key];return next;});setDraft(previous=>({...previous,[key]:value}));}
+  function update<K extends keyof ProcedureDraft>(key:K,value:ProcedureDraft[K]){touched.current=true;setIssues(previous=>{const next={...previous};delete next[key];return next;});setDraft(previous=>{const next={...previous,[key]:value};if(key==='campus'&&value===undefined)delete next.campus;return next;});}
   function format(action:WritingFormat){
     const element=textarea.current;
     const result=toggleWritingFormat(latest.current.body,element?.selectionStart??selection.start,element?.selectionEnd??selection.end,action);
@@ -115,7 +115,7 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
   const locked=status==='pending'||busy||leaving;
   const selectedCompany=companies.find(company=>company.key===draft.companyKey);
   const canUseStarter=!draft.body.trim()||[procedureStarter,oneRoundStarter,procedureStarter.replace(/<!--[\s\S]*?-->/g,'')].some(starter=>starter.trim()===draft.body.trim());
-  const names:Record<keyof ProcedureDraft,string>={companyKey:'Company',appearanceYear:'Year you appeared',body:'Your experience',title:'Experience title (optional)',summary:'Short summary (optional)',rounds:'Rounds covered',graduationYear:'Graduation year',role:'Role',attribution:'Public name',customName:'Custom public name',coverage:'Coverage',outcome:'Did you get selected?'};
+  const names:Record<keyof ProcedureDraft,string>={companyKey:'Company',appearanceYear:'Year you appeared',body:'Your experience',title:'Experience title (optional)',summary:'Short summary (optional)',rounds:'Rounds covered',graduationYear:'Graduation year',role:'Role',attribution:'Public name',customName:'Custom public name',coverage:'Coverage',campus:'Recruitment route',outcome:'Did you get selected?'};
   const fieldProps=(key:keyof ProcedureDraft)=>({id:`procedure-${key}`,'aria-label':names[key],'aria-invalid':Boolean(issues[key]),'aria-describedby':issues[key]?`procedure-error-${key}`:undefined});
   const fieldError=(key:keyof ProcedureDraft)=>issues[key]?<p id={`procedure-error-${key}`} className="procedure-note">{issues[key]}</p>:null;
   useEffect(()=>{const guard=(event:MouseEvent)=>{const anchor=(event.target as HTMLElement).closest?.('a[href]');if(!anchor||pending.current||JSON.stringify(latest.current)===savedBody.current)return;if(!deviceCopy(latest.current)&&!window.confirm('Your latest writing could not be saved to your account or this browser. Leave and lose these unsaved changes?')){event.preventDefault();event.stopPropagation();}};document.addEventListener('click',guard,true);return()=>document.removeEventListener('click',guard,true);},[]);
@@ -134,7 +134,7 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
     </div>
     {feedback&&<div className="procedure-feedback studio-feedback"><h3>Reviewer feedback</h3><p>{feedback}</p></div>}
     <header className="studio-submission-head">
-      <p className="studio-eyebrow">{draft.appearanceYear} · {draft.coverage} · {draft.outcome}</p>
+      <p className="studio-eyebrow">{draft.appearanceYear} · {draft.coverage} · {draft.outcome}{draft.campus && ` · ${draft.campus}`}</p>
       <h2>{draft.title||selectedCompany?.name||'Your experience'}</h2>
       <button type="button" disabled className="action-button studio-pending-button"><AppIcon name="clock"/>Pending approval</button>
     </header>
@@ -154,6 +154,7 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
       <p className="studio-eyebrow">Experience draft</p>
       <h2 className="studio-doc-title">{selectedCompany?`${selectedCompany.name} experience`:'Share your experience'}</h2>
       <p className="studio-doc-dek">Write the rounds you attended, the questions you remember, and what helped you prepare.</p>
+      {draft.campus && <span className="procedure-badge">{draft.campus}</span>}
     </header>
 
     {pending.current?<div id="procedure-submitted" tabIndex={-1} className="contribute-notice studio-status-banner">
@@ -214,7 +215,7 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
               <label className="procedure-body-label"><span className="sr-only">Your experience</span><textarea {...fieldProps('body')} aria-required="true" ref={textarea} rows={12} maxLength={20000} placeholder="I appeared for… The round included… My advice would be…" value={draft.body} onSelect={trackSelection} onChange={e=>{update('body',e.target.value);trackSelection();}} onKeyDown={event=>{if(!(event.ctrlKey||event.metaKey)||event.altKey)return;const key=event.key.toLowerCase();if(['b','i','k'].includes(key)){event.preventDefault();if(key==='b')format('bold');if(key==='i')format('italic');if(key==='k')format('link');}}}/>{fieldError('body')}</label>
               {preview&&<article className="procedure-reader-preview studio-preview" aria-label="Reader preview">
                 <header className="studio-preview-head"><span className="studio-preview-label">Live preview</span><span className="studio-preview-note">Updates as you write</span></header>
-                <p className="studio-preview-kicker">{selectedCompany?.name||'Company'} · {draft.appearanceYear} · {draft.coverage} · {draft.outcome}</p>
+                <p className="studio-preview-kicker">{selectedCompany?.name||'Company'} · {draft.appearanceYear} · {draft.coverage} · {draft.outcome}{draft.campus && ` · ${draft.campus}`}</p>
                 <h3 className="studio-preview-title">{draft.title.trim()||(selectedCompany?`${selectedCompany.name} experience`:'Your experience')}</h3>
                 {draft.summary&&<p className="studio-preview-summary">{draft.summary}</p>}
                 <p className="studio-preview-byline">By {publicName} · {readTime} min read</p>
@@ -228,6 +229,7 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
         <aside className="studio-rail" aria-label="Experience settings">
           <section className="studio-rail-card">
             <div className="studio-card-heading"><span className="studio-step" aria-hidden="true">3</span><div><h2>Experience details</h2><p>Required. These help readers find your experience.</p></div></div>
+            <label className="studio-campus-field">Recruitment route<select {...fieldProps('campus')} value={draft.campus || ''} onChange={event => update('campus', event.target.value ? event.target.value as ProcedureDraft['campus'] : undefined)}><option value="">Not specified</option><option>On campus</option><option>Off campus</option></select></label>
             <details className="experience-details studio-details" open={Boolean(issues.appearanceYear||issues.coverage||issues.outcome)}>
               <summary><span>Year, coverage and outcome</span></summary>
               <div className="procedure-fields">
