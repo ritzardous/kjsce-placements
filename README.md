@@ -2,7 +2,6 @@
 
 **Source-backed placement statistics and reviewed interview experiences for KJSCE students.**
 
-[![Verify dashboard](https://github.com/ritzardous/kjsce-placements/actions/workflows/ci.yml/badge.svg)](https://github.com/ritzardous/kjsce-placements/actions/workflows/ci.yml)
 [![Node 22](https://img.shields.io/badge/Node.js-22-43853d)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)](tsconfig.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
