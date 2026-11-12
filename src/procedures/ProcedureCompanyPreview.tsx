@@ -25,7 +25,8 @@ export function ProcedureCompanyPreview({ company, appearanceYear }: {company:Pr
   const current=state?.key===key?state:null;
   useEffect(()=>{
     let active=true;
-    if(!user||!Number.isFinite(year)){setState({key,error:true});return;}
+    if(!Number.isFinite(year)){setState({key});return;}
+    if(!user){setState({key,error:true});return;}
     // Community IDs use hyphens; published statistics retain underscore IDs.
     void companyStats(user.uid,year).then(rows=>{if(active)setState({key,company:rows.find(row=>canonicalCompanyKey(row.key)===canonicalCompanyKey(company.key))});}).catch(()=>{if(active)setState({key,error:true});});
     return()=>{active=false;};
@@ -35,7 +36,7 @@ export function ProcedureCompanyPreview({ company, appearanceYear }: {company:Pr
     <div>{!current?<FetchLoader compact label="Loading recorded placement details…"/>:current.company?<>
       <p><strong>{current.company.highestCtc===null?'CTC not recorded':`₹${current.company.highestCtc.toFixed(2)} LPA`}</strong> <span>highest recorded CTC · Class of {year}</span></p>
       <p className="procedure-note">{current.company.totalHired} recorded selections{current.company.roles.length?` · ${current.company.roles.slice(0,2).join(' / ')}`:''}</p>
-    </>:<p className="procedure-note">{current.error?'Could not load placement details. You can continue writing.':`No recorded placement details for Class of ${year}. You can continue writing.`}</p>}
+    </>:<p className="procedure-note">{!Number.isFinite(year)?'No placement statistics yet. You can share your experience.':current.error?'Could not load placement details. You can continue writing.':`No recorded placement details for Class of ${year}. You can continue writing.`}</p>}
     {current?.company&&<a href={`#${year}/company/${encodeURIComponent(current.company.key)}`} target="_blank" rel="noopener noreferrer">View placement stats ↗</a>}
     {year!==appearanceYear&&Number.isFinite(year)&&<p className="procedure-note">Showing the latest available batch; no record for your appearance year.</p>}
     </div>

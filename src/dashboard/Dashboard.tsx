@@ -1,3 +1,4 @@
+import { SourceNotes } from './SourceNotes';
 import {AppUtilities} from '../ui/AppUtilities';
 import { FetchLoader } from '../ui/FetchLoader';
 import { useEffect, useState } from 'react';
@@ -69,7 +70,14 @@ export default function Dashboard({ route }: { route: Route }) {
   else page = <Overview statistics={s} />;
   const notes = data?.metadata.extraction_notes;
   return <div id="app"><AppHeader active="statistics"/>
-    <main id="main" key={route.year}><nav className="nav dashboard-desktop-nav" aria-label="Dashboard">{nav.map(([key, label]) => <a className={'nav-item ' + (active === key ? 'active' : '')} aria-current={active === key ? 'page' : undefined} key={key} href={routeHref(key, route.year)}><AppIcon name={sectionIcons[key]}/><span>{label}</span></a>)}</nav>{s && route.year === 2027 && <aside className="coverage-notice live-notice"><strong><span className="live-badge">LIVE</span> 2026–27 · Placements ongoing</strong><span>Season in progress. these totals are provisional. Latest included email: {typeof data?.metadata.source_updated_at === 'string' ? date(data.metadata.source_updated_at.slice(0, 10), true) : 'Not available'}; latest declared result: {date(s.summary.latestDate, true)}. Updates appear automatically when reviewed results are published. Registration total is unavailable, so no placement rate is calculated.</span><span className="sync-indicator">Published updates appear automatically.</span></aside>}{s && route.year === 2025 && route.page === 'overview' && <aside className="coverage-notice"><strong>2024–25 · Final UG report + email results</strong>{s.candidates.filter(c => c.campus === 'On campus').length} on-campus and {s.candidates.filter(c => c.campus === 'Off campus').length} off-campus selections. {s.candidates.filter(c => c.date === null).length} selections have no confirmed date; undated entries remain in totals but are excluded from timeline charts. Registration total is unavailable, so no placement rate is calculated.</aside>}{page}{s && route.page !== 'company' && Array.isArray(notes) && <details className="source-notes"><summary>Data sources, extraction notes & limitations</summary><ul>{notes.map((note, i) => <li key={i}>{String(note)}</li>)}</ul></details>}</main>
+    <main id="main" key={route.year}><nav className="nav dashboard-desktop-nav" aria-label="Dashboard">{nav.map(([key, label]) => <a className={'nav-item ' + (active === key ? 'active' : '')} aria-current={active === key ? 'page' : undefined} key={key} href={routeHref(key, route.year)}><AppIcon name={sectionIcons[key]}/><span>{label}</span></a>)}</nav>{page}{s && route.page !== 'company' && <SourceNotes key={`${route.year}/${route.page}/${route.parameter ?? ""}`}><ul>
+      <li>{s.batch.registrationSource} Placement rate counts unique students, not selections. No rate is shown without a registration total.</li>
+      <li>{s.batch.year === 2025 ? 'Final UG report, enriched with email results. Includes on-campus and off-campus selections. CTC averages are selection-weighted.' : 'Reviewed T&PO announcements; coverage is limited to supplied records. CTC averages are announcement-weighted.'} Unknown or mixed CTC values are excluded from averages.</li>
+      <li>TPO counters, selections and unique students are separate measures. Missing counters remain unknown. {s.candidates.filter(c=>c.date===null).length} undated selections count toward totals but not timeline charts.</li>
+      <li>Company CTC rankings show each company once, using its highest recorded package. Campus labels describe the recorded selection route, not every role at an employer.</li>
+      <li>Google is labeled off campus per maintainer clarification; other campus labels use the source report where available. Unspecified routes remain unknown.</li>
+      {Array.isArray(notes) && notes.map((note,i)=><li key={i}>{String(note)}</li>)}
+    </ul></SourceNotes>}</main>
     <PortalFooter/>
     <AppUtilities/><MobileAppNav active="statistics" statisticsHref={routeHref("overview",route.year)} year={route.year} section={active}/>
   </div>;

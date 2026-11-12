@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { canonicalCompanyKey, canonicalCompanyName } from '../../shared/company-identity.js';
 import { notificationActions, notificationApi } from './notification-api.js';
 import { writeNotification } from './notifications.js';
@@ -5,7 +6,7 @@ import { type Firestore, type Query, type DocumentData } from 'firebase-admin/fi
 import type { Auth } from 'firebase-admin/auth';
 import { z } from 'zod';
 import { authorize, manageSubmission, HttpsError, type Actor } from './service.js';
-import { postTitle } from '../../shared/procedures.js';
+import { createCompanySchema, postTitle } from '../../shared/procedures.js';
 import { publishedCompanyMetadata, invalidateCompanyDiscovery } from './company-discovery.js';
 import { matchesSearch } from '../../shared/search.js';
 
@@ -72,6 +73,26 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
   if(['ask','answer'].includes(request.action))throw new HttpsError('failed-precondition','Questions and replies are no longer available.');
   if (notificationActions.has(request.action)) return notificationApi(db, actor.uid, request.action, value);
   switch (request.action) {
+    case 'createCompany': {
+      const data = parse(createCompanySchema, value);
+      const normalized = data.name.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+      const key = canonicalCompanyKey(normalized || 'company-'+createHash('sha256').update(data.name.toLowerCase()).digest('hex').slice(0,24));
+      const result = await db.runTransaction(async tx => {
+        const ref=db.doc('procedureCompanies/'+key), existing=await tx.get(ref);
+        if(existing.exists) {
+          const row=existing.data()!;
+          if(row.aliasOf) { const target=await tx.get(db.doc('procedureCompanies/'+row.aliasOf)); required(target.exists,'Company unavailable. Choose another name.'); return {key:target.id,name:target.data()!.name,years:target.data()!.years||[]}; }
+          return {key,name:row.name,years:row.years||[]};
+        }
+        const stamp=await throttle(db,tx,actor.uid,'create-company');
+        const row={name:canonicalCompanyName(key,data.name.replace(/\s+/g,' ')),years:[],source:'community',createdBy:actor.uid,createdAt:Date.now()};
+        tx.create(ref,row); stamp();
+        return {key,name:row.name,years:[]};
+      });
+      invalidateCompanyDiscovery(db);
+      return result;
+    }
+
     case 'syncAccount': {
       parse(z.object({}).strict(),value);
       required(auth, 'Account sync is unavailable.');

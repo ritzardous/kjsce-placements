@@ -111,9 +111,9 @@ test('companies search, type and CTC filters work; old detail URLs load', async 
 test('candidate search, role chips and pagination expose all selections', async ({ page }) => {
   await page.goto('/#candidates');
   await expect(page.locator('.result-count')).toHaveText('311 / 311');
-  await expect(page.locator('tbody tr')).toHaveCount(100);
+  await expect(page.locator('tbody tr')).toHaveCount(25);
   await page.getByRole('button', { name: 'Next', exact: true }).click();
-  await expect(page.getByText('Page 2 of 4')).toBeVisible();
+  await expect(page.getByText('Page 2 of 13')).toBeVisible();
   await page.getByRole('textbox', { name: 'Search candidates' }).fill('16010122044');
   await expect(page.locator('tbody tr')).toHaveCount(payload.statistics.candidates.filter(c => c.roll === '16010122044').length);
   await page.locator('.role-chip').first().click();
@@ -167,4 +167,16 @@ test('company candidate LinkedIn links stay with the 2026 batch and missing prof
   await expect(page.getByRole('heading',{name:'Barclays',exact:true})).toBeVisible();
   await expect(page.locator('a.candidate-linkedin')).toHaveCount(0);
   await expect(page.locator('.candidate-linkedin-pending').first()).toBeVisible();
+});
+
+test('source notes close across routes and campus labels stay inside company details', async ({page}) => {
+  await page.goto('/#2025/overview');
+  await page.locator('.source-notes summary').click();
+  await expect(page.locator('.source-notes')).toHaveAttribute('open','');
+  await chooseSection(page,'Companies');
+  await expect(page.locator('.source-notes')).not.toHaveAttribute('open','');
+  await page.getByRole('textbox',{name:'Search companies'}).fill('Goldman');
+  await expect(page.locator('tbody')).not.toContainText('Off campus');
+  await page.locator('tbody').getByRole('link',{name:'Goldman Sachs',exact:true}).click();
+  await expect(page.locator('.detail-head')).toContainText('Off campus');
 });

@@ -52,3 +52,11 @@ Protected deep links retain their destination during sign-in. Route guards contr
 - No attachment upload in the experience form. Markdown images become text placeholders; raw HTML is skipped.
 - No alumni directory, email/push notifications, autonomous worker queue or complete infrastructure monitoring.
 - Historical visual test reports are evidence, not guarantees for every device.
+
+### Dashboard browsing
+
+Company and candidate tables show 25 rows per page; changing a filter resets the page. Company CTC rankings use one row per employer and its highest known package, while source announcements remain separate. Recent results are collapsed until opened. Methodology and coverage notes are available at the bottom under **Data sources & limitations**. The panel closes when navigating to another page, moving focus or clicking outside it, or scrolling it out of view.
+
+The public landing preview highlights JPMC, ION and EDRA Labs for 2026, and Browserstack, JPMC and Eventstrat Labs for 2025. Unknown roles stay unprovided. Campus labels use the source report where present; Google's off-campus display label follows maintainer clarification. This does not alter source records or historical totals.
+
+The 3D hero uses JPMC, Barclays, Deloitte, Oracle and Capgemini, independently of the package previews. Company lists omit campus tags; opened company details retain the route labels.

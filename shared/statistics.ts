@@ -93,3 +93,9 @@ export type Company = Statistics['companies'][number];
 export type Candidate = Statistics['candidates'][number];
 export type Branch = Statistics['branches'][number];
 export interface DashboardResponse { metadata: Dataset['metadata']; statistics: Statistics; }
+
+/** Rank employers once, retaining separate source announcements and selections. */
+export function highestCtcCompanies(companies: Company[], limit = 8) {
+  return [...companies].filter(c => c.highestCtc !== null)
+    .sort((a,b) => b.highestCtc! - a.highestCtc! || a.name.localeCompare(b.name)).slice(0,limit);
+}

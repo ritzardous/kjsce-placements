@@ -29,9 +29,8 @@ export function PeopleHandoff({ prompt, onPrompt }: { prompt: number; onPrompt: 
     <div className="lp-handoff" data-reveal>
       <div className="lp-handoff-top">
         <span className="lp-handoff-school">
-          KJSCE <AppIcon name="building"/>
+          KJSCE
         </span>
-        <span>Your college. Your alumni.</span>
       </div>
       <div className="lp-handoff-target">
         <span>Your next target company</span>
@@ -87,7 +86,6 @@ export function PeopleHandoff({ prompt, onPrompt }: { prompt: number; onPrompt: 
             <strong>{company.name}</strong>
             <span>Available alumni on LinkedIn</span>
           </div>
-          <AppIcon name="user"/>
         </div>
         <div className="lp-handoff-question" data-story-focus>
           <span>A question to start with</span>

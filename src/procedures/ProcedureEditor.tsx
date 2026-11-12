@@ -9,8 +9,8 @@ import { FetchLoader } from '../ui/FetchLoader';
 import { AppIcon } from '../ui/AppIcon';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useAuth } from '../lib/auth';
-import { procedureDraftSchema, initialProcedureDraft, procedureStarter, oneRoundStarter, meaningfulBody, readingMinutes, roundOptions, submissionSchema, type ProcedureDraft, type ProcedureSubmission } from '../../shared/procedures';
-import { getSubmission, saveProcedure, callProcedure, procedureError } from './procedures-api';
+import { procedureDraftSchema, initialProcedureDraft, procedureStarter, oneRoundStarter, meaningfulBody, readingMinutes, roundOptions, submissionSchema, type ProcedureCompany, type ProcedureDraft, type ProcedureSubmission } from '../../shared/procedures';
+import { getSubmission, saveProcedure, callProcedure, invalidateCompanyDirectory, procedureError } from './procedures-api';
 import { community } from '../community/community-api';
 import { useCompanies } from './ProcedureCommunity';
 import { Markdown } from './ProcedureMarkdown';
@@ -33,7 +33,15 @@ function readBackup(key: string, draftId?: string): Backup | null {
   } catch { return null; }
 }
 export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey?:string}) {
-  const {user}=useAuth(), {companies,error:companyError,loading:companiesLoading}=useCompanies();
+  const {user}=useAuth(), {companies:directoryCompanies,error:companyError,loading:companiesLoading}=useCompanies();
+  const [addedCompanies,setAddedCompanies]=useState<ProcedureCompany[]>([]);
+  const companies=[...directoryCompanies,...addedCompanies.filter(c=>!directoryCompanies.some(d=>d.key===c.key))];
+  async function addCompany(name:string) {
+    const company=await community<ProcedureCompany>('createCompany',{name});
+    invalidateCompanyDirectory();
+    setAddedCompanies(previous=>[...previous.filter(c=>c.key!==company.key),company]);
+    return company;
+  }
   const newKey=freshKey?`new:${freshKey}`:'new';
   const [persistedId,setPersistedId]=useState(draftId), [backup]=useState(()=>readBackup(`procedure-backup:${user?.uid}:${draftId||newKey}`,draftId));
   const backupKey=`procedure-backup:${user?.uid}:${persistedId||newKey}`, storageKey=useRef(backupKey); storageKey.current=backupKey;
@@ -184,9 +192,9 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
           <section className="studio-card studio-company-card">
             <div className="studio-card-heading">
               <span className="studio-step" aria-hidden="true">1</span>
-              <div><h2>Where did you interview?</h2><p>Pick the company and we will match it with recorded placement data.</p></div>
+              <div><h2>Where did you interview?</h2><p>Choose a company, or add one to start writing.</p></div>
             </div>
-            <ProcedureCompanyPicker companies={companies} value={draft.companyKey} onChange={value=>update('companyKey',value)} loading={companiesLoading} disabled={locked} invalid={Boolean(issues.companyKey)} errorId={issues.companyKey?'procedure-error-companyKey':undefined}/>
+            <ProcedureCompanyPicker onCreate={addCompany} companies={companies} value={draft.companyKey} onChange={value=>update('companyKey',value)} loading={companiesLoading} disabled={locked} invalid={Boolean(issues.companyKey)} errorId={issues.companyKey?'procedure-error-companyKey':undefined}/>
             {fieldError('companyKey')}
             {companyError&&<p role="alert">{companyError}</p>}
             {selectedCompany&&<ProcedureCompanyPreview company={selectedCompany} appearanceYear={draft.appearanceYear}/>}

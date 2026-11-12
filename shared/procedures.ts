@@ -39,3 +39,7 @@ export const roundOptions = ['Aptitude', 'Coding', 'Technical interview', 'HR', 
 export const oneRoundStarter = '## The round I attended\n\n## Questions and format\n\n## What helped me prepare\n';
 export function postTitle(post: Partial<ProcedurePost>) { return post.title || `${post.companyName || 'Company'} experience · ${post.appearanceYear || ''}`; }
 export function readingMinutes(body: string) { return Math.max(1, Math.ceil(meaningfulBody(body).split(/\s+/).length / 200)); }
+
+export const createCompanySchema = z.object({
+  name: z.string().trim().min(2).max(100).regex(/^[^<>\x00-\x1f\x7f]+$/, 'Use a plain company name.').refine(name=>/[\p{L}\p{N}]/u.test(name),'Enter a company name.'),
+}).strict();

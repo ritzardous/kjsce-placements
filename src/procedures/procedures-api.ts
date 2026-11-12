@@ -53,3 +53,5 @@ export async function loadProcedurePosts(filters: PostFilters, cursor?: QueryDoc
   const result = await withTimeout(getDocs(query(collection(getFirebase().db, 'procedurePosts'), ...clauses)));
   return { rows: result.docs.map(d => ({ ...d.data(), id: d.id }) as ProcedurePost), cursor: result.docs.at(-1), more: result.size === 12 };
 }
+
+export function invalidateCompanyDirectory() { companyCache.clear(); }

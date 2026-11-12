@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { archiveCompanies } from "./archive-data";
+import { heroCompanies } from "./archive-data";
 import { useMotionPolicy } from "./motion";
 import type { ArchiveController } from "./ArchiveScene";
 import { flameOutline, flameHeart, flameSvgPath } from "./flame-mark";
@@ -187,7 +187,7 @@ export function ArchiveIndex() {
           role="group"
           aria-label="Explore company examples"
         >
-          {archiveCompanies.map((item, index) => (
+          {heroCompanies.map((item, index) => (
             <button
               className={`index-company company-${item.id}${failedLogos.includes(item.id) ? " logo-unavailable" : ""}`}
               key={item.id}

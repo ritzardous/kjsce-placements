@@ -118,3 +118,19 @@
   #app .company-table-controls { grid-template-columns:minmax(0,1fr); }
   #app .company-table-controls :is(input,select) { font-size:16px; }
 }
+
+.company-campus { display:block; margin-top:4px; color:var(--ink-soft); font:400 11px/1.4 var(--font-body); }
+.recent-results { margin:28px 0; border-block:1px solid var(--line-soft); padding:16px 0; }
+.recent-results>summary { cursor:pointer; font-weight:600; min-height:28px; }
+.recent-results>summary>span { float:right; color:var(--ink-soft); font-size:12px; font-weight:400; }
+.recent-results[open]>summary { margin-bottom:16px; }
+#app .pagination { display:flex; align-items:center; justify-content:flex-end; gap:12px; flex-wrap:wrap; margin:20px 0; font-size:12px; }
+#app .pagination>button { min-height:44px; padding:8px 14px; border:1px solid var(--line-soft); border-radius:4px; box-shadow:none; background:var(--surface); color:var(--ink); }
+#app .pagination>span:first-child { margin-right:auto; color:var(--ink-soft); }
+.portal-welcome { margin-bottom:28px; }
+.year-card.home-card { min-height:0; }
+@media(max-width:600px) { #app .pagination { gap:8px; } #app .pagination>span:first-child { flex-basis:100%; } }
+
+.chart-readout:empty { display:none; }
+
+#app .company-table-controls .search-box>.app-icon { width:18px; height:18px; }

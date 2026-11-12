@@ -249,7 +249,7 @@ test("year-independent company controls preserve the Google sign-in destination"
 }) => {
   await ready(page);
   await page
-    .getByRole("button", { name: "Explore Amazon India", exact: true })
+    .getByRole("button", { name: "Explore Oracle", exact: true })
     .click();
   await expect(
     page
@@ -260,7 +260,7 @@ test("year-independent company controls preserve the Google sign-in destination"
     /2025|2026/,
   );
   await expect(
-    page.getByRole("button", { name: "Explore Amazon India", exact: true }),
+    page.getByRole("button", { name: "Explore Oracle", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator(".opportunity-index figcaption")).toHaveCount(0);
   await expect(page.locator(".opportunity-index a")).toHaveCount(0);
@@ -268,7 +268,7 @@ test("year-independent company controls preserve the Google sign-in destination"
   await expect(page.locator(".index-motion-icon")).toHaveCount(0);
   const link = page
     .locator(".lp-record-sheet")
-    .getByRole("link", { name: /JPMorgan: Software Engineer/ });
+    .getByRole("link", { name: /JPMorgan Chase & Co.: Software Engineer/ });
   await expect(link).toHaveAttribute(
     "href",
     "#2026/company/jp_morgan_chase_co",
@@ -335,7 +335,7 @@ test("reduced motion and save-data retain the diagram without downloading Three.
   });
   await ready(page);
   await page
-    .getByRole("button", { name: "Explore Amazon India", exact: true })
+    .getByRole("button", { name: "Explore Oracle", exact: true })
     .click();
   await expect(page.locator(".index-poster")).toBeVisible();
   await expect(page.locator(".index-world canvas")).toHaveCount(0);
@@ -402,10 +402,10 @@ test("WebGL or logo failure leaves a usable themed fallback", async ({
   await page.getByRole("button", { name: "Switch to dark mode" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   await page
-    .getByRole("button", { name: "Explore Amazon India", exact: true })
+    .getByRole("button", { name: "Explore Oracle", exact: true })
     .click();
   await expect(
-    page.getByRole("button", { name: "Explore Amazon India", exact: true }),
+    page.getByRole("button", { name: "Explore Oracle", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
 });
 
@@ -632,8 +632,8 @@ test("record previews change companies, roles and reported CTC by batch", async 
   await ready(page);
   const preview = page.locator(".lp-record-sheet");
   await expect(preview.locator(".lp-record-role")).toHaveCount(3);
-  await expect(preview).toContainText("Graduate Technology Trainee");
-  await expect(preview).toContainText("54.88 LPA");
+  await expect(preview).toContainText("Technical Analyst - Client Services");
+  await expect(preview).toContainText("16.50 LPA");
   const before = await preview.locator(".lp-record-company").allTextContents();
   await page
     .getByRole("group", { name: "Preview placement batch" })
@@ -641,16 +641,16 @@ test("record previews change companies, roles and reported CTC by batch", async 
     .click();
   const after = await preview.locator(".lp-record-company").allTextContents();
   expect(after).not.toEqual(before);
-  await expect(preview).toContainText("Goldman Sachs");
-  await expect(preview).toContainText("CrackedDevs");
+  await expect(preview).toContainText("Browserstack");
+  await expect(preview).toContainText("Eventstrat Labs");
   await expect(preview).toContainText("Software Engineer");
-  await expect(preview).toContainText("51.72 LPA");
-  await expect(preview).toContainText("30 LPA");
-  await expect(preview).toContainText("24.16 LPA");
-  await expect(preview.locator(".lp-inferred-mark")).toHaveCount(2);
+  await expect(preview).toContainText("22.00 LPA");
+  await expect(preview).toContainText("19.75 LPA");
+  await expect(preview).toContainText("18 LPA");
+  await expect(preview.locator(".lp-inferred-mark")).toHaveCount(0);
   await expect(
-    preview.getByRole("link", { name: /Google: Software Engineer, 51.72/ }),
-  ).toHaveAttribute("href", "#2025/company/google");
+    preview.getByRole("link", { name: /Browserstack: Role not provided, 22.00/ }),
+  ).toHaveAttribute("href", "#2025/company/browserstack");
   await expect(preview.locator(".lp-record-line")).toHaveCount(0);
 });
 
@@ -663,12 +663,12 @@ test("senior directory is distinct from written experiences and its connection t
   await expect(page.locator('#people-title')).toHaveText('Your seniors.Start a conversation.');
   await expect(page.locator('.lp-people .lp-section-copy')).toContainText('LinkedIn');
   await page
-    .getByRole("button", { name: "Find alumni at Google", exact: true })
+    .getByRole("button", { name: "Find alumni at JPMorgan Chase & Co.", exact: true })
     .click();
-  await expect(page.locator(".lp-contact-caption")).toContainText("Google");
+  await expect(page.locator(".lp-contact-caption")).toContainText("JPMorgan");
   await expect(
-    page.getByRole("link", { name: "Find alumni at Google" }),
-  ).toHaveAttribute("href", "#2026/company/google");
+    page.getByRole("link", { name: "Find alumni at JPMorgan" }),
+  ).toHaveAttribute("href", "#2026/company/jp_morgan_chase_co");
   const question = page.getByRole("button", {
     name: "How did you land this role?",
     exact: true,
@@ -706,7 +706,7 @@ test("landing removes redundant helper copy and labels inferred preview roles ho
     .getByRole("group", { name: "Preview placement batch" })
     .getByRole("button", { name: "2025" })
     .click();
-  await expect(page.locator(".lp-inferred-mark")).toHaveCount(2);
+  await expect(page.locator(".lp-inferred-mark")).toHaveCount(0);
   await page.goto("/#login");
   await expect(
     page.getByText("Your email and drafts stay private.", { exact: true }),

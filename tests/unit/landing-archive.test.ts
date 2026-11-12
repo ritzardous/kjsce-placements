@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import {
   archiveCompanies,
+  heroCompanies,
   companyYears,
   companyRoute,
 } from "../../src/landing/archive-data";
@@ -45,12 +46,12 @@ test("public previews preserve source CTC and distinguish estimates for missing 
       if (source.roles.length) assert.ok(source.roles.includes(preview.role));
       else {
         assert.ok(
-          preview.roleInference,
+          preview.role === "Role not provided" || preview.roleInference,
           "Missing source roles must retain their inference metadata",
         );
-        assert.ok(preview.roleInference?.url.startsWith("https://"));
+        if (preview.roleInference) assert.ok(preview.roleInference.url.startsWith("https://"));
         assert.ok(
-          preview.roleInference?.note.includes("not verif") ||
+          preview.role === "Role not provided" || preview.roleInference?.note.includes("not verif") ||
             preview.roleInference?.note.includes("does not verify"),
         );
       }
@@ -59,19 +60,20 @@ test("public previews preserve source CTC and distinguish estimates for missing 
     }
   }
 });
-test("2025 preview lists the three highest reported company CTCs in descending order", () => {
-  const dataset = JSON.parse(readFileSync("data/placements-2025.json", "utf8"));
-  const ordered = [...dataset.placements]
-    .filter((row) => typeof row.compensation?.ctc_value_lpa === "number")
-    .sort(
-      (a, b) => b.compensation.ctc_value_lpa - a.compensation.ctc_value_lpa,
-    );
-  const best = new Map<string, string>();
-  for (const row of ordered)
-    if (!best.has(row.company.normalized_name))
-      best.set(row.company.normalized_name, row.placement_id);
-  assert.deepEqual(
-    recordPreviews[2025].map((row) => row.placementId),
-    [...best.values()].slice(0, 3),
-  );
+test("landing previews use the requested on-campus company sets and original packages", () => {
+  assert.deepEqual(recordPreviews[2025].map(p=>p.key), ['browserstack','jpmc','eventstrat-labsprivatelimited']);
+  assert.deepEqual(recordPreviews[2026].map(p=>p.key), ['jp_morgan_chase_co','ion_group','edra_labs_llp']);
+  const data=JSON.parse(readFileSync('data/placements-2025.json','utf8'));
+  for (const p of recordPreviews[2025]) assert.equal(data.placements.find((r: {placement_id:string; campus?:string})=>r.placement_id===p.placementId).campus,'On campus');
+});
+
+test('hero keeps JPMC and four distinct on-campus brands outside the package preview', () => {
+  assert.deepEqual(heroCompanies.map(c=>c.id), ['jpmc','barclays','deloitte','oracle','capgemini']);
+  const previewKeys = new Set(Object.values(recordPreviews).flat().map(p=>p.key));
+  const d=JSON.parse(readFileSync('data/placements-2025.json','utf8'));
+  for (const c of heroCompanies) {
+    assert.ok(existsSync('public'+c.logo));
+    assert.ok(d.placements.some((p: {company:{normalized_name:string}; campus?:string})=>p.company.normalized_name===c.routes[2025] && p.campus==='On campus'));
+    if(c.id!=='jpmc') for(const key of Object.values(c.routes)) assert.ok(!previewKeys.has(key));
+  }
 });

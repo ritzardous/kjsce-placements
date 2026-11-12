@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { batch2025, datasetSchema } from '../../shared/dataset.js';
-import { buildStatistics } from '../../shared/statistics.js';
+import { buildStatistics, highestCtcCompanies } from '../../shared/statistics.js';
 import { preparePublication } from '../../scripts/publication.js';
 
 const data = datasetSchema.parse(JSON.parse(readFileSync('data/placements-2025.json', 'utf8')));
@@ -49,4 +49,13 @@ test('2025 publication validates independently while default publication stays o
   assert.equal(p.dashboard.statistics.summary.selections, 360);
   assert.equal((await preparePublication()).batch.year, 2026);
   await assert.rejects(preparePublication(2028), /Unsupported batch/);
+});
+
+test('company CTC ranking contains JPMC once while preserving all three selections', () => {
+  const jpmc=s.companies.find(c=>c.key==='jpmc')!;
+  assert.equal(jpmc.announcements.length,2);
+  assert.equal(jpmc.totalHired,3);
+  assert.equal(highestCtcCompanies(s.companies).filter(c=>c.key==='jpmc').length,1);
+  assert.equal(highestCtcCompanies(s.companies).find(c=>c.key==='jpmc')?.highestCtc,19.75);
+  assert.equal(s.summary.selections,360);
 });
