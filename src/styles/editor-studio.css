@@ -1032,3 +1032,5 @@
 }
 
 .studio-campus-field{display:flex;flex-direction:column;gap:8px;font-size:13px;font-weight:600;margin-top:20px}.studio-campus-field select{width:100%;min-height:44px;padding:10px;background:var(--surface);color:var(--ink);border:1px solid var(--line-soft)}
+
+.procedure-company-picker .company-create-button { margin-top:12px; min-height:44px; max-width:100%; overflow-wrap:anywhere; }

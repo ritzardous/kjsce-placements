@@ -312,15 +312,16 @@ test("keyboard, source controls and three product stories work without exposing 
     page.getByRole("link", { name: "Explore company procedures" }),
   ).toHaveAttribute("href", "#procedures");
   await page
-    .getByRole("button", { name: "Find alumni at Barclays", exact: true })
+    .getByRole("button", { name: "Find alumni at ION", exact: true })
     .click();
-  await expect(page.locator(".lp-contact-caption")).toContainText("Barclays");
+  await expect(page.locator(".lp-contact-caption")).toContainText("ION");
   await expect(
-    page.getByRole("link", { name: "Find alumni at Barclays" }),
-  ).toHaveAttribute("href", "#2026/company/barclays");
+    page.getByRole("link", { name: "Find alumni at ION" }),
+  ).toHaveAttribute("href", "#2026/company/ion_group");
   await expect(page.locator('a[href*="linkedin.com"]')).toHaveCount(0);
-  await page.getByText("Sources & privacy", { exact: false }).click();
-  await expect(page.getByText(/not a partnership or endorsement/)).toBeVisible();
+  await page.getByRole("link", { name: 'About this project' }).click();
+  await page.getByRole("link",{name:"Using the app",exact:true}).click();
+  await expect(page.locator("#note-terms")).toContainText("do not imply affiliation");
   await expect(page).toHaveURL(/#landing$/);
 });
 

@@ -31,7 +31,8 @@ Source JSON follows [shared/dataset.ts](../shared/dataset.ts): metadata plus pla
 | Path | Relationships and browser read boundary |
 | --- | --- |
 | `users/{uid}` | Owner profile; direct writes limited to displayName ≤100 characters |
-| `procedureCompanies/{companyKey}` | Recruiter directory and years; signed-in reads; aliases resolved through reviewed mappings |
+| `procedureCompanies/{companyKey}` | Company directory and recorded years; signed-in reads; aliases resolved through reviewed mappings. User-added entries have `source:community`, `years:[]`, and no public creator UID. |
+| `procedureCompanyCreations/{companyKey}` | Server-only creator UID and creation time; direct browser reads/writes are denied. |
 | `procedureSubmissions/{id}` | Owner UID, mutable draft, draftVersion, revision, status, feedback and publication flags; owner/admin reads |
 | `procedureSubmissions/{id}/revisions/{revision}` | Immutable submitted writing plus attribution/company snapshot; owner/admin reads |
 | `procedurePosts/{id}` | Approved revision snapshot, publication state/time and vote totals; published posts readable to Google users, unpublished to admins |

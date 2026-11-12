@@ -35,6 +35,11 @@ test('app API verifies Google tokens, rejects forged auth and enforces approval 
     assert.equal((await call(undefined, 'saveProcedureDraft', {})).status, 401);
     assert.equal((await call('forged-token', 'saveProcedureDraft', {})).status, 401);
     const author = await user(), moderator = await user('admin'), reader = await user();
+    const created = await call(author.token,'procedureCommunity',{action:'createCompany',payload:{name:'HTTP New Labs '+crypto.randomUUID()}});
+    assert.equal(created.status,200);
+    assert.deepEqual(created.body.data.years,[]);
+    assert.ok(created.body.data.key);
+    assert.equal((await call(undefined,'procedureCommunity',{action:'createCompany',payload:{name:'No access'}})).status,401);
     const id = crypto.randomUUID();
     const draft = { ...initialProcedureDraft(), companyKey: 'barclays', body: 'API beta test experience: I attended the aptitude and technical rounds. Practise arrays, SQL joins and explaining your project design before interviewing.' };
     const saved = await call(author.token, 'saveProcedureDraft', { id, expectedVersion: 0, draft });

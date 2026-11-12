@@ -1,3 +1,4 @@
+import DeveloperNote from './DeveloperNote';
 import { rememberExperienceOrigin } from './navigation-context';
 import { NotificationProvider } from '../notifications/notification-store';
 import { ThemeProvider } from '../ui/ThemeControl';
@@ -29,6 +30,7 @@ function Application() {
     if (route.page === 'contributions') location.replace('#procedures/contributions');
     if (route.page === 'alumni') location.replace('#statistics');
   }, [route.page]);
+  if (route.page === 'about') return <DeveloperNote section={route.parameter} signedIn={auth.allowed}/>;
   if (!auth.ready) return <div className="login-page session-loading"><FetchLoader variant="session" label="Getting your session ready…"/></div>;
   if (!auth.allowed) return <Landing deepLink={!['landing', 'login'].includes(route.page)} />;
   if (route.page === 'home' || route.page === 'landing' || route.page === 'login') return <Home />;

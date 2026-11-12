@@ -76,7 +76,7 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
     case 'createCompany': {
       const data = parse(createCompanySchema, value);
       const normalized = data.name.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-      const key = canonicalCompanyKey(normalized || 'company-'+createHash('sha256').update(data.name.toLowerCase()).digest('hex').slice(0,24));
+      const key = canonicalCompanyKey((normalized.length>90 ? normalized.slice(0,70)+'-'+createHash('sha256').update(normalized).digest('hex').slice(0,16) : normalized) || 'company-'+createHash('sha256').update(data.name.toLowerCase()).digest('hex').slice(0,24));
       const result = await db.runTransaction(async tx => {
         const ref=db.doc('procedureCompanies/'+key), existing=await tx.get(ref);
         if(existing.exists) {
@@ -85,8 +85,10 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
           return {key,name:row.name,years:row.years||[]};
         }
         const stamp=await throttle(db,tx,actor.uid,'create-company');
-        const row={name:canonicalCompanyName(key,data.name.replace(/\s+/g,' ')),years:[],source:'community',createdBy:actor.uid,createdAt:Date.now()};
-        tx.create(ref,row); stamp();
+        const row={name:canonicalCompanyName(key,data.name.replace(/\s+/g,' ')),years:[],source:'community',createdAt:Date.now()};
+        tx.create(ref,row);
+        tx.create(db.doc('procedureCompanyCreations/'+key),{createdBy:actor.uid,createdAt:row.createdAt});
+        stamp();
         return {key,name:row.name,years:[]};
       });
       invalidateCompanyDiscovery(db);

@@ -68,6 +68,7 @@ Pass these as `procedureCommunity` data. Unless noted, `payload` is a strict obj
 
 | Action | Payload and behavior |
 | --- | --- |
+| `createCompany` | `{name}` (2–100 plain-text characters); verified Google user; returns `{key,name,years}`. Reuses a normalized existing identity, rate-limits new creations, and creates community entries with `years:[]`. It does not confirm campus recruiting or publish an experience. |
 | `syncAccount` | `{}`; syncs Google identity/profile information using current account data |
 | `companyBrowse` | Browse filters below; returns `{rows,cursor:null,more:false}`; each company group includes `count`, `publishedAt` and `score` |
 | `browse` | Browse filters; published experience page with canonical identity and saved state |

@@ -60,3 +60,9 @@ Company and candidate tables show 25 rows per page; changing a filter resets the
 The public landing preview highlights JPMC, ION and EDRA Labs for 2026, and Browserstack, JPMC and Eventstrat Labs for 2025. Unknown roles stay unprovided. Campus labels use the source report where present; Google's off-campus display label follows maintainer clarification. This does not alter source records or historical totals.
 
 The 3D hero uses JPMC, Barclays, Deloitte, Oracle and Capgemini, independently of the package previews. Company lists omit campus tags; opened company details retain the route labels.
+
+### Developer note and community companies
+
+The public `#about` page contains the project story, source limitations, privacy practices, use boundaries and the developers’ existing GitHub profiles. Section routes include `#about/privacy` and `#about/contact`. The story, developer email contacts, GitHub profiles and repository link appear before source and privacy information. A floating return link stays available throughout the page. A fixed retention policy remains a maintainer decision.
+
+All graduation years accepted by the schema, including 2027, can contribute. In the editor, search for a company and use **Add “[name]”** if it is missing. Company creation is authenticated, rate-limited and idempotent for normalized identities. New companies carry no official placement years. The normal private-draft, submission and administrator-review process still applies.

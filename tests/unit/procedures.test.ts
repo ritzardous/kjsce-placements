@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { initialProcedureDraft, procedureDraftSchema, submissionSchema } from '../../shared/procedures';
+import { createCompanySchema, initialProcedureDraft, procedureDraftSchema, submissionSchema } from '../../shared/procedures';
 import { parseRoute } from '../../src/app/routing';
 
 test('starter can save as a draft but cannot be submitted without firsthand content', () => {
@@ -27,4 +27,11 @@ test('recruitment route preserves legacy drafts and validates campus tags', () =
     assert.equal(submissionSchema.parse({ ...draft, campus, companyKey: 'barclays', body: 'I attended a coding assessment followed by technical interviews covering SQL and project architecture.' }).campus, campus);
   }
   assert.equal(procedureDraftSchema.safeParse({ ...draft, campus: 'Verified campus' }).success, false);
+});
+
+test('new company names are bounded plain text and 2027 graduates can contribute', () => {
+  assert.equal(createCompanySchema.safeParse({name:'New Labs'}).success,true);
+  for(const name of ['','<script>','a'.repeat(101),'Bad\u0000name']) assert.equal(createCompanySchema.safeParse({name}).success,false);
+  assert.equal(createCompanySchema.safeParse({name:'New Labs',years:[2027]}).success,false);
+  assert.equal(submissionSchema.safeParse({...initialProcedureDraft(),companyKey:'new-labs',graduationYear:2027,body:'I attended the technical interview and explained how I solved arrays and SQL questions, then discussed my project and the choices behind its design.'}).success,true);
 });

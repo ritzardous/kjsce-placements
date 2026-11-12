@@ -213,3 +213,24 @@ test('unpublishing also withdraws a pending revision so an admin cannot put it b
  await assert.rejects(review(db,admin,{id,revision:2,decision:'approved',feedback:''}));
  assert.equal((await db.doc(`procedurePosts/${id}`).get()).data()!.published,false);
 });
+
+test('2027 contributors add a company, reuse its identity and submit through normal review', async () => {
+  const actor=contributor(), name='New Company '+randomUUID();
+  const company=await community(db,actor,{action:'createCompany',payload:{name}}) as {key:string;name:string;years:number[]};
+  assert.deepEqual(company.years,[]);
+  const existing=await community(db,contributor(),{action:'createCompany',payload:{name:name.toUpperCase()}});
+  assert.deepEqual(existing,company);
+  const stored=(await db.doc('procedureCompanies/'+company.key).get()).data()!;
+  assert.equal(stored.source,'community');assert.equal(stored.createdBy,undefined);
+  assert.equal((await db.doc('procedureCompanyCreations/'+company.key).get()).data()!.createdBy,actor.uid);
+  await assert.rejects(community(db,actor,{action:'createCompany',payload:{name:'Another '+randomUUID()}}),/wait/i);
+  await assert.rejects(community(db,actor,{action:'createCompany',payload:{name:'<script>'}}));
+  await assert.rejects(community(db,undefined,{action:'createCompany',payload:{name:'No access'}}));
+  const id=randomUUID(),draft={...initialProcedureDraft(),companyKey:company.key,graduationYear:2027,appearanceYear:2026,body};
+  await saveDraft(db,actor,{id,expectedVersion:0,draft});
+  await submit(db,actor,{id,expectedVersion:1});
+  assert.equal((await db.doc('procedurePosts/'+id).get()).exists,false);
+  await review(db,admin,{id,revision:1,decision:'approved',feedback:''});
+  const post=(await db.doc('procedurePosts/'+id).get()).data()!;
+  assert.equal(post.published,true);assert.equal(post.graduationYear,2027);assert.equal(post.companyKey,company.key);
+});

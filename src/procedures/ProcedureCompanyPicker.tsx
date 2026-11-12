@@ -48,7 +48,7 @@ export function ProcedureCompanyPicker({ companies, value, onChange, loading, di
         <strong>{company.name}</strong><span>{company.years.length ? 'Class of '+company.years.join(', ') : 'Community company'}</span>
       </div>)}{!matches.length&&<p role="status">No matching company.</p>}
     </div>}
-    {onCreate && !selected && query.trim().length>=2 && !companies.some(c=>c.name.toLowerCase()===query.trim().toLowerCase()) && <button className="company-create-button" type="button" disabled={disabled||loading||creating} aria-busy={creating} onClick={()=>void create()}>{creating?'Adding company…':`Add “${query.trim()}”`}</button>}
+    {onCreate && !selected && query.trim().length>=2 && !companies.some(c=>c.name.toLowerCase()===query.trim().toLowerCase()) && <button className="company-create-button" type="button" disabled={disabled||loading||creating} aria-busy={creating} onPointerDown={event=>event.preventDefault()} onClick={()=>void create()}>{creating?'Adding company…':`Add “${query.trim()}”`}</button>}
     {createError&&<p role="alert">{createError}</p>}
     {selected?<p className="procedure-note procedure-company-selected"><AppIcon name="check"/><span>Selected: {selected.name}</span></p>:<p className="procedure-note procedure-company-hint">Start typing to search the company directory.</p>}
   </div>;
