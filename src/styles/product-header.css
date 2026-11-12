@@ -53,3 +53,9 @@
   :is(#app,.portal-shell) .app-header .brand-mark.workspace-brand-mark { width:36px; height:36px; }
   :is(#app,.portal-shell) .workspace-brand-mark>span { font-size:43px; }
 }
+
+/* Preserve the original mark; switch its ink with the page theme. */
+.ps-landing .lp-header .lp-brand-mark,
+:is(#app,.portal-shell) .app-header .brand-mark.workspace-brand-mark { color:#171c19; }
+[data-theme="dark"] .ps-landing .lp-header .lp-brand-mark,
+[data-theme="dark"] :is(#app,.portal-shell) .app-header .brand-mark.workspace-brand-mark { color:#fff; }
