@@ -29,8 +29,8 @@ test('navigation, field validation and device-copy discard are clear and keyboar
   await expect(page.getByRole('link',{name:'Share an experience',exact:false})).toHaveCount(1);
   await page.screenshot({path:`artifacts/ux-contributions-${test.info().project.name}.png`,fullPage:true});
   await page.getByRole('link',{name:'Share an experience',exact:false}).click();
-  await expect(page.getByRole('heading',{level:1})).toHaveText('Share an experience');
-  await expect(navigation.getByRole('link',{name:'My contributions',exact:true})).toHaveAttribute('aria-current','page');
+  await expect(page.getByRole('heading',{level:1})).toHaveText('Share your experience');
+  await expect(navigation).toHaveCount(0);
   await page.getByRole('button',{name:'Submit for review',exact:true}).click();
   await expect(page.getByLabel('Company',{exact:true})).toBeFocused();
   await expect(page.getByLabel('Company',{exact:true})).toHaveAttribute('aria-invalid','true');
@@ -94,45 +94,32 @@ test('unread notifications can be marked in place and the exact badge count upda
 });
 
 
-test('multiword company previews match published statistics and preserve brand colors in dark mode',async({page})=>{
-  await signInGoogle(page);
-  await page.goto('/#procedures/contribute');
-  const darkMode=page.getByRole('button',{name:'Switch to dark mode',exact:true});
-  if(await darkMode.count())await darkMode.click();
-  const picker=page.getByRole('combobox',{name:'Company',exact:true});
-  await picker.fill('ACI Worldwide');
-  await page.getByRole('option',{name:/ACI Worldwide/}).click();
-  const preview=page.getByRole('complementary',{name:'Selected company information'});
-  await expect(preview).toContainText('₹12.50 LPA');
-  await expect(preview).toContainText('6 recorded selections');
-  await expect(preview).toContainText('Technical Consultant');
-  await expect(preview.getByRole('link',{name:'View placement stats'})).toHaveAttribute('href','#2026/company/aci_worldwide');
-  const logo=preview.locator('.company-logo img');
-  await expect(logo).toBeVisible();
-  expect(await logo.evaluate(element=>getComputedStyle(element).filter)).toBe('none');
-  await picker.fill('Barclays');
-  await page.getByRole('option',{name:/Barclays/}).click();
-  await expect(preview).toContainText('highest recorded CTC');
-  expect(await preview.locator('.company-logo img').evaluate(element=>getComputedStyle(element).filter)).toBe('none');
+test('company choice can change without cluttering the document with placement statistics',async({page})=>{
+  await signInGoogle(page);await page.goto('/#procedures/contribute');
+  const picker=page.locator('#procedure-companyKey');
+  await picker.fill('ACI Worldwide');await page.getByRole('option',{name:/ACI Worldwide/}).click();
+  await expect(page.locator('.document-company>summary')).toContainText('ACI Worldwide');
+  await expect(page.locator('.procedure-company-preview')).toHaveCount(0);
+  await page.locator('.document-company>summary').click();
+  await picker.fill('Barclays');await page.getByRole('option',{name:/Barclays/}).click();
+  await expect(page.locator('.studio-doc-title')).toHaveText('Barclays experience');
 });
 
 test('one company picker and a short writing flow keep extras optional',async({page})=>{
   await signInGoogle(page);
   await page.goto('/#procedures/contribute');
-  const picker=page.getByRole('combobox',{name:'Company',exact:true});
+  const picker=page.locator('#procedure-companyKey');
   await expect(page.getByRole('searchbox',{name:'Find a company'})).toHaveCount(0);
-  await expect(page.getByLabel('Experience title (optional)',{exact:true})).not.toBeVisible();
+  await expect(page.getByLabel('Experience title (optional)',{exact:true})).toBeVisible();
   await picker.fill('No such recruiter xyz');
-  await expect(page.getByText('No matching company. Try another name.')).toBeVisible();
+  await expect(page.getByText('No matching company.')).toBeVisible();
   await picker.fill('Barclays');
   await picker.press('ArrowDown');
   await picker.press('Enter');
   await expect(picker).toHaveValue('Barclays');
   await expect(picker).toHaveAttribute('aria-expanded','false');
-  const companyInfo=page.getByRole('complementary',{name:'Selected company information'});
-  await expect(companyInfo).toContainText('Barclays');
-  await expect(companyInfo).toContainText('highest recorded CTC');
-  await expect(companyInfo).toContainText('Class of 2026');
+  await expect(page.locator('.document-company>summary')).toContainText('Barclays');
+  await expect(page.locator('.studio-optional')).not.toHaveAttribute('open','');
   const body=page.getByLabel('Your experience',{exact:true});
   await expect(body).toHaveValue('');
   await body.fill('I attended a technical interview about arrays and SQL. Practise explaining your project clearly and solving a few timed coding problems.');
@@ -141,7 +128,7 @@ test('one company picker and a short writing flow keep extras optional',async({p
   await expect(body).toHaveValue(/^\*\*I attended\*\*/);
   await page.getByRole('button',{name:'Preview',exact:true}).click();
   await expect(page.locator('.procedure-reader-preview strong')).toHaveText('I attended');
-  if(test.info().project.name==='mobile')await page.getByRole('button',{name:'Continue writing',exact:true}).click();
+  await page.getByRole('button',{name:'Continue writing',exact:true}).click();
   await body.press('Control+i');
   await expect(body).toHaveValue(/^\*\*\*I attended\*\*\*/);
   const bold=page.getByRole('button',{name:'Bold',exact:true});
@@ -168,7 +155,6 @@ test('one company picker and a short writing flow keep extras optional',async({p
   await expect(bold).toHaveAttribute('aria-pressed','true');
   await body.press('Control+b');
   await expect(body).toHaveValue(/^I attended a technical/);
-  if(test.info().project.name!=='mobile')await page.getByRole('button',{name:'Continue writing',exact:true}).click();
   await page.locator('summary').filter({hasText:'Optional details'}).click();
   await expect(page.getByLabel('Experience title (optional)',{exact:true})).toBeVisible();
   await page.getByLabel('Experience title (optional)',{exact:true}).fill('A short technical interview');
@@ -179,7 +165,7 @@ test('one company picker and a short writing flow keep extras optional',async({p
   await page.reload();
   await expect(picker).toHaveValue('Barclays');
   await expect(body).toContainText('timed coding problems');
-  await expect(page.getByLabel('Experience title (optional)',{exact:true})).not.toBeVisible();
+  await expect(page.getByLabel('Experience title (optional)',{exact:true})).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.screenshot({path:`artifacts/procedure-simple-editor-${test.info().project.name}.png`,fullPage:true});
   await page.locator('summary').filter({hasText:'Optional details'}).click();
@@ -192,7 +178,7 @@ test('one company picker and a short writing flow keep extras optional',async({p
 
 test('account content management has clear actions and draft deletion cannot be undone by an old tab',async({page})=>{
  await signInGoogle(page);await page.goto('/#procedures/contribute');
- await page.getByRole('combobox',{name:'Company',exact:true}).fill('Barclays');
+ await page.locator('#procedure-companyKey').fill('Barclays');
  await page.getByRole('option',{name:/Barclays/}).click();
  await page.getByLabel('Your experience',{exact:true}).fill('My coding round included arrays, SQL queries and discussion about my final project. Prepare by practising timed questions.');
  await page.getByRole('button',{name:'Save now',exact:true}).click();

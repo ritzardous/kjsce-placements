@@ -13,6 +13,7 @@ test('a stalled draft save never blocks navigation and unsaved writing can be re
   await expect(page.getByLabel('Company', { exact: true })).toBeVisible();
   const saving = page.waitForRequest(request => request.url().includes('/saveProcedureDraft'));
   await page.route('**/saveProcedureDraft', async route => { await new Promise(resolve => setTimeout(resolve, 5000)); await route.abort(); });
+  await page.locator('.studio-optional>summary').click();
   await page.getByLabel('Recruitment route', {exact:true}).selectOption('Off campus');
   await page.getByLabel('Your experience', { exact: true }).fill('My unsaved interview experience should survive navigation when the community backend is slow.');
   await saving;
@@ -30,7 +31,7 @@ test('draft recovery, revision approval, voting and unpublishing work across con
   await page.goto('/#procedures/contribute');
   await page.getByRole('combobox', { name: 'Company', exact:true }).fill('Barclays');
   await page.getByRole('option', {name:/Barclays/}).click();
-  await page.locator('.studio-details > summary').click();
+  await page.locator('.studio-optional > summary').click();
   await page.getByLabel('Year you appeared').fill('2026');
   await page.getByLabel('Your experience', { exact: true }).fill('I attended an aptitude test and a technical interview on arrays and SQL joins. Practise explaining your project and review database fundamentals before the interview.');
   await page.getByLabel('Recruitment route', {exact:true}).selectOption('Off campus');

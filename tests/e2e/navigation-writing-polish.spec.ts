@@ -73,7 +73,7 @@ test('bookmark on the article boundary toggles and cancel keeps an editable draf
   await page.getByRole('option',{name:/Barclays/}).click();
   const body='My coding round included arrays and SQL joins. I would practise explaining each step and time complexity before the interview.';
   await page.getByLabel('Your experience',{exact:true}).fill(body);
-  await page.getByRole('button',{name:'Cancel',exact:true}).click();
+  await page.getByRole('button',{name:'Save & close',exact:true}).click();
   await expect(page).toHaveURL(/#procedures\/contributions$/,{timeout:20000});
   const draft=(await db.collection('procedureSubmissions').where('ownerUid','==',uid).get()).docs.find(doc=>doc.data().draft.body===body)!;
   expect(draft).toBeDefined();expect(draft.data().status).toBe('draft');

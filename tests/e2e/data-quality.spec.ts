@@ -4,12 +4,13 @@ test('company picker has one JPMorgan identity and keeps aliases searchable', as
   if (process.env.E2E_FIREBASE !== 'true') throw new Error('Emulators required.');
   await signInGoogle(page);
   await page.goto('/#procedures/contribute');
-  const picker = page.getByRole('combobox', { name: 'Company', exact: true });
+  const picker = page.locator('#procedure-companyKey');
   await picker.fill('JP');
   await expect(page.getByRole('listbox', {name:'Companies'}).getByRole('option')).toHaveCount(1);
   await expect(page.getByRole('listbox', {name:'Companies'}).getByRole('option')).toContainText('JPMorgan Chase & Co.');
   await page.getByRole('listbox', {name:'Companies'}).getByRole('option').click();
   await expect(picker).toHaveValue('JPMorgan Chase & Co.');
+  await page.locator('.document-company>summary').click();
   await picker.fill('not a company');
   await picker.press('Escape');
   await expect(picker).toHaveValue('');

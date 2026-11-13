@@ -67,6 +67,6 @@ test('phone formatting, preview and static actions preserve drafts in both theme
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await body.scrollIntoViewIfNeeded();
  await page.screenshot({path:`artifacts/current-editor-dark-${info.project.name}.png`});
- await page.getByRole('button',{name:'Cancel',exact:true}).click();
+ await page.getByRole('button',{name:'Save & close',exact:true}).click();
  await expect(page).toHaveURL(/#procedures\/contributions/,{timeout:20000});
 });

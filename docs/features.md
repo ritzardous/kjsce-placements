@@ -66,3 +66,9 @@ The 3D hero uses JPMC, Barclays, Deloitte, Oracle and Capgemini, independently o
 The public `#about` page contains the project story, source limitations, privacy practices, use boundaries and the developers’ existing GitHub profiles. Section routes include `#about/privacy` and `#about/contact`. The story, developer email contacts, GitHub profiles and repository link appear before source and privacy information. A floating return link stays available throughout the page. A fixed retention policy remains a maintainer decision.
 
 All graduation years accepted by the schema, including 2027, can contribute. In the editor, search for a company and use **Add “[name]”** if it is missing. Company creation is authenticated, rate-limited and idempotent for normalized identities. New companies carry no official placement years. The normal private-draft, submission and administrator-review process still applies.
+
+### Writing and alumni invitations
+
+Use **Invite an alum** on a company’s experience page or placement-detail page to share a link to `#procedures/contribute?company=KEY&name=DISPLAY_NAME`. The public invitation explains the request before Google sign-in; the same destination is retained after authentication. The editor verifies the company against its signed-in directory. Invitation links do not include draft IDs. If sharing or clipboard access is unavailable, a selectable link is shown.
+
+The writer opens a focused document with automatic saving, formatting tools and a reader preview. Company selection is collapsed when prefilled; other metadata lives under **Optional details**. Only a company and at least 60 meaningful characters are needed to submit. An unspecified interview year remains null; coverage and outcome remain `Not specified`. Old dated experiences still work. Device recovery copies are scoped by user and invited company to keep separate invitations from mixing writing. Publication still requires administrator approval.

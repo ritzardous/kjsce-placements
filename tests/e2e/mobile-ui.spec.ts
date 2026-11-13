@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { signInGoogle } from './auth-helper';
+import { signInGoogle, openAccount } from './auth-helper';
 
 async function fits(page: Page) {
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
@@ -43,7 +43,7 @@ for(const width of [320,390,430]) {
     if(width===390){await page.locator('.procedure-composer').scrollIntoViewIfNeeded();await page.screenshot({path:'artifacts/mobile-editor-refined.png',fullPage:false});}
     await page.getByRole('button',{name:'Save now',exact:true}).click();
     await expect(page.getByRole('status')).toContainText('Saved');
-    await quick.getByRole('link',{name:'Account',exact:true}).click();
+    await openAccount(page);
     await expect(page.getByRole('heading',{name:'My Account',exact:true})).toBeVisible();
     await fits(page);
     for(const section of ['overview','companies','branches','candidates','timeline','insights','company/barclays']) {

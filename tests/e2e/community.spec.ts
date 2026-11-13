@@ -74,9 +74,9 @@ test('device writing survives a new tab and cloud conflicts require an explicit 
     await expect(reopened.getByRole('button',{name:'Save now',exact:true})).toBeDisabled();
     await reopened.getByRole('button',{name:'Keep this device version'}).click();
     await reopened.getByRole('button',{name:'Save now',exact:true}).click();
-    await expect(reopened.getByRole('status')).toContainText('Saved to your account');
+    await expect(reopened.getByRole('status')).toContainText('Saved');
     expect((await db.doc(`procedureSubmissions/${id}`).get()).data()!.draft.body).toContain('Device writing');
-    await reopened.getByRole('button',{name:'Cancel',exact:true}).click();
+    await reopened.getByRole('button',{name:'Save & close',exact:true}).click();
     await reopened.getByRole('link',{name:'Share an experience',exact:true}).click();
     await reopened.locator('summary').filter({hasText:'Optional details'}).click();
     await expect(reopened.getByLabel('Role',{exact:true})).toHaveValue('Software Engineer');
