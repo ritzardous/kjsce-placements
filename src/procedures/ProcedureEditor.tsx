@@ -237,7 +237,7 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
             <div className="procedure-composer-heading">
               <div className="procedure-composer-controls">
 
-                <ConfirmAction label="Clear" title="Clear your writing?" description="Remove the blog text? Your company and interview details will stay." confirmLabel="Clear writing" disabled={locked||!draft.body.length} onConfirm={()=>{update('body','');setPreview(false);requestAnimationFrame(()=>writing.current?.focus());}}/>
+                <ConfirmAction label="Clear" title="Clear your writing?" description="Remove the blog text, title and optional details? Your company, recruitment route, graduation batch and role will stay." confirmLabel="Clear writing" disabled={locked||(!draft.body.length&&!draft.title&&!draft.summary&&!draft.appearanceYear&&!draft.rounds.length&&draft.coverage==='Not specified'&&draft.outcome==='Not specified'&&draft.attribution==='anonymous'&&!draft.customName)} onConfirm={()=>{const defaults=initialProcedureDraft();for(const key of ['title','summary','body','appearanceYear','coverage','outcome','rounds','attribution','customName'] as const)update(key,key==='body'?'':defaults[key]);setPreview(false);requestAnimationFrame(()=>writing.current?.focus());}}/>
                 <button type="button" aria-pressed={preview} className="preview-toggle" onClick={togglePreview}><AppIcon name={preview?'pen':'eye'}/>{preview?'Continue writing':'Preview'}</button>
               </div>
             </div>
@@ -273,8 +273,8 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
 
               <div className="procedure-fields">
                 <label>Year you appeared<input {...fieldProps('appearanceYear')} type="number" min="2000" max={new Date().getFullYear()+1} value={draft.appearanceYear||''} onChange={e=>update('appearanceYear',e.target.value?Number(e.target.value):null)}/>{fieldError('appearanceYear')}</label>
-                <label>Coverage<select value={draft.coverage} onChange={e=>update('coverage',e.target.value as ProcedureDraft['coverage'])}><option>Not specified</option><option>Partial</option><option>Full</option></select></label>
-                <label>Did you get selected?<select value={draft.outcome} onChange={e=>update('outcome',e.target.value as ProcedureDraft['outcome'])}><option>Not specified</option><option>Result pending</option><option>Selected</option><option>Not selected</option></select></label>
+                <label>Coverage<select {...fieldProps('coverage')} value={draft.coverage} onChange={e=>update('coverage',e.target.value as ProcedureDraft['coverage'])}><option>Not specified</option><option>Partial</option><option>Full</option></select></label>
+                <label>Did you get selected?<select {...fieldProps('outcome')} value={draft.outcome} onChange={e=>update('outcome',e.target.value as ProcedureDraft['outcome'])}><option>Not specified</option><option>Result pending</option><option>Selected</option><option>Not selected</option></select></label>
               </div>
 
           </div>

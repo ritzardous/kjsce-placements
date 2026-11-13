@@ -78,7 +78,7 @@ test('slow reader requests show content skeletons and retain working theme contr
 test('hero keeps a complete poster through delayed 3D load and context loss', async ({ page }, info) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   let release!: () => void, requested = false;
-  const gate = new Promise<void>(resolve => { release = resolve; });
+  let gate = new Promise<void>(resolve => { release = resolve; });
   await page.route('**/src/landing/ArchiveScene.ts*', async route => { requested = true; await gate; await route.continue(); });
   await page.goto('/#landing');
   const stage = page.locator('.opportunity-index');
@@ -88,6 +88,8 @@ test('hero keeps a complete poster through delayed 3D load and context loss', as
     await expect(stage.locator('.index-poster')).toHaveCSS('opacity', '1');
     await expect(stage.locator('.index-world')).toHaveCSS('opacity', '0');
     expect(await stage.locator('.index-company').evaluateAll(nodes => nodes.every(node => !(node as HTMLElement).style.left && !(node as HTMLElement).style.top))).toBe(true);
+    const boxes=await stage.locator('.index-company').evaluateAll(nodes=>nodes.map(node=>{const box=node.getBoundingClientRect();return {x:box.x,y:box.y,right:box.right,bottom:box.bottom};}));
+    for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++)expect(boxes[i].right<=boxes[j].x||boxes[j].right<=boxes[i].x||boxes[i].bottom<=boxes[j].y||boxes[j].bottom<=boxes[i].y).toBe(true);
     await stage.screenshot({ path: `artifacts/loading-scene-poster-${info.project.name}.png` });
   } finally { release(); }
   await expect(stage).toHaveClass(/is-rendered/, { timeout: 20000 });
@@ -98,4 +100,12 @@ test('hero keeps a complete poster through delayed 3D load and context loss', as
   await stage.locator('canvas').evaluate(canvas => canvas.dispatchEvent(new Event('webglcontextlost', { cancelable: true })));
   await expect(stage).not.toHaveClass(/is-rendered/);
   await expect(stage.locator('.index-poster')).toHaveCSS('opacity', '1');
+  requested=false;gate=new Promise<void>(resolve=>{release=resolve;});
+  await page.reload();
+  try {
+    await expect.poll(()=>requested).toBe(true);
+    await expect(stage).not.toHaveClass(/is-rendered/);
+    expect(await stage.locator('.index-company').evaluateAll(nodes=>nodes.every(node=>Boolean(getComputedStyle(node).getPropertyValue('--poster-company-x'))&&Boolean(getComputedStyle(node).getPropertyValue('--poster-company-y'))))).toBe(true);
+  }finally{release();}
+  await expect(stage).toHaveClass(/is-rendered/,{timeout:20000});
 });

@@ -459,9 +459,15 @@
   opacity: 0;
 }
 .ps-landing .is-rendered .index-company {
-  left:var(--scene-company-x);
-  top:var(--scene-company-y);
+  left:var(--scene-company-x,var(--poster-company-x));
+  top:var(--scene-company-y,var(--poster-company-y));
 }
+/* Every badge has a complete position before the GPU module loads. */
+.index-company:nth-child(1) { --poster-company-x:22%; --poster-company-y:28%; }
+.index-company:nth-child(2) { --poster-company-x:76%; --poster-company-y:22%; }
+.index-company:nth-child(3) { --poster-company-x:19%; --poster-company-y:67%; }
+.index-company:nth-child(4) { --poster-company-x:78%; --poster-company-y:77%; }
+.index-company:nth-child(5) { --poster-company-x:79%; --poster-company-y:48%; }
 .index-companies {
   position: absolute;
   inset: 0;
@@ -470,6 +476,8 @@
 }
 .ps-landing .index-company {
   position: absolute;
+  left:var(--poster-company-x);
+  top:var(--poster-company-y);
   display: flex;
   align-items: center;
   gap: 8px;

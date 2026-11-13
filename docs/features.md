@@ -69,7 +69,7 @@ All graduation years accepted by the schema, including 2027, can contribute. In 
 
 ### Writing and alumni invitations
 
-Use **Invite an alum** on a company’s experience page or placement-detail page to share a link to `#procedures/contribute?company=KEY&name=DISPLAY_NAME`. The public invitation explains the request before Google sign-in; the same destination is retained after authentication. The editor verifies the company against its signed-in directory. Invitation links do not include draft IDs. If sharing or clipboard access is unavailable, a selectable link is shown.
+Administrators can use **Invite an alum** on a company’s experience page or placement-detail page to share a link to `#procedures/contribute?company=KEY&name=DISPLAY_NAME`. The public invitation explains the request before Google sign-in; the same destination is retained after authentication. The editor verifies the company against its signed-in directory. Invitation links do not include draft IDs. If sharing or clipboard access is unavailable, a selectable link is shown.
 
 The writer opens a focused document with automatic saving, live bold/italic, headings, lists, code, quotes, links, undo/redo and a reader preview. Formatting applies to selected text without exposing Markdown markers; bodies remain Markdown in storage for existing readers and drafts.
 
@@ -77,4 +77,6 @@ Company selection shows a logo, recorded roles and highest recorded CTC. The mat
 
 Company selection is collapsed when prefilled; recruitment route, graduation batch year and role are required above the writing area. The optional title stays on the document; interview year, outcome, rounds and attribution settings live under **Optional details**. An unspecified interview year remains null; coverage and outcome remain `Not specified`. Old dated experiences still work. Device recovery copies are scoped by user and invited company to keep separate invitations from mixing writing. Publication still requires administrator approval.
 
-**Clear** removes blog text while keeping the company and interview details. **Save & close** keeps the draft. **Cancel & back** discards this editing session: a new autosaved draft is removed, or an existing draft is restored to its opening contents. It waits for in-flight saves and checks versions before cleanup, retains newer changes from other tabs, and leaves published experiences intact. Cancellation also removes this draft’s device recovery copies. If cleanup fails, the editor stays open with an error.
+**Clear** resets blog text, title, interview year, summary, coverage, outcome, rounds and public attribution. Company, recruitment route, graduation batch and role stay selected. **Save & close** keeps the draft. **Cancel & back** discards this editing session: a new autosaved draft is removed, or an existing draft is restored to its opening contents. It waits for in-flight saves and checks versions before cleanup, retains newer changes from other tabs, and leaves published experiences intact. Cancellation also removes this draft’s device recovery copies. If cleanup fails, the editor stays open with an error.
+
+Invitation controls are admin-only; the generated contribution link remains a public entry point for an invited author. This controls the invitation tool, not who may submit an experience or manually share a public URL.

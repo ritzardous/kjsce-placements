@@ -57,3 +57,9 @@ test('footer story invitation is aligned and easy to open',async ({page})=>{
   await link.click();
   await expect(page).toHaveURL(/#about$/);
 });
+
+test('about copy names source types and uses no em dashes',async({page})=>{
+ await page.goto('/#about/sources');await expect(page.locator('#note-sources')).toBeVisible();
+ await expect(page.locator('#note-sources')).toContainText('official T&PO emails');await expect(page.locator('#note-sources')).toContainText('college website');await expect(page.locator('#note-sources')).toContainText('unofficial web sources');
+ await expect(page.locator('.developer-note-page')).not.toContainText('—');
+});
