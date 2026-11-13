@@ -33,3 +33,7 @@ The frontend/API changes need the normal application deployment. Catalog repair 
 The live repair completed successfully. Read-back verified 175 retained documents, 12 alias redirects and 163 visible canonical companies. JPMorgan has one canonical entry with years 2025, 2026 and 2027. Source statistics and user content were preserved.
 
 Production build and 52 unit tests pass. Isolated emulator checks pass: 33 backend/rules tests and 27 desktop/mobile browser tests, with one desktop-only preview case skipped on phones. Browser checks include one JPMorgan picker result for both JP and JPMC, replacement-search selection clearing, contribution submission/review/unpublishing, company discovery and notifications. Logs and catalog backups are under ignored `artifacts/`.
+
+## 14 November 2026 confirmed-identity follow-up
+
+The maintainer confirmed five additional pairs: Aptia, ImpactGuru, ION, Pravaayu and TransBnk. Their mappings were deployed before the focused, hash-guarded catalog repair. Production read-back verified 175 retained documents, 17 alias redirects and 158 canonical identities; unrelated catalog names, years and aliases matched the pre-repair audit. No experience body, immutable revision or historical placement publication was rewritten. Colgate, ICICI, Oracle and Tata variants were left separate as instructed. See the [catalog audit and repair record](company-catalog-audit.md).

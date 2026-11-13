@@ -2,7 +2,7 @@
 
 [Documentation index](README.md) · [Company identities](../shared/company-identity.ts) · [Operations](operations.md)
 
-Read-only inspection of `placement-stats-kjsce`, performed on **14 November 2026 (Asia/Calcutta)**. The query read only `name`, `years` and `aliasOf` from `procedureCompanies`. It did not read student records, drafts, accounts, placement imports or published payloads. **No database records were changed.**
+Read-only inspection of `placement-stats-kjsce`, performed on **14 November 2026 (Asia/Calcutta)**. The query read only `name`, `years` and `aliasOf` from `procedureCompanies`. It did not read student records, drafts, accounts, placement imports or published payloads. **The audit itself made no changes; the later authorized repair is recorded below.**
 
 ## Results
 
@@ -53,4 +53,4 @@ This is a catalog-name audit, not an audit of every employer name embedded in im
 
 The five confirmed mappings are recorded in `shared/company-identity.ts`. Existing experience IDs, draft bodies, immutable revisions and historical publications stay untouched. Writer context combines recorded roles and announcements across those aliases without rewriting the verified dashboard.
 
-Deploy the updated frontend and API before applying catalog aliases, so existing saved alias keys remain accepted. The focused `scripts/repair-reviewed-company-aliases.ts` command previews exactly these ten documents and combines their catalog years. Applying requires the exact current preview hash, creates a field-level backup, checks document update times transactionally, and verifies the result. It changes only canonical name/years/alias metadata; legacy documents remain as redirects. A live dry run has been inspected; no live repair has been applied yet.
+Deploy the updated frontend and API before applying catalog aliases, so existing saved alias keys remain accepted. The focused `scripts/repair-reviewed-company-aliases.ts` command previews exactly these ten documents and combines their catalog years. Applying requires the exact current preview hash, creates a field-level backup, checks document update times transactionally, and verifies the result. It changes only canonical name/years/alias metadata; legacy documents remain as redirects. The production frontend/API deployment for commit `357e3e7` succeeded before the authorized live repair. The repair updated nine of the ten checked documents: five alias redirects and four canonical year lists. Aptia’s canonical record was already correct. Read-back verified 175 retained documents, 158 canonical companies and 17 alias documents. All other catalog records matched the pre-repair name/year/alias audit. Existing experience content, IDs and historical publication payloads were not rewritten. A timestamped field-level backup and verification report remain under ignored `artifacts/`.
