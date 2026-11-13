@@ -16,7 +16,7 @@ const call=(who:Actor,action:string,payload:unknown={})=>community(db,who,{actio
 before(async()=>{assert.equal(process.env.FIRESTORE_EMULATOR_HOST,'127.0.0.1:8080');await db.doc(`procedureCompanies/${companyKey}`).set({name:'Enhancement Company',years:[2026]});});
 after(()=>deleteApp(app));
 async function publishedFixture(){
-  const owner=actor(),id=randomUUID(),draft={...initialProcedureDraft(),companyKey,title:'Coding interview for software engineer',summary:'Arrays, SQL joins and project reasoning.',rounds:['Coding','Technical interview'] as any,role:'Software Engineer',body:'## Coding\nI solved an array problem and explained its complexity.\n## Technical\nThe interviewer asked SQL joins and discussed project design decisions.'};
+  const owner=actor(),id=randomUUID(),draft={...initialProcedureDraft(),graduationYear:2026,campus:'On campus',companyKey,title:'Coding interview for software engineer',summary:'Arrays, SQL joins and project reasoning.',rounds:['Coding','Technical interview'] as any,role:'Software Engineer',body:'## Coding\nI solved an array problem and explained its complexity.\n## Technical\nThe interviewer asked SQL joins and discussed project design decisions.'};
   await saveDraft(db,owner,{id,expectedVersion:0,draft});await submit(db,owner,{id,expectedVersion:1});await review(db,admin,{id,revision:1,decision:'approved',feedback:''});return {owner,id,draft};
 }
 test('structured discovery, remembered preferences, private bookmarks and notifications work with old posts',async()=>{

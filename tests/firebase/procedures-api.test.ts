@@ -41,7 +41,7 @@ test('app API verifies Google tokens, rejects forged auth and enforces approval 
     assert.ok(created.body.data.key);
     assert.equal((await call(undefined,'procedureCommunity',{action:'createCompany',payload:{name:'No access'}})).status,401);
     const id = crypto.randomUUID();
-    const draft = { ...initialProcedureDraft(), companyKey: 'barclays', body: 'API beta test experience: I attended the aptitude and technical rounds. Practise arrays, SQL joins and explaining your project design before interviewing.' };
+    const draft = { ...initialProcedureDraft(), companyKey: 'barclays', graduationYear:2026, role:'Software Engineer', campus:'On campus', body: 'API beta test experience: I attended the aptitude and technical rounds. Practise arrays, SQL joins and explaining your project design before interviewing.' };
     const saved = await call(author.token, 'saveProcedureDraft', { id, expectedVersion: 0, draft });
     assert.equal(saved.status, 200, JSON.stringify(saved.body));
     assert.equal((await call(reader.token, 'saveProcedureDraft', { id, expectedVersion: 1, draft })).status, 403);

@@ -21,5 +21,5 @@ test('malformed filter links are normalized and return links cannot escape the b
 test('submission validation identifies the actual fields without changing the minimum content rule',()=>{
   const result=submissionSchema.safeParse(initialProcedureDraft());
   assert.equal(result.success,false);
-  if(!result.success)assert.deepEqual(result.error.issues.map(issue=>issue.path[0]),['companyKey','body']);
+  if(!result.success)assert.deepEqual(result.error.issues.map(issue=>issue.path[0]),['companyKey','campus','graduationYear','role','body']);
 });

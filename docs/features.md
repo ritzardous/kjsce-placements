@@ -16,9 +16,9 @@ Counts describe source coverage, not current college-wide outcomes. 2027's histo
 
 ## Community and administration
 
-Contributors choose a recruiter, write Markdown, select attribution and save private drafts. Submission needs at least 60 meaningful body characters beyond headings/comments and a valid company. Feedback supports revision/resubmission. Readers filter approved experiences, vote, bookmark and report content. Bookmarks can indicate unavailable or updated posts.
+Contributors choose a recruiter, write in a live formatted document, select attribution and save private drafts. Submission needs a valid company, recruitment route, graduation batch year, role and at least 60 meaningful body characters beyond headings/comments. Feedback supports revision/resubmission. Readers filter approved experiences, vote, bookmark and report content. Bookmarks can indicate unavailable or updated posts.
 
-Contributors can optionally tag an experience as On campus or Off campus. The choice is retained in private drafts, submitted revisions and approved posts; old untagged experiences remain unspecified rather than receiving an inferred route.
+Contributors choose On campus or Off campus before submitting. The choice is retained in private drafts, submitted revisions and approved posts; old untagged experiences remain unspecified rather than receiving an inferred route.
 
 Anonymous attribution changes the displayed author name; ownership remains visible to the service and administrators. Owners can withdraw, hide or delete with version checks. Administrators review immutable revisions, unpublish exact revisions, resolve reports, manage accounts, inspect bounded analytics and run staged import/quality/repair jobs.
 
@@ -71,4 +71,10 @@ All graduation years accepted by the schema, including 2027, can contribute. In 
 
 Use **Invite an alum** on a company’s experience page or placement-detail page to share a link to `#procedures/contribute?company=KEY&name=DISPLAY_NAME`. The public invitation explains the request before Google sign-in; the same destination is retained after authentication. The editor verifies the company against its signed-in directory. Invitation links do not include draft IDs. If sharing or clipboard access is unavailable, a selectable link is shown.
 
-The writer opens a focused document with automatic saving, formatting tools and a reader preview. Company selection is collapsed when prefilled; other metadata lives under **Optional details**. Only a company and at least 60 meaningful characters are needed to submit. An unspecified interview year remains null; coverage and outcome remain `Not specified`. Old dated experiences still work. Device recovery copies are scoped by user and invited company to keep separate invitations from mixing writing. Publication still requires administrator approval.
+The writer opens a focused document with automatic saving, live bold/italic, headings, lists, code, quotes, links, undo/redo and a reader preview. Formatting applies to selected text without exposing Markdown markers; bodies remain Markdown in storage for existing readers and drafts.
+
+Company selection shows a logo, recorded roles and highest recorded CTC. The matching graduation batch is used when available, otherwise the latest recorded batch is explicitly labelled. A single recorded role is preselected; multiple roles offer a choice, with a custom role always available. Unrecorded companies accept a custom role without invented CTC.
+
+Company selection is collapsed when prefilled; recruitment route, graduation batch year and role are required above the writing area. The optional title stays on the document; interview year, outcome, rounds and attribution settings live under **Optional details**. An unspecified interview year remains null; coverage and outcome remain `Not specified`. Old dated experiences still work. Device recovery copies are scoped by user and invited company to keep separate invitations from mixing writing. Publication still requires administrator approval.
+
+**Clear** removes blog text while keeping the company and interview details. **Save & close** keeps the draft. **Cancel & back** discards this editing session: a new autosaved draft is removed, or an existing draft is restored to its opening contents. It waits for in-flight saves and checks versions before cleanup, retains newer changes from other tabs, and leaves published experiences intact. Cancellation also removes this draft’s device recovery copies. If cleanup fails, the editor stays open with an error.

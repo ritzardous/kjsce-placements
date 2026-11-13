@@ -43,11 +43,11 @@ test('phone formatting, preview and static actions preserve drafts in both theme
  await expect(page.getByLabel('Company',{exact:true})).toBeVisible({timeout:20000});
  const body=page.getByLabel('Your experience',{exact:true});
  await body.fill('My interview included coding and a discussion of database fundamentals.');
- await body.evaluate((node:HTMLTextAreaElement)=>{node.focus();node.setSelectionRange(0,12);node.dispatchEvent(new Event('select',{bubbles:true}));});
+ await body.evaluate(root=>{root.focus();const range=document.createRange(),node=root.querySelector('p')!.firstChild!;range.setStart(node,0);range.setEnd(node,12);getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));});
  await page.getByRole('button',{name:'Bold',exact:true}).click();
- await expect(body).toHaveValue(/^\*\*My interview\*\*/);
+ await expect(body.locator('strong')).toHaveText('My interview');
  await page.getByRole('button',{name:'Bold',exact:true}).click();
- await expect(body).toHaveValue(/^My interview included/);
+ await expect(body.locator('strong')).toHaveCount(0);await expect(body).toContainText('My interview included');
  if(info.project.name==='mobile'){
   await expect(page.getByRole('button',{name:'Heading',exact:true})).not.toBeVisible();
   await page.locator('.editor-more-tools > summary').click();

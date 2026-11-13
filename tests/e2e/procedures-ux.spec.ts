@@ -94,12 +94,12 @@ test('unread notifications can be marked in place and the exact badge count upda
 });
 
 
-test('company choice can change without cluttering the document with placement statistics',async({page})=>{
+test('company choice updates the compact logo, roles and CTC context',async({page})=>{
   await signInGoogle(page);await page.goto('/#procedures/contribute');
   const picker=page.locator('#procedure-companyKey');
   await picker.fill('ACI Worldwide');await page.getByRole('option',{name:/ACI Worldwide/}).click();
   await expect(page.locator('.document-company>summary')).toContainText('ACI Worldwide');
-  await expect(page.locator('.procedure-company-preview')).toHaveCount(0);
+  await expect(page.locator('.procedure-company-preview')).toContainText('ACI Worldwide');
   await page.locator('.document-company>summary').click();
   await picker.fill('Barclays');await page.getByRole('option',{name:/Barclays/}).click();
   await expect(page.locator('.studio-doc-title')).toHaveText('Barclays experience');
@@ -121,40 +121,14 @@ test('one company picker and a short writing flow keep extras optional',async({p
   await expect(page.locator('.document-company>summary')).toContainText('Barclays');
   await expect(page.locator('.studio-optional')).not.toHaveAttribute('open','');
   const body=page.getByLabel('Your experience',{exact:true});
-  await expect(body).toHaveValue('');
+  await expect(body).toHaveText('');
   await body.fill('I attended a technical interview about arrays and SQL. Practise explaining your project clearly and solving a few timed coding problems.');
-  await body.evaluate((element:HTMLTextAreaElement)=>{element.focus();element.setSelectionRange(0,10);});
+  await body.evaluate(root=>{root.focus();const node=root.querySelector('p')!.firstChild!;const range=document.createRange();range.setStart(node,0);range.setEnd(node,10);getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));});
   await page.getByRole('button',{name:'Bold',exact:true}).click();
-  await expect(body).toHaveValue(/^\*\*I attended\*\*/);
+  await expect(body.locator('strong')).toHaveText('I attended');
   await page.getByRole('button',{name:'Preview',exact:true}).click();
   await expect(page.locator('.procedure-reader-preview strong')).toHaveText('I attended');
   await page.getByRole('button',{name:'Continue writing',exact:true}).click();
-  await body.press('Control+i');
-  await expect(body).toHaveValue(/^\*\*\*I attended\*\*\*/);
-  const bold=page.getByRole('button',{name:'Bold',exact:true});
-  const italic=page.getByRole('button',{name:'Italic',exact:true});
-  await expect(bold).toHaveAttribute('aria-pressed','true');
-  await expect(italic).toHaveAttribute('aria-pressed','true');
-  await italic.click();
-  await expect(body).toHaveValue(/^\*\*I attended\*\*/);
-  await expect(italic).toHaveAttribute('aria-pressed','false');
-  await bold.click();
-  await expect(body).toHaveValue(/^I attended a technical/);
-  await expect(bold).toHaveAttribute('aria-pressed','false');
-  if(test.info().project.name==='mobile')await page.locator('.editor-more-tools > summary').click();
-  for(const label of ['Heading','List','Code','Quote','Link']){
-    const tool=page.getByRole('button',{name:label,exact:true});
-    const original=await body.inputValue();
-    await tool.click();
-    await expect(tool).toHaveAttribute('aria-pressed','true');
-    await tool.click();
-    await expect(tool).toHaveAttribute('aria-pressed','false');
-    await expect(body).toHaveValue(original);
-  }
-  await body.press('Control+b');
-  await expect(bold).toHaveAttribute('aria-pressed','true');
-  await body.press('Control+b');
-  await expect(body).toHaveValue(/^I attended a technical/);
   await page.locator('summary').filter({hasText:'Optional details'}).click();
   await expect(page.getByLabel('Experience title (optional)',{exact:true})).toBeVisible();
   await page.getByLabel('Experience title (optional)',{exact:true}).fill('A short technical interview');
@@ -184,8 +158,11 @@ test('account content management has clear actions and draft deletion cannot be 
  await page.getByRole('button',{name:'Save now',exact:true}).click();
  await expect(page.getByRole('status')).toContainText('Saved');
  const id=new URLSearchParams(page.url().split('?')[1]).get('draft')!;
+ await page.getByLabel('Recruitment route',{exact:true}).selectOption('On campus');
+ await page.getByLabel('Batch year (graduation)',{exact:true}).fill('2026');
+ await expect(page.locator('#procedure-role')).toHaveValue('Graduate Technology Trainee');
  await page.getByRole('button',{name:'Submit for review',exact:true}).click();
- await expect(page.locator('#procedure-submitted')).toContainText('Pending approval');
+ await expect(page.getByRole('heading',{name:'Pending approval',exact:true})).toBeVisible();
  await page.goto('/#procedures/contributions');
  await page.locator('.account-contributions .procedure-card .action-disclosure > summary').first().click();
  const withdraw=page.getByRole('button',{name:'Withdraw from review',exact:true});

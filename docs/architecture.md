@@ -58,6 +58,8 @@ flowchart TD
   Published -->|New approved revision| Published
 ```
 
+The authoring surface uses Tiptap/ProseMirror with a restricted document schema. Formatting is rendered live; the Markdown bridge reads existing drafts and serializes edits into the existing `body` field. HTML is not stored, and publication still uses the Markdown reader. Editor extensions include headings, lists, code, quotes, links and tables for compatibility with saved content. The editor loads only when a writer opens the document. Its Markdown bridge is currently upstream beta; browser regression tests cover formatting, tables, links, undo and input limits.
+
 Draft saves compare `expectedVersion` transactionally. Submission freezes a revision and writes status, moderation event and private notification atomically. Approval copies that revision into `procedurePosts`; later draft edits do not silently change the public snapshot. Rejection/change requests require feedback. Votes update per-user state and aggregate counts in one transaction; self-voting is denied.
 
 Author deletion removes public access and leaves a tombstone to stop stale autosave from recreating writing. Revision/post/discussion/report cleanup follows outside the transaction and can be retried. This is not a complete account-erasure or backup-purge mechanism.

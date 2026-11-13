@@ -1,0 +1,58 @@
+/* Live document editing: focus changes ink, never the layout or selection box. */
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-composer input.document-title:focus,
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-composer input.document-title:focus-visible {
+  outline:none; border:0; border-radius:0; box-shadow:inset 0 -1px 0 var(--accent); background:transparent;
+}
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-composer:focus-within { border-color:var(--accent); }
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .live-experience-editor { min-width:0; }
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .live-experience-editor .live-writing-canvas {
+  min-height:360px; padding:22px 0; border:0; outline:none; box-shadow:none; background:transparent;
+  font:400 16px/1.85 var(--font-body); color:var(--ink); overflow-wrap:anywhere; white-space:pre-wrap; caret-color:var(--ink);
+}
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .live-writing-canvas:focus-visible { outline:none; box-shadow:none; }
+.live-writing-canvas>p:only-child:has(>br.ProseMirror-trailingBreak:only-child)::before { content:'Share the rounds you attended, questions you remember, or what helped you prepare.'; color:var(--ink-soft); pointer-events:none; float:left; height:0; }
+.live-writing-canvas p { margin:0 0 14px; }
+.live-writing-canvas h2 { font:600 24px/1.4 var(--font-body); margin:24px 0 12px; }
+.live-writing-canvas h3 { font:600 20px/1.4 var(--font-body); margin:20px 0 10px; }
+.live-writing-canvas :is(ul,ol) { padding-left:24px; }
+.live-writing-canvas li>p { margin:0; }
+.live-writing-canvas blockquote { border-left:3px solid var(--accent); padding-left:16px; margin:16px 0; color:var(--ink-soft); }
+.live-writing-canvas pre { padding:16px; overflow:auto; background:var(--accent-soft); border-radius:4px; }
+.live-writing-canvas code { font-family:var(--font-mono); font-size:.85em; }
+.live-writing-canvas a { color:var(--accent); text-decoration:underline; cursor:text; }
+.live-writing-canvas .tableWrapper { overflow-x:auto; }
+.live-writing-canvas table { min-width:0; width:100%; table-layout:fixed; }
+.live-writing-canvas :is(th,td) { min-width:0; border:1px solid var(--line-soft); padding:8px; white-space:normal; }
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .procedure-company-preview.writing-company-context {
+  display:grid; grid-template-columns:minmax(180px,.8fr) minmax(0,1.5fr); align-items:center; gap:16px; padding:16px;
+  margin:0 0 16px; border:1px solid var(--line-soft); border-radius:5px; box-shadow:none; background:var(--surface);
+}
+.writing-company-context .company-identity { font-size:15px; font-weight:600; }
+.writing-company-context p { margin:0 0 4px; font-size:12px; line-height:1.6; }
+.writing-company-context p:last-child { color:var(--ink-soft); margin-bottom:0; }
+.writing-company-context button { font:inherit; color:var(--accent); }
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .writing-required { border:0; padding:0; margin:0 0 24px; min-width:0; }
+.writing-required>legend { font-size:13px; font-weight:600; margin-bottom:12px; }
+.writing-required-fields { display:grid; grid-template-columns:1fr .8fr 1.3fr; gap:14px; align-items:start; }
+.writing-required-fields :is(label,.writing-role-field) { display:flex; flex-direction:column; gap:8px; min-width:0; font-size:12px; }
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .writing-required .writing-required-fields :is(input,select) {
+  width:100%; min-width:0; min-height:44px; padding:10px; border:1px solid var(--line-soft); border-radius:4px; box-shadow:none;
+  font:400 14px/1.4 var(--font-body); background:var(--surface); color:var(--ink);
+}
+.writing-link-dialog { max-width:420px; width:calc(100% - 32px); box-sizing:border-box; padding:24px; border:1px solid var(--line-soft); border-radius:8px; background:var(--surface); color:var(--ink); }
+.writing-link-dialog::backdrop { background:#0006; }
+.writing-link-dialog h2 { margin:0 0 20px; font-size:20px; }
+.writing-link-dialog label { display:flex; flex-direction:column; gap:8px; font-size:13px; }
+.writing-link-dialog input { width:100%; box-sizing:border-box; min-height:44px; padding:10px; font-size:16px; }
+.writing-link-dialog form>div { display:flex; justify-content:flex-end; gap:12px; margin-top:20px; }
+.writing-link-dialog button { min-height:44px; padding:8px 12px; }
+.editor-history-menu { display:none; }
+@media(max-width:720px) {
+  .writing-required-fields { grid-template-columns:minmax(0,1fr); }
+  :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .procedure-company-preview.writing-company-context { grid-template-columns:minmax(0,1fr); gap:10px; padding:14px; }
+  :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .writing-required .writing-required-fields :is(input,select) { font-size:16px; }
+}
+@media(max-width:480px) {
+  :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .live-experience-editor .editor-history-tool { display:none; }
+  .live-experience-editor .editor-history-menu { display:flex; }
+}

@@ -1,44 +1,15 @@
-import { FetchLoader } from '../ui/FetchLoader';
-import { canonicalCompanyKey } from '../../shared/company-identity';
-import { useEffect, useState } from 'react';
 import type { ProcedureCompany } from '../../shared/procedures';
-import type { DashboardResponse } from '../../shared/statistics';
 import { CompanyIdentity } from '../dashboard/CompanyIdentity';
-import { loadDashboard } from '../dashboard/repository';
-import { withTimeout } from '../lib/request-timeout';
-import { useAuth } from '../lib/auth';
-
-type Company = DashboardResponse['statistics']['companies'][number];
-const cache=new Map<string,{at:number;request:Promise<Company[]>}>();
-function companyStats(uid:string,year:number) {
-  const key=`${uid}:${year}`, found=cache.get(key);
-  if(found&&Date.now()-found.at<300000)return found.request;
-  if(cache.size>=6)cache.delete(cache.keys().next().value!);
-  const request=withTimeout(loadDashboard(year)).then(data=>data.statistics.companies);
-  const entry={at:Date.now(),request};cache.set(key,entry);
-  void request.catch(()=>{if(cache.get(key)===entry)cache.delete(key);});
-  return request;
-}
-export function ProcedureCompanyPreview({ company, appearanceYear }: {company:ProcedureCompany;appearanceYear:number}) {
-  const {user}=useAuth(),[state,setState]=useState<{key:string;company?:Company;error?:boolean}|null>(null);
-  const year=company.years.includes(appearanceYear)?appearanceYear:Math.max(...company.years),key=`${company.key}:${year}`;
-  const current=state?.key===key?state:null;
-  useEffect(()=>{
-    let active=true;
-    if(!Number.isFinite(year)){setState({key});return;}
-    if(!user){setState({key,error:true});return;}
-    // Community IDs use hyphens; published statistics retain underscore IDs.
-    void companyStats(user.uid,year).then(rows=>{if(active)setState({key,company:rows.find(row=>canonicalCompanyKey(row.key)===canonicalCompanyKey(company.key))});}).catch(()=>{if(active)setState({key,error:true});});
-    return()=>{active=false;};
-  },[user?.uid,company.key,year,key]);
-  return <aside className="procedure-company-preview" aria-label="Selected company information">
+import type { CompanyPlacement } from './useCompanyPlacement';
+export function ProcedureCompanyPreview({company,placement,role}:{company:ProcedureCompany;placement:CompanyPlacement;role:string}) {
+  const records=placement.company?.announcements||[];
+  const roleValues=records.filter(p=>p.roles.includes(role)||p.candidates.some(c=>c.role===role)).flatMap(p=>p.compensation.ctc_value_lpa===null?[]:[p.compensation.ctc_value_lpa]);
+  const ctc=role?(roleValues.length?Math.max(...roleValues):null):placement.company?.highestCtc??null;
+  return <aside className="procedure-company-preview writing-company-context" aria-label="Selected company information">
     <CompanyIdentity companyKey={company.key} name={company.name}/>
-    <div>{!current?<FetchLoader compact label="Loading recorded placement details…"/>:current.company?<>
-      <p><strong>{current.company.highestCtc===null?'CTC not recorded':`₹${current.company.highestCtc.toFixed(2)} LPA`}</strong> <span>highest recorded CTC · Class of {year}</span></p>
-      <p className="procedure-note">{current.company.totalHired} recorded selections{current.company.roles.length?` · ${current.company.roles.slice(0,2).join(' / ')}`:''}</p>
-    </>:<p className="procedure-note">{!Number.isFinite(year)?'No placement statistics yet. You can share your experience.':current.error?'Could not load placement details. You can continue writing.':`No recorded placement details for Class of ${year}. You can continue writing.`}</p>}
-    {current?.company&&<a href={`#${year}/company/${encodeURIComponent(current.company.key)}`} target="_blank" rel="noopener noreferrer">View placement stats ↗</a>}
-    {year!==appearanceYear&&Number.isFinite(year)&&<p className="procedure-note">Showing the latest available batch; no record for your appearance year.</p>}
-    </div>
+    <div aria-live="polite">{placement.loading?<p>Loading recorded roles and CTC…</p>:placement.error?<p>Placement details unavailable. You can enter your role below. <button type="button" onClick={placement.retry}>Retry</button></p>:<>
+      <p><strong>{ctc===null?'CTC not recorded':`₹${ctc.toFixed(2)} LPA`}</strong>{placement.year&&<span>{ctc!==null&&` · ${role?'highest recorded for this role':'highest recorded CTC'}`} · Class of {placement.year}</span>}</p>
+      {placement.company?.roles.length?<p>{placement.company.roles.slice(0,3).join(' · ')}{placement.company.roles.length>3&&` · +${placement.company.roles.length-3} roles`}</p>:<p>No recorded role details. Add your own role below.</p>}
+    </>}</div>
   </aside>;
 }

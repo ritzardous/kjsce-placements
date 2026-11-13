@@ -7,8 +7,8 @@ test('starter can save as a draft but cannot be submitted without firsthand cont
   const draft = initialProcedureDraft();
   assert.equal(procedureDraftSchema.safeParse(draft).success, true);
   assert.equal(submissionSchema.safeParse({ ...draft, companyKey: 'barclays' }).success, false);
-  assert.equal(submissionSchema.safeParse({ ...draft, companyKey: 'barclays', body: '<!-- ' + 'private '.repeat(50) + '-->\n## Rounds I appeared for' }).success, false);
-  assert.equal(submissionSchema.safeParse({ ...draft, companyKey: 'barclays', body: 'I attended an online aptitude test followed by a technical interview about arrays and SQL joins.' }).success, true);
+  assert.equal(submissionSchema.safeParse({ ...draft, companyKey: 'barclays', campus:'On campus', graduationYear:2026, role:'Software Engineer', body: '<!-- ' + 'private '.repeat(50) + '-->\n## Rounds I appeared for' }).success, false);
+  assert.equal(submissionSchema.safeParse({ ...draft, companyKey: 'barclays', campus:'On campus', graduationYear:2026, role:'Software Engineer', body: 'I attended an online aptitude test followed by a technical interview about arrays and SQL joins.' }).success, true);
 });
 test('metadata validation rejects forged fields, oversized content and invalid outcome/year', () => {
   const draft = initialProcedureDraft();
@@ -24,7 +24,7 @@ test('recruitment route preserves legacy drafts and validates campus tags', () =
   assert.equal(procedureDraftSchema.parse(draft).campus, undefined);
   for (const campus of ['On campus', 'Off campus'] as const) {
     assert.equal(procedureDraftSchema.parse({ ...draft, campus }).campus, campus);
-    assert.equal(submissionSchema.parse({ ...draft, campus, companyKey: 'barclays', body: 'I attended a coding assessment followed by technical interviews covering SQL and project architecture.' }).campus, campus);
+    assert.equal(submissionSchema.parse({ ...draft, campus, companyKey: 'barclays', graduationYear:2026, role:'Software Engineer', body: 'I attended a coding assessment followed by technical interviews covering SQL and project architecture.' }).campus, campus);
   }
   assert.equal(procedureDraftSchema.safeParse({ ...draft, campus: 'Verified campus' }).success, false);
 });
@@ -33,5 +33,5 @@ test('new company names are bounded plain text and 2027 graduates can contribute
   assert.equal(createCompanySchema.safeParse({name:'New Labs'}).success,true);
   for(const name of ['','<script>','a'.repeat(101),'Bad\u0000name']) assert.equal(createCompanySchema.safeParse({name}).success,false);
   assert.equal(createCompanySchema.safeParse({name:'New Labs',years:[2027]}).success,false);
-  assert.equal(submissionSchema.safeParse({...initialProcedureDraft(),companyKey:'new-labs',graduationYear:2027,body:'I attended the technical interview and explained how I solved arrays and SQL questions, then discussed my project and the choices behind its design.'}).success,true);
+  assert.equal(submissionSchema.safeParse({...initialProcedureDraft(),companyKey:'new-labs',graduationYear:2027,campus:'On campus',role:'Software Engineer',body:'I attended the technical interview and explained how I solved arrays and SQL questions, then discussed my project and the choices behind its design.'}).success,true);
 });

@@ -79,8 +79,8 @@ test('device writing survives a new tab and cloud conflicts require an explicit 
     await reopened.getByRole('button',{name:'Save & close',exact:true}).click();
     await reopened.getByRole('link',{name:'Share an experience',exact:true}).click();
     await reopened.locator('summary').filter({hasText:'Optional details'}).click();
-    await expect(reopened.getByLabel('Role',{exact:true})).toHaveValue('Software Engineer');
-    await expect(reopened.getByLabel('Graduation year',{exact:true})).toHaveValue('2026');
+    await expect(reopened.getByLabel('Role',{exact:true})).toHaveValue('');
+    await expect(reopened.getByLabel('Batch year (graduation)',{exact:true})).toHaveValue('2026');
     await expect(reopened.getByLabel('Your experience',{exact:true})).not.toContainText('Device writing');
   }finally{await reopened.close();}
 });

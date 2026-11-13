@@ -18,7 +18,7 @@ Placement announcements are useful evidence, but difficult to compare across com
 
 - **Placement exploration:** company and branch views, candidate search, timelines, compensation distributions, insights and source notes for visible 2025 and 2026 batches.
 - **Traceable calculations:** immutable publications with SHA-256 verification and schema validation. Unknown dates, compensation and registration denominators remain unknown.
-- **Reviewed experiences:** Markdown drafts, version conflicts, submission snapshots, moderation, voting, bookmarks and private reports.
+- **Reviewed experiences:** Live formatted drafts, version conflicts, submission snapshots, moderation, voting, bookmarks and private reports.
 - **Personal updates:** an in-app inbox with read/archive controls and opt-in company, experience and batch follows.
 - **Administrative operations:** moderation, account access, staged imports, guarded publication/rollback, identity repairs, audit history and bounded analytics.
 - **Responsive interface:** theme controls, keyboard navigation, reduced-motion treatments and static fallbacks for lazy-loaded landing graphics.

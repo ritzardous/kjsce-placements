@@ -21,7 +21,7 @@ test('a stalled draft save never blocks navigation and unsaved writing can be re
   await expect(page.getByRole('heading', { name: 'My Account', exact: true })).toBeVisible({ timeout: 3000 });
   await page.getByRole('link', {name:/My writing/}).click();
   await page.getByRole('link', { name: 'Share an experience', exact: false }).click();
-  await expect(page.getByLabel('Your experience', { exact: true })).toHaveValue('My unsaved interview experience should survive navigation when the community backend is slow.');
+  await expect(page.getByLabel('Your experience', { exact: true })).toHaveText('My unsaved interview experience should survive navigation when the community backend is slow.');
 });
 
 test('draft recovery, revision approval, voting and unpublishing work across contributor/admin/reader accounts', async ({ page, browser }) => {
@@ -33,6 +33,7 @@ test('draft recovery, revision approval, voting and unpublishing work across con
   await page.getByRole('option', {name:/Barclays/}).click();
   await page.locator('.studio-optional > summary').click();
   await page.getByLabel('Year you appeared').fill('2026');
+  await page.getByLabel('Batch year (graduation)',{exact:true}).fill('2026');
   await page.getByLabel('Your experience', { exact: true }).fill('I attended an aptitude test and a technical interview on arrays and SQL joins. Practise explaining your project and review database fundamentals before the interview.');
   await page.getByLabel('Recruitment route', {exact:true}).selectOption('Off campus');
   await page.getByRole('button', { name: 'Save now', exact: true }).click();

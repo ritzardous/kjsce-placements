@@ -5,7 +5,7 @@ import { initializeApp, deleteApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { authorize, saveDraft, submit, review, vote, unpublish, manageSubmission, type Actor } from '../../functions/src/service.js';
 import { community } from '../../functions/src/community.js';
-import { initialProcedureDraft } from '../../shared/procedures.js';
+import { initialProcedureDraft, type ProcedureDraft } from '../../shared/procedures.js';
 
 const app = initializeApp({ projectId: 'demo-placementstats' }, 'procedure-tests');
 const db = getFirestore(app);
@@ -19,7 +19,7 @@ before(async () => {
 });
 after(async () => { await deleteApp(app); });
 async function fixture() {
-  const actor = contributor(), id = randomUUID(), draft = { ...initialProcedureDraft(), companyKey: 'procedure-test-company', campus: 'Off campus' as const, body };
+  const actor = contributor(), id = randomUUID(), draft = { ...initialProcedureDraft(), companyKey: 'procedure-test-company', graduationYear:2026, role:'Software Engineer', campus: 'Off campus' as const, body };
   await saveDraft(db, actor, { id, expectedVersion: 0, draft });
   await submit(db, actor, { id, expectedVersion: 1 });
   return { actor, id, draft };
@@ -125,7 +125,7 @@ test('submission validation and throttling reject empty content and rapid separa
 test('custom attribution is validated and approval publishes the chosen name without leaking unused names', async()=>{
   for(const attribution of ['custom','name','anonymous'] as const){
     const actor=contributor(),id=randomUUID();
-    const draft={...initialProcedureDraft(),companyKey:'procedure-test-company',body,attribution,customName:'  Campus Mentor  '};
+    const draft={...initialProcedureDraft(),companyKey:'procedure-test-company',graduationYear:2026,role:'Software Engineer',campus:'On campus',body,attribution,customName:'  Campus Mentor  '};
     if(attribution==='custom'){
       await saveDraft(db,actor,{id,expectedVersion:0,draft:{...draft,customName:'   '}});
       await assert.rejects(submit(db,actor,{id,expectedVersion:1}),/public name/);
@@ -226,11 +226,23 @@ test('2027 contributors add a company, reuse its identity and submit through nor
   await assert.rejects(community(db,actor,{action:'createCompany',payload:{name:'Another '+randomUUID()}}),/wait/i);
   await assert.rejects(community(db,actor,{action:'createCompany',payload:{name:'<script>'}}));
   await assert.rejects(community(db,undefined,{action:'createCompany',payload:{name:'No access'}}));
-  const id=randomUUID(),draft={...initialProcedureDraft(),companyKey:company.key,graduationYear:2027,appearanceYear:2026,body};
+  const id=randomUUID(),draft={...initialProcedureDraft(),companyKey:company.key,graduationYear:2027,role:'Software Engineer',campus:'On campus',appearanceYear:2026,body};
   await saveDraft(db,actor,{id,expectedVersion:0,draft});
   await submit(db,actor,{id,expectedVersion:1});
   assert.equal((await db.doc('procedurePosts/'+id).get()).exists,false);
   await review(db,admin,{id,revision:1,decision:'approved',feedback:''});
   const post=(await db.doc('procedurePosts/'+id).get()).data()!;
   assert.equal(post.published,true);assert.equal(post.graduationYear,2027);assert.equal(post.companyKey,company.key);
+});
+
+test('incomplete interview details save privately but cannot be submitted',async()=>{
+ for(const missing of ['campus','graduationYear','role'] as const){
+  const actor=contributor(),id=randomUUID(),draft:ProcedureDraft={...initialProcedureDraft(),companyKey:'procedure-test-company',body,campus:'On campus' as const,graduationYear:2027,role:'Custom company role'};
+  if(missing==='campus')delete draft.campus;
+  if(missing==='graduationYear')draft.graduationYear=null;
+  if(missing==='role')draft.role='';
+  await saveDraft(db,actor,{id,expectedVersion:0,draft});
+  await assert.rejects(submit(db,actor,{id,expectedVersion:1}));
+  assert.equal((await db.doc(`procedureSubmissions/${id}`).get()).data()!.status,'draft');
+ }
 });

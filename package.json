@@ -38,6 +38,11 @@
   },
   "dependencies": {
     "@paper-design/shaders": "0.0.82",
+    "@tiptap/extension-table": "3.33.1",
+    "@tiptap/markdown": "3.33.1",
+    "@tiptap/pm": "3.33.1",
+    "@tiptap/react": "3.33.1",
+    "@tiptap/starter-kit": "3.33.1",
     "dotenv": "^18.0.6",
     "firebase": "^12.19.0",
     "firebase-admin": "^14.5.0",

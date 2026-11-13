@@ -1,4 +1,4 @@
-import { updateExperienceTarget } from '../app/navigation-context';
+import { experienceOrigin, updateExperienceTarget } from '../app/navigation-context';
 import { canonicalCompanyKey } from '../../shared/company-identity';
 import { SubmissionTimeline } from '../community/Contributions';
 import { OperationStatus } from '../ui/OperationStatus';
@@ -7,7 +7,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { getFirebase } from '../lib/firebase';
 import { FetchLoader } from '../ui/FetchLoader';
 import { AppIcon } from '../ui/AppIcon';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../lib/auth';
 import { procedureDraftSchema, initialProcedureDraft, procedureStarter, oneRoundStarter, meaningfulBody, readingMinutes, roundOptions, submissionSchema, type ProcedureCompany, type ProcedureDraft, type ProcedureSubmission } from '../../shared/procedures';
 import { getSubmission, saveProcedure, callProcedure, invalidateCompanyDirectory, procedureError } from './procedures-api';
@@ -17,12 +17,10 @@ import { Markdown } from './ProcedureMarkdown';
 import { ProcedureCompanyPicker } from './ProcedureCompanyPicker';
 import { BackToContext, ConfirmAction } from './ProcedureUX';
 
-import { toggleWritingFormat, isWritingFormatActive, type WritingFormat } from './procedure-formatting';
-const writingTools: {label:string;format:WritingFormat;shortcut?:string}[] = [
-  {label:'Bold',format:'bold',shortcut:'B'}, {label:'Italic',format:'italic',shortcut:'I'},
-  {label:'Heading',format:'heading'}, {label:'List',format:'list'}, {label:'Code',format:'code'},
-  {label:'Quote',format:'quote'}, {label:'Link',format:'link',shortcut:'K'},
-];
+import type { RichExperienceEditorHandle } from './RichExperienceEditor';
+const RichExperienceEditor=lazy(()=>import('./RichExperienceEditor').then(module=>({default:module.RichExperienceEditor})));
+import { ProcedureCompanyPreview } from './ProcedureCompanyPreview';
+import { useCompanyPlacement } from './useCompanyPlacement';
 
 type Backup = { id: string; version: number; draft: ProcedureDraft; updatedAt: number };
 function readBackup(key: string, draftId?: string): Backup | null {
@@ -46,25 +44,22 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
   const [persistedId,setPersistedId]=useState(draftId), [backup]=useState(()=>readBackup(`procedure-backup:${user?.uid}:${draftId||newKey}`,draftId));
   const backupKey=`procedure-backup:${user?.uid}:${persistedId||newKey}`, storageKey=useRef(backupKey); storageKey.current=backupKey;
   const [draft,setDraft]=useState<ProcedureDraft>(()=>backup?.draft || {...initialProcedureDraft(),body:'',companyKey:canonicalCompanyKey(new URLSearchParams(location.hash.split('?')[1]).get('company')||'')}),[status,setStatus]=useState<ProcedureSubmission['status']>('draft'),[feedback,setFeedback]=useState(''),[ready,setReady]=useState(!draftId),[preview,setPreview]=useState(false),[saved,setSaved]=useState(backup?'Recovered writing from this device.':'Drafts save automatically.'),[error,setError]=useState(''),[busy,setBusy]=useState(false),[conflict,setConflict]=useState(false),[remote,setRemote]=useState<ProcedureDraft|null>(null),[deviceSaved,setDeviceSaved]=useState(false),[issues,setIssues]=useState<Partial<Record<keyof ProcedureDraft,string>>>({});
-  const id=useRef(draftId||backup?.id||crypto.randomUUID()),version=useRef(backup?.version||0),latest=useRef(draft),savedBody=useRef(JSON.stringify({...initialProcedureDraft(),body:''})),queue=useRef<Promise<unknown>>(Promise.resolve()),pending=useRef(false),alive=useRef(true),textarea=useRef<HTMLTextAreaElement>(null),touched=useRef(Boolean(backup)), submitting=useRef(false);
+  const id=useRef(draftId||backup?.id||crypto.randomUUID()),version=useRef(backup?.version||0),latest=useRef(draft),savedBody=useRef(JSON.stringify({...initialProcedureDraft(),body:''})),queue=useRef<Promise<unknown>>(Promise.resolve()),pending=useRef(false),alive=useRef(true),writing=useRef<RichExperienceEditorHandle>(null),touched=useRef(Boolean(backup)), submitting=useRef(false);
+  const discarding=useRef(false),openedDraft=useRef<ProcedureDraft|null>(null);
   const [readAttempt,setReadAttempt]=useState(0),[leaving,setLeaving]=useState(false);
   useBackgroundSync(async () => { setReadAttempt(value=>value+1); }, 120000, Boolean(!ready&&error));
-  const [selection,setSelection]=useState({start:0,end:0});
-  const formattedSelection=useRef<{start:number;end:number}|null>(null);
-  useLayoutEffect(()=>{const range=formattedSelection.current,element=textarea.current;if(!range||!element)return;formattedSelection.current=null;element.focus({preventScroll:true});element.setSelectionRange(range.start,range.end);},[draft.body,selection]);
-  useLayoutEffect(()=>{const element=textarea.current;if(!element||preview)return;const resize=()=>{element.style.height='0px';element.style.height=Math.max(360,element.scrollHeight)+'px';};resize();window.addEventListener('resize',resize);return()=>window.removeEventListener('resize',resize);},[draft.body,preview,ready]);
-  function trackSelection(){const element=textarea.current;if(element)setSelection({start:element.selectionStart,end:element.selectionEnd});}
   latest.current=draft;
   function deviceCopy(value:ProcedureDraft, key=storageKey.current) {
+    if(discarding.current)return false;
     try { localStorage.setItem(key,JSON.stringify({id:id.current,version:version.current,draft:value,updatedAt:Date.now()}));if(alive.current)setDeviceSaved(true);return true; } catch {if(alive.current)setDeviceSaved(false);return false;}
   }
   function clearCopy(key=storageKey.current) {try{localStorage.removeItem(key);sessionStorage.removeItem(key);}catch{/* Cloud saving remains available. */}}
   useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
   useEffect(()=>{if(!ready||pending.current)return;if(JSON.stringify(draft)!==savedBody.current)deviceCopy(draft);},[draft,ready,backupKey]);
-  useEffect(()=>{if(draftId||backup)return;let active=true;void community<Partial<ProcedureDraft>>('preferences').then(preferences=>{if(active&&!touched.current)setDraft(previous=>({...previous,graduationYear:preferences.graduationYear??null,role:preferences.role||'',attribution:preferences.attribution||'anonymous',customName:preferences.customName||''}));}).catch(()=>undefined);return()=>{active=false;};},[draftId]);
+  useEffect(()=>{if(draftId||backup)return;let active=true;void community<Partial<ProcedureDraft>>('preferences').then(preferences=>{if(active&&!touched.current)setDraft(previous=>({...previous,graduationYear:preferences.graduationYear??null,attribution:preferences.attribution||'anonymous',customName:preferences.customName||''}));}).catch(()=>undefined);return()=>{active=false;};},[draftId]);
   useEffect(()=>{if(!draftId)return;let active=true;void getSubmission(draftId).then(row=>{
     if(!active)return;if(!row)throw new Error('Draft not found. Start a new contribution.');
-    const parsed=procedureDraftSchema.parse(row.draft);version.current=row.draftVersion;savedBody.current=JSON.stringify(parsed);pending.current=row.status==='pending';setRemote(parsed);
+    const parsed=procedureDraftSchema.parse(row.draft);version.current=row.draftVersion;savedBody.current=JSON.stringify(parsed);if(!openedDraft.current)openedDraft.current=parsed;pending.current=row.status==='pending';setRemote(parsed);
     const unsynced=backup&&JSON.stringify(backup.draft)!==JSON.stringify(parsed);
     setDraft(pending.current?parsed:unsynced?backup.draft:parsed);setConflict(Boolean(unsynced&&backup.version!==row.draftVersion&&!pending.current));
     setStatus(row.status);setFeedback(row.feedback);setSaved(unsynced&&!pending.current?'Your latest writing is back. It still needs to save to your account.':'Saved to your account');setError('');setReady(true);
@@ -83,7 +78,7 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
   }, [status]);
   function enqueueSave() {
     const operation=queue.current.catch(()=>undefined).then(async()=>{
-      const value=latest.current;if(pending.current||JSON.stringify(value)===savedBody.current)return;
+      const value=latest.current;if(discarding.current||pending.current||JSON.stringify(value)===savedBody.current)return;
       if(alive.current)setSaved('Saving…');
       const result=await saveProcedure(id.current,version.current,value);version.current=result.version;savedBody.current=JSON.stringify(value);setRemote(value);
       const oldKey=storageKey.current,newKey=`procedure-backup:${user?.uid}:${id.current}`;
@@ -97,16 +92,9 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
       try {const row=await getSubmission(id.current);if(!row||!alive.current)return;version.current=row.draftVersion;setRemote(procedureDraftSchema.parse(row.draft));savedBody.current=JSON.stringify(procedureDraftSchema.parse(row.draft));pending.current=row.status==='pending';setStatus(row.status);setConflict(row.status!=='pending');}catch{/* Keep the existing recovery copy. */}
     }
   }
-  useEffect(()=>{if(!touched.current||!ready||pending.current||conflict||busy||JSON.stringify(draft)===savedBody.current)return;setSaved(deviceSaved?'Your writing is safe on this device. Saving to your account soon.':'Unsaved changes');const timer=setTimeout(()=>void enqueueSave().catch(failed),900);return()=>clearTimeout(timer);},[draft,ready,conflict,busy]);
-  useEffect(()=>{const warn=(event:BeforeUnloadEvent)=>{if(JSON.stringify(latest.current)!==savedBody.current&&!pending.current){if(!deviceCopy(latest.current)){event.preventDefault();event.returnValue='';}}};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[]);
+  useEffect(()=>{if(discarding.current||leaving||!touched.current||!ready||pending.current||conflict||busy||JSON.stringify(draft)===savedBody.current)return;setSaved(deviceSaved?'Your writing is safe on this device. Saving to your account soon.':'Unsaved changes');const timer=setTimeout(()=>void enqueueSave().catch(failed),900);return()=>clearTimeout(timer);},[draft,ready,conflict,busy,leaving]);
+  useEffect(()=>{const warn=(event:BeforeUnloadEvent)=>{if(!discarding.current&&JSON.stringify(latest.current)!==savedBody.current&&!pending.current){if(!deviceCopy(latest.current)){event.preventDefault();event.returnValue='';}}};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn);},[]);
   function update<K extends keyof ProcedureDraft>(key:K,value:ProcedureDraft[K]){touched.current=true;setIssues(previous=>{const next={...previous};delete next[key];return next;});setDraft(previous=>{const next={...previous,[key]:value};if(key==='campus'&&value===undefined)delete next.campus;return next;});}
-  function format(action:WritingFormat){
-    const element=textarea.current;
-    const result=toggleWritingFormat(latest.current.body,element?.selectionStart??selection.start,element?.selectionEnd??selection.end,action);
-    if(result.body.length>20000){setError('Your experience can contain up to 20,000 characters. Shorten it before adding formatting.');return;}
-    formattedSelection.current={start:result.start,end:result.end};
-    update('body',result.body);setSelection({start:result.start,end:result.end});
-  }
   async function send(){if(submitting.current)return;setError('');const validated=submissionSchema.safeParse(latest.current);if(!validated.success){const errors:Partial<Record<keyof ProcedureDraft,string>>={};for(const issue of validated.error.issues){const field=String(issue.path[0]||'body') as keyof ProcedureDraft;if(!errors[field])errors[field]=issue.message;}setIssues(errors);if(errors.body)setPreview(false);requestAnimationFrame(()=>{const field=document.getElementById(`procedure-${Object.keys(errors)[0]}`);field?.closest('details')?.setAttribute('open','');field?.focus();});return;}setIssues({});submitting.current=true;setBusy(true);try{await enqueueSave();await callProcedure('submitProcedure',{id:id.current,expectedVersion:version.current});pending.current=true;clearCopy();setStatus('pending');setSaved('Submitted for review');window.dispatchEvent(new Event('procedure-notifications-changed'));requestAnimationFrame(()=>document.getElementById('procedure-submitted')?.focus());}catch(cause){await failed(cause);}finally{submitting.current=false;setBusy(false);}}
   async function cancelWriting() {
     if(busy || leaving)return;
@@ -121,17 +109,59 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
       if(deviceCopy(latest.current))location.hash='#procedures/contributions';
     } finally {if(alive.current)setLeaving(false);}
   }
+  async function discardWriting() {
+    if(busy||leaving||discarding.current)return;
+    const destination=experienceOrigin(user?.uid)?.href||'#procedures';
+    discarding.current=true;setLeaving(true);setError('');
+    try {
+      // An already-started save must settle before rollback; queued saves are skipped.
+      await queue.current.catch(()=>undefined);
+      if(!conflict){
+        const account=await getSubmission(id.current);
+        if(account){
+          if(account.draftVersion!==version.current||account.status==='pending')throw new Error('This draft changed in another tab. Reload before cancelling so that newer writing stays safe.');
+          if(openedDraft.current){
+            if(JSON.stringify(procedureDraftSchema.parse(account.draft))!==JSON.stringify(openedDraft.current)){
+              try {await saveProcedure(id.current,version.current,openedDraft.current);}
+              catch(cause){
+                if(!(cause as {code?:string}).code?.includes('resource-exhausted'))throw cause;
+                await new Promise(resolve=>setTimeout(resolve,350));
+                await saveProcedure(id.current,version.current,openedDraft.current);
+              }
+            }
+          }else await community('manageSubmission',{id:id.current,expectedVersion:version.current,action:'delete'});
+        }
+      }
+      for(const key of new Set([storageKey.current,`procedure-backup:${user?.uid}:${id.current}`,`procedure-backup:${user?.uid}:${newKey}`]))clearCopy(key);
+      window.dispatchEvent(new Event('procedure-notifications-changed'));
+      location.hash=destination;
+    } catch(cause){discarding.current=false;setError('Could not cancel safely. '+procedureError(cause));setLeaving(false);}
+  }
   const locked=status==='pending'||busy||leaving;
   const selectedCompany=companies.find(company=>company.key===draft.companyKey);
+  const placement=useCompanyPlacement(selectedCompany,draft.graduationYear);
+  const roles=placement.company?.roles.filter(Boolean)||[];
+  const [customRole,setCustomRole]=useState(false);
+  const automaticRole=useRef('');
+  const roleIsCustom=customRole||Boolean(draft.role&&!roles.includes(draft.role));
+  useEffect(()=>{
+    if(!ready||locked||placement.loading||customRole)return;
+    if(draft.role&&draft.role!==automaticRole.current)return;
+    const next=roles.length===1?roles[0]:'';
+    automaticRole.current=next;
+    if(next!==draft.role)update('role',next);
+  },[ready,locked,placement.company,placement.loading,draft.role,customRole]);
+  function chooseCompany(key:string){automaticRole.current='';update('companyKey',key);update('role','');setCustomRole(false);}
+
   const canUseStarter=!draft.body.trim()||[procedureStarter,oneRoundStarter,procedureStarter.replace(/<!--[\s\S]*?-->/g,'')].some(starter=>starter.trim()===draft.body.trim());
-  const names:Record<keyof ProcedureDraft,string>={companyKey:'Company',appearanceYear:'Year you appeared',body:'Your experience',title:'Experience title (optional)',summary:'Short summary (optional)',rounds:'Rounds covered',graduationYear:'Graduation year',role:'Role',attribution:'Public name',customName:'Custom public name',coverage:'Coverage',campus:'Recruitment route',outcome:'Did you get selected?'};
+  const names:Record<keyof ProcedureDraft,string>={companyKey:'Company',appearanceYear:'Year you appeared',body:'Your experience',title:'Experience title (optional)',summary:'Short summary (optional)',rounds:'Rounds covered',graduationYear:'Batch year (graduation)',role:'Role',attribution:'Public name',customName:'Custom public name',coverage:'Coverage',campus:'Recruitment route',outcome:'Did you get selected?'};
   const fieldProps=(key:keyof ProcedureDraft)=>({id:`procedure-${key}`,'aria-label':names[key],'aria-invalid':Boolean(issues[key]),'aria-describedby':issues[key]?`procedure-error-${key}`:undefined});
   const fieldError=(key:keyof ProcedureDraft)=>issues[key]?<p id={`procedure-error-${key}`} className="procedure-note">{issues[key]}</p>:null;
-  useEffect(()=>{const guard=(event:MouseEvent)=>{const anchor=(event.target as HTMLElement).closest?.('a[href]');if(!anchor||pending.current||JSON.stringify(latest.current)===savedBody.current)return;if(!deviceCopy(latest.current)&&!window.confirm('Your latest writing could not be saved to your account or this browser. Leave and lose these unsaved changes?')){event.preventDefault();event.stopPropagation();}};document.addEventListener('click',guard,true);return()=>document.removeEventListener('click',guard,true);},[]);
+  useEffect(()=>{const guard=(event:MouseEvent)=>{const anchor=(event.target as HTMLElement).closest?.('a[href]');if(!anchor||discarding.current||pending.current||JSON.stringify(latest.current)===savedBody.current)return;if(!deviceCopy(latest.current)&&!window.confirm('Your latest writing could not be saved to your account or this browser. Leave and lose these unsaved changes?')){event.preventDefault();event.stopPropagation();}};document.addEventListener('click',guard,true);return()=>document.removeEventListener('click',guard,true);},[]);
   const wordCount=meaningfulBody(draft.body).split(/\s+/).filter(Boolean).length;
   const readTime=readingMinutes(draft.body);
   const publicName=draft.attribution==='custom'?draft.customName.trim()||'Community contributor':draft.attribution==='name'?user?.displayName||'Contributor':'Community contributor';
-  function focusEditor(){requestAnimationFrame(()=>{textarea.current?.focus({preventScroll:true});textarea.current?.setSelectionRange(selection.start,selection.end);});}
+  function focusEditor(){requestAnimationFrame(()=>writing.current?.focus());}
   function togglePreview(){if(preview){setPreview(false);focusEditor();}else setPreview(true);}
   function applyStarter(value:string,coverage:ProcedureDraft['coverage']){update('body',value);update('coverage',coverage);}
   if(!ready)return <section className="procedure-editor-page studio studio-loading">{error?<p role="alert">{error}</p>:<FetchLoader variant="article" label="Loading your draft…"/>}<a href="#procedures/contributions">Back to my contributions</a></section>;
@@ -192,21 +222,28 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
         <div className="studio-main">
           <details className="document-company" open={!selectedCompany||Boolean(issues.companyKey)}>
             <summary>{selectedCompany ? selectedCompany.name+' · Change company' : 'Choose a company'}</summary>
-            <ProcedureCompanyPicker onCreate={addCompany} companies={companies} value={draft.companyKey} onChange={value=>update('companyKey',value)} loading={companiesLoading} disabled={locked} invalid={Boolean(issues.companyKey)} errorId={issues.companyKey?'procedure-error-companyKey':undefined}/>
+            <ProcedureCompanyPicker onCreate={addCompany} companies={companies} value={draft.companyKey} onChange={chooseCompany} loading={companiesLoading} disabled={locked} invalid={Boolean(issues.companyKey)} errorId={issues.companyKey?'procedure-error-companyKey':undefined}/>
             {fieldError('companyKey')}{companyError&&<p role="alert">{companyError}</p>}
           </details>
+
+          {selectedCompany&&<ProcedureCompanyPreview company={selectedCompany} placement={placement} role={draft.role}/>}
+          <fieldset className="writing-required"><legend>Your interview</legend><div className="writing-required-fields">
+            <label>Recruitment route<select {...fieldProps('campus')} aria-required="true" value={draft.campus||''} onChange={event=>update('campus',event.target.value?event.target.value as ProcedureDraft['campus']:undefined)}><option value="">Choose a route</option><option>On campus</option><option>Off campus</option></select>{fieldError('campus')}</label>
+            <label>Batch year (graduation)<input {...fieldProps('graduationYear')} aria-required="true" type="number" inputMode="numeric" min="2000" max="2100" placeholder="e.g. 2025" value={draft.graduationYear??''} onChange={event=>update('graduationYear',event.target.value?Number(event.target.value):null)}/>{fieldError('graduationYear')}</label>
+            <div className="writing-role-field">{roles.length>0?<><label htmlFor="procedure-role">Role</label><select {...fieldProps('role')} aria-required="true" value={roleIsCustom?'__custom__':draft.role} onChange={event=>{automaticRole.current='';setCustomRole(event.target.value==='__custom__');update('role',event.target.value==='__custom__'?'':event.target.value);}}><option value="">Choose a role</option>{roles.map(role=><option key={role}>{role}</option>)}<option value="__custom__">Write a custom role…</option></select>{roleIsCustom&&<label>Custom role<input id="procedure-custom-role" aria-required="true" value={draft.role} maxLength={100} placeholder="Your role" onChange={event=>update('role',event.target.value)}/></label>}</>:placement.loading?<label>Role<select id="procedure-role" aria-required="true" aria-busy="true" disabled><option>Loading recorded roles…</option></select></label>:<label>Role<input {...fieldProps('role')} aria-required="true" value={draft.role} maxLength={100} placeholder={placement.loading?'Your role (recorded roles loading…)':'Enter your role'} onChange={event=>{setCustomRole(true);update('role',event.target.value);}}/></label>}{fieldError('role')}</div>
+          </div></fieldset>
 
           <section className={`procedure-composer studio-composer${preview?' is-preview':''}`}>
             <div className="procedure-composer-heading">
               <div className="procedure-composer-controls">
 
+                <ConfirmAction label="Clear" title="Clear your writing?" description="Remove the blog text? Your company and interview details will stay." confirmLabel="Clear writing" disabled={locked||!draft.body.length} onConfirm={()=>{update('body','');setPreview(false);requestAnimationFrame(()=>writing.current?.focus());}}/>
                 <button type="button" aria-pressed={preview} className="preview-toggle" onClick={togglePreview}><AppIcon name={preview?'pen':'eye'}/>{preview?'Continue writing':'Preview'}</button>
               </div>
             </div>
             <input {...fieldProps('title')} className="document-title" maxLength={120} placeholder="Untitled experience (optional)" value={draft.title} onChange={event=>update('title',event.target.value)}/>{fieldError('title')}
-            <div className="procedure-toolbar" role="toolbar" aria-label="Writing tools">{writingTools.map(tool=><button type="button" key={tool.format} aria-label={tool.label} className={['bold','italic','list'].includes(tool.format)?'editor-basic-tool':'editor-advanced-tool'} aria-pressed={isWritingFormatActive(draft.body,selection.start,selection.end,tool.format)} aria-keyshortcuts={tool.shortcut?`Control+${tool.shortcut} Meta+${tool.shortcut}`:undefined} title={`${tool.label}${tool.shortcut?` (Ctrl/⌘+${tool.shortcut})`:''}. Click again to remove`} onMouseDown={event=>event.preventDefault()} onClick={()=>format(tool.format)}><AppIcon name={tool.format}/><span>{tool.label}</span></button>)}<details className="editor-more-tools"><summary><AppIcon name="filter"/><span>More</span></summary><div>{writingTools.filter(tool=>!['bold','italic','list'].includes(tool.format)).map(tool=><button type="button" key={tool.format} aria-label={tool.label} aria-pressed={isWritingFormatActive(draft.body,selection.start,selection.end,tool.format)} onMouseDown={event=>event.preventDefault()} onClick={()=>format(tool.format)}><AppIcon name={tool.format}/><span>{tool.label}</span></button>)}</div></details></div>
             <div className={`procedure-writing ${preview?'with-preview':''}`}>
-              <label className="procedure-body-label"><span className="sr-only">Your experience</span><textarea {...fieldProps('body')} aria-required="true" ref={textarea} spellCheck autoCapitalize="sentences" autoCorrect="on" rows={14} maxLength={20000} placeholder="What was your interview process like? Share the rounds you attended, questions you remember, or anything you wish you had known." value={draft.body} onSelect={trackSelection} onChange={e=>{update('body',e.target.value);trackSelection();}} onKeyDown={event=>{if(!(event.ctrlKey||event.metaKey)||event.altKey)return;const key=event.key.toLowerCase();if(['b','i','k'].includes(key)){event.preventDefault();if(key==='b')format('bold');if(key==='i')format('italic');if(key==='k')format('link');}}}/>{fieldError('body')}</label>
+              <div className="procedure-body-label"><Suspense fallback={<FetchLoader variant="article" label="Opening your document…"/>}><RichExperienceEditor ref={writing} value={draft.body} onChange={value=>update('body',value)} disabled={locked} invalid={Boolean(issues.body)} onLimit={()=>setError('Your experience can contain up to 20,000 characters, including formatting.')}/></Suspense>{fieldError('body')}</div>
               {preview&&<article className="procedure-reader-preview studio-preview" aria-label="Reader preview">
                 <header className="studio-preview-head"><span className="studio-preview-label">Reader preview</span></header>
                 <p className="studio-preview-kicker">{selectedCompany?.name||'Company'}{draft.appearanceYear && ` · ${draft.appearanceYear}`}{draft.campus && ` · ${draft.campus}`}</p>
@@ -229,11 +266,10 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
 
         <aside className="studio-rail" aria-label="Experience settings">
           <details className="procedure-optional studio-optional studio-rail-card">
-            <summary><span>Optional details</span><span className="studio-details-hint">Year, role, outcome and public name</span></summary>
+            <summary><span>Optional details</span><span className="studio-details-hint">Interview year, summary and public name</span></summary>
             <div className="studio-optional-body">
           <div className="document-metadata">
 
-            <label className="studio-campus-field">Recruitment route<select {...fieldProps('campus')} value={draft.campus || ''} onChange={event => update('campus', event.target.value ? event.target.value as ProcedureDraft['campus'] : undefined)}><option value="">Not specified</option><option>On campus</option><option>Off campus</option></select></label>
 
               <div className="procedure-fields">
                 <label>Year you appeared<input {...fieldProps('appearanceYear')} type="number" min="2000" max={new Date().getFullYear()+1} value={draft.appearanceYear||''} onChange={e=>update('appearanceYear',e.target.value?Number(e.target.value):null)}/>{fieldError('appearanceYear')}</label>
@@ -247,13 +283,10 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
               <label>Short summary (optional)<textarea {...fieldProps('summary')} rows={2} maxLength={320} placeholder="What should a reader know before opening your experience?" value={draft.summary} onChange={e=>update('summary',e.target.value)}/>{fieldError('summary')}</label>
               <fieldset className="procedure-rounds"><legend>Rounds covered (optional)</legend>{roundOptions.map(round=><label key={round}><input type="checkbox" checked={draft.rounds.includes(round)} onChange={e=>update('rounds',e.target.checked?[...draft.rounds,round]:draft.rounds.filter(value=>value!==round))}/>{round}</label>)}</fieldset>
               <div className="procedure-fields">
-                <label>Graduation year<input {...fieldProps('graduationYear')} type="number" min="2000" max="2100" value={draft.graduationYear??''} onChange={e=>update('graduationYear',e.target.value?Number(e.target.value):null)}/>{fieldError('graduationYear')}</label>
-                <label>Role<input {...fieldProps('role')} maxLength={100} placeholder="e.g. Software Engineer" value={draft.role} onChange={e=>update('role',e.target.value)}/>{fieldError('role')}</label>
                 <label>Public name<select {...fieldProps('attribution')} value={draft.attribution} onChange={e=>update('attribution',e.target.value as ProcedureDraft['attribution'])}><option value="anonymous">Anonymous</option><option value="name">Google profile name</option><option value="custom">Custom name</option></select></label>
                 {draft.attribution==='custom'&&<label>Custom public name<input {...fieldProps('customName')} aria-required="true" maxLength={60} placeholder="Name readers will see" value={draft.customName} onChange={event=>update('customName',event.target.value)}/>{fieldError('customName')}</label>}
               </div>
               <p className="procedure-note">Readers will see: <strong>{publicName}</strong>.</p>
-                <ConfirmAction label="Clear writing" title="Clear your writing?" description="Remove everything written in the experience so far? Your company and details will stay." confirmLabel="Clear writing" disabled={locked||!draft.body.length} onConfirm={()=>{update('body','');setPreview(false);requestAnimationFrame(()=>textarea.current?.focus());}}/>
             </div>
           </details>
 
@@ -263,11 +296,12 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
     </fieldset>
 
     {error&&<p className="auth-message studio-error" role="alert">{error}</p>}
-    {(busy||leaving)&&<OperationStatus label={leaving?'Keeping your draft…':'Submitting your experience…'}/>}
+    {(busy||leaving)&&<OperationStatus label={leaving?(discarding.current?'Discarding changes…':'Keeping your draft…'):'Submitting your experience…'}/>}
     <div className="procedure-actions procedure-submit-bar studio-submit-bar">
       <div className="studio-submit-copy"><strong>{pending.current?'Submitted for review':'Ready to share?'}</strong><span>{pending.current?'An admin will review your latest revision.':'An admin reviews it before it goes live.'}</span></div>
       <div className="studio-submit-actions">
-        <button type="button" disabled={busy||leaving} title="Keep your draft and return to My contributions" onClick={()=>void cancelWriting()}><AppIcon name="back"/>{leaving?'Keeping your draft…':'Save & close'}</button>
+        <ConfirmAction label="Cancel & back" title="Discard changes and go back?" description="New drafts will be removed from your profile. Existing drafts return to the version you opened. Published experiences stay unchanged." confirmLabel="Discard & go back" disabled={locked} onConfirm={()=>void discardWriting()} tone="warning"/>
+        <button type="button" disabled={busy||leaving} title="Keep your draft and return to My contributions" onClick={()=>void cancelWriting()}><AppIcon name="back"/>{leaving?(discarding.current?'Discarding changes…':'Keeping your draft…'):'Save & close'}</button>
         <button className="action-button" disabled={locked||conflict||companiesLoading||!companies.length} onClick={()=>void send()}><AppIcon name={pending.current?'clock':'share'}/>{busy?'Submitting…':pending.current?'Pending approval':'Submit for review'}</button>
       </div>
       {pending.current&&<a href="#procedures/contributions?status=pending">View submission status ↗</a>}

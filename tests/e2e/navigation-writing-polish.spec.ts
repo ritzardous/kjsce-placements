@@ -78,6 +78,6 @@ test('bookmark on the article boundary toggles and cancel keeps an editable draf
   const draft=(await db.collection('procedureSubmissions').where('ownerUid','==',uid).get()).docs.find(doc=>doc.data().draft.body===body)!;
   expect(draft).toBeDefined();expect(draft.data().status).toBe('draft');
   await page.goto(`/#procedures/contribute?draft=${draft.id}`);
-  await expect(page.getByLabel('Your experience',{exact:true})).toHaveValue(body);
+  await expect(page.getByLabel('Your experience',{exact:true})).toHaveText(body);
   await page.screenshot({animations:'disabled',path:`artifacts/writing-bookmark-polish-${info.project.name}.png`});
 });

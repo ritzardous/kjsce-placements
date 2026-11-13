@@ -11,10 +11,10 @@ test('company invitations preserve a canonical company through URLs and ignore d
  assert.equal(experienceInvitation('#procedures/contribute?company=../../users'),null);
  assert.equal(experienceInvitation('#procedures/company?company=barclays'),null);
 });
-test('an invited writer can submit just a company and meaningful writing without guessed metadata',()=>{
- const draft={...initialProcedureDraft(),companyKey:'barclays',body:'My interview covered array problems and database joins. I discussed my projects and explained the trade-offs behind each solution.'};
+test('an invited writer supplies route, graduation batch and role without guessing interview year or outcome',()=>{
+ const draft={...initialProcedureDraft(),companyKey:'barclays',campus:'On campus' as const,graduationYear:2026,role:'Software Engineer',body:'My interview covered array problems and database joins. I discussed my projects and explained the trade-offs behind each solution.'};
  assert.equal(submissionSchema.safeParse(draft).success,true);
  assert.equal(draft.appearanceYear,null);assert.equal(draft.outcome,'Not specified');assert.equal(draft.coverage,'Not specified');
- assert.equal(submissionSchema.safeParse({...draft,body:''}).success,false);
+ for(const patch of [{body:''},{campus:undefined},{graduationYear:null},{role:''}])assert.equal(submissionSchema.safeParse({...draft,...patch}).success,false);
  assert.equal(submissionSchema.safeParse({...draft,appearanceYear:2025,coverage:'Full',outcome:'Selected'}).success,true);
 });
