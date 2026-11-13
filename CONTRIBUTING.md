@@ -1,10 +1,16 @@
 # Contributing
 
+> **Mandatory: read and follow [`AGENTS.md`](AGENTS.md) before contributing.**
+>
+> `AGENTS.md` is binding for every human and AI contributor. Every pull request must state whether it was followed. PRs that omit the **AGENTS.md compliance** section in the PR template are incomplete and may be returned without review.
+
 Thanks for helping maintain Placement Stats KJSCE. Start with [setup](docs/getting-started.md), [architecture](docs/architecture.md) and the [development guide](docs/development.md).
 
 ## Before changing code or data
 
-Read any applicable `AGENTS.md` first; none was present during the documentation audit. Check existing issues/PRs for related work. Use a focused bug report or proposal for substantial changes; security and privacy incidents belong in the [private reporting process](SECURITY.md).
+Read [`AGENTS.md`](AGENTS.md) in full first. It defines the hard stops, architectural constraints, data rules, security boundaries, required checks, and PR compliance statement. If you are running a coding agent, the agent must read it before editing and must not proceed if it cannot comply.
+
+Check existing issues/PRs for related work. Use a focused bug report or proposal for substantial changes; security and privacy incidents belong in the [private reporting process](SECURITY.md).
 
 Use a fork or a branch with a descriptive name. `codex/` is used for Codex-created branches in this workspace; the repository has no enforced universal branch prefix. Keep each PR focused and describe the observable problem, resulting behavior and validation. Do not claim a deployment or live data change unless one was authorized and verified.
 
@@ -36,7 +42,9 @@ Run `npm test` and `npm run build`. For changes to auth, rules, backend transact
 
 For documentation-only changes, verify scripts against source and check local links; do not perform live mutations to validate prose. Report checks that could not run and why. Inspect `git diff` after builds because source-generation hooks can update tracked mappings.
 
-Use the PR template to summarize scope, tests, screenshots when relevant, configuration/rules/index implications and remaining risks. Maintainers review technical correctness, provenance, privacy and maintainability. Do not assume merge rights or a release schedule.
+Use the PR template to summarize scope, tests, screenshots when relevant, configuration/rules/index implications and remaining risks. The template's **AGENTS.md compliance** section is required: state `Yes`, `No`, or `Not applicable`, and explain any deviation or check that could not run. Do not mark a PR ready for review with an unanswered compliance section.
+
+Maintainers review technical correctness, provenance, privacy, `AGENTS.md` compliance and maintainability. Do not assume merge rights or a release schedule.
 
 ## Licensing and conduct
 

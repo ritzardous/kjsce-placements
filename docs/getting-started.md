@@ -9,7 +9,7 @@
 - Java **21+** for Firestore emulation, unnecessary for normal cloud runtime.
 - For browser tests: `npx playwright install chromium` (CI uses `--with-deps`).
 
-No `AGENTS.md` was found in the repository or checked parent directories during this pass. Follow one if a future checkout adds it.
+Before changing code, data, rules, or documentation, read [`AGENTS.md`](../AGENTS.md). It is mandatory for all human and AI contributors, and every pull request must state whether it was followed.
 
 ## Local beta: first run
 

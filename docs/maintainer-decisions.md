@@ -19,7 +19,7 @@ The adopted [MIT license text](../LICENSE) follows the [Open Source Initiative t
 
 ## Documentation audit: 12 November 2026
 
-Repository inspection covered tracked source/configuration, frontend routes and providers, shared schemas/statistics, backend dispatch/services, Firestore/Storage rules, indexes, scripts, workflows, tests and existing engineering records. No repository `AGENTS.md` or checked parent instruction file was found. Private environment files were not copied into documentation.
+Repository inspection covered tracked source/configuration, frontend routes and providers, shared schemas/statistics, backend dispatch/services, Firestore/Storage rules, indexes, scripts, workflows, tests and existing engineering records. No repository `AGENTS.md` or checked parent instruction file was found at audit time. A binding [`AGENTS.md`](../AGENTS.md) now exists; this audit predates it. Private environment files were not copied into documentation.
 
 Executed checks:
 

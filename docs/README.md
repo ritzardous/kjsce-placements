@@ -4,10 +4,13 @@
 
 These guides describe the checked-in implementation. They do not establish current live deployment, IAM, account or database state.
 
+> **Mandatory for all contributors and coding agents:** read [`AGENTS.md`](../AGENTS.md) before changing anything. Every pull request must state whether it was followed.
+
 ## Learn and develop
 
 | Guide | Purpose |
 | --- | --- |
+| [Agent instructions](../AGENTS.md) | Binding rules, hard stops, standards, and PR compliance |
 | [Getting started](getting-started.md) | Local beta, prerequisites and cloud setup |
 | [Features](features.md) | User journeys, routes and limits |
 | [Architecture](architecture.md) | Components and execution flows |

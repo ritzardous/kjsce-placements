@@ -1,3 +1,14 @@
+## AGENTS.md compliance — required
+
+Read [`AGENTS.md`](../AGENTS.md) before submitting this PR. This section must be completed; an unanswered or removed section makes the PR incomplete.
+
+- [ ] I read and followed `AGENTS.md`.
+- **AGENTS.md followed:** Yes / No / Not applicable (explain)
+- **Exceptions or deviations:**
+- **Checks not run and why:**
+
+If the answer is **No**, explain exactly what was not followed. Do not mark the PR ready for review until a maintainer accepts the deviation.
+
 ## Problem and result
 
 Describe the concrete trigger, previous behavior and resulting behavior.
@@ -12,6 +23,7 @@ List commands actually run and their results. Explain checks not run. Include sa
 
 ## Review checklist
 
+- [ ] The required **AGENTS.md compliance** section above is complete and accurate.
 - [ ] Changes are focused and contain no credentials, private exports or personal data copied into examples.
 - [ ] Input validation, ownership and current authorization boundaries are preserved where applicable.
 - [ ] Data changes have source evidence and preserve missing-value/metric semantics where applicable.

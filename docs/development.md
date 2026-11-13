@@ -2,6 +2,8 @@
 
 [Documentation index](README.md) · [Contributing](../CONTRIBUTING.md) · [Getting started](getting-started.md)
 
+> **Before editing:** read [`AGENTS.md`](../AGENTS.md). It is binding for human and AI contributors, and every PR must state whether it was followed.
+
 ## Repository map
 
 ```text

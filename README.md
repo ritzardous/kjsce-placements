@@ -5,10 +5,13 @@
 [![Node 22](https://img.shields.io/badge/Node.js-22-43853d)](package.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)](tsconfig.json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Agents: AGENTS.md](https://img.shields.io/badge/agents-AGENTS.md-important)](AGENTS.md)
 
 Placement announcements are useful evidence, but difficult to compare across companies, branches and years. This project turns reviewed records into searchable dashboards while keeping reported counters, calculated selections and missing information distinct. Its community workspace lets students write private drafts and publish experiences through administrator review.
 
 [Open the app](https://kjsce-placements.vercel.app) · [Get started](docs/getting-started.md) · [Architecture](docs/architecture.md) · [Documentation index](docs/README.md) · [Contribute](CONTRIBUTING.md)
+
+> **Contributors and coding agents: [`AGENTS.md`](AGENTS.md) is mandatory.** Read it before changing code, data, rules, or documentation. Every pull request must state whether it was followed; see the [PR template](.github/PULL_REQUEST_TEMPLATE.md).
 
 ![Placement Stats — Don’t prep in the dark. Updated share preview](public/social/placement-stats-preview.png)
 
@@ -75,7 +78,7 @@ Open `http://localhost:5174` and choose **Test as contributor**, **admin** or **
 
 ## Community and security
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md), the [Code of Conduct](CODE_OF_CONDUCT.md) and [security reporting policy](SECURITY.md). Useful contributions include reproducible bugs, accessibility improvements, source-backed corrections and tests. Keep student records, account details and credentials out of public reports.
+Read [`AGENTS.md`](AGENTS.md) first; it is binding for all contributors and coding agents. Then read [CONTRIBUTING.md](CONTRIBUTING.md), the [Code of Conduct](CODE_OF_CONDUCT.md) and [security reporting policy](SECURITY.md). Every PR must include the **AGENTS.md compliance** statement from the PR template. Useful contributions include reproducible bugs, accessibility improvements, source-backed corrections and tests. Keep student records, account details and credentials out of public reports.
 
 ## Licensing and acknowledgments
 
