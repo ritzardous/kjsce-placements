@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { canonicalCompanyKey } from '../../shared/company-identity';
+import { companyPlacement } from './company-placement';
 import type { ProcedureCompany } from '../../shared/procedures';
 import type { Company } from '../../shared/statistics';
 import { loadDashboard } from '../dashboard/repository';
@@ -14,7 +14,7 @@ export function useCompanyPlacement(company:ProcedureCompany|undefined,batchYear
   useEffect(()=>{
     if(!company||!user||year===null)return;
     let active=true;
-    void loadDashboard(year).then(data=>{if(active)setState({key,company:data.statistics.companies.find(row=>canonicalCompanyKey(row.key)===company.key),error:false});}).catch(()=>{if(active)setState({key,error:true});});
+    void loadDashboard(year).then(data=>{if(active)setState({key,company:companyPlacement(data.statistics.companies,company.key),error:false});}).catch(()=>{if(active)setState({key,error:true});});
     return()=>{active=false;};
   },[key,attempt]);
   const current=state?.key===key?state:null;

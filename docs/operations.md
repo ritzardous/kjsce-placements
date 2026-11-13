@@ -66,3 +66,11 @@ The CLI also accepts exactly one `--email` instead of `--uid`, and roles contrib
 ## Operational checks
 
 Monitor Firebase reads/errors, Auth failures and hosting costs through actual provider tools. App Operations shows jobs and sampled API failures; it is not an infrastructure-health dashboard. Confirm anonymous Firestore denial, Google deep-link return, current account suspension/revocation, draft ownership and admin-only actions after releases. `auth:verify` and `procedures:verify` are diagnostics with explicit target guards; real OAuth still needs a manual account check.
+
+## Read-only company name audit
+
+`npx tsx scripts/audit-company-names.ts --emulator` compares the recruiter catalog without changing it. An authorized live read uses the same explicit `--project YOUR_PROJECT_ID --allow-production` target guard as other trusted tooling; `--cli-auth` selects local Firebase CLI credentials. The audit reads only name, years and alias metadata, refuses `--apply`, and writes an ignored local JSON report. It does not merge identities or inspect private writing. See the [14 November 2026 findings](company-catalog-audit.md) and review source evidence before proposing a repair.
+
+## Focused confirmed-alias repair
+
+After the updated frontend/API identity mappings are deployed, preview the five maintainer-confirmed pairs with `npx tsx scripts/repair-reviewed-company-aliases.ts --project YOUR_PROJECT_ID --allow-production` (add `--cli-auth` for local Firebase CLI credentials). Inspect its plan and backup, then rerun with `--apply --expected-hash HASH_FROM_CURRENT_PREVIEW` only for the authorized target. The command reads ten specified catalog documents, rejects conflicting redirects or stale hashes, updates them in one transaction and verifies read-back. It does not scan or rewrite user content or placement publications. The backup records the previous values and absence of affected fields; recovery must restore only those fields after checking for later edits. Do not use the broad catalog repair script for this scoped operation.

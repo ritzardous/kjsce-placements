@@ -11,6 +11,12 @@ export const companyGroups = [
   ['synergetics-it-services-india', 'Synergetics IT Services India', 'synergetics-information-technology-services-india-pvt-ltd'],
   ['icici-prudential-amc', 'ICICI Prudential AMC', 'icici-prudential-amc-ltd'],
   ['edra-labs', 'EDRA Labs', 'edra-labs-llp'],
+  // Maintainer confirmed these five identities on 14 November 2026.
+  ['aptia', 'Aptia', 'aptia-india'],
+  ['impactguru', 'ImpactGuru', 'impact-guru-technology-venture'],
+  ['ion', 'ION', 'ion-group'],
+  ['pravaayu', 'Pravaayu', 'pravaayu-healthcare'],
+  ['transbnk-solutions', 'TransBnk Solutions', 'transbnk-solutions-pvt-ltd-tbx'],
 ] as const;
 const identities = new Map<string, { key: string; name: string }>();
 for (const [key, name, ...aliases] of companyGroups) for (const alias of [key, ...aliases]) identities.set(alias, { key, name });

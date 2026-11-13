@@ -46,6 +46,7 @@ Dated test counts and live observations below are historical reports, not curren
 | [Migration report](migration-report.md) | Legacy reconciliation |
 | [Legacy baseline](legacy-baseline.json) | Machine-readable historical metrics |
 | [Data quality and ingestion](data-quality-and-ingestion.md) | Identity audit, repair and validation |
+| [Company catalog audit](company-catalog-audit.md) | Read-only catalog name review, existing aliases and unresolved variants |
 | [Company logos](company-logos.md) | Asset provenance and unresolved identities |
 | [Landing redesign](landing-redesign.md) | Graphics, accessibility and design history |
 | [Loading experience](loading-experience.md) | Skeletons, bootstrap theme and graphics readiness |
