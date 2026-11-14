@@ -17,7 +17,7 @@ export function AreaNav({ active }: { active: string }) {
   const statisticsHref=useStatisticsHref();
   return <nav className="area-nav" aria-label="App"><div className="area-switcher">{areas.map(([key, label]) => <a key={key} href={key==='statistics'?statisticsHref:`#${key}`} aria-current={active === key ? 'page' : undefined}><AppIcon name={key==='statistics'?'chart':'book'}/><span>{label}</span></a>)}</div></nav>;
 }
-function Brand() { return <a className="brand" href="#home" aria-label="Placement Stats KJSCE home"><span className="brand-mark workspace-brand-mark" aria-hidden="true"><span>p</span><svg viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3M5 3H13V11" stroke="currentColor" strokeWidth="1.5"/></svg></span><span className="brand-name">Placement<br/>Stats.</span></a>; }
+function Brand() { return <a className="brand" href="#home" aria-label="Placement Stats KJSCE home"><span className="brand-mark workspace-brand-mark" aria-hidden="true"><span>p</span><span className="brand-star">✳</span></span><span className="brand-name">Placement<br/>Stats.</span></a>; }
 export function AppHeader({active}:{active:string}) {
  return <><header className="app-header"><div className="app-header-inner"><Brand/>{location.hash.split('?')[0]!=='#home'&&<><button type="button" className="batch-back home-control" onClick={()=>window.history.back()} aria-label="Go back to the previous page" title="Go back to the previous page"><AppIcon name="back"/></button><a className="home-control" href="#home" aria-label="Go to the year selection" title="Go to the year selection"><AppIcon name="home"/></a></>}<AuthControls/></div></header><div className="workspace-area-navigation"><AreaNav active={active}/></div></>;
 }

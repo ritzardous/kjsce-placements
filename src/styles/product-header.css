@@ -16,7 +16,7 @@
 }
 .ps-landing .lp-header .lp-brand strong { font-weight:600; }
 :is(#app,.portal-shell) .app-header .brand-mark.workspace-brand-mark { width:42px; height:42px; }
-:is(#app,.portal-shell) .workspace-brand-mark>span { font-size:50px; }
+:is(#app,.portal-shell) .workspace-brand-mark>span:first-child { font-size:50px; }
 .ps-landing .lp-header .theme-toggle,
 :is(#app,.portal-shell) .app-header .app-header-inner :is(.theme-toggle.auth-button,.home-control,.notification-entry) {
   position:relative; display:inline-flex; align-items:center; justify-content:center;
@@ -51,7 +51,7 @@
   :is(#app,.portal-shell) .app-header .brand-name { font-size:14px; }
   .ps-landing .lp-header .lp-brand-mark,
   :is(#app,.portal-shell) .app-header .brand-mark.workspace-brand-mark { width:36px; height:36px; }
-  :is(#app,.portal-shell) .workspace-brand-mark>span { font-size:43px; }
+  :is(#app,.portal-shell) .workspace-brand-mark>span:first-child { font-size:43px; }
 }
 
 /* Preserve the original mark; switch its ink with the page theme. */

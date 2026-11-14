@@ -13,8 +13,8 @@
   position:relative; display:grid; place-items:center; flex:none;
   width:44px; height:44px; padding:0; border:0; background:#2445eb; color:#fff;
 }
-:is(#app,.portal-shell) .workspace-brand-mark>span { font:italic 54px/.8 var(--font-editorial); transform:translate(-2px,-1px); }
-.workspace-brand-mark svg { position:absolute; width:15px; height:15px; top:3px; right:2px; }
+:is(#app,.portal-shell) .workspace-brand-mark>span:first-child { font:italic 54px/.8 var(--font-editorial); transform:translate(-2px,-1px); }
+:is(#app,.portal-shell) .workspace-brand-mark .brand-star { position:absolute; top:1px; right:1px; font:400 22px/1 var(--font-body); transform:none; }
 :is(#app,.portal-shell) .app-header .brand-name { font:600 16px/1.05 var(--font-body); letter-spacing:-.04em; }
 :is(#app,.portal-shell) .workspace-area-navigation {
   width:calc(100% - 40px); max-width:1400px; margin:10px auto 0; padding:0 24px;
@@ -86,7 +86,8 @@
   :is(#app,.portal-shell) .app-header { margin-top:10px; width:calc(100% - 20px); border-radius:16px; }
   :is(#app,.portal-shell) .app-header-inner { padding:12px; gap:8px; }
   :is(#app,.portal-shell) .app-header .brand-mark.workspace-brand-mark { width:36px; height:36px; }
-  :is(#app,.portal-shell) .workspace-brand-mark>span { font-size:46px; }
+  :is(#app,.portal-shell) .workspace-brand-mark>span:first-child { font-size:46px; }
+  :is(#app,.portal-shell) .workspace-brand-mark .brand-star { font-size:19px; }
   :is(#app,.portal-shell) .app-header .brand-name { font-size:14px; }
   :is(#app,.portal-shell) .app-header .auth-controls { gap:4px; }
   :is(#app,.portal-shell) .app-header .account-menu { margin-left:0; padding-left:6px; }
