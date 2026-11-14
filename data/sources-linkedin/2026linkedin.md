@@ -60,9 +60,9 @@ https://www.linkedin.com/in/diya-parelkar/
 https://www.linkedin.com/in/swadha-khatod-ab5923264/
 https://www.linkedin.com/in/atharva-upare-515494249/
 https://www.linkedin.com/in/aahan-shetye/
-
-https://www.linkedin.com/in/aadil0904/
-https://www.linkedin.com/in/r-lodaya/
+https://www.linkedin.com/in/aadil0904/ 16010122178
+https://www.linkedin.com/in/r-lodaya/ 16010122096
+ 
 
 Deloitte
 https://www.linkedin.com/in/arunilpandey/
@@ -123,6 +123,8 @@ https://www.linkedin.com/in/shreyasnair23/
 
 https://www.linkedin.com/in/rajvardhan-singh-12b371321/
 https://www.linkedin.com/in/vatsalya-t-0aa91b22b/
+https://www.linkedin.com/in/neha-gade/
+https://www.linkedin.com/in/vatsalya-tiwari-0aa91b22b/
 
 KPMG
 https://www.linkedin.com/in/yuv-shah-516a502ab/
@@ -170,10 +172,11 @@ https://www.linkedin.com/in/sakshi-raut-1234567890987654321/
 
 ACI worldwide
 https://www.linkedin.com/in/kshitij-pandey84/
-https://www.linkedin.com/in/aakritim15/
+https://www.linkedin.com/in/aakritim15/ 16010122109
 https://www.linkedin.com/in/kartik-ambupe-034683253/
 https://www.linkedin.com/in/ritisa-behera/
 https://www.linkedin.com/in/vidushi-pandit-aa6032285/
+https://www.linkedin.com/in/karan-nisar/ 16010122227
 
 Rapid7
 https://www.linkedin.com/in/s-somaiya/
@@ -292,6 +295,7 @@ https://www.linkedin.com/in/sahil-biswas-9a3721270/
 
 Edra Labs
 https://www.linkedin.com/in/mohit-ruwatia/
+https://www.linkedin.com/in/herambbp/ 16010422242
 
 Godrej
 https://www.linkedin.com/in/sakshi-tipnis-a6475028b/
@@ -303,6 +307,7 @@ https://www.linkedin.com/in/rhea-nair-43b120332/
 
 IoN
 https://www.linkedin.com/in/varun-soni-97796b179/
+https://www.linkedin.com/in/adhiraj-patole-73875b258/
 
 Jaro
 https://www.linkedin.com/in/aastha-rai-739649255/
@@ -401,9 +406,12 @@ Cimpress
 https://www.linkedin.com/in/adityaraut49/
 https://www.linkedin.com/in/krishn-makwana-7aa7601b0/
 https://www.linkedin.com/in/sanskar-lodha/
-https://www.linkedin.com/in/shruti1105/
+https://www.linkedin.com/in/shruti1105/ 16010122005
 
 Aptia
 https://www.linkedin.com/in/vansh-rawal-6a2a7b26a/
 https://www.linkedin.com/in/krisha-kharote/
 https://www.linkedin.com/in/garvvyas/
+
+Google 
+https://www.linkedin.com/in/rahilk9/ 16010122088
