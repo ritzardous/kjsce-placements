@@ -415,3 +415,18 @@ https://www.linkedin.com/in/garvvyas/
 
 Google 
 https://www.linkedin.com/in/rahilk9/ 16010122088
+
+Akademika Lab Solutions
+https://www.linkedin.com/in/anandtiwari0305/ 16010322073
+
+Axis Asset Management Company Ltd.
+https://www.linkedin.com/in/priyanshu-mishra-0234a2255/ 
+
+JSW
+https://www.linkedin.com/in/saurabh-p-712640257/ 16010522015
+
+Mr DIY
+https://www.linkedin.com/in/prachii-gandhi/
+
+Smowcode Private Limited
+https://www.linkedin.com/in/virtidoshi/
