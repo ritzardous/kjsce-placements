@@ -17,7 +17,18 @@ export function parseRoute(hash = location.hash): Route {
 export function useRoute() {
   const [route, setRoute] = useState(parseRoute);
   useEffect(() => {
-    const handle = () => { setRoute(parseRoute()); window.scrollTo(0, 0); requestAnimationFrame(() => document.getElementById('portal-main')?.focus({ preventScroll: true })); };
+    const handle = () => {
+      const next = parseRoute();
+      setRoute(next);
+      let returnKey: string | null = null;
+      try { returnKey = sessionStorage.getItem('return-company-key'); } catch {}
+      if (next.page === 'companies' && returnKey) return;
+      if (next.page !== 'company') {
+        try { sessionStorage.removeItem('return-company-key'); } catch {}
+      }
+      window.scrollTo(0, 0);
+      requestAnimationFrame(() => document.getElementById('portal-main')?.focus({ preventScroll: true }));
+    };
     window.addEventListener('hashchange', handle);
     return () => window.removeEventListener('hashchange', handle);
   }, []);

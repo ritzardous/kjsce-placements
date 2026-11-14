@@ -3,7 +3,7 @@ import { highestCtcCompanies } from '../../shared/statistics';
 import {matchesSearch} from '../../shared/search';
 import { CompanyIdentity, CompanyLogo } from './CompanyIdentity';
 import { AppIcon } from '../ui/AppIcon';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CandidateLinkedIn } from './CandidateLinkedIn';
 import type { Announcement } from '../../shared/dataset';
 import type { Branch, Candidate, Company, Statistics } from '../../shared/statistics';
@@ -78,8 +78,6 @@ export function Overview({ statistics: s }: { statistics: Statistics }) {
 export interface CompanyFilters { search: string; type: string; ctc: string; sort: { key: string; direction: 'asc' | 'desc' }; }
 export const initialCompanyFilters: CompanyFilters = { search: '', type: 'ALL', ctc: 'ALL', sort: { key: 'hired', direction: 'desc' } };
 export function Companies({ statistics: s, filters, setFilters }: { statistics: Statistics; filters: CompanyFilters; setFilters: (next: CompanyFilters) => void }) {
-  const [page, setPage] = useState(1);
-  const set = (next: Partial<CompanyFilters>) => { setPage(1); setFilters({ ...filters, ...next }); };
   const rows = s.companies.filter(c => {
     if (filters.type !== 'ALL' && c.type !== filters.type) return false;
     const value = c.highestCtc;
@@ -91,7 +89,32 @@ export function Companies({ statistics: s, filters, setFilters }: { statistics: 
   });
   const sortValue = (c: Company) => ({ name: c.name, ctc: c.highestCtc ?? -1, hired: c.totalHired, date: c.lastDate ?? "" })[filters.sort.key as 'name' | 'ctc' | 'hired' | 'date'];
   rows.sort((a, b) => { const av = sortValue(a), bv = sortValue(b); return (av < bv ? -1 : av > bv ? 1 : a.name.localeCompare(b.name)) * (filters.sort.direction === 'asc' ? 1 : -1); });
+  const [page, setPage] = useState(() => {
+    try {
+      const returnKey = sessionStorage.getItem('return-company-key');
+      if (!returnKey) return 1;
+      const index = rows.findIndex(c => c.key === returnKey);
+      return index >= 0 ? Math.floor(index / PAGE_SIZE) + 1 : 1;
+    } catch { return 1; }
+  });
+  const set = (next: Partial<CompanyFilters>) => { setPage(1); setFilters({ ...filters, ...next }); };
   const currentPage = Math.min(page, Math.max(1, Math.ceil(rows.length / PAGE_SIZE)));
+
+  useEffect(() => {
+    let returnKey: string | null = null;
+    try {
+      returnKey = sessionStorage.getItem('return-company-key');
+      if (returnKey) sessionStorage.removeItem('return-company-key');
+    } catch {}
+    if (!returnKey) return;
+    requestAnimationFrame(() => {
+      const row = document.getElementById(`row-${returnKey}`);
+      if (row) {
+        row.scrollIntoView({ block: 'center', behavior: 'instant' });
+        row.querySelector<HTMLAnchorElement>('a')?.focus({ preventScroll: true });
+      }
+    });
+  }, [page]);
   const columns: Column<Company>[] = [
     { label: 'Company', sort: 'name', render: c => <a href={companyHref(c.key)}><CompanyIdentity companyKey={c.key} name={c.name} /></a> },
     { label: 'Type', render: c => <Tag>{c.type}</Tag> },
@@ -113,6 +136,11 @@ export function Companies({ statistics: s, filters, setFilters }: { statistics: 
   </Section>;
 }
 export function CompanyDetail({ company: c, year }: { company: Company | undefined; year:number }) {
+  useEffect(() => {
+    if (c?.key) {
+      try { sessionStorage.setItem('return-company-key', c.key); } catch {}
+    }
+  }, [c?.key]);
   if (!c) return <Empty title="Company not found"><a href={routeHref("companies")}>← Back to Companies</a></Empty>;
   return <Section title="Company Details" note="Chronological · earliest first"><a className="back-link" href={routeHref("companies")}>← All Companies</a>
     <div className="detail-head"><div className="company-detail-identity"><CompanyLogo companyKey={c.key} name={c.name} size="large" /><div className="company-detail-copy"><div className="eyebrow">{c.type}</div><h1 className="detail-name">{c.name}</h1>{campusLabel(c.announcements) && <Tag>{campusLabel(c.announcements)}</Tag>}<div className="detail-tags">{c.roles.map(r => <Tag key={r}>{r}</Tag>)}</div></div></div><div className="detail-stats">{[[money(c.highestCtc), 'Highest CTC'], [c.totalHired, c.announcements.some(p => p.campus) ? 'Selections' : 'Students hired'], [date(c.lastDate,true), 'Latest result'], [c.branches.join(', '), 'Branches hired']].map(([value, label]) => <div className="detail-stat" key={label}><div className="v">{value}</div><div className="l">{label}</div></div>)}</div></div>
