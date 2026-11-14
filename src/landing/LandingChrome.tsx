@@ -1,7 +1,7 @@
 import { playSignInClick } from "./signin-sound";
 import { ProductFooter } from '../ui/ProductFooter';
 import { ThemeControl } from "../ui/ThemeControl";
-import { GoogleButton, useAuth } from "../lib/auth";
+import { BetaAccounts, GoogleButton, useAuth } from "../lib/auth";
 import { useMagnet } from "./motion";
 import { useScrollHeader } from "./useScrollHeader";
 export function LandingHeader() {
@@ -35,9 +35,12 @@ export function LandingHeader() {
 export function SignInCTA() {
   const magnet = useMagnet();
   return (
-    <div ref={magnet} className="lp-signin-cta">
-      <GoogleButton onActivate={playSignInClick} />
-      <span className="cta-shadow" aria-hidden="true" />
+    <div className="lp-signin-block">
+      <div ref={magnet} className="lp-signin-cta">
+        <GoogleButton onActivate={playSignInClick} showBetaAccounts={false} />
+        <span className="cta-shadow" aria-hidden="true" />
+      </div>
+      <BetaAccounts />
     </div>
   );
 }

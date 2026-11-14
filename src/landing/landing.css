@@ -305,6 +305,46 @@
 [data-theme="dark"] .lp-auth-error {
   color: #ffa99c;
 }
+.lp-signin-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.ps-landing .beta-accounts {
+  margin-top: 18px;
+  max-width: 320px;
+}
+.ps-landing .beta-accounts p {
+  margin: 0 0 6px;
+  font: 500 11px/1.4 var(--font-mono, monospace);
+  color: var(--lp-ink-muted, #737373);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.ps-landing .beta-accounts button {
+  margin: 0 6px 6px 0;
+  padding: 5px 10px;
+  border: 1px solid var(--lp-ink, #101411);
+  background: var(--lp-paper, #f7f7ef);
+  color: var(--lp-ink, #101411);
+  font: 500 12px var(--font-body);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+.ps-landing .beta-accounts button:hover:not(:disabled) {
+  background: var(--lp-ink, #101411);
+  color: var(--lp-paper, #f7f7ef);
+}
+[data-theme="dark"] .ps-landing .beta-accounts button {
+  border-color: #444;
+  background: #171c19;
+  color: #fff;
+}
+[data-theme="dark"] .ps-landing .beta-accounts button:hover:not(:disabled) {
+  background: #fff;
+  color: #171c19;
+}
 .lp-signin-cta {
   display: inline-block;
   position: relative;
