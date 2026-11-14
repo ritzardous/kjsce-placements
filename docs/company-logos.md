@@ -40,3 +40,7 @@ The four remaining names are **Emergence**, **CCS INC**, **Bajao international**
 - Reviewed the new assets visually and replaced several low-resolution website icons with sharper official wordmarks or app icons.
 - Checked overview, company list, company detail, branch, candidates, and timeline pages for all three batches at desktop and mobile widths. Logo containers remain uniform squares within each context; no horizontal overflow or browser exceptions.
 - `npm run build` passes. The frontend must be redeployed for the bundled additions to appear on the hosted site.
+
+## Wissen Technology community listing
+
+The `wissen-technology` key uses the square logo linked from [Wissen’s official website](https://www.wissen.com), bundled as `public/company-logos/wissen-technology.png`. Its original CDN URL is recorded in `src/data/company-logos.json` and the targeted download script. Refresh only this asset with `node scripts/fetch-company-logos.mjs --only=wissen-technology`. This adds community-listing coverage without changing any historical batch coverage or placement records.

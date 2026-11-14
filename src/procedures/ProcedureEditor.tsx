@@ -1,5 +1,6 @@
 import { experienceOrigin, updateExperienceTarget } from '../app/navigation-context';
 import { canonicalCompanyKey } from '../../shared/company-identity';
+import { readCompanyProfile } from '../../shared/company-profile';
 import { SubmissionTimeline } from '../community/Contributions';
 import { OperationStatus } from '../ui/OperationStatus';
 import { useBackgroundSync } from '../lib/background-sync';
@@ -140,7 +141,7 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
   const locked=status==='pending'||busy||leaving;
   const selectedCompany=companies.find(company=>company.key===draft.companyKey);
   const placement=useCompanyPlacement(selectedCompany,draft.graduationYear);
-  const roles=placement.company?.roles.filter(Boolean)||[];
+  const roles=placement.company?.roles.length?placement.company.roles.filter(Boolean):readCompanyProfile(selectedCompany?.profile)?.roles||[];
   const [customRole,setCustomRole]=useState(false);
   const automaticRole=useRef('');
   const roleIsCustom=customRole||Boolean(draft.role&&!roles.includes(draft.role));
@@ -150,7 +151,7 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
     const next=roles.length===1?roles[0]:'';
     automaticRole.current=next;
     if(next!==draft.role)update('role',next);
-  },[ready,locked,placement.company,placement.loading,draft.role,customRole]);
+  },[ready,locked,placement.company,placement.loading,selectedCompany?.profile,draft.role,customRole]);
   function chooseCompany(key:string){automaticRole.current='';update('companyKey',key);update('role','');setCustomRole(false);}
 
   const canUseStarter=!draft.body.trim()||[procedureStarter,oneRoundStarter,procedureStarter.replace(/<!--[\s\S]*?-->/g,'')].some(starter=>starter.trim()===draft.body.trim());

@@ -1,4 +1,5 @@
 import { canonicalCompanyKey } from './company-identity.js';
+import type { CompanyProfile } from './company-profile.js';
 import { z } from 'zod';
 
 export const procedureStarter = `## Rounds I appeared for
@@ -29,7 +30,7 @@ export type ProcedureDraft = z.infer<typeof procedureDraftSchema>;
 export const submissionSchema = procedureDraftSchema.refine(d => d.companyKey.length > 0, {message:'Choose a company.',path:['companyKey']}).refine(d => Boolean(d.campus), {message:'Choose a recruitment route.',path:['campus']}).refine(d => d.graduationYear !== null, {message:'Enter your graduation batch year.',path:['graduationYear']}).refine(d => d.role.trim().length > 0, {message:'Choose a company role or enter your own.',path:['role']}).refine(d => meaningfulBody(d.body).length >= 60, {message:'Write at least 60 characters about your experience beyond the starter headings.',path:['body']}).refine(d => d.attribution !== 'custom' || d.customName.length > 0, {message:'Enter the public name you want readers to see.',path:['customName']});
 export function meaningfulBody(body: string) { return body.replace(/<!--[\s\S]*?-->/g, '').replace(/^#{1,6}.*$/gm, '').replace(/\s+/g, ' ').trim(); }
 export type ProcedureStatus = 'draft' | 'pending' | 'approved' | 'changes_requested' | 'rejected';
-export type ProcedureCompany = { key: string; name: string; years: number[] };
+export type ProcedureCompany = { key: string; name: string; years: number[]; profile?:CompanyProfile };
 export type ProcedureSubmission = { id: string; ownerUid: string; draft: ProcedureDraft; draftVersion: number; revision: number; status: ProcedureStatus; feedback: string; updatedAt: number; companyName?: string; hasPublished?: boolean };
 export type ProcedurePost = ProcedureDraft & { id: string; companyName: string; authorName: string; authorUid: string; revision: number; published: boolean; publishedAt: number; score: number; upvotes: number; downvotes: number };
 export const statusLabels: Record<ProcedureStatus, string> = { draft: 'Draft', pending: 'Pending approval', approved: 'Approved', changes_requested: 'Changes requested', rejected: 'Rejected' };

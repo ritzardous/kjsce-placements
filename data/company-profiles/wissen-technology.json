@@ -1,0 +1,10 @@
+{
+  "roles": ["Software Engineer"],
+  "ctcMinLpa": 11,
+  "ctcMaxLpa": 11,
+  "currency": "INR",
+  "period": "year",
+  "source": "maintainer",
+  "logoPath": "/company-logos/wissen-technology.png",
+  "website": "https://www.wissen.com"
+}

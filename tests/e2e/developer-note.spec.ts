@@ -9,7 +9,7 @@ test('developer note is public, navigable and honest about data practices', asyn
   await expect(page).toHaveURL(/#about\/privacy$/);
   await expect(page.getByRole('heading',{name:'Know what you’re sharing.'})).toBeInViewport();
   await expect(page.locator('#note-privacy')).toContainText('not a promise of complete erasure');
-  await expect(page.locator('#note-contact a[href^="mailto:"]')).toHaveCount(2);
+  await expect(page.locator('#note-contact a[href^="mailto:"]')).toHaveCount(3);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.getByRole('navigation',{name:'About this project'}).getByRole('link',{name:'Using the app'}).click();
   await expect(page.locator('#note-terms')).toContainText('independent student-built project');
@@ -41,6 +41,25 @@ test('personal sections come first and the return link stays available throughou
   }
   await back.click();
   await expect(page).toHaveURL(/#landing$/);
+});
+
+test('feedback invitation is public, readable on phones and links to email and GitHub',async({page})=>{
+  await page.goto('/#about/feedback');
+  const section=page.locator('#note-contact');
+  await expect(section.getByRole('heading',{name:'Hi, we’re Ritesh and Saksham.'})).toBeInViewport();
+  const email=new URL((await section.getByRole('link',{name:'write to us both'}).getAttribute('href'))!);
+  expect(email.protocol).toBe('mailto:');
+  expect(email.pathname).toBe('riteshjha.exe@gmail.com,sakshamvarshney0701@gmail.com');
+  await expect(section.getByRole('link',{name:'GitHub',exact:true})).toHaveAttribute('href','https://github.com/ritzardous/kjsce-placements/issues/new/choose');
+  await expect(section.locator('.note-feedback-card,.note-feedback-stamp')).toHaveCount(0);
+  await expect(page.locator('#note-feedback')).toHaveCount(0);
+  expect((await page.locator('.developer-note').innerText()).match(/Ritesh (?:and|&) Saksham/g)).toHaveLength(1);
+  await page.setViewportSize({width:320,height:740});
+  for(const theme of ['light','dark']){
+    await page.evaluate(value=>{localStorage.setItem('placement-theme',value);dispatchEvent(new StorageEvent('storage',{key:'placement-theme'}));},theme);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    await section.screenshot({path:`artifacts/about-feedback-${theme}-${test.info().project.name}.png`});
+  }
 });
 
 test('footer story invitation is aligned and easy to open',async ({page})=>{

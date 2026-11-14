@@ -1528,6 +1528,15 @@
     "source": "https://www.google.com/s2/favicons?domain_url=https%3A%2F%2Ftresvista.com&sz=128"
   },
   {
+    "id": "wissen-technology",
+    "aliases": [
+      "wissen-technology"
+    ],
+    "file": "/company-logos/wissen-technology.png",
+    "website": "https://wissen.com",
+    "source": "https://cdn.prod.website-files.com/6448bf6f0640203c982ca15f/6448bf6f064020c6a22ca35d_Wissen%20Logo%20sq.png"
+  },
+  {
     "id": "worley",
     "aliases": [
       "worley"

@@ -2,6 +2,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 
 const brands = [
+  ['wissen-technology', 'wissen.com', ['wissen-technology']],
   ['google', 'google.com', ['google']],
   ['barclays', 'home.barclays', ['barclays']],
   ['jpmorgan', 'jpmorganchase.com', ['jpmc', 'jp-morgan-chase-co']],
@@ -176,6 +177,7 @@ const brands = [
 
 // Prefer sharper official assets where the cached website icon is too small.
 const directAssets = {
+  'wissen-technology': ['https://cdn.prod.website-files.com/6448bf6f0640203c982ca15f/6448bf6f064020c6a22ca35d_Wissen%20Logo%20sq.png', 'png'],
   'rk-control': ['https://rkcipl.co.in/wp-content/uploads/2021/11/cropped-Asset-5ldpi-192x192.png', 'png'],
   continuum: ['https://www.continuumenergy.in/img/logo-fav.png', 'png'],
   kalki: ['https://www.kalkifashion.com/cdn/shop/files/Fav_512.jpg?v=1753505124', 'jpg'],

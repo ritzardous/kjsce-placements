@@ -36,6 +36,11 @@
 .developer-note-page :is(a,button):focus-visible { outline:2px solid var(--identity-blue); outline-offset:4px; }
 @media(max-width:560px) { .note-header { padding:16px 20px; } .note-header>a>span { font-size:12px; margin-left:8px; } .developer-note { padding:40px 22px 56px; font-size:15px; } .note-lead { font-size:17px; } .note-contacts { grid-template-columns:1fr; } .developer-note section { padding:36px 0; } }
 
+.note-feedback .note-feedback-line {
+  max-width:26ch; margin:28px 0; padding-left:18px; border-left:2px solid var(--identity-blue);
+  font:italic 400 clamp(23px,3.4vw,30px)/1.4 var(--font-editorial); color:var(--identity-blue);
+}
+
 .note-repository { display:inline-flex; align-items:center; gap:12px; min-height:44px; font-size:14px; }
 .note-repository .app-icon { width:18px; height:18px; }
 .note-policy-divider { padding-top:48px; }

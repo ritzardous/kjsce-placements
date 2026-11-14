@@ -1,4 +1,5 @@
 import { InviteWriter } from './InviteWriter';
+import { CompanyProfileDetails } from './CompanyProfileDetails';
 import { experienceInviteHref } from './experience-invitation';
 import { DialogPortal, openTaskDialog } from '../ui/overlay';
 import { loadDashboard } from '../dashboard/repository';
@@ -36,8 +37,9 @@ export function PostCard({ post, companyPage=false }: { post: ProcedurePost & {s
 }
 type CompanyExperienceCard={id:string;companyKey:string;companyName:string;count:number;publishedAt:number;score:number};
 function CompanyStatisticsLinks({company}:{company:ProcedureCompany}) {
- const [open,setOpen]=useState(false);
- return <details className="company-statistics-links" onToggle={event=>setOpen(event.currentTarget.open)}><summary>Placement statistics</summary>{open&&<div className="procedure-actions">{company.years.filter(year=>!hiddenYears.has(year)).map(year=><CompanyStatisticsLink key={year} year={year} companyKey={company.key}/>)}</div>}</details>;
+ const [open,setOpen]=useState(false),years=company.years.filter(year=>!hiddenYears.has(year));
+ if(!years.length)return null;
+ return <details className="company-statistics-links" onToggle={event=>setOpen(event.currentTarget.open)}><summary>Placement statistics</summary>{open&&<div className="procedure-actions">{years.map(year=><CompanyStatisticsLink key={year} year={year} companyKey={company.key}/>)}</div>}</details>;
 }
 function CompanyStatisticsLink({year,companyKey}:{year:number;companyKey:string}) {
  const {user}=useAuth(),[key,setKey]=useState<string|null|undefined>(undefined);
@@ -62,7 +64,7 @@ export function ProcedureBrowse({ companyKey }: { companyKey?: string }) {
     groups.set(group, [...(groups.get(group) || []), post]);
   }
   return <section onClickCapture={event=>{if((event.target as HTMLElement).closest('a')){const card=(event.target as HTMLElement).closest('.procedure-card'),link=(event.target as HTMLElement).closest<HTMLAnchorElement>('.procedure-company-card')||card?.querySelector<HTMLAnchorElement>('.procedure-card-title');if(link)storeSession(`procedure-focus:${user?.uid}:${companyKey||'all'}`,link.getAttribute('href'));storeSession(key,{...filters,search});storeSession(`procedure-return:${user?.uid}`,browseHref({...filters,search},companyKey));state.rememberScroll();}}}>
-    {companyKey && <><a className="procedure-back-link company-directory-back" href={directoryHref}><AppIcon name="back"/>Back to companies</a><div className="procedure-card procedure-company-hub"><h2 className="company-hub-title">{company&&<CompanyLogo companyKey={company.key} name={company.name}/>}<span>{company?.name || 'Company'} experiences</span></h2><ActionMenu label="Company options"><FollowButton kind="company" itemKey={companyKey} label={company?.name || companyKey}/></ActionMenu>{company&&<CompanyStatisticsLinks company={company}/>}<a className="portal-link" href={experienceInviteHref({key:companyKey,name:company?.name||companyKey})}>Share an experience for this company</a>{company&&<InviteWriter company={company}/>}</div></>}
+    {companyKey && <><a className="procedure-back-link company-directory-back" href={directoryHref}><AppIcon name="back"/>Back to companies</a><div className="procedure-card procedure-company-hub"><h2 className="company-hub-title">{company&&<CompanyLogo companyKey={company.key} name={company.name}/>}<span>{company?.name || 'Company'} experiences</span></h2>{company&&<CompanyProfileDetails company={company}/>}<ActionMenu label="Company options"><FollowButton kind="company" itemKey={companyKey} label={company?.name || companyKey}/></ActionMenu>{company&&<CompanyStatisticsLinks company={company}/>}<a className="portal-link" href={experienceInviteHref({key:companyKey,name:company?.name||companyKey})}>Share an experience for this company</a>{company&&<InviteWriter company={company}/>}</div></>}
     <div className="procedure-discovery" role="search" aria-label="Find recruitment experiences"><div className="procedure-search"><label>{companyKey?'Search experiences':'Search companies'}<div className="procedure-search-input"><AppIcon name="search"/><input type="search" value={search} placeholder={companyKey?'Search experiences':'Search companies'} maxLength={120} onChange={event=>setSearch(event.target.value)}/>{search&&<button className="search-clear" type="button" aria-label="Clear search" onClick={()=>setSearch('')}><AppIcon name="close"/></button>}</div></label><AdvancedFilters companies={companies} lockedCompany={Boolean(companyKey)} value={{company:filters.company,year:filters.year,sort:filters.sort,coverage:filters.coverage,outcome:filters.outcome,round:filters.round}} onApply={value=>setFilters(previous=>({...previous,...value}))}/></div>
     </div>
     {companyError && <p role="alert">{companyError}</p>}
