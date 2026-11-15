@@ -500,3 +500,11 @@
             margin: 0;
             box-shadow: none;
           }
+
+          /* Center empty state containers (e.g. no matching experiences on company page) */
+          :is(#app, .portal-shell) :is(.portal-empty, .experience-empty) {
+            margin-inline: auto;
+            margin-block: 24px;
+            width: 100%;
+            max-width: 820px;
+          }
