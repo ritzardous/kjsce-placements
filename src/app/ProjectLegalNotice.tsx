@@ -21,7 +21,7 @@ export function ProjectLegalNotice() {
   return (
     <>
       <div className="note-policy-divider">
-        <h2>Legal notes</h2>
+        <h2>Legal Notes</h2>
         <p>
           Sources, personal data and conditions of use. Last revised 15 November
           2026.
