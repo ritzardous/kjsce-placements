@@ -13,6 +13,7 @@ These guides describe the checked-in implementation. They do not establish curre
 | [Agent instructions](../AGENTS.md) | Binding rules, hard stops, standards, and PR compliance |
 | [Getting started](getting-started.md) | Local beta, prerequisites and cloud setup |
 | [Features](features.md) | User journeys, routes and limits |
+| [Search visibility](search-visibility.md) | Public indexing surface, sitemap, metadata and boundaries |
 | [Architecture](architecture.md) | Components and execution flows |
 | [Configuration](configuration.md) | Public settings, server credentials and test controls |
 | [Development](development.md) | Repository map, scripts and test strategy |

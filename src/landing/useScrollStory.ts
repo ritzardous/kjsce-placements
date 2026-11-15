@@ -28,6 +28,8 @@ export function useScrollStory(count: number, enabled: boolean, pinOnly = false)
       const focusBox = pinned ? box : focus.getBoundingClientRect();
       const progress = Math.max(0, Math.min(1, pinned
         ? (top - box.top - padding) / runway
+        : innerWidth <= 760 && section.classList.contains("lp-experiences")
+          ? (innerHeight * .85 - focusBox.top) / (innerHeight * .98)
         : (innerHeight * .75 - focusBox.top) / Math.max(1, focusBox.height + innerHeight * .25)));
       section.style.setProperty("--story-progress", progress.toFixed(4));
       if (manualAt.current !== null) {

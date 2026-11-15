@@ -70,22 +70,31 @@ test("scroll chapters advance and reverse both stories while retaining manual co
       continue;
     }
     const seek = async (progress: number) => {
-      await story.evaluate((element, p) => {
+      await story.evaluate((element, args: { progress: number; section: string }) => {
+        const p = args.progress;
         const style = getComputedStyle(element), box = element.getBoundingClientRect();
         let y;
         if ((element as HTMLElement).dataset.scrollStory === 'pinned') {
           y = scrollY + box.top + parseFloat(style.paddingTop) - parseFloat(style.getPropertyValue('--story-top')) + p * parseFloat(style.getPropertyValue('--story-runway'));
+        } else if (innerWidth <= 760 && args.section === '.lp-experiences') {
+          const focus = element.querySelector('[data-story-focus]')!.getBoundingClientRect();
+          y = scrollY + focus.top - innerHeight * .85 + p * innerHeight * .98;
         } else {
           const focus = element.querySelector('[data-story-focus]')!.getBoundingClientRect();
           y = scrollY + focus.top - innerHeight * .75 + p * (focus.height + innerHeight * .25);
         }
         scrollTo({ top: y, behavior: 'instant' });
-      }, progress);
+      }, { progress, section });
     };
     const controls = page.getByRole('group', { name: group }).getByRole('button');
-    for (const progress of [.1, .5, .9, .5, .1]) {
+    for (const progress of [.1, .5, .7, .9, .5, .1]) {
       await seek(progress);
       await expect(controls.nth(Math.floor(progress * 3))).toHaveAttribute('aria-pressed', 'true');
+      if (info.project.name === 'mobile' && section === '.lp-experiences' && progress === .7) {
+        const focus = await story.locator('[data-story-focus]').boundingBox();
+        expect(focus!.y).toBeGreaterThanOrEqual(0);
+        expect(focus!.y + focus!.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+      }
       if (await story.getAttribute('data-scroll-story') === 'pinned') {
         const pin = await story.locator('.lp-story-pin').boundingBox();
         expect(pin!.y).toBeGreaterThanOrEqual(100);

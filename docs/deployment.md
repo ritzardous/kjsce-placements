@@ -13,7 +13,7 @@ npm test
 npm run build
 ```
 
-The build regenerates LinkedIn mapping, compiles the backend into `functions/lib/`, typechecks, emits Vite output to `dist/` and generates share-page HTML plus a hash-named preview image. Vercel's entry point imports `functions/lib/functions/src/http.js`. A frontend-only build without compiled server files cannot serve community actions.
+The build regenerates LinkedIn mapping, compiles the backend into `functions/lib/`, typechecks, emits Vite output to `dist/` and generates share-page HTML plus a hash-named preview image. Public robots and sitemap files are copied from `public/`; `/share/` is marked `noindex` and canonicalizes to the landing page. See [search visibility](search-visibility.md) for indexing scope. Vercel's entry point imports `functions/lib/functions/src/http.js`. A frontend-only build without compiled server files cannot serve community actions.
 
 `npm start` previews static output on loopback; it does not launch the production API. Do not use it as a complete production service.
 

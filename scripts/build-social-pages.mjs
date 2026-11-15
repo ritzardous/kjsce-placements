@@ -13,7 +13,7 @@ const html = (await readFile(new URL('index.html', output), 'utf8'))
   .replaceAll(`${origin}/social/placement-stats-preview.png`, `${origin}/${imagePath}`);
 await writeFile(new URL('index.html', output), html);
 const share = html
-  .replace(`rel="canonical" href="${origin}/"`, `rel="canonical" href="${origin}/share/"`)
+  .replace('<title>', '<meta name="robots" content="noindex, follow" />\n    <title>')
   .replace(`property="og:url" content="${origin}/"`, `property="og:url" content="${origin}/share/"`);
 await mkdir(new URL('share/', output), { recursive: true });
 await writeFile(new URL('share/index.html', output), share);

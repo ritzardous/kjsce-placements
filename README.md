@@ -13,9 +13,9 @@ Placement announcements are useful evidence, but difficult to compare across com
 
 > **Contributors and coding agents: [`AGENTS.md`](AGENTS.md) is mandatory.** Read it before changing code, data, rules, or documentation. Every pull request must state whether it was followed; see the [PR template](.github/PULL_REQUEST_TEMPLATE.md).
 
-![Placement Stats — Don’t prep in the dark. Updated share preview](public/social/placement-stats-preview.png)
+![Placement Stats : Don’t prep in the dark. Updated share preview](public/social/placement-stats-preview.png)
 
-*Project social preview artwork, not an application screenshot. The app URL returned HTTP 200 during this documentation pass; authenticated production workflows were not audited.*
+_Project social preview artwork, not an application screenshot. The app URL returned HTTP 200 during this documentation pass; authenticated production workflows were not audited._
 
 ## What is implemented
 
@@ -57,24 +57,24 @@ Open `http://localhost:5174` and choose **Test as contributor**, **admin** or **
 
 ## Technology
 
-| Layer | Implementation |
-| --- | --- |
-| Interface | React 19, TypeScript, Vite 8, CSS, hash routing |
-| Graphics and writing | Three.js, Paper Design shaders, react-markdown, remark-gfm |
-| Identity and persistence | Firebase Authentication, Cloud Firestore |
-| Trusted services | Node.js 22, Firebase Admin SDK, Zod, Vercel HTTP handler |
-| Local backend | Auth/Firestore/Functions emulators; callables in `asia-south1` |
-| Verification | Node test runner through tsx, Firebase rules tests, Playwright desktop/mobile |
+| Layer                    | Implementation                                                                |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| Interface                | React 19, TypeScript, Vite 8, CSS, hash routing                               |
+| Graphics and writing     | Three.js, Paper Design shaders, react-markdown, remark-gfm                    |
+| Identity and persistence | Firebase Authentication, Cloud Firestore                                      |
+| Trusted services         | Node.js 22, Firebase Admin SDK, Zod, Vercel HTTP handler                      |
+| Local backend            | Auth/Firestore/Functions emulators; callables in `asia-south1`                |
+| Verification             | Node test runner through tsx, Firebase rules tests, Playwright desktop/mobile |
 
 ## Documentation
 
-| Start here | Technical references | Maintain and operate |
-| --- | --- | --- |
-| [Getting started](docs/getting-started.md) | [Architecture](docs/architecture.md) | [Development](docs/development.md) |
-| [Features and routes](docs/features.md) | [API reference](docs/api-reference.md) | [Deployment](docs/deployment.md) |
-| [Configuration](docs/configuration.md) | [Database](docs/database.md) | [Operations](docs/operations.md) |
-| [Troubleshooting](docs/troubleshooting.md) | [Authentication](docs/authentication.md) | [Security](docs/security.md) |
-| [All guides and audits](docs/README.md) | [Data dictionary](docs/data-dictionary.md) | [Admin workspace](docs/admin-workspace-implementation.md) |
+| Start here                                 | Technical references                       | Maintain and operate                                      |
+| ------------------------------------------ | ------------------------------------------ | --------------------------------------------------------- |
+| [Getting started](docs/getting-started.md) | [Architecture](docs/architecture.md)       | [Development](docs/development.md)                        |
+| [Features and routes](docs/features.md)    | [API reference](docs/api-reference.md)     | [Deployment](docs/deployment.md)                          |
+| [Configuration](docs/configuration.md)     | [Database](docs/database.md)               | [Operations](docs/operations.md)                          |
+| [Troubleshooting](docs/troubleshooting.md) | [Authentication](docs/authentication.md)   | [Security](docs/security.md)                              |
+| [All guides and audits](docs/README.md)    | [Data dictionary](docs/data-dictionary.md) | [Admin workspace](docs/admin-workspace-implementation.md) |
 
 ## Community and security
 

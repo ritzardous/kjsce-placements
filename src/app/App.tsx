@@ -26,7 +26,13 @@ function Application() {
     if (auth.ready && !auth.allowed && route.page === 'login') location.replace('#landing');
   }, [auth.ready, auth.allowed, route.page]);
   useEffect(() => {
-    if (['landing','login','home','statistics','account'].includes(route.page)) document.title = route.page === 'account' ? 'My Account · Placement Stats KJSCE' : 'Placement Stats KJSCE';
+    if (['landing','login','home','statistics','account'].includes(route.page)) {
+      document.title = route.page === 'landing'
+        ? 'KJSCE Placement Statistics & Experiences | Placement Stats'
+        : route.page === 'account'
+          ? 'My Account · Placement Stats KJSCE'
+          : 'Placement Stats KJSCE';
+    }
   }, [route.page]);
   useEffect(() => {
     if (route.page === 'contributions') location.replace('#procedures/contributions');

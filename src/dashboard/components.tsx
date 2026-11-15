@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { CompanyIdentity } from './CompanyIdentity';
 
 export const money = (value: number | null) => value === null ? 'Not available' : `₹${value.toFixed(2)}L`;
@@ -47,9 +47,15 @@ export function Donut({ rows, label }: { rows: Rank[]; label: string }) {
 function useChartWidth() {
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(800);
-  useEffect(() => {
-    const observer = new ResizeObserver(([entry]) => setWidth(Math.max(260, entry.contentRect.width)));
-    if (ref.current) observer.observe(ref.current);
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const resize = ([entry]: ResizeObserverEntry[]) => {
+      setWidth(Math.max(1, Math.round(entry.contentRect.width)));
+    };
+    const observer = new ResizeObserver(resize);
+    observer.observe(element);
+    setWidth(Math.max(1, Math.round(element.clientWidth)));
     return () => observer.disconnect();
   }, []);
   return { ref, width };

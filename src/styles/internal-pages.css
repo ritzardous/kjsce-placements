@@ -134,3 +134,32 @@
 .chart-readout:empty { display:none; }
 
 #app .company-table-controls .search-box>.app-icon { width:18px; height:18px; }
+
+#app :is(.col-chart-wrap,.timeline-chart-wrap) > svg { display:block; width:100%; max-width:100%; height:auto; }
+#app .react-donut { min-width:0; }
+#app .react-donut > svg { display:block; max-width:100%; height:auto; }
+#app .grid2 > div { min-width:0; }
+#app .grid2 h3.section-title { max-width:100%; white-space:normal; overflow-wrap:anywhere; }
+:is(#app,.portal-shell) :is(input[type=search],.search-box input,.procedure-search-input input):focus-visible {
+  border-color:var(--accent);
+  outline:2px solid color-mix(in srgb,var(--accent) 60%,var(--surface));
+  outline-offset:2px;
+  box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 14%,transparent);
+}
+#app .mobile-statistics-sheet > nav { margin-bottom:8px; }
+#app .mobile-statistics-sheet > .batch-back {
+  box-sizing:border-box;
+  display:flex;
+  width:100%;
+  min-width:0;
+  margin-top:8px;
+  padding:12px 4px 2px;
+  border-top:1px solid var(--line-faint);
+  line-height:1.5;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  outline-offset:2px;
+}
+#app .mobile-statistics-sheet > .batch-back:focus-visible {
+  outline:2px solid color-mix(in srgb,var(--accent) 60%,var(--surface));
+}

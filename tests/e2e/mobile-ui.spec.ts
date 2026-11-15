@@ -26,6 +26,11 @@ for(const width of [320,390,430]) {
     await quick.getByRole('link',{name:'Experiences',exact:true}).click();
     await expect(page.getByRole('heading',{name:'Company Procedures',exact:true})).toBeVisible();
     await expect(quick.getByRole('link',{name:'Experiences'})).toHaveAttribute('aria-current','page');
+    const experienceSearch=page.getByRole('searchbox',{name:'Search companies',exact:true});
+    await experienceSearch.focus();
+    await expect(experienceSearch).toHaveCSS('outline-width','2px');
+    await expect(experienceSearch).toHaveCSS('outline-offset','2px');
+    await experienceSearch.blur();
     await fits(page);
     const views=page.getByRole('navigation',{name:'Company procedures views'});
     for(const link of await views.getByRole('link').all())expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
@@ -50,12 +55,40 @@ for(const width of [320,390,430]) {
       await page.goto(`/#2026/${section}`);
       await expect(page.locator('#main .hero, #main .detail-head, #main .section').first()).toBeVisible();
       await fits(page);
+      if(section==='overview') {
+        const chart=page.locator('#app .grid2 > div').filter({has:page.getByRole('heading',{name:'Company Mix · Unique companies',exact:true})});
+        const geometry=await chart.evaluate(element=>{
+          const card=element.getBoundingClientRect();
+          const title=element.querySelector('h3')!.getBoundingClientRect();
+          const svg=element.querySelector('.react-donut > svg')!.getBoundingClientRect();
+          return {cardLeft:card.left,cardRight:card.right,titleLeft:title.left,titleRight:title.right,svgLeft:svg.left,svgRight:svg.right};
+        });
+        expect(geometry.titleLeft).toBeGreaterThanOrEqual(geometry.cardLeft);
+        expect(geometry.titleRight).toBeLessThanOrEqual(geometry.cardRight);
+        expect(geometry.svgLeft).toBeGreaterThanOrEqual(geometry.cardLeft);
+        expect(geometry.svgRight).toBeLessThanOrEqual(geometry.cardRight);
+      }
+      if(section==='companies') {
+        const companySearch=page.getByRole('textbox',{name:'Search companies',exact:true});
+        await companySearch.focus();
+        await expect(companySearch).toHaveCSS('outline-width','2px');
+        await expect(companySearch).toHaveCSS('outline-offset','2px');
+        await companySearch.blur();
+      }
       await expect(page.getByRole('combobox',{name:'Placement year'})).toHaveCount(0);await expect(page.getByRole('navigation',{name:'App',exact:true})).not.toBeVisible();
       if(width===390&&section==='overview')await page.screenshot({path:'artifacts/mobile-statistics-refined.png',fullPage:false});
     }
     await quick.getByRole('button',{name:'Statistics',exact:true}).click();
     const menu=page.getByRole('dialog');
     await expect(menu.getByRole('navigation',{name:'Statistics sections'}).getByRole('link')).toHaveCount(4);
+    const back=menu.getByRole('link',{name:/Back to previous page/});
+    const sheetBounds=await menu.boundingBox(),backBounds=await back.boundingBox();
+    expect(backBounds!.height).toBeGreaterThanOrEqual(44);
+    expect(backBounds!.x).toBeGreaterThanOrEqual(sheetBounds!.x);
+    expect(backBounds!.x+backBounds!.width).toBeLessThanOrEqual(sheetBounds!.x+sheetBounds!.width);
+    await back.focus();
+    await expect(back).toHaveCSS('outline-width','2px');
+    await expect(back).toHaveCSS('outline-offset','2px');
     for(const link of await menu.getByRole('navigation',{name:'Statistics sections'}).getByRole('link').all())expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     await menu.getByRole('link',{name:'Career explorer',exact:true}).click();
     await page.getByRole('navigation',{name:'Career explorer views'}).getByRole('link',{name:'Insights',exact:true}).click();
