@@ -36,6 +36,16 @@ test('every hosted route sends the security header policy', () => {
   assert.match(csp, /connect-src[^;]*https:\/\/\*\.googleapis\.com/);
 });
 
+test('the policy allows the remote stylesheet and fonts the app actually imports', () => {
+  const csp = globalHeaders().get('content-security-policy') ?? '';
+  const css = readFileSync(new URL('src/styles/styles.css', root), 'utf8');
+  const imported = [...css.matchAll(/@import\s+url\('(https:\/\/[^']+)'\)/g)].map(match => new URL(match[1]).origin);
+  assert.ok(imported.includes('https://fonts.googleapis.com'));
+  const styleSrc = /style-src([^;]*)/.exec(csp)?.[1] ?? '';
+  for (const origin of imported) assert.ok(styleSrc.includes(origin), origin);
+  assert.match(csp, /font-src[^;]*https:\/\/fonts\.gstatic\.com/);
+});
+
 test('the document shell keeps scripts external so the policy can stay strict', () => {
   const html = readFileSync(new URL('index.html', root), 'utf8');
   assert.equal(/<script(?![^>]*\bsrc=)[^>]*>/i.test(html), false);
