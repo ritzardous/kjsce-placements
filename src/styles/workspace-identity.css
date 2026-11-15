@@ -361,6 +361,35 @@
           text-decoration: underline;
         }
 
+        /* Fix ActionMenu dropdown text colors (e.g. Stop following button with aria-pressed=true) */
+        :is(#app, .portal-shell) .action-disclosure-content .notification-follow {
+          margin: 0 !important;
+          width: 100%;
+        }
+
+        :is(#app, .portal-shell) .action-disclosure-content :is(a, button, button[aria-pressed=true], .notification-follow > button) {
+          color: var(--ink) !important;
+          background: transparent !important;
+          box-shadow: none !important;
+          border: none !important;
+          border-radius: 4px;
+        }
+
+        :is(#app, .portal-shell) .action-disclosure-content :is(a, button, button[aria-pressed=true], .notification-follow > button):hover {
+          background: var(--accent-soft) !important;
+          color: var(--ink) !important;
+        }
+
+        [data-theme=dark] :is(#app, .portal-shell) .action-disclosure-content :is(a, button, button[aria-pressed=true], .notification-follow > button) {
+          color: var(--ink) !important;
+          background: transparent !important;
+        }
+
+        [data-theme=dark] :is(#app, .portal-shell) .action-disclosure-content :is(a, button, button[aria-pressed=true], .notification-follow > button):hover {
+          background: var(--accent-soft) !important;
+          color: var(--accent) !important;
+        }
+
           /* Company detail actions: View interview experiences link / Invite an alum */
           .company-detail-actions {
             margin-top: 14px;

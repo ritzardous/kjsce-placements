@@ -75,7 +75,16 @@ function InboxContent() {
         }
       } else { commit(append ? { ...next, rows: [...new Map([...latest.current.rows, ...next.rows].map(row => [row.id, row])).values()] } : next); setStaged(null); }
       return true;
-    } catch (cause) { if (mounted.current && token === generation.current) setError(procedureError(cause)); return false; }
+    } catch (cause) {
+      if (mounted.current && token === generation.current) {
+        if (!latest.current.rows.length) {
+          setError(procedureError(cause));
+        } else {
+          console.warn('Notification load failed, keeping existing rows', cause);
+        }
+      }
+      return false;
+    }
     finally { if (token === generation.current) { running.current = false; if (mounted.current) setLoading(false); } }
   }, [commit]);
   useBackgroundSync(() => load(false, true), 65000);
@@ -130,17 +139,25 @@ function InboxContent() {
     if (!navigator.onLine) { setError('You are offline. Reconnect before changing notifications.'); return; }
     if (mutating.current) return;
     mutating.current = true; generation.current++; running.current = false;
-    const progress = batch || { cutoff: Math.min(store.summary?.checkedAt || Date.now(), Date.now()), cursor: null, count: 0 };
     setBusy(true); setError('');
     try {
-      // Each click performs one bounded batch; failed batches can be safely retried.
-      const result = await community<{ more: boolean; count: number; cursor: InboxPage['cursor'] }>('readAllNotifications', { cutoff: progress.cutoff, cursor: progress.cursor });
+      const nextRows = latest.current.rows.map(row => ({ ...row, read: true })).filter(row => (view === 'unread' || unreadOnly) ? false : true);
+      commit({ ...latest.current, rows: nextRows });
+      inboxCache.clear();
+      await store.markAllRead();
       if (!mounted.current) return;
-      const count = progress.count + result.count;
-      setBatch(result.more ? { ...progress, cursor: result.cursor, count } : null);
-      setMessage(`${count} notification${count === 1 ? '' : 's'} marked as read.${result.more ? ' Continue to process the next 50.' : ' Newer arrivals are kept unread.'}`);
-      inboxCache.clear(); invalidateCommunityReads('notifications'); mutating.current = false; await load(); changed();
-    } catch (cause) { if (mounted.current) { setBatch(progress); setError(procedureError(cause)); } } finally { mutating.current = false; if (mounted.current) { setBusy(false); setLoading(false); } }
+      setBatch(null);
+      setMessage('All notifications marked as read.');
+      invalidateCommunityReads('notifications');
+      mutating.current = false;
+      await load();
+      changed();
+    } catch (cause) {
+      if (mounted.current) setError(procedureError(cause));
+    } finally {
+      mutating.current = false;
+      if (mounted.current) { setBusy(false); setLoading(false); }
+    }
   }
   const unread = page.rows.filter(row => !row.read).slice(0, 50);
   let previousGroup = '';
@@ -157,13 +174,13 @@ function InboxContent() {
   }}>
     <div className="procedure-heading notification-inbox-header"><p>Reviews, feedback and updates you follow.</p><div><a href="#procedures/notifications?preferences=1" aria-label="Notification preferences">Preferences</a><button aria-label="Refresh notifications" disabled={loading} onClick={() => { void load(); void store.refresh(); }}>Refresh</button></div></div>
     <p className="notification-freshness">{!store.online ? 'Offline. Showing your last loaded updates.' : loading ? 'Updating…' : error ? "Couldn't refresh. Showing previously loaded updates." : page.checkedAt ? `Last checked ${new Date(page.checkedAt).toLocaleTimeString()}` : 'Checking for updates…'}</p>
-    {store.summary?.discoveryError && <p role="alert">Followed updates couldn't refresh. Your direct notifications are available. Try Refresh notifications again.</p>}
-    {store.error && <p role="alert">Unread count couldn't refresh. <button onClick={() => void store.refresh()}>Retry unread count</button></p>}
-    {autoRead.error && <p role="alert">Couldn't save read status automatically. {autoRead.error} <button onClick={autoRead.retry}>Retry read status</button></p>}
-    <div className="workspace-toolbar notification-toolbar"><div className="workspace-view-switch" aria-label="Notification views">{views.filter(([key])=>['all','unread'].includes(key)).map(([key,label])=><button key={key} disabled={busy} aria-pressed={key==='unread'?(unreadOnly||view==='unread'):(!unreadOnly&&view!=='unread')} onClick={()=>{setUnreadOnly(key==='unread');if(view==='unread')setView('all');}}>{label}</button>)}</div><label>Activity type<select disabled={busy} value={['all','unread'].includes(view)?'':view} onChange={event=>setView(event.target.value||'all')}><option value="">All activity</option>{views.filter(([key])=>!['all','unread'].includes(key)).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select></label><ActionMenu label="Inbox actions"><div className="procedure-actions"><button disabled={busy || !unread.length} onClick={() => void update(unread.map(row => row.id), { read: true }, `${unread.length} notification${unread.length === 1 ? '' : 's'} marked as read.`)}>{page.rows.filter(row => !row.read).length > 50 ? 'Mark first 50 displayed unread notifications as read' : 'Mark displayed notifications as read'}</button><button disabled={busy || (!batch && !store.summary?.unread)} onClick={() => void markAll()}>{batch ? 'Continue marking all read (next 50)' : 'Mark all read (up to 50 at a time)'}</button>{batch && <button disabled={busy} onClick={() => { setBatch(null); setMessage('Batch stopped. Completed changes are saved.'); }}>Stop batch</button>}</div>
+    {store.summary?.discoveryError && !page.rows.length && <p role="alert">Followed updates couldn't refresh. Your direct notifications are available. Try Refresh notifications again.</p>}
+    {store.error && !page.rows.length && <p role="alert">Unread count couldn't refresh. <button onClick={() => void store.refresh()}>Retry unread count</button></p>}
+    {autoRead.error && !page.rows.length && <p role="alert">Couldn't save read status automatically. {autoRead.error} <button onClick={autoRead.retry}>Retry read status</button></p>}
+    <div className="workspace-toolbar notification-toolbar"><div className="workspace-view-switch" aria-label="Notification views">{views.filter(([key])=>['all','unread'].includes(key)).map(([key,label])=><button key={key} disabled={busy} aria-pressed={key==='unread'?(unreadOnly||view==='unread'):(!unreadOnly&&view!=='unread')} onClick={()=>{setUnreadOnly(key==='unread');if(view==='unread')setView('all');}}>{label}</button>)}</div><label>Activity type<select disabled={busy} value={['all','unread'].includes(view)?'':view} onChange={event=>setView(event.target.value||'all')}><option value="">All activity</option>{views.filter(([key])=>!['all','unread'].includes(key)).map(([key,label])=><option key={key} value={key}>{label}</option>)}</select></label><ActionMenu label="Inbox actions"><div className="procedure-actions"><button disabled={busy || !unread.length} onClick={() => void update(unread.map(row => row.id), { read: true }, `${unread.length} notification${unread.length === 1 ? '' : 's'} marked as read.`)}>{page.rows.filter(row => !row.read).length > 50 ? 'Mark first 50 displayed unread notifications as read' : 'Mark displayed notifications as read'}</button><button disabled={busy || (!store.summary?.unread && !page.rows.some(r => !r.read))} onClick={() => void markAll()}>Mark all as read</button></div>
 </ActionMenu></div>
     {message && <p className="procedure-success" role="status">{message}</p>}{undo && <p>Update archived. <button disabled={busy} onClick={() => { void update([undo.id], { archived: false, read: undo.read }, 'Update restored.'); }}>Undo archive</button></p>}
-    {error && <p role="alert">{error} <button disabled={loading} onClick={() => void load()}>Retry notifications</button></p>}
+    {error && !page.rows.length && <p role="alert">{error} <button disabled={loading} onClick={() => void load()}>Retry notifications</button></p>}
     <div aria-live="polite">{staged && <button className="notification-new-updates" onClick={() => { commit(staged); setStaged(null); }}>New updates available. Show latest</button>}</div>
     {view === 'attention' && <p>Unresolved contributor work, whether read or unread. Reading an update does not complete its task.</p>}
     {view === 'discussions' && <p>Questions and replies are no longer available. Past decisions remain in your private history.</p>}

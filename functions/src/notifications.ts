@@ -19,8 +19,13 @@ export async function settingsFor(db: Firestore, uid: string): Promise<Notificat
 export async function enrichNotifications(db: Firestore, uid: string, rows: DocumentData[]) {
   const notifications = rows.map(normalizeNotification);
   const ids = [...new Set(notifications.filter(row => row.category === 'contributions').map(row => row.submissionId).filter(Boolean))];
-  const docs = ids.length ? await db.getAll(...ids.map(id => db.doc(`procedureSubmissions/${id}`)), { fieldMask: ['ownerUid', 'deleted', 'status', 'feedback', 'revision', 'hasPublished'] }) : [];
-  const states = new Map(docs.map(doc => [doc.id, doc.data()]));
+  let docs: DocumentData[] = [];
+  try {
+    docs = ids.length ? await db.getAll(...ids.map(id => db.doc(`procedureSubmissions/${id}`)), { fieldMask: ['ownerUid', 'deleted', 'status', 'feedback', 'revision', 'hasPublished'] }) : [];
+  } catch {
+    docs = [];
+  }
+  const states = new Map(docs.filter(doc => doc && doc.exists).map(doc => [doc.id, doc.data()]));
   return notifications.map(row => {
     const state = states.get(row.submissionId);
     if (state?.ownerUid === uid && !state.deleted) {

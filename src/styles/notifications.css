@@ -3,6 +3,10 @@
 .notification-count{display:inline-flex;align-items:center;justify-content:center;min-width:21px;min-height:21px;padding:1px 5px;border-radius:12px;background:var(--accent);color:var(--accent-ink);font:600 11px var(--font-mono)}
 .notification-preview-toggle{min-width:28px;padding-inline:6px}
 .notification-preview{position:absolute;top:calc(100% + 8px);right:0;z-index:150;width:min(360px,calc(100vw - 24px));padding:18px;background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:4px 4px 0 var(--line-soft);max-height:70vh;overflow:auto;white-space:normal}
+.notification-preview-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.notification-preview-header h2{font:600 17px var(--font-display);margin:0}
+.notification-mark-all-btn{font-size:12px;padding:4px 8px;background:transparent;border:1px solid var(--line-soft);color:var(--accent);cursor:pointer;border-radius:4px;min-height:unset}
+.notification-mark-all-btn:hover{background:var(--accent-soft)}
 .notification-preview h2{font:600 17px var(--font-display);margin:0 0 12px}
 .notification-preview ul{list-style:none;padding:0;margin:0 0 14px}
 .notification-preview li{padding:10px 0;border-bottom:1px solid var(--line-soft);overflow-wrap:anywhere}

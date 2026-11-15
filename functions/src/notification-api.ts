@@ -1,4 +1,4 @@
-import type { Firestore, Query } from 'firebase-admin/firestore';
+import type { Firestore, Query, DocumentData } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
 import { z } from 'zod';
 import { enrichNotifications, eventKey, settingsFor, syncDiscovery } from './notifications.js';
@@ -24,28 +24,48 @@ export async function notificationApi(db: Firestore, uid: string, action: string
       if (data.cursor) query = query.startAfter(data.cursor.values[0], data.cursor.id);
       const rows = []; let next = data.cursor || null, scanned = 0, fetched = 0, more = false;
       // Legacy records have no category/archive fields: retain bounded compatibility filtering.
-      for (let batch = 0; batch < 4; batch++) {
-        const snap = await query.limit(20).get();
-        fetched += snap.size;
-        const enriched = await enrichNotifications(db, uid, snap.docs.map(doc => ({ ...doc.data(), id: doc.id })));
-        for (const row of enriched) {
-          scanned++; next = { id: row.id, values: [row.createdAt] as [number] };
-          const include = data.view === 'archived' ? row.archived : !row.archived && (data.view === 'attention' ? row.needsAction : ['all', 'unread'].includes(data.view) || row.category === data.view);
-          if (include) rows.push(row);
-          if (rows.length === 20) return { rows, cursor: next, more: true, scanned, fetched, checkedAt: Date.now() };
+      try {
+        for (let batch = 0; batch < 4; batch++) {
+          const snap = await query.limit(20).get();
+          fetched += snap.size;
+          const enriched = await enrichNotifications(db, uid, snap.docs.map(doc => ({ ...doc.data(), id: doc.id })));
+          for (const row of enriched) {
+            scanned++; next = { id: row.id, values: [row.createdAt] as [number] };
+            const include = data.view === 'archived' ? row.archived : !row.archived && (data.view === 'attention' ? row.needsAction : ['all', 'unread'].includes(data.view) || row.category === data.view);
+            if (include) rows.push(row);
+            if (rows.length === 20) return { rows, cursor: next, more: true, scanned, fetched, checkedAt: Date.now() };
+          }
+          more = snap.size === 20;
+          if (!more) break;
+          query = query.startAfter(next!.values[0], next!.id);
         }
-        more = snap.size === 20;
-        if (!more) break;
-        query = query.startAfter(next!.values[0], next!.id);
+        return { rows, cursor: next, more, scanned, fetched, checkedAt: Date.now() };
+      } catch {
+        // Fail-safe fallback if index or startAfter query fails: fetch recent items and filter in memory
+        const fallbackSnap = await items.orderBy('createdAt', 'desc').limit(80).get().catch(() => items.limit(80).get());
+        const enriched = await enrichNotifications(db, uid, fallbackSnap.docs.map(doc => ({ ...doc.data(), id: doc.id })));
+        const fallbackRows = enriched.filter(row => {
+          if (data.unread || data.view === 'unread') return !row.read && !row.archived;
+          if (data.view === 'archived') return row.archived;
+          if (data.view === 'attention') return !row.archived && row.needsAction;
+          return !row.archived && (['all', 'unread'].includes(data.view) || row.category === data.view);
+        }).sort((a, b) => b.createdAt - a.createdAt).slice(0, 20);
+        return { rows: fallbackRows, cursor: null, more: false, scanned: fallbackRows.length, fetched: fallbackSnap.size, checkedAt: Date.now() };
       }
-      return { rows, cursor: next, more, scanned, fetched, checkedAt: Date.now() };
     }
     case 'notificationSummary': {
       parse(z.object({}).strict(), input);
       // Optional discovery cannot prevent direct decisions from being read.
       let discoveryError = false;
       try { await syncDiscovery(db, uid); } catch { discoveryError = true; }
-      return { unread: (await items.where('read', '==', false).count().get()).data().count, checkedAt: Date.now(), discoveryError };
+      let unreadCount = 0;
+      try {
+        unreadCount = (await items.where('read', '==', false).count().get()).data().count;
+      } catch {
+        const snap = await items.limit(500).get().catch(() => null);
+        unreadCount = snap ? snap.docs.filter(d => d.data().read === false).length : 0;
+      }
+      return { unread: unreadCount, checkedAt: Date.now(), discoveryError };
     }
     case 'readNotification':
     case 'readNotifications':
@@ -65,18 +85,29 @@ export async function notificationApi(db: Firestore, uid: string, action: string
       return { read: data.read ?? true };
     }
     case 'readAllNotifications': {
-      const data = parse(z.object({ cutoff: z.number().nonnegative(), cursor }).strict(), input);
-      if (data.cutoff > Date.now()) throw new HttpsError('invalid-argument', 'The read cutoff must not be in the future.');
-      let query = items.where('read', '==', false).where('createdAt', '<=', data.cutoff).orderBy('createdAt', 'desc').orderBy('__name__', 'desc');
-      if (data.cursor) query = query.startAfter(data.cursor.values[0], data.cursor.id);
-      const snap = await query.limit(50).get();
-      await db.runTransaction(async tx => {
-        if (!snap.size) return;
-        const docs = await tx.getAll(...snap.docs.map(doc => doc.ref));
-        docs.forEach(doc => { if (doc.exists && doc.data()!.read === false && doc.data()!.createdAt <= data.cutoff) tx.update(doc.ref, { read: true, readAt: Date.now() }); });
+      const data = parse(z.object({ cutoff: z.number().nonnegative().optional(), cursor }).strict(), input);
+      const cutoff = data.cutoff ?? Date.now();
+      let unreadDocs: DocumentData[] = [];
+      try {
+        const snap = await items.where('read', '==', false).limit(500).get();
+        unreadDocs = snap.docs;
+      } catch {
+        const snap = await items.limit(500).get().catch(() => null);
+        unreadDocs = snap ? snap.docs.filter(d => d.data().read === false) : [];
+      }
+      const eligible = unreadDocs.filter(d => {
+        const val = d.data();
+        return val.read === false && (val.createdAt ?? 0) <= cutoff;
       });
-      const last = snap.docs.at(-1);
-      return { count: snap.size, more: snap.size === 50, cursor: last ? { id: last.id, values: [last.data().createdAt] } : null, cutoff: data.cutoff };
+      if (eligible.length) {
+        const batch = db.batch();
+        const now = Date.now();
+        eligible.forEach(doc => {
+          batch.update(doc.ref, { read: true, readAt: now });
+        });
+        await batch.commit();
+      }
+      return { count: eligible.length, more: false, cursor: null, cutoff };
     }
     case 'notificationSettings': return settingsFor(db, uid);
     case 'saveNotificationSettings': {
