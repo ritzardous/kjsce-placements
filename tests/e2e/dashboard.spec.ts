@@ -108,11 +108,36 @@ test('companies search, type and CTC filters work; old detail URLs load', async 
   await page.getByRole('combobox', { name: 'Company type' }).selectOption('IT');
   await expect(page.getByText('No matches', { exact: true })).toBeVisible();
 });
+test('company list page survives detail navigation and back links', async ({ page }) => {
+  await page.goto('/#companies');
+  await page.getByRole('button', { name: 'Next', exact: true }).click();
+  await expect(page.getByText('Page 2 of 4')).toBeVisible();
+  await page.getByRole('button', { name: 'Next', exact: true }).click();
+  await expect(page.getByText('Page 3 of 4')).toBeVisible();
+  await expect(page).toHaveURL(/#companies\?page=3$/);
+  const company = page.locator('tbody tr').first().getByRole('link').first();
+  await company.click();
+  await expect(page).toHaveURL(/#company\//);
+  await page.getByRole('link', { name: '← All Companies', exact: true }).click();
+  await expect(page).toHaveURL(/#companies\?page=3$/);
+  await expect(page.getByText('Page 3 of 4')).toBeVisible();
+  await page.locator('tbody tr').first().getByRole('link').first().click();
+  await expect(page).toHaveURL(/#company\//);
+  await page.goBack();
+  await expect(page).toHaveURL(/#companies\?page=3$/);
+  await expect(page.getByText('Page 3 of 4')).toBeVisible();
+});
 test('candidate search, role chips and pagination expose all selections', async ({ page }) => {
   await page.goto('/#candidates');
   await expect(page.locator('.result-count')).toHaveText('311 / 311');
   await expect(page.locator('tbody tr')).toHaveCount(25);
   await page.getByRole('button', { name: 'Next', exact: true }).click();
+  await expect(page.getByText('Page 2 of 13')).toBeVisible();
+  await expect(page).toHaveURL(/#candidates\?page=2$/);
+  await page.locator('tbody tr').first().getByRole('link').first().click();
+  await expect(page).toHaveURL(/#company\//);
+  await page.goBack();
+  await expect(page).toHaveURL(/#candidates\?page=2$/);
   await expect(page.getByText('Page 2 of 13')).toBeVisible();
   await page.getByRole('textbox', { name: 'Search candidates' }).fill('16010122044');
   await expect(page.locator('tbody tr')).toHaveCount(payload.statistics.candidates.filter(c => c.roll === '16010122044').length);

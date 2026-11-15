@@ -4,6 +4,9 @@ import {matchesSearch} from '../../shared/search';
 import { CompanyIdentity, CompanyLogo } from './CompanyIdentity';
 import { AppIcon } from '../ui/AppIcon';
 import { useEffect, useState } from 'react';
+import { pageHref } from '../app/page-state';
+import { storedPage, usePersistentPage } from './use-persistent-page';
+
 import { CandidateLinkedIn } from './CandidateLinkedIn';
 import type { Announcement } from '../../shared/dataset';
 import type { Branch, Candidate, Company, Statistics } from '../../shared/statistics';
@@ -89,24 +92,22 @@ export function Companies({ statistics: s, filters, setFilters }: { statistics: 
   });
   const sortValue = (c: Company) => ({ name: c.name, ctc: c.highestCtc ?? -1, hired: c.totalHired, date: c.lastDate ?? "" })[filters.sort.key as 'name' | 'ctc' | 'hired' | 'date'];
   rows.sort((a, b) => { const av = sortValue(a), bv = sortValue(b); return (av < bv ? -1 : av > bv ? 1 : a.name.localeCompare(b.name)) * (filters.sort.direction === 'asc' ? 1 : -1); });
-  const [page, setPage] = useState(() => {
-    try {
-      const returnKey = sessionStorage.getItem('return-company-key');
-      if (!returnKey) return 1;
-      const index = rows.findIndex(c => c.key === returnKey);
-      return index >= 0 ? Math.floor(index / PAGE_SIZE) + 1 : 1;
-    } catch { return 1; }
-  });
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  const [page, setPage] = usePersistentPage(`statistics-companies-page:${s.batch.year}`, [routeHref('companies', s.batch.year)], totalPages);
   const set = (next: Partial<CompanyFilters>) => { setPage(1); setFilters({ ...filters, ...next }); };
-  const currentPage = Math.min(page, Math.max(1, Math.ceil(rows.length / PAGE_SIZE)));
+  const currentPage = Math.min(page, totalPages);
 
   useEffect(() => {
     let returnKey: string | null = null;
     try {
       returnKey = sessionStorage.getItem('return-company-key');
-      if (returnKey) sessionStorage.removeItem('return-company-key');
+
     } catch {}
     if (!returnKey) return;
+    const index = rows.findIndex(company => company.key === returnKey);
+    const returnPage = index >= 0 ? Math.floor(index / PAGE_SIZE) + 1 : currentPage;
+    if (returnPage !== currentPage) { setPage(returnPage); return; }
+    try { sessionStorage.removeItem('return-company-key'); } catch {}
     requestAnimationFrame(() => {
       const row = document.getElementById(`row-${returnKey}`);
       if (row) {
@@ -114,7 +115,8 @@ export function Companies({ statistics: s, filters, setFilters }: { statistics: 
         row.querySelector<HTMLAnchorElement>('a')?.focus({ preventScroll: true });
       }
     });
-  }, [page]);
+  }, [currentPage, rows, setPage]);
+
   const columns: Column<Company>[] = [
     { label: 'Company', sort: 'name', render: c => <a href={companyHref(c.key)}><CompanyIdentity companyKey={c.key} name={c.name} /></a> },
     { label: 'Type', render: c => <Tag>{c.type}</Tag> },
@@ -141,8 +143,10 @@ export function CompanyDetail({ company: c, year }: { company: Company | undefin
       try { sessionStorage.setItem('return-company-key', c.key); } catch {}
     }
   }, [c?.key]);
-  if (!c) return <Empty title="Company not found"><a href={routeHref("companies")}>← Back to Companies</a></Empty>;
-  return <Section title="Company Details" note="Chronological · earliest first"><a className="back-link" href={routeHref("companies")}>← All Companies</a>
+  const backHref = pageHref(routeHref('companies', year), storedPage(`statistics-companies-page:${year}`));
+  if (!c) return <Empty title="Company not found"><a href={backHref}>← Back to Companies</a></Empty>;
+  return <Section title="Company Details" note="Chronological · earliest first"><a className="back-link" href={backHref}>← All Companies</a>
+
     <div className="detail-head"><div className="company-detail-identity"><CompanyLogo companyKey={c.key} name={c.name} size="large" /><div className="company-detail-copy"><div className="eyebrow">{c.type}</div><h1 className="detail-name">{c.name}</h1>{campusLabel(c.announcements) && <Tag>{campusLabel(c.announcements)}</Tag>}<div className="detail-tags">{c.roles.map(r => <Tag key={r}>{r}</Tag>)}</div></div></div><div className="detail-stats">{[[money(c.highestCtc), 'Highest CTC'], [c.totalHired, c.announcements.some(p => p.campus) ? 'Selections' : 'Students hired'], [date(c.lastDate,true), 'Latest result'], [c.branches.join(', '), 'Branches hired']].map(([value, label]) => <div className="detail-stat" key={label}><div className="v">{value}</div><div className="l">{label}</div></div>)}</div></div>
     <div className="company-candidates-heading"><h2>Selected candidates</h2><p>Selections are grouped by placement announcement below.</p><aside className="company-contacts" aria-labelledby="company-contacts-title"><div><h3 id="company-contacts-title">Alumni contacts</h3><p>LinkedIn profiles appear beside available names.</p></div><InviteWriter company={c}/></aside></div>
     {c.announcements.map(p => <article className="announcement-block" key={p.placement_id}><div className="announcement-head"><div className="a-date">{date(p.result.declared_date, true)}</div><div className="a-role">{p.roles.join(' / ') || 'Role not provided'}{campusLabel([p]) && <Tag>{campusLabel([p])}</Tag>}</div><div className="a-ctc">{ctcLabel(p)}</div></div><Table rows={p.candidates} rowKey={(candidate, index) => `${candidate.roll_number}-${index}`} columns={[
@@ -167,17 +171,17 @@ export function Branches({ statistics: s, selected, onCandidates }: { statistics
     <Section title="Branch Breakdown" note="Select a branch for a full breakdown"><div className="branch-chip-row">{s.branches.map(b => <a className={'branch-chip ' + (b.branch === branch.branch ? 'active' : '')} href={routeHref('branches/' + encodeURIComponent(b.branch))} key={b.branch}><div className="bc-name">{b.branch}</div><div className="bc-count">{b.selections} selections · {b.uniqueStudents} students</div></a>)}</div><h1 className="detail-name">{branch.branch}</h1><div className="statgrid"><Stat value={branch.selections} label="Selections" /><Stat value={branch.uniqueStudents} label="Unique students" /><Stat value={branch.companiesCount} label="Companies hired" /><Stat value={money(branch.highestCtc)} label="Highest CTC" /></div></Section>
     <Section title="Companies & Roles"><div className="grid2"><div><h3 className="section-title">Top Hiring Companies</h3><RankedBars rows={branch.companyRanking.slice(0, 8).map(r => ({ ...r, companyKey: s.companies.find(c => c.name === r.label)?.key, href: companyHref(s.companies.find(c => c.name === r.label)?.key ?? '') }))} /></div><div><h3 className="section-title">Top Roles</h3><Donut rows={branch.roleRanking.slice(0, 6)} label="Top six branch roles" /></div></div></Section>
     <Section title={`CTC Distribution · ${branch.branch}`} note={`${branch.ctcCoverage} selections with confirmed CTC`}><ColumnChart rows={branch.histogram} label="Selection-weighted branch CTC distribution" /></Section>
-    <Section title={`${branch.branch} Candidates`} note="All recorded selections"><div className="desktop-only-table"><Table rows={[...branch.candidates].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))} columns={candidateColumns} rowKey={(c, i) => `${c.placementId}-${c.roll}-${i}`} /></div><a className="branch-candidates-cta" href={routeHref("candidates")} onClick={() => onCandidates(branch.branch)}><span>View all {branch.selections} {branch.branch} candidates by name, company &amp; CTC</span><span className="bc-arrow">→</span></a></Section>
+    <Section title={`${branch.branch} Candidates`} note="All recorded selections"><div className="desktop-only-table"><Table rows={[...branch.candidates].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))} columns={candidateColumns} rowKey={(c, i) => `${c.placementId}-${c.roll}-${i}`} /></div><a className="branch-candidates-cta" href={`${routeHref("candidates")}?page=1`} onClick={() => onCandidates(branch.branch)}><span>View all {branch.selections} {branch.branch} candidates by name, company &amp; CTC</span><span className="bc-arrow">→</span></a></Section>
   </>;
 }
 
 export interface CandidateFilters { search: string; role: string | null; campus?: string; }
 export function Candidates({ statistics: s, filters, setFilters }: { statistics: Statistics; filters: CandidateFilters; setFilters: (next: CandidateFilters) => void }) {
-  const [page, setPage] = useState(1);
   const candidates = s.candidates.map(c=>({...c, campus:c.campus ?? (c.companyKey==='google' ? 'Off campus' : undefined)}));
   const hasCampus = candidates.some(c => c.campus);
   const filtered = candidates.filter(c => (!filters.campus || filters.campus === 'ALL' || c.campus === filters.campus) && (!filters.role || c.role === filters.role) && matchesSearch(`${c.name} ${c.roll} ${c.branch} ${c.company} ${c.role}`,filters.search));
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const [page, setPage] = usePersistentPage(`statistics-candidates-page:${s.batch.year}`, [routeHref('candidates', s.batch.year), routeHref('explore', s.batch.year), routeHref('explore/candidates', s.batch.year)], pages);
   const currentPage = Math.min(page, pages);
   const update = (next: CandidateFilters) => { setPage(1); setFilters(next); };
   return <Section title="Candidates and roles" note={`${s.summary.selections} candidate selections recorded (not unique students)`}>

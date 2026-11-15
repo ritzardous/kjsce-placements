@@ -22,18 +22,18 @@ https://www.linkedin.com/in/sania-parekh-117389201/
 https://www.linkedin.com/in/mahi-hingad-585ab3283/
 https://www.linkedin.com/in/mauryaghogare/
 https://www.linkedin.com/in/shreya-bhangale/
-https://www.linkedin.com/in/jiya-shetty-640b04252/ 
+https://www.linkedin.com/in/jiya-shetty-640b04252/
 https://www.linkedin.com/in/aakankshsen/
-https://www.linkedin.com/in/naman-sachetee/ 
+https://www.linkedin.com/in/naman-sachetee/
 https://www.linkedin.com/in/krishhadkar/
-https://www.linkedin.com/in/ayush-vikharankar-904431259/ 
-https://www.linkedin.com/in/rishi-iyer-53b440321/ 
+https://www.linkedin.com/in/ayush-vikharankar-904431259/
+https://www.linkedin.com/in/rishi-iyer-53b440321/
 https://www.linkedin.com/in/nishtha-savla-1606a6431/
 https://www.linkedin.com/in/krishakapadia/
 https://www.linkedin.com/in/ayushi-parab-738b3b252/
 https://www.linkedin.com/in/shreyas-suryawanshi1302/
 https://www.linkedin.com/in/soham-sohoni-006a30253/
-https://www.linkedin.com/in/mansiz/
+16014022100 https://www.linkedin.com/in/mansiz/
 https://www.linkedin.com/in/parthiv-somaiya/
 
 Barclays
@@ -51,8 +51,8 @@ https://www.linkedin.com/in/pratham-panchal-abcd2994/
 https://www.linkedin.com/in/keshav-pandya-46a330247/
 https://www.linkedin.com/in/vedant-rathi-fin/
 https://www.linkedin.com/in/parsh-jain-a50091253/
-https://www.linkedin.com/in/aadil0904/
-https://www.linkedin.com/in/r-lodaya/
+16010122178 https://www.linkedin.com/in/aadil0904/
+16010122096 https://www.linkedin.com/in/r-lodaya/
 https://www.linkedin.com/in/varnika-bajpai/
 https://www.linkedin.com/in/anuj-parwal/
 https://www.linkedin.com/in/mayurdumbre66/
@@ -62,7 +62,6 @@ https://www.linkedin.com/in/atharva-upare-515494249/
 https://www.linkedin.com/in/aahan-shetye/
 https://www.linkedin.com/in/aadil0904/ 16010122178
 https://www.linkedin.com/in/r-lodaya/ 16010122096
- 
 
 Deloitte
 https://www.linkedin.com/in/arunilpandey/
@@ -87,14 +86,13 @@ https://www.linkedin.com/in/harsh-singwi-53a6b32b0/
 https://www.linkedin.com/in/atulpranaychatti/
 https://www.linkedin.com/in/borsesahil/
 https://www.linkedin.com/in/rishi-goyal111?originalSubdomain=in
-https://www.linkedin.com/in/krishk22/
+16010122082 https://www.linkedin.com/in/krishk22/
 https://www.linkedin.com/in/naman-shah-491679361/
 https://www.linkedin.com/in/harsh-nagrani-1ab98623a/
 https://www.linkedin.com/in/atulpranaychatti/
 https://www.linkedin.com/in/borsesahil/
 https://www.linkedin.com/in/ketaki-mahajan-7aa884277/
-
-
+16014022082 https://www.linkedin.com/in/chirag-solanki98/
 
 ICICI Lombard
 https://www.linkedin.com/in/arya-madhani-83a902257/
@@ -104,12 +102,12 @@ https://www.linkedin.com/in/akshita-shetty-2004s/
 https://www.linkedin.com/in/yashankkothari/
 
 https://www.linkedin.com/in/sharwar-patil/
-https://www.linkedin.com/in/redisitic/
+16010122077 https://www.linkedin.com/in/redisitic/
 https://www.linkedin.com/in/ananya-pal-29806a307/
 https://www.linkedin.com/in/shubham-chaurasia-4630b0345/
 https://www.linkedin.com/in/raghav-deshpande-2612a1253/
 
-https://www.linkedin.com/in/redisitic/ (rhythm juneja)
+16010122077 https://www.linkedin.com/in/redisitic/ (rhythm juneja)
 https://www.linkedin.com/in/nishtha-kumar19/
 
 ZS Associates
@@ -118,11 +116,12 @@ https://www.linkedin.com/in/mohd-ibraheem-mir/
 https://www.linkedin.com/in/sujal-kumar-6b61a8231/
 https://www.linkedin.com/in/aryanjain473/
 https://www.linkedin.com/in/soham-jadhav-63694b261/
-https://www.linkedin.com/in/vatsalya-t-0aa91b22b/
+16010122213 https://www.linkedin.com/in/vatsalya-tiwari-0aa91b22b/
 https://www.linkedin.com/in/shreyasnair23/
+16010122325 https://www.linkedin.com/in/neha-gade/
 
 https://www.linkedin.com/in/rajvardhan-singh-12b371321/
-https://www.linkedin.com/in/vatsalya-t-0aa91b22b/
+16010122213 https://www.linkedin.com/in/vatsalya-tiwari-0aa91b22b/
 https://www.linkedin.com/in/neha-gade/
 https://www.linkedin.com/in/vatsalya-tiwari-0aa91b22b/
 
@@ -140,7 +139,9 @@ https://www.linkedin.com/in/zayaan-ghauri-a1aa67245/
 Godrej
 https://www.linkedin.com/in/aarya-sarang-36a9b9373/
 https://www.linkedin.com/in/anas-solkar-7771a42a1/
-https://www.linkedin.com/in/psh297/
+16010522027 https://www.linkedin.com/in/psh297/
+16010522008 https://www.linkedin.com/in/pradyumna-funde-26823b314/
+16014022022 https://www.linkedin.com/in/pratham-chintrate-9a9a0b227/
 https://www.linkedin.com/in/sarthak-karulkar-22a449288/
 https://www.linkedin.com/in/unnati-bhambore-b14a66320/
 
@@ -413,14 +414,32 @@ https://www.linkedin.com/in/vansh-rawal-6a2a7b26a/
 https://www.linkedin.com/in/krisha-kharote/
 https://www.linkedin.com/in/garvvyas/
 
-Google 
+Oracle
+16010123806 https://www.linkedin.com/in/aditya-laisetti31/
+16010422276 https://www.linkedin.com/in/aman-jha-b27364259/
+16014022004 https://www.linkedin.com/in/arin-avasthi-8a6a71306/
+16010122093 https://www.linkedin.com/in/bhakti-lahane/
+16010122188 https://www.linkedin.com/in/dhruvshethcs/
+16010122015 https://www.linkedin.com/in/kaushal-bhadra-44a135249/
+16010422020 https://www.linkedin.com/in/kshitij-chaware-245496205/
+16010422078 https://www.linkedin.com/in/revati-natu/
+16014022117 https://www.linkedin.com/in/piyush-tyagi-07244027a/
+16010122004 https://www.linkedin.com/in/rishabh-agrawal-110a09258/
+16010122181 https://www.linkedin.com/in/samridhi-sharan-48bb57258/
+16014022128 https://www.linkedin.com/in/shravani-sabnawis-403252288/
+16010122139 https://www.linkedin.com/in/smit-patil-8a834b248/
+16014022044 https://www.linkedin.com/in/sumeetkarani/
+16014022107 https://www.linkedin.com/in/tejashyamehta/
+16010422270 https://www.linkedin.com/in/shreyas-pachpor-8b77541b0/
+
+Google
 https://www.linkedin.com/in/rahilk9/ 16010122088
 
 Akademika Lab Solutions
 https://www.linkedin.com/in/anandtiwari0305/ 16010322073
 
 Axis Asset Management Company Ltd.
-https://www.linkedin.com/in/priyanshu-mishra-0234a2255/ 
+https://www.linkedin.com/in/priyanshu-mishra-0234a2255/
 
 JSW
 https://www.linkedin.com/in/saurabh-p-712640257/ 16010522015

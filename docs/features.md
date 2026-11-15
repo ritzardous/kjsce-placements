@@ -4,7 +4,7 @@
 
 ## Statistics
 
-Visible choices are 2025 and 2026. Dashboards provide overview, company list/detail, branch views, candidate search, timeline, insights and exploration. Source notes and identities accompany records. Available 2026 LinkedIn profiles come from committed sources/mappings, not a live profile search.
+Visible choices are 2025 and 2026. Dashboards provide overview, company list/detail, branch views, candidate search, timeline, insights and exploration. Source notes and identities accompany records. Available 2025 and 2026 LinkedIn profiles come from committed sources/mappings, not a live profile search.
 
 | Batch | Committed coverage and interpretation |
 | --- | --- |
@@ -55,7 +55,7 @@ Protected deep links retain their destination during sign-in. Route guards contr
 
 ### Dashboard browsing
 
-Company and candidate tables show 25 rows per page; changing a filter resets the page. Company CTC rankings use one row per employer and its highest known package, while source announcements remain separate. Recent results are collapsed until opened. Methodology and coverage notes are available at the bottom under **Data sources & limitations**. The panel closes when navigating to another page, moving focus or clicking outside it, or scrolling it out of view.
+Company and candidate tables show 25 rows per page; changing a filter resets the page. The current page is kept in the URL (`?page=N`) and in session storage, so browser Back/Forward and the company-detail back link return to the same page instead of page one. Admin user and audit cursor pages are likewise retained for the current browser session. Company CTC rankings use one row per employer and its highest known package, while source announcements remain separate. Recent results are collapsed until opened. Methodology and coverage notes are available at the bottom under **Data sources & limitations**. The panel closes when navigating to another page, moving focus or clicking outside it, or scrolling it out of view.
 
 The public landing preview highlights JPMC, ION and EDRA Labs for 2026, and Browserstack, JPMC and Eventstrat Labs for 2025. Unknown roles stay unprovided. Campus labels use the source report where present; Google's off-campus display label follows maintainer clarification. This does not alter source records or historical totals.
 
@@ -63,7 +63,7 @@ The 3D hero uses JPMC, Barclays, Deloitte, Oracle and Capgemini, independently o
 
 ### Developer note and community companies
 
-The public `#about` page contains the project story, source limitations, privacy practices, use boundaries and the developers’ existing GitHub profiles. Section routes include `#about/privacy` and `#about/contact`. The story, developer email contacts, GitHub profiles and repository link appear before source and privacy information. A floating return link stays available throughout the page. A fixed retention policy remains a maintainer decision.
+The public `#about` page contains the project story, source limitations, privacy practices, use boundaries and the developers’ existing GitHub profiles. Section routes include `#about/privacy`, `#about/contact` and `#about/feedback`. The feedback section invites bug reports, feature requests, general impressions, casual conversation and advertising or business enquiries through the shared developer email and the repository issue templates. The story, developer email contacts, GitHub profiles and repository link appear before source and privacy information. A floating return link stays available throughout the page. A fixed retention policy remains a maintainer decision.
 
 All graduation years accepted by the schema, including 2027, can contribute. In the editor, search for a company and use **Add “[name]”** if it is missing. Company creation is authenticated, rate-limited and idempotent for normalized identities. New companies carry no official placement years. The normal private-draft, submission and administrator-review process still applies.
 
@@ -80,3 +80,5 @@ Company selection is collapsed when prefilled; recruitment route, graduation bat
 **Clear** resets blog text, title, interview year, summary, coverage, outcome, rounds and public attribution. Company, recruitment route, graduation batch and role stay selected. **Save & close** keeps the draft. **Cancel & back** discards this editing session: a new autosaved draft is removed, or an existing draft is restored to its opening contents. It waits for in-flight saves and checks versions before cleanup, retains newer changes from other tabs, and leaves published experiences intact. Cancellation also removes this draft’s device recovery copies. If cleanup fails, the editor stays open with an error.
 
 Invitation controls are admin-only; the generated contribution link remains a public entry point for an invited author. This controls the invitation tool, not who may submit an experience or manually share a public URL.
+
+The company directory describes its published experience counts as “shared so far” and acknowledges the alumni time behind the collection. The editor currently includes a temporary **Beta** note requesting discretion during the early rollout and thanking contributors. This is informational copy, not an additional access restriction; remove it when the wider launch begins.

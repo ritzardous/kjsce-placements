@@ -15,6 +15,7 @@ The application now exposes `#admin` with Overview, Moderation, Users, Data, Ana
 | Task | Flow |
 |---|---|
 | Review content | Moderation → filter queue → open case → feedback/decision → next case or audit. Queue links share filters; case links open a specific submission. Feedback drafts are scoped to the admin in session storage. |
+| Make private or delete a published experience | Moderation → Published tab → open case → enter a moderation reason → Publication actions → **Make private (unpublish)** or **Delete permanently**. Making private keeps the record for admin review and removes it from readers. Deleting removes the post, revisions, votes, questions and reports, records `deleted_by_admin` and notifies the author. Both require the exact published revision. |
 | Manage users | Users → exact email/UID lookup or paginated name search → account → reason → confirmation. Self-access changes and removal of the final active admin are blocked. |
 | Check company data | Data → quality scan → run/resume → findings. Only aliases in `shared/company-identity.ts` have automatic repair; other findings need manual review. |
 | Repair an alias | Preview affected counts → supply reason → queue → run. Backups precede each mutation. Raw placement imports and submitted revision snapshots stay intact. |
@@ -39,6 +40,6 @@ Automated checks cover server permissions, old-session denial, owner-only role c
 
 Run `npm run test:admin` for emulator seeding, backend/rules tests and the focused desktop/mobile suite. It requires Java 21+ and Playwright Chromium. Run `npm test` for unit checks and `npm run build` for the production bundle.
 
-Mutating job steps record their executor and expose an audit link. Admin unpublishing requires the exact approved revision being reviewed, so a stale screen cannot take a newer version offline.
+Mutating job steps record their executor and expose an audit link. Admin unpublishing and permanent deletion require the exact approved revision being reviewed, so a stale screen cannot take a newer version offline or delete a newer publication.
 
 Validation completed on 9 November 2026: production build and typecheck passed; 52 unit checks, 42 Firebase/backend checks and 20 desktop/mobile browser checks passed. Browser coverage includes keyboard focus return, dark mode, 320–1280px reflow, readable selected-row contrast and fully visible publication comparison columns. Screenshots were inspected during verification. No production deployment, import or account change was performed.

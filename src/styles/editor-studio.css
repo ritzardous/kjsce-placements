@@ -13,6 +13,22 @@
 }
 
 /* Shared surfaces ---------------------------------------------------------- */
+.writing-document .writing-beta-note {
+  margin: 0 0 24px;
+  padding: 2px 0 2px 16px;
+  border-left: 2px solid var(--accent);
+  color: var(--ink-soft);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.writing-document .writing-beta-note p { margin: 6px 0 0; max-width: 70ch; }
+.writing-document .writing-beta-tag {
+  color: var(--ink);
+  font: 600 11px/1.4 var(--font-mono);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
 :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio :is(.studio-card,.studio-rail-card) {
   min-width: 0;
   padding: 22px;

@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildLinkedInProfiles as build } from '../../shared/linkedin';
 import profiles from '../../src/data/candidate-linkedin-2026.json';
+import profiles2025 from '../../src/data/candidate-linkedin-2025.json';
 const people=[{name:'Jane Middle Doe',roll:'123',companyKey:'barclays',company:'Barclays'},{name:'John Doe',roll:'456',companyKey:'ey',company:'EY'}];
 test('profile matching is company scoped, deduplicated and removes tracking parameters',()=>{
  const result=build('Barclays\nhttps://www.linkedin.com/in/jane-doe-12345/?originalSubdomain=in\nhttps://www.linkedin.com/in/jane-doe-12345/',people);
@@ -23,7 +24,19 @@ test('duplicate candidate names are not assigned a guessed profile',()=>{
 test('real 2026 profiles use roll identities and valid LinkedIn profile destinations',()=>{
  assert.equal(profiles['16014022147'],'https://www.linkedin.com/in/prithviraj-sawant-boby/');
  assert.equal(profiles['16010122179'],'https://www.linkedin.com/in/amaan-shaikh-37938724a/');
+ assert.equal(profiles['16010123806'],'https://www.linkedin.com/in/aditya-laisetti31/');
+ assert.equal(profiles['16014022082'],'https://www.linkedin.com/in/chirag-solanki98/');
+ assert.equal(profiles['16010122213'],'https://www.linkedin.com/in/vatsalya-tiwari-0aa91b22b/');
  for(const [roll,url] of Object.entries(profiles)){
+  assert.match(roll,/^\d{11}$/);
+  assert.match(url,/^https:\/\/www\.linkedin\.com\/in\/[^/?]+\/$/);
+ }
+});
+test('real 2025 profiles use roll identities and valid LinkedIn profile destinations',()=>{
+ assert.equal(profiles2025['16010121065'],'https://www.linkedin.com/in/riya-hemani-66453b149/');
+ assert.equal(profiles2025['16010121070'],'https://www.linkedin.com/in/deveshj/');
+ assert.equal(profiles2025['16010421081'],'https://www.linkedin.com/in/taniyaaz/');
+ for(const [roll,url] of Object.entries(profiles2025)){
   assert.match(roll,/^\d{11}$/);
   assert.match(url,/^https:\/\/www\.linkedin\.com\/in\/[^/?]+\/$/);
  }

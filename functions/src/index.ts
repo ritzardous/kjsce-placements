@@ -3,7 +3,7 @@ import {getFirestore} from 'firebase-admin/firestore';
 import {getAuth} from 'firebase-admin/auth';
 import {onCall} from 'firebase-functions/v2/https';
 import {setGlobalOptions} from 'firebase-functions/v2';
-import {saveDraft,submit,review,unpublish,vote} from './service.js';
+import {saveDraft,submit,review,unpublish,deleteProcedure as removeProcedure,vote} from './service.js';
 import {community,adminCommunityActions} from './community.js';
 import {adminApi} from './admin.js';
 import {securedCall} from './access.js';
@@ -15,5 +15,6 @@ export const submitProcedure=onCall(options,request=>securedCall(db,getAuth(),re
 export const setProcedureVote=onCall(options,request=>securedCall(db,getAuth(),request.auth,'setProcedureVote',false,actor=>vote(db,actor,request.data)));
 export const reviewProcedure=onCall(options,request=>securedCall(db,getAuth(),request.auth,'reviewProcedure',true,actor=>review(db,actor,request.data)));
 export const unpublishProcedure=onCall(options,request=>securedCall(db,getAuth(),request.auth,'unpublishProcedure',true,actor=>unpublish(db,actor,request.data)));
+export const deleteProcedure=onCall(options,request=>securedCall(db,getAuth(),request.auth,'deleteProcedure',true,actor=>removeProcedure(db,actor,request.data)));
 export const procedureCommunity=onCall(options,request=>securedCall(db,getAuth(),request.auth,'procedureCommunity',adminCommunityActions.has(request.data?.action)||request.auth?.token.role==='admin',actor=>community(db,actor,request.data,getAuth())));
 export const adminWorkspace=onCall(options,request=>adminApi(db,getAuth(),request.auth,request.data));

@@ -31,12 +31,13 @@ IDs below are 1–100 ASCII letters, digits or hyphens. Versions/revisions are n
 | `saveProcedureDraft` | `{id, expectedVersion, draft}` | `{version}` | Owner; new IDs start at version 0 |
 | `submitProcedure` | `{id, expectedVersion}` | `{revision}` | Owner |
 | `reviewProcedure` | `{id, revision, decision, feedback}` | `{status}` | Admin |
-| `unpublishProcedure` | `{id, expectedRevision, reason}` | `{unpublished, auditId?}` | Admin |
+| `unpublishProcedure` | `{id, expectedRevision, reason}` | `{unpublished, auditId?}` | Admin; makes a published experience private |
+| `deleteProcedure` | `{id, expectedRevision, reason}` | `{deleted, auditId?}` | Admin; permanently removes the post, revisions, votes, questions and reports |
 | `setProcedureVote` | `{id, value}` where value is `-1`, `0`, `1` | `{value}` | Reader other than author |
 | `procedureCommunity` | `{action, payload}` | Action-specific below | Google user; some admin-only |
 | `adminWorkspace` | `{action, payload}` | Action-specific below | Admin |
 
-Review decisions are `approved`, `changes_requested`, `rejected`; feedback is trimmed, at most 2,000 characters and required for non-approval. Unpublishing needs a 1–2,000-character reason and exact current revision. Repeating a submission already pending, the same completed review, or an unchanged vote has explicit retry handling; do not assume every operation is idempotent.
+Review decisions are `approved`, `changes_requested`, `rejected`; feedback is trimmed, at most 2,000 characters and required for non-approval. Unpublishing and permanent deletion need a 1–2,000-character reason and the exact current published revision. Deletion retains a deleted submission marker so a stale draft tab cannot recreate the writing; it records `deleted_by_admin` and notifies the author. Repeating a submission already pending, the same completed review, or an unchanged vote has explicit retry handling; do not assume every operation is idempotent.
 
 ### Draft format
 

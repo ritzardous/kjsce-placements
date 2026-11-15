@@ -27,7 +27,7 @@ flowchart TD
 | Public landing | None |
 | Published statistics/experiences | Verified Google session permitted by account policy |
 | Drafts, bookmarks and inbox | Same identity plus resource ownership |
-| Review/unpublish/admin workspace | Admin claim and current backend account checks |
+| Review/unpublish/delete/admin workspace | Admin claim and current backend account checks |
 | Assign roles in app or alter another administrator | Existing admin plus server `ADMIN_OWNER_UIDS` membership |
 | Trusted CLI maintenance | Separate Admin SDK/IAM credentials; does not use browser authorization |
 
