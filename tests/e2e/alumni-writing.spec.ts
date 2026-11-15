@@ -42,14 +42,10 @@ test('a company invitation survives sign-in and accepts writing with only the re
  await expect(page.locator('.studio-submission')).toContainText(text);
 });
 
-test('only admins see company invitation controls with a manual-copy fallback',async({page})=>{
+test('company invitation controls allow inviting alumni with a manual-copy fallback',async({page})=>{
  const uid=await signInGoogle(page);
- await page.goto('/#2026/company/barclays');await expect(page.getByRole('heading',{name:'Barclays',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Invite an alum',exact:true})).toHaveCount(0);
- await page.goto('/#procedures/company?company=barclays');await expect(page.getByRole('heading',{name:'Barclays experiences'})).toBeVisible();await expect(page.getByRole('button',{name:'Invite an alum',exact:true})).toHaveCount(0);
- await getAuth(initializeApp({projectId:'demo-placementstats'},'invite-admin-'+crypto.randomUUID())).setCustomUserClaims(uid,{role:'admin'});
- await page.evaluate(async()=>{const{getFirebase}=await import('/src/lib/firebase.ts' as string);await getFirebase().auth.currentUser.getIdToken(true);});
- await page.goto('/#2026/company/barclays');await expect(page.getByRole('button',{name:'Invite an alum',exact:true})).toBeVisible();await expect(page.locator('.company-contacts')).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
- await page.locator('.company-contacts').screenshot({path:'artifacts/admin-invite-'+test.info().project.name+'.png'});await page.goto('/#procedures/company?company=barclays');
+ await page.goto('/#2026/company/barclays');await expect(page.getByRole('heading',{name:'Barclays',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Invite an alum',exact:true})).toBeVisible();
+ await page.locator('.company-detail-actions').screenshot({path:'artifacts/company-invite-'+test.info().project.name+'.png'});await page.goto('/#procedures/company?company=barclays');
  await expect(page.getByRole('button',{name:'Invite an alum',exact:true})).toBeVisible();
  await page.evaluate(()=>{Object.defineProperty(navigator,'share',{value:undefined,configurable:true});Object.defineProperty(navigator,'clipboard',{value:{writeText:async()=>{throw new Error('Clipboard unavailable');}},configurable:true});});
  await page.getByRole('button',{name:'Invite an alum',exact:true}).click();

@@ -69,7 +69,7 @@ All graduation years accepted by the schema, including 2027, can contribute. In 
 
 ### Writing and alumni invitations
 
-Administrators can use **Invite an alum** on a company’s experience page or placement-detail page to share a link to `#procedures/contribute?company=KEY&name=DISPLAY_NAME`. The public invitation explains the request before Google sign-in; the same destination is retained after authentication. The editor verifies the company against its signed-in directory. Invitation links do not include draft IDs. If sharing or clipboard access is unavailable, a selectable link is shown.
+Users can use **Invite an alum** on a company’s experience page or placement-detail page (when no experiences are yet listed) to share a link to `#procedures/contribute?company=KEY&name=DISPLAY_NAME`. The public invitation explains the request before Google sign-in; the same destination is retained after authentication. The editor verifies the company against its signed-in directory. Invitation links do not include draft IDs. If sharing or clipboard access is unavailable, a selectable link is shown.
 
 The writer opens a focused document with automatic saving, live bold/italic, headings, lists, code, quotes, links, undo/redo and a reader preview. Formatting applies to selected text without exposing Markdown markers; bodies remain Markdown in storage for existing readers and drafts.
 

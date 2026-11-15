@@ -361,13 +361,14 @@
           text-decoration: underline;
         }
 
-          /* Company detail actions: View interview experiences link */
+          /* Company detail actions: View interview experiences link / Invite an alum */
           .company-detail-actions {
             margin-top: 14px;
             display: flex;
             align-items: center;
             gap: 12px;
             flex-wrap: wrap;
+            min-height: 40px;
           }
 
           :is(#app, .portal-shell) .company-detail-actions .company-experience-link {
@@ -385,6 +386,21 @@
           :is(#app, .portal-shell) .company-detail-actions .company-experience-link .app-icon {
             width: 16px;
             height: 16px;
+          }
+
+          :is(#app, .portal-shell) .company-detail-actions .experience-invite > button.text-button {
+            min-height: 40px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 6px;
+            border: 1px solid var(--line-soft);
+            background: var(--surface);
+            color: var(--accent);
+          }
+
+          :is(#app, .portal-shell) .company-detail-actions .experience-invite > button.text-button:hover {
+            background: var(--bg-hover, rgba(0, 0, 0, 0.04));
           }
 
           /* Company details header: lockup logo & name side-by-side */

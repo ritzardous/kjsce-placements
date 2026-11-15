@@ -25,7 +25,12 @@ export function community<T>(action: string, payload: unknown = {}): Promise<T> 
   return request;
 }
 const cache = new Map<string, Page<unknown> & { scroll: number; pages?: number }>();
-export function invalidatePages(action:string) { for(const key of cache.keys()) if(key.includes(`:${action}:`)||(action==='browse'&&key.includes(':companyBrowse:'))) cache.delete(key); }
+const invalidationListeners = new Set<(action: string) => void>();
+export function onInvalidatePages(fn: (action: string) => void) { invalidationListeners.add(fn); return () => invalidationListeners.delete(fn); }
+export function invalidatePages(action:string) {
+  for(const key of cache.keys()) if(key.includes(`:${action}:`)||(action==='browse'&&key.includes(':companyBrowse:'))) cache.delete(key);
+  for(const fn of invalidationListeners) try { fn(action); } catch {}
+}
 function rememberPage(key:string, value:Page<unknown> & {scroll:number; pages?:number}) {
   cache.delete(key);cache.set(key,value);
   while(cache.size>40)cache.delete(cache.keys().next().value!);
