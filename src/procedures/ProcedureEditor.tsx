@@ -199,7 +199,7 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
 
     <aside className="writing-beta-note" aria-label="A note for beta contributors">
       <span className="writing-beta-tag">Beta</span>
-      <p>You’re getting an early look before our wider launch. Please keep access within the invited circle for now.</p>
+      <p>You have exclusive beta access before our wider launch. Please share it carefully and keep it within the invited circle for now.</p>
       <p>Thanks for making time for this. Something you remember from your rounds could be exactly what a junior needs to hear.</p>
     </aside>
 
