@@ -71,7 +71,7 @@ https://www.linkedin.com/in/manas-mapuskar-969a1a26b/
 https://www.linkedin.com/in/riddhi-dubey/
 https://www.linkedin.com/in/ruchita-patil-63763a218/
 https://www.linkedin.com/in/roshan-shiroorkar-87b228325/
-https://www.linkedin.com/in/akanksha-mishra-b032652a9/
+16010422237 https://www.linkedin.com/in/akanksha-mishra-b032652a9/
 https://www.linkedin.com/in/devansh-dang-952702234/
 https://www.linkedin.com/in/shruti-pimple-9b0a69223/
 https://www.linkedin.com/in/parth-kothari-593756257/
@@ -147,7 +147,7 @@ https://www.linkedin.com/in/unnati-bhambore-b14a66320/
 
 Tata power
 https://www.linkedin.com/in/parthsharma1368/
-https://www.linkedin.com/in/maverick-m/ (mohanish)
+16010122229 https://www.linkedin.com/in/maverick-m/ (mohanish)
 https://www.linkedin.com/in/prathamesh-rawas-3b081b258/
 https://www.linkedin.com/in/nidhi-korpe-29402926b/
 
@@ -155,13 +155,13 @@ Loylty Rewardz
 
 https://www.linkedin.com/in/atharva-yewale-336926263/
 https://www.linkedin.com/in/meetesh-nagrecha/
-https://www.linkedin.com/in/shreyaa03/
+16010123817 https://www.linkedin.com/in/shreyaa03/
 https://www.linkedin.com/in/ayush-nayak-a84950258/
 
 HDFC Life
 
 https://www.linkedin.com/in/abhisek-nayak-1a210738a/
-https://www.linkedin.com/in/herambbp/
+16010422242 https://www.linkedin.com/in/herambbp/
 https://www.linkedin.com/in/prashant-prajapati-5b1761279/
 https://www.linkedin.com/in/soham-gore-24001534a/
 
@@ -180,9 +180,9 @@ https://www.linkedin.com/in/vidushi-pandit-aa6032285/
 https://www.linkedin.com/in/karan-nisar/ 16010122227
 
 Rapid7
-https://www.linkedin.com/in/s-somaiya/
+16010122255 https://www.linkedin.com/in/s-somaiya/
 https://www.linkedin.com/in/swarup-pingale-6bb122258/
-https://www.linkedin.com/in/5neha-patil/
+16010422243 https://www.linkedin.com/in/5neha-patil/
 https://www.linkedin.com/in/siddharthkalani/
 https://www.linkedin.com/in/vihan-kumbhare-1a02aa271/
 
@@ -207,7 +207,7 @@ https://www.linkedin.com/in/aryatorne/
 
 LogisticsNow
 https://www.linkedin.com/in/ashish-ghatkar-1ba5511a6/
-https://www.linkedin.com/in/saurabh081003/
+16010122327 https://www.linkedin.com/in/saurabh081003/
 https://www.linkedin.com/in/shubham-gatkal-162746272/
 https://www.linkedin.com/in/sayudh-khatavkar/
 
@@ -394,8 +394,8 @@ https://www.linkedin.com/in/toyashpatil/
 
 Edelweiss Insurance
 https://www.linkedin.com/in/akshat-kumar-a60968353/
-https://www.linkedin.com/in/praveer-singh-j-b76306245/
-https://www.linkedin.com/in/soumilm30/
+16010422136 https://www.linkedin.com/in/praveer-singh-j-b76306245/
+16010122257 https://www.linkedin.com/in/soumilm30/
 https://www.linkedin.com/in/prasad-goilkar/
 
 Edelweiss

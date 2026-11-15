@@ -6,7 +6,7 @@ const aliases:Record<string,string[]>={
   iciciprudential:['icici_prudential_amc_ltd','icici_prudential_life_insurance'],
   nsci:['ncsi_technologies_india'], parimalpharma:['piramal_pharma'],
   lloyd:['lloyds_advance_defence_systems'], axis:['axis_asset_management_company_ltd'],
-  nsdl:['national_securities_depository_ltd'], ion:['ion_group'],
+  nsdl:['national_securities_depository_ltd'], ion:['ion','ion_group'],
   eightydays:['colourblind_ventures_private_limited_eighty_days'],
 };
 export function buildLinkedInProfiles(source:string,people:Person[]) {
