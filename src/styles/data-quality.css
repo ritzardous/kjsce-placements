@@ -28,6 +28,9 @@
 .workspace-filter-panel{margin-block:16px}.workspace-filter-panel>summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600}
 .action-disclosure{position:relative;display:inline-block;margin:0!important;flex-shrink:0}
 .action-disclosure>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;padding:8px 12px;border:1px solid var(--line-soft);cursor:pointer;box-sizing:border-box;background:var(--surface);font-size:13px;font-weight:600}
+.action-disclosure-arrow{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;width:14px;height:14px;color:var(--ink-soft)}
+.action-disclosure-arrow svg{display:block;transition:transform 150ms ease}
+.action-disclosure[open] .action-disclosure-arrow svg{transform:rotate(180deg)}
 .action-disclosure>summary::-webkit-details-marker{display:none}
 :is(#app,.portal-shell) .procedure-navigation{margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid var(--line-soft)}
 :is(#app,.portal-shell) .procedure-navigation .procedure-tabs a{border:0;box-shadow:none;background:transparent;padding:10px 14px;min-height:44px}
@@ -76,12 +79,13 @@
 }
 
 /* Action surfaces own their spacing; top-layer placement is measured against the visual viewport. */
-:is(#app,.portal-shell) .action-disclosure-content{position:fixed;inset:auto;margin:0;box-sizing:border-box;min-width:0;padding:6px;border:1px solid var(--line-soft);background:var(--surface);color:var(--ink);box-shadow:0 10px 32px #0003;overflow:auto;overscroll-behavior:contain;font:400 14px/1.4 var(--font-body);overflow-wrap:anywhere}
+:is(#app,.portal-shell) .action-disclosure-content{position:fixed;inset:auto;margin:0;box-sizing:border-box;min-width:180px;padding:6px;border:1px solid var(--line-soft);border-radius:6px;background:var(--surface);color:var(--ink);box-shadow:0 10px 32px #0003;overflow:auto;overscroll-behavior:contain;font:400 14px/1.4 var(--font-body);overflow-wrap:anywhere}
 .action-disclosure-content:not([open]):not(:popover-open){display:none}
-:is(#app,.portal-shell) .action-disclosure-content :is(a,button){display:flex;align-items:center;justify-content:flex-start;gap:10px;width:100%;min-height:44px;box-sizing:border-box;margin:0;padding:9px 12px;border:0;box-shadow:none;background:transparent;color:var(--ink);text-align:left;font:inherit;text-decoration:none;white-space:normal}
-:is(#app,.portal-shell) .action-disclosure-content :is(a,button):hover{background:var(--accent-soft)}
-.action-disclosure-content :is(.procedure-actions,.contribution-management){display:flex;flex-direction:column;gap:0;margin:0}
-:is(#app,.portal-shell) .action-disclosure-content .control-danger{color:var(--ui-danger);border-top:1px solid var(--line-faint);margin-top:4px}
+:is(#app,.portal-shell) .action-disclosure-content :is(a,button){display:flex;align-items:center;justify-content:flex-start;gap:10px;width:100%;min-height:40px;box-sizing:border-box;margin:0;padding:8px 12px;border:0 !important;border-radius:4px;box-shadow:none !important;background:transparent !important;color:var(--ink);text-align:left;font:500 13px/1.4 var(--font-body);text-decoration:none;white-space:normal;cursor:pointer;transition:background-color 120ms ease,color 120ms ease}
+:is(#app,.portal-shell) .action-disclosure-content :is(a,button):hover{background:var(--accent-soft) !important;color:var(--ink) !important}
+.action-disclosure-content :is(.procedure-actions,.contribution-management){display:flex;flex-direction:column;gap:2px;margin:0}
+:is(#app,.portal-shell) .action-disclosure-content .control-danger{color:var(--ui-danger) !important;margin-top:2px}
+:is(#app,.portal-shell) .action-disclosure-content .control-danger:hover{background:var(--ui-danger-bg) !important;color:var(--ui-danger) !important}
 :is(#app,.portal-shell) .action-disclosure-content .action-sheet-close{display:none}
 :is(#app,.portal-shell) .action-disclosure-content.is-sheet .action-sheet-close{display:flex;justify-content:center;border-top:1px solid var(--line-faint);margin-top:6px}
 :is(#app,.portal-shell) .account-panel{padding:10px}

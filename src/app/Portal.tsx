@@ -23,7 +23,7 @@ export function AppHeader({active}:{active:string}) {
 }
 export function PortalFooter() { return <ProductFooter/>; }
 export function PortalShell({ active, children, writing = false }: { active: string; children: ReactNode; writing?:boolean }) {
-  return <div className={`portal-shell${writing?' writing-workspace':''}`} data-app-page={active}><a className="skip-link" href="#portal-main" onClick={event => { event.preventDefault(); document.getElementById('portal-main')?.focus(); }}>Skip to content</a><AppHeader active={active}/><main className="portal-main" id="portal-main" tabIndex={-1}>{children}</main>{!writing&&<><PortalFooter /><MobileAppNav active={active}/></>}<AppUtilities/></div>;
+  return <div className={`portal-shell${writing?' writing-workspace':''}`} data-app-page={active}><a className="skip-link" href="#portal-main" onClick={event => { event.preventDefault(); document.getElementById('portal-main')?.focus(); }}>Skip to content</a><AppHeader active={active}/><main className="portal-main" id="portal-main" tabIndex={-1}>{children}</main><PortalFooter />{!writing&&<MobileAppNav active={active}/>}<AppUtilities/></div>;
 }
 export function Landing({ deepLink = false }: { deepLink?: boolean }) { return <LandingPage deepLink={deepLink}/>; }
 export function YearChoices() {

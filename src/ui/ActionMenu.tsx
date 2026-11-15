@@ -23,7 +23,9 @@ export function ActionMenu({ label = 'More actions', children, className = '', t
       surface.style.maxHeight=Math.max(100,height-2*gap)+'px';
       surface.style.width=Math.min(className.includes('account-menu')?328:248,width-2*gap)+'px';
       const anchor=summary.getBoundingClientRect(),box=surface.getBoundingClientRect();
-      const x=sheet?left+(width-box.width)/2:Math.max(left+gap,Math.min(anchor.right-box.width,left+width-box.width-gap));
+      const alignRight = className.includes('account-menu') || (anchor.left + anchor.width / 2) > width / 2;
+      const targetX = alignRight ? anchor.right - box.width : anchor.left;
+      const x=sheet?left+(width-box.width)/2:Math.max(left+gap,Math.min(targetX,left+width-box.width-gap));
       const below=anchor.bottom+6,above=anchor.top-box.height-6;
       const y=sheet?top+height-box.height-gap:below+box.height<=top+height-gap?below:above>=top+gap?above:Math.max(top+gap,Math.min(below,top+height-box.height-gap));
       surface.style.left=x+'px';surface.style.top=y+'px';
@@ -54,7 +56,7 @@ export function ActionMenu({ label = 'More actions', children, className = '', t
     window.addEventListener('resize',place);window.addEventListener('scroll',place,true);visualViewport?.addEventListener('resize',place);visualViewport?.addEventListener('scroll',place);
     return()=>{observer.disconnect();cancelAnimationFrame(frame);close();details.removeEventListener('toggle',toggle);surface.removeEventListener('cancel',cancel);surface.removeEventListener('keydown',tab);window.removeEventListener('pointerdown',outside);window.removeEventListener(popupEvent,other);window.removeEventListener('hashchange',route);window.removeEventListener('keydown',escape);window.removeEventListener('resize',place);window.removeEventListener('scroll',place,true);visualViewport?.removeEventListener('resize',place);visualViewport?.removeEventListener('scroll',place);};
   },[id,className]);
-  return <><details ref={ref} className={`action-disclosure ${className}`}><summary id={`${id}-trigger`} aria-label={label} aria-controls={id} aria-expanded="false" aria-haspopup="dialog">{trigger || (label.startsWith('More actions for ')?'More actions':label)}<span aria-hidden="true">⌄</span></summary></details>{createPortal(<dialog id={id} ref={panel} popover="manual" data-action-panel data-trigger={`${id}-trigger`} className={`action-disclosure-content ${className.includes('account-menu')?'account-panel':''}`} aria-label={label} onClick={event=>{
+  return <><details ref={ref} className={`action-disclosure ${className}`}><summary id={`${id}-trigger`} aria-label={label} aria-controls={id} aria-expanded="false" aria-haspopup="dialog">{trigger || (label.startsWith('More actions for ')?'More actions':label)}<span className="action-disclosure-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg></span></summary></details>{createPortal(<dialog id={id} ref={panel} popover="manual" data-action-panel data-trigger={`${id}-trigger`} className={`action-disclosure-content ${className.includes('account-menu')?'account-panel':''}`} aria-label={label} onClick={event=>{
     const action=(event.target as HTMLElement).closest('a,button');
     if(action&&!action.hasAttribute('disabled')&&!action.closest('.notification-follow')&&!action.hasAttribute('aria-haspopup')&&!action.hasAttribute('data-keep-open')){
       if(panel.current?.open)panel.current.close();

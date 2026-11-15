@@ -1,6 +1,6 @@
 import { InviteWriter } from '../procedures/InviteWriter';
 import { highestCtcCompanies } from '../../shared/statistics';
-import {matchesSearch} from '../../shared/search';
+import { matchesSearch } from '../../shared/search';
 import { CompanyIdentity, CompanyLogo } from './CompanyIdentity';
 import { AppIcon } from '../ui/AppIcon';
 import { useEffect, useState } from 'react';
@@ -11,9 +11,9 @@ import { ColumnChart, Donut, Empty, LineChart, RankedBars, Section, Stat, Table,
 
 const campusLabel = (records: Announcement[]) => [...new Set(records.flatMap(p => p.campus ? [p.campus] : p.company.normalized_name === 'google' ? ['Off campus'] : []))].join(' / ');
 const PAGE_SIZE = 25;
-function Pagination({page, total, onChange}: {page:number; total:number; onChange:(page:number)=>void}) {
+function Pagination({ page, total, onChange }: { page: number; total: number; onChange: (page: number) => void }) {
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  return total > PAGE_SIZE ? <nav className="pagination" aria-label="Table pages"><span role="status">{(page-1)*PAGE_SIZE+1}–{Math.min(page*PAGE_SIZE,total)} of {total}</span><button type="button" disabled={page===1} onClick={()=>onChange(page-1)}>Previous</button><span>Page {page} of {pages}</span><button type="button" disabled={page===pages} onClick={()=>onChange(page+1)}>Next</button></nav> : null;
+  return total > PAGE_SIZE ? <nav className="pagination" aria-label="Table pages"><span role="status">{(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} of {total}</span><button type="button" disabled={page === 1} onClick={() => onChange(page - 1)}>Previous</button><span>Page {page} of {pages}</span><button type="button" disabled={page === pages} onClick={() => onChange(page + 1)}>Next</button></nav> : null;
 }
 const ctcLabel = (p: Announcement) => p.compensation.ctc_value_lpa !== null ? money(p.compensation.ctc_value_lpa) : p.compensation.ctc_text || 'Not available';
 const candidateColumns: Column<Candidate>[] = [
@@ -85,7 +85,7 @@ export function Companies({ statistics: s, filters, setFilters }: { statistics: 
       if (value === null) return false;
       if (filters.ctc === '<5L' && value >= 5 || filters.ctc === '5–10L' && (value < 5 || value >= 10) || filters.ctc === '10–15L' && (value < 10 || value >= 15) || filters.ctc === '15L+' && value < 15) return false;
     }
-    return matchesSearch(`${c.name} ${c.type} ${c.roles.join(' ')}`,filters.search);
+    return matchesSearch(`${c.name} ${c.type} ${c.roles.join(' ')}`, filters.search);
   });
   const sortValue = (c: Company) => ({ name: c.name, ctc: c.highestCtc ?? -1, hired: c.totalHired, date: c.lastDate ?? "" })[filters.sort.key as 'name' | 'ctc' | 'hired' | 'date'];
   rows.sort((a, b) => { const av = sortValue(a), bv = sortValue(b); return (av < bv ? -1 : av > bv ? 1 : a.name.localeCompare(b.name)) * (filters.sort.direction === 'asc' ? 1 : -1); });
@@ -105,7 +105,7 @@ export function Companies({ statistics: s, filters, setFilters }: { statistics: 
     try {
       returnKey = sessionStorage.getItem('return-company-key');
       if (returnKey) sessionStorage.removeItem('return-company-key');
-    } catch {}
+    } catch { }
     if (!returnKey) return;
     requestAnimationFrame(() => {
       const row = document.getElementById(`row-${returnKey}`);
@@ -126,29 +126,29 @@ export function Companies({ statistics: s, filters, setFilters }: { statistics: 
   ];
   return <Section title="Companies" note={`${s.companies.length} companies represented`}>
     <div className="company-table-controls" role="group" aria-label="Company filters">
-      <label className="company-search-field">Search companies<div className="search-box"><AppIcon name="search"/><input aria-label="Search companies" placeholder="Search company or role…" value={filters.search} onChange={e => set({ search: e.target.value })} /></div></label>
+      <label className="company-search-field">Search companies<div className="search-box"><AppIcon name="search" /><input aria-label="Search companies" placeholder="Search company or role…" value={filters.search} onChange={e => set({ search: e.target.value })} /></div></label>
       <label>Company type<select className="filter" aria-label="Company type" value={filters.type} onChange={e => set({ type: e.target.value })}><option value="ALL">All company types</option>{s.types.map(t => <option key={t.label}>{t.label}</option>)}</select></label>
-      <label className="statistics-salary-filter">Salary range<select value={filters.ctc} onChange={event=>set({ctc:event.target.value})}>{['ALL','<5L','5–10L','10–15L','15L+'].map(value=><option key={value} value={value}>{value==='ALL'?'All salary ranges':value}</option>)}</select></label>
+      <label className="statistics-salary-filter">Salary range<select value={filters.ctc} onChange={event => set({ ctc: event.target.value })}>{['ALL', '<5L', '5–10L', '10–15L', '15L+'].map(value => <option key={value} value={value}>{value === 'ALL' ? 'All salary ranges' : value}</option>)}</select></label>
       <div className="result-count" role="status">{rows.length} / {s.companies.length}</div>
     </div>
-    <Table rows={rows.slice((currentPage-1)*PAGE_SIZE,currentPage*PAGE_SIZE)} columns={columns} rowHref={c => companyHref(c.key)} rowKey={c => c.key} sort={filters.sort} onSort={key => set({ sort: { key, direction: key === filters.sort.key ? (filters.sort.direction === 'asc' ? 'desc' : 'asc') : key === 'name' ? 'asc' : 'desc' } })} />
+    <Table rows={rows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)} columns={columns} rowHref={c => companyHref(c.key)} rowKey={c => c.key} sort={filters.sort} onSort={key => set({ sort: { key, direction: key === filters.sort.key ? (filters.sort.direction === 'asc' ? 'desc' : 'asc') : key === 'name' ? 'asc' : 'desc' } })} />
     <Pagination page={currentPage} total={rows.length} onChange={setPage} />
   </Section>;
 }
-export function CompanyDetail({ company: c, year }: { company: Company | undefined; year:number }) {
+export function CompanyDetail({ company: c, year }: { company: Company | undefined; year: number }) {
   useEffect(() => {
     if (c?.key) {
-      try { sessionStorage.setItem('return-company-key', c.key); } catch {}
+      try { sessionStorage.setItem('return-company-key', c.key); } catch { }
     }
   }, [c?.key]);
   if (!c) return <Empty title="Company not found"><a href={routeHref("companies")}>← Back to Companies</a></Empty>;
   return <Section title="Company Details" note="Chronological · earliest first"><a className="back-link" href={routeHref("companies")}>← All Companies</a>
-    <div className="detail-head"><div className="company-detail-identity"><CompanyLogo companyKey={c.key} name={c.name} size="large" /><div className="company-detail-copy"><div className="eyebrow">{c.type}</div><h1 className="detail-name">{c.name}</h1>{campusLabel(c.announcements) && <Tag>{campusLabel(c.announcements)}</Tag>}<div className="detail-tags">{c.roles.map(r => <Tag key={r}>{r}</Tag>)}</div></div></div><div className="detail-stats">{[[money(c.highestCtc), 'Highest CTC'], [c.totalHired, c.announcements.some(p => p.campus) ? 'Selections' : 'Students hired'], [date(c.lastDate,true), 'Latest result'], [c.branches.join(', '), 'Branches hired']].map(([value, label]) => <div className="detail-stat" key={label}><div className="v">{value}</div><div className="l">{label}</div></div>)}</div></div>
-    <div className="company-candidates-heading"><h2>Selected candidates</h2><p>Selections are grouped by placement announcement below.</p><aside className="company-contacts" aria-labelledby="company-contacts-title"><div><h3 id="company-contacts-title">Alumni contacts</h3><p>LinkedIn profiles appear beside available names.</p></div><InviteWriter company={c}/></aside></div>
+    <div className="detail-head"><div className="company-detail-identity"><div className="company-detail-copy"><div className="eyebrow">{c.type}</div><div className="company-title-row"><CompanyLogo companyKey={c.key} name={c.name} size="large" /><h1 className="detail-name">{c.name}</h1></div><div className="detail-tags">{campusLabel(c.announcements) && <Tag>{campusLabel(c.announcements)}</Tag>}{c.roles.map(r => <Tag key={r}>{r}</Tag>)}</div></div></div><div className="detail-stats">{[[money(c.highestCtc), 'Highest CTC'], [c.totalHired, c.announcements.some(p => p.campus) ? 'Selections' : 'Students hired'], [date(c.lastDate, true), 'Latest result'], [c.branches.join(', '), 'Branches hired']].map(([value, label]) => <div className="detail-stat" key={label}><div className="v">{value}</div><div className="l">{label}</div></div>)}</div></div>
+    <div className="company-candidates-heading"><h2>Selected candidates</h2><p>Selections are grouped by placement announcement below.</p><aside className="company-contacts" aria-labelledby="company-contacts-title"><div><h3 id="company-contacts-title">Alumni contacts</h3><p>LinkedIn profiles appear beside available names.</p></div><InviteWriter company={c} /></aside></div>
     {c.announcements.map(p => <article className="announcement-block" key={p.placement_id}><div className="announcement-head"><div className="a-date">{date(p.result.declared_date, true)}</div><div className="a-role">{p.roles.join(' / ') || 'Role not provided'}{campusLabel([p]) && <Tag>{campusLabel([p])}</Tag>}</div><div className="a-ctc">{ctcLabel(p)}</div></div><Table rows={p.candidates} rowKey={(candidate, index) => `${candidate.roll_number}-${index}`} columns={[
-      { label: 'Candidate', render: row => row.name }, { label: 'LinkedIn', render: row => <CandidateLinkedIn roll={row.roll_number} name={row.name} year={year}/> }, { label: 'Roll No.', render: row => <span className="mono">{row.roll_number}</span> }, { label: 'Branch', render: row => <Tag>{row.branch}</Tag> }, { label: 'Role', render: row => row.role || "Not provided" },
+      { label: 'Candidate', render: row => row.name }, { label: 'LinkedIn', render: row => <CandidateLinkedIn roll={row.roll_number} name={row.name} year={year} /> }, { label: 'Roll No.', render: row => <span className="mono">{row.roll_number}</span> }, { label: 'Branch', render: row => <Tag>{row.branch}</Tag> }, { label: 'Role', render: row => row.role || "Not provided" },
     ]} /></article>)}
-    <details className="company-source-details"><summary>Sources &amp; data notes</summary><p>Reported selections can include repeat selections. Unknown packages, dates and roles stay marked as unavailable.</p>{c.announcements.map(p=><article key={p.placement_id}><h3>{date(p.result.declared_date,true)} · {p.roles.join(' / ')||'Placement result'}</h3>{p.notes&&<p>{p.notes}</p>}<p className="methodology announcement-provenance">Reference: {p.placement_id}<br/>Source: {p.source.source_file}, pages {p.source.pages.join(', ')}<SourceDetails announcement={p}/><br/>Reported running total: {p.hiring.placement_count??'Unavailable'} · {p.hiring.students_hired} selections</p></article>)}</details>
+    <details className="company-source-details"><summary>Sources &amp; data notes</summary><p>Reported selections can include repeat selections. Unknown packages, dates and roles stay marked as unavailable.</p>{c.announcements.map(p => <article key={p.placement_id}><h3>{date(p.result.declared_date, true)} · {p.roles.join(' / ') || 'Placement result'}</h3>{p.notes && <p>{p.notes}</p>}<p className="methodology announcement-provenance">Reference: {p.placement_id}<br />Source: {p.source.source_file}, pages {p.source.pages.join(', ')}<SourceDetails announcement={p} /><br />Reported running total: {p.hiring.placement_count ?? 'Unavailable'} · {p.hiring.students_hired} selections</p></article>)}</details>
   </Section>;
 }
 
@@ -174,15 +174,15 @@ export function Branches({ statistics: s, selected, onCandidates }: { statistics
 export interface CandidateFilters { search: string; role: string | null; campus?: string; }
 export function Candidates({ statistics: s, filters, setFilters }: { statistics: Statistics; filters: CandidateFilters; setFilters: (next: CandidateFilters) => void }) {
   const [page, setPage] = useState(1);
-  const candidates = s.candidates.map(c=>({...c, campus:c.campus ?? (c.companyKey==='google' ? 'Off campus' : undefined)}));
+  const candidates = s.candidates.map(c => ({ ...c, campus: c.campus ?? (c.companyKey === 'google' ? 'Off campus' : undefined) }));
   const hasCampus = candidates.some(c => c.campus);
-  const filtered = candidates.filter(c => (!filters.campus || filters.campus === 'ALL' || c.campus === filters.campus) && (!filters.role || c.role === filters.role) && matchesSearch(`${c.name} ${c.roll} ${c.branch} ${c.company} ${c.role}`,filters.search));
+  const filtered = candidates.filter(c => (!filters.campus || filters.campus === 'ALL' || c.campus === filters.campus) && (!filters.role || c.role === filters.role) && matchesSearch(`${c.name} ${c.roll} ${c.branch} ${c.company} ${c.role}`, filters.search));
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const currentPage = Math.min(page, pages);
   const update = (next: CandidateFilters) => { setPage(1); setFilters(next); };
   return <Section title="Candidates and roles" note={`${s.summary.selections} candidate selections recorded (not unique students)`}>
     <div className="role-summary">{s.roles.slice(0, 10).map(r => <button key={r.label} className={'role-chip ' + (filters.role === r.label ? 'active' : '')} aria-pressed={filters.role === r.label} onClick={() => update({ ...filters, role: filters.role === r.label ? null : r.label, search: '' })}><span>{r.label}</span><span className="rc-n">{r.value}</span></button>)}</div>
-    <div className="controls"><div className="search-box"><AppIcon name="search"/><input aria-label="Search candidates" placeholder="Search name, roll no., branch, role or company…" value={filters.search} onChange={e => update({ ...filters, search: e.target.value, role: null })} /></div><div className="result-count">{filtered.length} / {s.candidates.length}</div></div>
+    <div className="controls"><div className="search-box"><AppIcon name="search" /><input aria-label="Search candidates" placeholder="Search name, roll no., branch, role or company…" value={filters.search} onChange={e => update({ ...filters, search: e.target.value, role: null })} /></div><div className="result-count">{filtered.length} / {s.candidates.length}</div></div>
     {hasCampus && <label className="campus-filter">Campus status <select className="filter" aria-label="Campus status" value={filters.campus ?? 'ALL'} onChange={e => update({ ...filters, campus: e.target.value })}><option value="ALL">All selections</option><option>On campus</option><option>Off campus</option></select></label>}
     <Table rows={filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)} columns={hasCampus ? [...candidateColumns, { label: 'Campus', render: c => c.campus ?? 'Not provided' }] : candidateColumns} rowKey={(c, i) => `${c.placementId}-${c.roll}-${i}`} />
     <Pagination page={currentPage} total={filtered.length} onChange={setPage} />
@@ -218,7 +218,7 @@ export function Insights({ statistics: s }: { statistics: Statistics }) {
   </>;
 }
 
-export function CareerExplorer({statistics,view,filters,setFilters}:{statistics:Statistics;view?:string;filters:CandidateFilters;setFilters:(next:CandidateFilters)=>void}) {
- const selected=['timeline','insights'].includes(view||'')?view:'candidates';
- return <><div className="career-explorer-heading"><h1>Career explorer</h1><p>Find people and roles, understand the hiring timeline, and compare placement outcomes for this batch.</p><nav className="career-explorer-tabs" aria-label="Career explorer views">{[['candidates','Candidates & roles'],['timeline','Hiring timeline'],['insights','Insights']].map(([key,label])=><a key={key} href={routeHref(`explore/${key}`,statistics.batch.year)} aria-current={selected===key?'page':undefined}>{label}</a>)}</nav></div>{selected==='timeline'?<Timeline statistics={statistics}/>:selected==='insights'?<Insights statistics={statistics}/>:<Candidates statistics={statistics} filters={filters} setFilters={setFilters}/>}</>;
+export function CareerExplorer({ statistics, view, filters, setFilters }: { statistics: Statistics; view?: string; filters: CandidateFilters; setFilters: (next: CandidateFilters) => void }) {
+  const selected = ['timeline', 'insights'].includes(view || '') ? view : 'candidates';
+  return <><div className="career-explorer-heading"><h1>Career explorer</h1><p>Find people and roles, understand the hiring timeline, and compare placement outcomes for this batch.</p><nav className="career-explorer-tabs" aria-label="Career explorer views">{[['candidates', 'Candidates & roles'], ['timeline', 'Hiring timeline'], ['insights', 'Insights']].map(([key, label]) => <a key={key} href={routeHref(`explore/${key}`, statistics.batch.year)} aria-current={selected === key ? 'page' : undefined}>{label}</a>)}</nav></div>{selected === 'timeline' ? <Timeline statistics={statistics} /> : selected === 'insights' ? <Insights statistics={statistics} /> : <Candidates statistics={statistics} filters={filters} setFilters={setFilters} />}</>;
 }
