@@ -449,3 +449,19 @@ https://www.linkedin.com/in/prachii-gandhi/
 
 Smowcode Private Limited
 https://www.linkedin.com/in/virtidoshi/
+
+EY
+https://www.linkedin.com/in/shuubham-satish-narrkar/
+
+IDFY
+https://www.linkedin.com/in/harikrishnangopal/
+https://www.linkedin.com/in/aayushmehta02/
+
+Loylty Rewardz
+https://www.linkedin.com/in/sanika-lunawat/
+https://www.linkedin.com/in/arfat-fakih-8a68102a7/
+
+TATA Power
+https://www.linkedin.com/in/parthdesai03/
+https://www.linkedin.com/in/veer-mehta-809888273/
+https://www.linkedin.com/in/prathamesh-dhuri-13a996272/

@@ -492,3 +492,68 @@ https://www.linkedin.com/in/karan-kapadia-941112254/
 
 Worley
 https://www.linkedin.com/in/yash-sawantdesai-873526315/
+
+S&P Global.
+https://www.linkedin.com/in/aaditya-kulkarni-b69226241/
+
+Sutherland
+https://www.linkedin.com/in/dhruv-karande-335b2a330/
+
+Deloitte India
+16010121033 https://www.linkedin.com/in/nupuritis/
+https://www.linkedin.com/in/smitmalde-/
+https://www.linkedin.com/in/hiyaa-shah/
+https://www.linkedin.com/in/sania-sarin-8524b3227/
+https://www.linkedin.com/in/atharva-tambe/
+https://www.linkedin.com/in/atharva-vaidya-b624b1255/
+https://www.linkedin.com/in/vedantika-singh-1b2a24222/
+https://www.linkedin.com/in/shreshtha-sodhia/
+https://www.linkedin.com/in/vishnav-tuli-362839226/
+https://www.linkedin.com/in/tejas-shetty-b76b22248/
+https://www.linkedin.com/in/aaditya-shrivastava-berkeley/
+https://www.linkedin.com/in/rupal-parulekar/
+https://www.linkedin.com/in/harsha-rane-08b874287/
+https://www.linkedin.com/in/krish-desai-79907723b/
+https://www.linkedin.com/in/arsalankhan090403/
+https://www.linkedin.com/in/tanaypatwa/
+https://www.linkedin.com/in/sohum-benalkar/
+https://www.linkedin.com/in/aryan-ughade-ab1a05226/
+16010321067 https://www.linkedin.com/in/aksharn/
+https://www.linkedin.com/in/sarfaraz-shaikh-857775242/
+https://www.linkedin.com/in/sai-jadhav1011/
+https://www.linkedin.com/in/mrudula-sawant-7b560a224/
+https://www.linkedin.com/in/aayushipawar/
+https://www.linkedin.com/in/aditya-kharote-06725924a/
+https://www.linkedin.com/in/siddhi-raman-78bba2263/
+https://www.linkedin.com/in/anish-karkera-73b309221/
+https://www.linkedin.com/in/akshataingalahalli/
+https://www.linkedin.com/in/bheemikasoni/
+https://www.linkedin.com/in/gayathri-poduval-858629315/
+
+KPMG
+https://www.linkedin.com/in/shreshtha-sodhia/
+https://www.linkedin.com/in/darshit-visariya-8000a4253/
+https://www.linkedin.com/in/saniya-sonawane-9302ab270/
+https://www.linkedin.com/in/preshit-holay-7940a3250/
+https://www.linkedin.com/in/jossil-johnson/
+https://www.linkedin.com/in/aryaan-saraiya-9ab3a4138/
+https://www.linkedin.com/in/yashvi-desai-17606021a/
+https://www.linkedin.com/in/kushal-das-154426327/
+https://www.linkedin.com/in/aaryan-golatkar/
+
+Morning Star
+https://www.linkedin.com/in/vivaash-jain-99a52424b/
+https://www.linkedin.com/in/shashankbhanushali/
+https://www.linkedin.com/in/aditya-patil-876b59386/
+https://www.linkedin.com/in/unnativyas01/
+
+Pravaayu
+https://www.linkedin.com/in/aryan-mehta-281196281/
+https://www.linkedin.com/in/avani-bhattacharjee-9368b2236/
+
+SBI General Insurance
+https://www.linkedin.com/in/namrata-biswas-0b983524b/
+
+Stonex
+https://www.linkedin.com/in/prathameshpowar-dev/
+https://www.linkedin.com/in/viraj-chordiya-0a8aa0209/
