@@ -1,4 +1,4 @@
-/* A single breathing status bar. No nested shapes or expanding outlines. */
+/* A breathing status bar with a small traveling highlight, contained inside it. */
 :is(#app,.portal-shell) .live-badge.season-status {
   display:inline-flex; align-items:center; gap:8px; flex:none;
   padding:3px 0; margin:0; border:0; border-radius:0;
@@ -7,17 +7,29 @@
 }
 :is(#app,.portal-shell) .live-badge.season-status::before { content:none; }
 .season-status .season-status-mark {
-  display:block; width:3px; height:12px; flex:none;
+  position:relative; display:block; width:3px; height:12px; flex:none; overflow:hidden;
   color:#087f5b; background:currentColor; border-radius:1px;
   animation:season-status-pulse 3.2s cubic-bezier(.45,0,.55,1) infinite;
 }
+.season-status-mark::after {
+  content:''; position:absolute; top:0; left:0; width:100%; height:4px;
+  background:linear-gradient(transparent,rgba(255,255,255,.95),transparent);
+  pointer-events:none; animation:season-status-glint 2.2s cubic-bezier(.4,0,.2,1) infinite;
+}
 [data-theme=dark] .season-status .season-status-mark { color:#69dba6; }
 @keyframes season-status-pulse {
-  0%,100% { opacity:.45; }
+  0%,100% { opacity:.65; }
   50% { opacity:1; }
+}
+@keyframes season-status-glint {
+  0% { transform:translateY(-5px); opacity:0; }
+  15% { opacity:1; }
+  70% { transform:translateY(14px); opacity:1; }
+  85%,100% { transform:translateY(14px); opacity:0; }
 }
 @media(prefers-reduced-motion:reduce) {
   .season-status .season-status-mark { animation:none; opacity:1; }
+  .season-status-mark::after { animation:none; display:none; }
 }
 :is(#app,.portal-shell) .live-notice {
   border:0; padding:0; margin:22px 0 6px; gap:6px 16px; align-items:center;

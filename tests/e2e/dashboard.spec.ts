@@ -33,6 +33,7 @@ test('ongoing 2027 season stays explicit across routes, reload, refresh and year
   await expect(status).toHaveCSS('border-top-width','0px');
   await page.emulateMedia({reducedMotion:'reduce'});
   await expect(status.locator('.season-status-mark')).toHaveCSS('animation-name','none');
+  expect(await status.locator('.season-status-mark').evaluate(element=>getComputedStyle(element,'::after').animationName)).toBe('none');
   await page.emulateMedia({reducedMotion:'no-preference'});
   await page.locator('.year-grid').screenshot({path:`artifacts/year-selector-${test.info().project.name}.png`});
   await yearCard.click();
