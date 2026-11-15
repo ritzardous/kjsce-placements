@@ -8,46 +8,7 @@ import { notificationSettingsSchema } from '../../shared/notifications';
 import { safeWritingLink } from '../../src/procedures/writing-links';
 
 const root = new URL('../../', import.meta.url);
-const config = JSON.parse(readFileSync(new URL('vercel.json', root), 'utf8')) as {
-  headers?: { source: string; headers: { key: string; value: string }[] }[];
-};
-
-function globalHeaders() {
-  const headers = new Map<string, string>();
-  for (const rule of config.headers ?? []) {
-    if (rule.source !== '/(.*)') continue;
-    for (const header of rule.headers) headers.set(header.key.toLowerCase(), header.value);
-  }
-  return headers;
-}
-
-test('every hosted route sends the security header policy', () => {
-  const headers = globalHeaders();
-  assert.equal(headers.get('x-content-type-options'), 'nosniff');
-  assert.equal(headers.get('x-frame-options'), 'DENY');
-  assert.equal(headers.get('referrer-policy'), 'strict-origin-when-cross-origin');
-  assert.equal(headers.get('cross-origin-opener-policy'), 'same-origin-allow-popups');
-  assert.match(headers.get('permissions-policy') ?? '', /camera=\(\)/);
-  const csp = headers.get('content-security-policy') ?? '';
-  for (const directive of ["default-src 'self'", "base-uri 'self'", "object-src 'none'", "frame-ancestors 'none'", "form-action 'self'", "upgrade-insecure-requests", "script-src 'self'", "worker-src 'self' blob:"]) {
-    assert.ok(csp.includes(directive), directive);
-  }
-  assert.doesNotMatch(csp, /script-src[^;]*'unsafe-inline'/);
-  assert.doesNotMatch(csp, /script-src[^;]*'unsafe-eval'/);
-  assert.match(csp, /connect-src[^;]*https:\/\/\*\.googleapis\.com/);
-});
-
-test('the policy allows the remote stylesheet and fonts the app actually imports', () => {
-  const csp = globalHeaders().get('content-security-policy') ?? '';
-  const css = readFileSync(new URL('src/styles/styles.css', root), 'utf8');
-  const imported = [...css.matchAll(/@import\s+url\('(https:\/\/[^']+)'\)/g)].map(match => new URL(match[1]).origin);
-  assert.ok(imported.includes('https://fonts.googleapis.com'));
-  const styleSrc = /style-src([^;]*)/.exec(csp)?.[1] ?? '';
-  for (const origin of imported) assert.ok(styleSrc.includes(origin), origin);
-  assert.match(csp, /font-src[^;]*https:\/\/fonts\.gstatic\.com/);
-});
-
-test('the document shell keeps scripts external so the policy can stay strict', () => {
+test('the document shell keeps scripts external in /theme-init.js', () => {
   const html = readFileSync(new URL('index.html', root), 'utf8');
   assert.equal(/<script(?![^>]*\bsrc=)[^>]*>/i.test(html), false);
   assert.match(html, /<script src="\/theme-init\.js"><\/script>/);

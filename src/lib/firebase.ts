@@ -48,5 +48,6 @@ export function firebaseMessage(error: unknown) {
   if (code.includes('auth/popup-closed-by-user') || code.includes('auth/cancelled-popup-request')) return 'Sign-in cancelled. Try again whenever you’re ready.';
   if (code.includes('auth/too-many-requests')) return 'Too many attempts. Please wait and try again.';
   if (code.includes('auth/invalid-api-key')) return 'Check the Firebase web API key in your environment configuration.';
-  return error instanceof Error && !code ? error.message : 'Firebase could not complete the request. Check the setup in 4amchanges.md and try again.';
+  if (code.includes('auth/internal-error')) return 'Google sign-in encountered an internal error. Please try again.';
+  return error instanceof Error && !code ? error.message : (code ? `Google sign-in failed (${code}).` : 'Firebase could not complete the request. Check the setup in 4amchanges.md and try again.');
 }
