@@ -18,7 +18,7 @@ Content-Type: application/json
 
 Example success: `{"data":{"saved":false}}`. Example failure: `{"error":{"code":"unauthenticated","message":"Sign in with Google."}}`. The example post ID is illustrative, not a seeded record. Responses use JSON and `Cache-Control: no-store`.
 
-The envelope allows only `name` and `data`. Bodies over 100,000 bytes are rejected; malformed JSON and unknown names are invalid arguments. Authentication occurs before body dispatch. The server verifies revoked tokens, current Auth status and account policy. Verified Google identity is required for every dispatched operation. Administrative calls also validate current administrator access.
+The envelope allows only `name` and `data`. Requests must use `application/json`; the adapter rejects other content types before authentication. Bodies over 100,000 bytes are rejected; malformed JSON and unknown names are invalid arguments. Authentication occurs before body dispatch. The server verifies revoked tokens, current Auth status and account policy. Verified Google identity is required for every dispatched operation. Administrative calls also validate current administrator access.
 
 In emulator mode, `callProcedure` uses `httpsCallable` with the same operation names and data through Functions on port 5001 in `asia-south1`. Firebase callable transport supplies its own protocol/errors; do not send the HTTP multiplexing envelope directly to a callable. Both client paths have a 20-second service timeout.
 
@@ -139,7 +139,7 @@ Import jobs require year, source name and chunk count (1–100). Repair requires
 
 | HTTP status | Code | Typical cause / response |
 | --- | --- | --- |
-| 400 | `invalid-argument` | Invalid JSON, strict schema or unknown action; correct the request |
+| 400 | `invalid-argument` | Invalid JSON, non-JSON content type, strict schema or unknown action; correct the request |
 | 401 | `unauthenticated` | Missing/expired/revoked token or non-Google identity; sign in again |
 | 403 | `permission-denied` | Ownership, role or account-policy failure |
 | 404 | `not-found` | Explicitly missing resource; some missing-resource guards instead use 409 |

@@ -7,6 +7,7 @@ import type { Auth } from 'firebase-admin/auth';
 import { z } from 'zod';
 import { authorize, manageSubmission, HttpsError, type Actor } from './service.js';
 import { createCompanySchema, postTitle } from '../../shared/procedures.js';
+import { hasHiddenText, hiddenTextMessage } from '../../shared/text-safety.js';
 import { publishedCompanyMetadata, invalidateCompanyDiscovery } from './company-discovery.js';
 import { matchesSearch } from '../../shared/search.js';
 
@@ -208,7 +209,7 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
       return { status: 'pending' };
     }
     case 'report': {
-      const data = parse(z.object({ postId: id, questionId: id.optional(), target: z.enum(['post', 'question', 'answer']), reason: z.enum(['outdated', 'incorrect', 'privacy', 'abuse', 'duplicate']), details: z.string().trim().max(1000) }).strict(), value);
+      const data = parse(z.object({ postId: id, questionId: id.optional(), target: z.enum(['post', 'question', 'answer']), reason: z.enum(['outdated', 'incorrect', 'privacy', 'abuse', 'duplicate']), details: z.string().trim().max(1000).refine(value=>!hasHiddenText(value),hiddenTextMessage) }).strict(), value);
       if (data.target !== 'post') {
         required(data.questionId, 'Select a question.');
         const question = await db.doc(`procedureQuestions/${data.questionId}`).get();
@@ -256,7 +257,7 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
       return result;
     }
     case 'moderateQuestion': {
-      const data = parse(z.object({ id, target: z.enum(['question', 'answer']), decision: z.enum(['visible', 'hidden']), reason: z.string().trim().min(1).max(1000), updatedAt: z.number() }).strict(), value);
+      const data = parse(z.object({ id, target: z.enum(['question', 'answer']), decision: z.enum(['visible', 'hidden']), reason: z.string().trim().min(1).max(1000).refine(value=>!hasHiddenText(value),hiddenTextMessage), updatedAt: z.number() }).strict(), value);
       await db.runTransaction(async tx => {
         const ref = db.doc(`procedureQuestions/${data.id}`), question = await tx.get(ref);
         required(question.exists && question.data()!.updatedAt === data.updatedAt, 'This discussion changed. Refresh before moderating.');
@@ -275,7 +276,7 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
       }); return { moderated: true };
     }
     case 'resolveReport': {
-      const data = parse(z.object({ id, action: z.enum(['dismiss', 'request_correction', 'hide']), reason: z.string().trim().min(1).max(1000), updatedAt: z.number() }).strict(), value);
+      const data = parse(z.object({ id, action: z.enum(['dismiss', 'request_correction', 'hide']), reason: z.string().trim().min(1).max(1000).refine(value=>!hasHiddenText(value),hiddenTextMessage), updatedAt: z.number() }).strict(), value);
       await db.runTransaction(async tx => {
         const ref = db.doc(`procedureReports/${data.id}`), report = await tx.get(ref);
         required(report.exists && report.data()!.status === 'open' && report.data()!.updatedAt === data.updatedAt, 'This report was already handled or changed. Refresh the inbox.');

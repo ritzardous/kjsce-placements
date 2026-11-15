@@ -1,5 +1,6 @@
 import { canonicalCompanyKey } from './company-identity.js';
 import type { CompanyProfile } from './company-profile.js';
+import { hasHiddenIdentityText, hasHiddenText, hiddenTextMessage } from './text-safety.js';
 import { z } from 'zod';
 
 export const procedureStarter = `## Rounds I appeared for
@@ -12,7 +13,7 @@ export const procedureStarter = `## Rounds I appeared for
 <!-- What helped, and what would you do differently? -->
 `;
 export const procedureDraftSchema = z.object({
-  title: z.string().trim().max(120).refine(value=>!/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u202a-\u202e\u2066-\u2069]/.test(value),'Remove hidden control characters.').default(''),
+  title: z.string().trim().max(120).refine(value=>!hasHiddenText(value),hiddenTextMessage).default(''),
   summary: z.string().trim().max(320).default(''),
   rounds: z.array(z.enum(['Aptitude', 'Coding', 'Technical interview', 'HR', 'Group discussion', 'Assignment', 'Other'])).max(7).refine(values=>new Set(values).size===values.length,'Choose each round once.').default([]),
   companyKey: z.string().trim().max(100).regex(/^[a-zA-Z0-9_-]*$/, 'Choose a valid company.').transform(canonicalCompanyKey),
@@ -25,7 +26,7 @@ export const procedureDraftSchema = z.object({
   attribution: z.enum(['anonymous', 'name', 'custom']),
   customName: z.string().trim().max(60).default(''),
   body: z.string().max(20_000),
-}).strict().refine(draft=>Object.values(draft).filter(value=>typeof value==='string').every(value=>!/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u202a-\u202e\u2066-\u2069]/.test(value)),{message:'Remove hidden control characters from your writing.',path:['body']});
+}).strict().refine(draft=>Object.values(draft).every(value=>typeof value!=='string'||!hasHiddenText(value)),{message:'Remove hidden control characters from your writing.',path:['body']});
 export type ProcedureDraft = z.infer<typeof procedureDraftSchema>;
 export const submissionSchema = procedureDraftSchema.refine(d => d.companyKey.length > 0, {message:'Choose a company.',path:['companyKey']}).refine(d => Boolean(d.campus), {message:'Choose a recruitment route.',path:['campus']}).refine(d => d.graduationYear !== null, {message:'Enter your graduation batch year.',path:['graduationYear']}).refine(d => d.role.trim().length > 0, {message:'Choose a company role or enter your own.',path:['role']}).refine(d => meaningfulBody(d.body).length >= 60, {message:'Write at least 60 characters about your experience beyond the starter headings.',path:['body']}).refine(d => d.attribution !== 'custom' || d.customName.length > 0, {message:'Enter the public name you want readers to see.',path:['customName']});
 export function meaningfulBody(body: string) { return body.replace(/<!--[\s\S]*?-->/g, '').replace(/^#{1,6}.*$/gm, '').replace(/\s+/g, ' ').trim(); }
@@ -42,5 +43,5 @@ export function postTitle(post: Partial<ProcedurePost>) { return post.title || `
 export function readingMinutes(body: string) { return Math.max(1, Math.ceil(meaningfulBody(body).split(/\s+/).length / 200)); }
 
 export const createCompanySchema = z.object({
-  name: z.string().trim().min(2).max(100).regex(/^[^<>\x00-\x1f\x7f]+$/, 'Use a plain company name.').refine(name=>/[\p{L}\p{N}]/u.test(name),'Enter a company name.'),
+  name: z.string().trim().min(2).max(100).regex(/^[^<>\x00-\x1f\x7f]+$/, 'Use a plain company name.').refine(name=>!hasHiddenIdentityText(name),'Remove hidden characters from the company name.').refine(name=>/[\p{L}\p{N}]/u.test(name),'Enter a company name.'),
 }).strict();

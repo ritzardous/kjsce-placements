@@ -10,7 +10,7 @@ The browser, its environment variables, route state, Markdown and all submitted 
 | --- | --- | --- |
 | Public → protected UI | Verified Google route/repository checks | UI is not an authorization authority |
 | Browser → Firestore | Verified provider/email, account policy, active-version and ownership checks; default deny | Rules deployment and IAM must be verified live |
-| Browser → API | Revocation-aware ID-token verification, current account/admin checks, strict envelope/body bounds | No configured App Check or edge-wide rate limiter |
+| Browser → API | Revocation-aware ID-token verification, current account/admin checks, JSON-only ingress, strict envelope/body bounds | No configured App Check or edge-wide rate limiter |
 | Writing → published content | Strict schemas, immutable submission revisions, admin review, safe Markdown rendering | Review does not prove factual accuracy |
 | Concurrent mutations | Transactions, expected versions/revisions, rate-limit records and request IDs where supported | Not every operation is idempotent |
 | Publication → dashboard | Reconciliation, immutable chunks, bounded reads, SHA-256 and schema validation | Hashes do not certify source authenticity |
@@ -18,7 +18,7 @@ The browser, its environment variables, route state, Markdown and all submitted 
 
 ## Content handling
 
-Experience Markdown uses react-markdown with `skipHtml`, GFM support, external links with `noopener noreferrer` and text placeholders for images. The form has no user file-upload endpoint. Schemas reject forged fields, oversized writing, unsafe company path characters, duplicate rounds and hidden control characters. Submitted custom attribution is included publicly only when selected; ownership UIDs remain stored.
+Experience Markdown uses react-markdown with `skipHtml`, GFM support, external links with `noopener noreferrer` and text placeholders for images. The form has no user file-upload endpoint. Schemas reject forged fields, oversized writing, unsafe company path characters, duplicate rounds and hidden control characters, including bidi overrides and zero-width spoofing in company identities, follow labels and moderation text. Submitted custom attribution is included publicly only when selected; ownership UIDs remain stored.
 
 Reports and outcomes are private. Legacy questions are read through server filtering to remove pending answers; normal browser direct access is denied. New question/reply creation is disabled. Notification destinations are constructed from known entity types rather than executing stored legacy links.
 
@@ -34,6 +34,8 @@ Optional production analytics is enabled only by `VITE_GA_ID`; absence of that s
 
 Application rate limits are per-user/action Firestore transactions; they do not stop all distributed abuse. Admin jobs use bounded requests, leases and checkpoints. Repairs back up changed fields and recovery refuses conflicting later edits. Production indexes, authorized domains, IAM, secret rotation, database backups, edge controls and log retention require operational management.
 
-No repository configuration establishes complete CSP/security-header policy, scheduled backups, notification delivery monitoring, independent penetration testing or guaranteed incident response. These are verification/ownership gaps, not silently implemented controls. Configure HTTPS through the actual host and confirm it before use.
+No repository configuration establishes scheduled backups, notification delivery monitoring, independent penetration testing or guaranteed incident response. These are verification/ownership gaps, not silently implemented controls. Configure HTTPS through the actual host and confirm it before use.
+
+`vercel.json` applies a Content Security Policy and companion headers (`nosniff`, frame denial, a referrer policy, a permissions policy and `same-origin-allow-popups`) to every hosted route. The document shell keeps scripts external so `script-src 'self'` can stay strict. That policy is only effective when the app is served by the configured host; it is not a substitute for edge rate limiting, App Check or operational monitoring.
 
 For suspected vulnerabilities use [SECURITY.md](../SECURITY.md); do not disclose exploit details or personal data in public issues. See [maintainer decisions](maintainer-decisions.md) for the missing private reporting channel and support commitments.

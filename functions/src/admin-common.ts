@@ -2,7 +2,8 @@ import {createHash} from 'node:crypto';
 import type {Firestore,DocumentData,Transaction} from 'firebase-admin/firestore';
 import {z} from 'zod';
 import {HttpsError,type Actor} from './service.js';
-export const id=z.string().regex(/^[a-zA-Z0-9_-]{1,128}$/),reason=z.string().trim().min(8,'Explain the reason in at least 8 characters.').max(500);
+import {hasHiddenText,hiddenTextMessage} from '../../shared/text-safety.js';
+export const id=z.string().regex(/^[a-zA-Z0-9_-]{1,128}$/),reason=z.string().trim().min(8,'Explain the reason in at least 8 characters.').max(500).refine(value=>!hasHiddenText(value),hiddenTextMessage);
 export const year=z.union([z.literal(2025),z.literal(2026),z.literal(2027)]),after=z.string().max(1000).optional();
 export function parse<T>(schema:z.ZodType<T>,value:unknown):T {const result=schema.safeParse(value);if(!result.success)throw new HttpsError('invalid-argument',result.error.issues[0]?.message||'Invalid input.');return result.data;}
 export function requireValue(value:unknown,message:string):asserts value {if(!value)throw new HttpsError('failed-precondition',message);}

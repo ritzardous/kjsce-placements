@@ -5,6 +5,7 @@ import { HttpsError } from 'firebase-functions/v2/https';
 export { HttpsError };
 import { z } from 'zod';
 import { procedureDraftSchema, submissionSchema } from '../../shared/procedures.js';
+import { hasHiddenText, hiddenTextMessage } from '../../shared/text-safety.js';
 
 export type Actor = { uid: string; token: Record<string, unknown> };
 export function authorize(actor: Actor | undefined, admin = false): Actor {
@@ -68,7 +69,7 @@ export async function submit(db: Firestore, actorValue: Actor | undefined, value
 }
 
 export async function review(db: Firestore, actorValue: Actor | undefined, value: unknown) {
-  const actor = authorize(actorValue, true), input = parse(z.object({ id: idSchema, revision: versionSchema, decision: z.enum(['approved', 'changes_requested', 'rejected']), feedback: z.string().trim().max(2000) }).strict(), value);
+  const actor = authorize(actorValue, true), input = parse(z.object({ id: idSchema, revision: versionSchema, decision: z.enum(['approved', 'changes_requested', 'rejected']), feedback: z.string().trim().max(2000).refine(value=>!hasHiddenText(value),hiddenTextMessage) }).strict(), value);
   requireCondition(input.decision === 'approved' || input.feedback.length > 0, 'Explain what needs changing or why the post was rejected.');
   const result=await db.runTransaction(async tx => {
     const ref = db.doc(`procedureSubmissions/${input.id}`), snap = await tx.get(ref), old = snap.data();
@@ -92,7 +93,7 @@ export async function review(db: Firestore, actorValue: Actor | undefined, value
 }
 
 export async function unpublish(db: Firestore, actorValue: Actor | undefined, value: unknown):Promise<{unpublished:boolean;auditId?:string}> {
-  const actor = authorize(actorValue, true), input = parse(z.object({ id: idSchema, expectedRevision:versionSchema, reason: z.string().trim().min(1).max(2000) }).strict(), value);
+  const actor = authorize(actorValue, true), input = parse(z.object({ id: idSchema, expectedRevision:versionSchema, reason: z.string().trim().min(1).max(2000).refine(value=>!hasHiddenText(value),hiddenTextMessage) }).strict(), value);
   const result=await db.runTransaction(async tx => {
     const ref = db.doc(`procedurePosts/${input.id}`), post = await tx.get(ref);
     requireCondition(post.exists, 'Post not found.');
@@ -110,7 +111,7 @@ export async function unpublish(db: Firestore, actorValue: Actor | undefined, va
 }
 
 export async function deleteProcedure(db: Firestore, actorValue: Actor | undefined, value: unknown):Promise<{deleted:boolean;auditId?:string}> {
-  const actor=authorize(actorValue,true),input=parse(z.object({id:idSchema,expectedRevision:versionSchema,reason:z.string().trim().min(1).max(2000)}).strict(),value);
+  const actor=authorize(actorValue,true),input=parse(z.object({id:idSchema,expectedRevision:versionSchema,reason:z.string().trim().min(1).max(2000).refine(value=>!hasHiddenText(value),hiddenTextMessage)}).strict(),value);
   const ref=db.doc(`procedureSubmissions/${input.id}`),postRef=db.doc(`procedurePosts/${input.id}`);
   const result=await db.runTransaction(async tx=>{
     const snap=await tx.get(ref),post=await tx.get(postRef),old=snap.data(),published=post.data();
