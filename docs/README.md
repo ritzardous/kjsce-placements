@@ -31,6 +31,7 @@ These guides describe the checked-in implementation. They do not establish curre
 | [Troubleshooting](troubleshooting.md) | Implementation-backed diagnostics |
 | [Security architecture](security.md) | Trust boundaries and residual limits |
 | [Maintainer decisions](maintainer-decisions.md) | Licensing, contacts, portability and verification gaps |
+| [Legal notice review](legal-notice-review.md) | Statutory references, notice scope and outstanding legal/operational review |
 | [Contributing](../CONTRIBUTING.md) | Change and review expectations |
 | [Security reporting](../SECURITY.md) | Private reporting and support policy |
 

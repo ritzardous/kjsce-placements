@@ -27,12 +27,21 @@ test.beforeEach(async ({ page }) => {
 test('ongoing 2027 season stays explicit across routes, reload, refresh and year changes', async ({ page }) => {
   await page.goto('/#home');
   const yearCard=page.getByRole('link').filter({has:page.getByRole('heading',{name:'Class of 2027',exact:true})});
-  await expect(yearCard).toContainText('LIVE');
+  await expect(yearCard.locator('.season-status')).toHaveText('Live');
+  const status=yearCard.locator('.season-status');
+  await expect(status).toHaveCSS('background-color','rgba(0, 0, 0, 0)');
+  await expect(status).toHaveCSS('border-top-width','0px');
+  await expect(status.locator('.season-status-mark')).toHaveCSS('animation-name','none');
+  await page.emulateMedia({reducedMotion:'reduce'});
+  expect(await status.locator('.season-status-mark').evaluate(element=>getComputedStyle(element,'::after').animationName)).toBe('none');
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  await page.locator('.year-grid').screenshot({path:`artifacts/year-selector-${test.info().project.name}.png`});
   await yearCard.click();
   await expect(page).toHaveURL(/#2027\/overview$/);
   await expect(page.getByRole('heading', { name: /KJSCE '27/ })).toBeVisible();
   await expect(page.locator('.live-notice')).toContainText('Placements ongoing');
   await expect(page.locator('.live-notice')).toContainText('06 Nov 2026');
+  await expect(page.locator('.season-linkedin-note')).toHaveText('LinkedIn profiles for this batch are coming soon.');
   await expect(page.locator('.stat').filter({ hasText: 'Candidate selections recorded' }).locator('.stat-value')).toHaveText('142');
   await expect(page.locator('.stat').filter({ hasText: 'Placement rate' }).locator('.stat-value')).toHaveText('Not available');
   await chooseSection(page,'Companies');
@@ -46,6 +55,7 @@ test('ongoing 2027 season stays explicit across routes, reload, refresh and year
   await expect(page.getByRole('heading', { name: 'Barclays', exact: true })).toBeVisible();
   await chooseBatch(page,2025);
   await expect(page.getByRole('heading', { name: /KJSCE '25/ })).toBeVisible();
+  await expect(page.locator('.season-linkedin-note')).toHaveCount(0);
   await expect(page.locator('.live-notice')).toHaveCount(0);
   await chooseBatch(page,2026);
   await expect(page.getByRole('heading', { name: /KJSCE '26/ })).toBeVisible();
