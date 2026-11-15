@@ -1,6 +1,7 @@
 import { InviteWriter } from '../procedures/InviteWriter';
+import { canonicalCompanyKey } from '../../shared/company-identity';
 import { highestCtcCompanies } from '../../shared/statistics';
-import { matchesSearch } from '../../shared/search';
+import { companyMatchScore, matchesSearch } from '../../shared/search';
 import { CompanyIdentity, CompanyLogo } from './CompanyIdentity';
 import { AppIcon } from '../ui/AppIcon';
 import { useEffect, useState } from 'react';
@@ -81,17 +82,28 @@ export function Overview({ statistics: s }: { statistics: Statistics }) {
 export interface CompanyFilters { search: string; type: string; ctc: string; sort: { key: string; direction: 'asc' | 'desc' }; }
 export const initialCompanyFilters: CompanyFilters = { search: '', type: 'ALL', ctc: 'ALL', sort: { key: 'hired', direction: 'desc' } };
 export function Companies({ statistics: s, filters, setFilters }: { statistics: Statistics; filters: CompanyFilters; setFilters: (next: CompanyFilters) => void }) {
-  const rows = s.companies.filter(c => {
-    if (filters.type !== 'ALL' && c.type !== filters.type) return false;
+  const searchTrimmed = filters.search.trim();
+  const scored = s.companies.map(c => {
+    if (filters.type !== 'ALL' && c.type !== filters.type) return null;
     const value = c.highestCtc;
     if (filters.ctc !== 'ALL') {
-      if (value === null) return false;
-      if (filters.ctc === '<5L' && value >= 5 || filters.ctc === '5–10L' && (value < 5 || value >= 10) || filters.ctc === '10–15L' && (value < 10 || value >= 15) || filters.ctc === '15L+' && value < 15) return false;
+      if (value === null) return null;
+      if (filters.ctc === '<5L' && value >= 5 || filters.ctc === '5–10L' && (value < 5 || value >= 10) || filters.ctc === '10–15L' && (value < 10 || value >= 15) || filters.ctc === '15L+' && value < 15) return null;
     }
-    return matchesSearch(`${c.name} ${c.type} ${c.roles.join(' ')}`, filters.search);
-  });
+    const score = searchTrimmed ? companyMatchScore(c, searchTrimmed) : 1;
+    if (score <= 0) return null;
+    return { company: c, score };
+  }).filter((item): item is { company: Company; score: number } => item !== null);
+
   const sortValue = (c: Company) => ({ name: c.name, ctc: c.highestCtc ?? -1, hired: c.totalHired, date: c.lastDate ?? "" })[filters.sort.key as 'name' | 'ctc' | 'hired' | 'date'];
-  rows.sort((a, b) => { const av = sortValue(a), bv = sortValue(b); return (av < bv ? -1 : av > bv ? 1 : a.name.localeCompare(b.name)) * (filters.sort.direction === 'asc' ? 1 : -1); });
+  scored.sort((a, b) => {
+    if (searchTrimmed && a.score !== b.score) {
+      return b.score - a.score;
+    }
+    const av = sortValue(a.company), bv = sortValue(b.company);
+    return (av < bv ? -1 : av > bv ? 1 : a.company.name.localeCompare(b.company.name)) * (filters.sort.direction === 'asc' ? 1 : -1);
+  });
+  const rows = scored.map(item => item.company);
   const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const [page, setPage] = usePersistentPage(`statistics-companies-page:${s.batch.year}`, [routeHref('companies', s.batch.year)], totalPages);
   const set = (next: Partial<CompanyFilters>) => { setPage(1); setFilters({ ...filters, ...next }); };
@@ -145,7 +157,7 @@ export function CompanyDetail({ company: c, year }: { company: Company | undefin
   const backHref = pageHref(routeHref('companies', year), storedPage(`statistics-companies-page:${year}`));
   if (!c) return <Empty title="Company not found"><a href={backHref}>← Back to Companies</a></Empty>;
   return <Section title="Company Details" note="Chronological · earliest first"><a className="back-link" href={backHref}>← All Companies</a>
-    <div className="detail-head"><div className="company-detail-identity"><div className="company-detail-copy"><div className="eyebrow">{c.type}</div><div className="company-title-row"><CompanyLogo companyKey={c.key} name={c.name} size="large" /><h1 className="detail-name">{c.name}</h1></div><div className="detail-tags">{campusLabel(c.announcements) && <Tag>{campusLabel(c.announcements)}</Tag>}{c.roles.map(r => <Tag key={r}>{r}</Tag>)}</div></div></div><div className="detail-stats">{[[money(c.highestCtc), 'Highest CTC'], [c.totalHired, c.announcements.some(p => p.campus) ? 'Selections' : 'Students hired'], [date(c.lastDate, true), 'Latest result'], [c.branches.join(', '), 'Branches hired']].map(([value, label]) => <div className="detail-stat" key={label}><div className="v">{value}</div><div className="l">{label}</div></div>)}</div></div>
+    <div className="detail-head"><div className="company-detail-identity"><div className="company-detail-copy"><div className="eyebrow">{c.type}</div><div className="company-title-row"><CompanyLogo companyKey={c.key} name={c.name} size="large" /><h1 className="detail-name">{c.name}</h1></div><div className="detail-tags">{campusLabel(c.announcements) && <Tag>{campusLabel(c.announcements)}</Tag>}{c.roles.map(r => <Tag key={r}>{r}</Tag>)}</div><div className="company-detail-actions"><a className="action-button company-experience-link" href={`#procedures/company?company=${encodeURIComponent(canonicalCompanyKey(c.key))}`}><AppIcon name="book" /><span>View interview experiences</span><AppIcon name="arrow" /></a></div></div></div><div className="detail-stats">{[[money(c.highestCtc), 'Highest CTC'], [c.totalHired, c.announcements.some(p => p.campus) ? 'Selections' : 'Students hired'], [date(c.lastDate, true), 'Latest result'], [c.branches.join(', '), 'Branches hired']].map(([value, label]) => <div className="detail-stat" key={label}><div className="v">{value}</div><div className="l">{label}</div></div>)}</div></div>
     <div className="company-candidates-heading"><h2>Selected candidates</h2><p>Selections are grouped by placement announcement below.</p><aside className="company-contacts" aria-labelledby="company-contacts-title"><div><h3 id="company-contacts-title">Alumni contacts</h3><p>LinkedIn profiles appear beside available names.</p></div><InviteWriter company={c} /></aside></div>
     {c.announcements.map(p => <article className="announcement-block" key={p.placement_id}><div className="announcement-head"><div className="a-date">{date(p.result.declared_date, true)}</div><div className="a-role">{p.roles.join(' / ') || 'Role not provided'}{campusLabel([p]) && <Tag>{campusLabel([p])}</Tag>}</div><div className="a-ctc">{ctcLabel(p)}</div></div><Table rows={p.candidates} rowKey={(candidate, index) => `${candidate.roll_number}-${index}`} columns={[
       { label: 'Candidate', render: row => row.name }, { label: 'LinkedIn', render: row => <CandidateLinkedIn roll={row.roll_number} name={row.name} year={year} /> }, { label: 'Roll No.', render: row => <span className="mono">{row.roll_number}</span> }, { label: 'Branch', render: row => <Tag>{row.branch}</Tag> }, { label: 'Role', render: row => row.role || "Not provided" },

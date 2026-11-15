@@ -361,25 +361,30 @@
           text-decoration: underline;
         }
 
-          :is(#app, .portal-shell) .procedure-company-hub .company-hub-actions .company-statistics-links {
-            margin: 0;
+          /* Company detail actions: View interview experiences link */
+          .company-detail-actions {
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
           }
 
-          :is(#app, .portal-shell) .procedure-company-hub .company-hub-actions .company-statistics-links>summary {
-            cursor: pointer;
-            min-height: 40px;
+          :is(#app, .portal-shell) .company-detail-actions .company-experience-link {
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            padding: 8px 16px;
             font-size: 13px;
             font-weight: 600;
-            color: var(--ink-soft);
-            padding: 0 4px;
-            transition: color 120ms ease;
+            text-decoration: none;
+            border-radius: 6px;
+            min-height: 40px;
           }
 
-          :is(#app, .portal-shell) .procedure-company-hub .company-hub-actions .company-statistics-links>summary:hover {
-            color: var(--accent);
+          :is(#app, .portal-shell) .company-detail-actions .company-experience-link .app-icon {
+            width: 16px;
+            height: 16px;
           }
 
           /* Company details header: lockup logo & name side-by-side */

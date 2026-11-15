@@ -31,8 +31,6 @@ test('discovery, clean reading, saved prep and report moderation work together',
     await expect(reader.getByRole('button',{name:'Compare',exact:true})).toHaveCount(0);
     await expect(reader.getByRole('link',{name:'Company details',exact:true})).toHaveCount(0);
     await expect(reader.getByRole('heading',{name:'Barclays experiences'})).toBeVisible();
-    await reader.locator('.company-statistics-links > summary').click();
-    await expect(reader.getByRole('link',{name:'Class of 2025 company statistics',exact:false})).toBeVisible();
     await reader.goto(`/#procedures/${ids[0]}`);
     await expect(reader.getByRole('navigation',{name:'Experience sections'})).toHaveCount(0);
     await expect(reader.getByLabel('Ask a question')).toHaveCount(0);
