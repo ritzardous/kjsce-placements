@@ -232,7 +232,7 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
       const data = parse(z.object({ tab: z.enum(['pending', 'reviewed', 'published']), search: z.string().max(120).default(''), company: z.string().max(120).default(''), year: z.string().max(4).default(''), status: z.string().max(30).default(''), oldest: z.boolean().default(true), cursor: cursorSchema }).strict(), value);
       let q: Query = db.collection('procedureSubmissions');
       q = data.tab === 'pending' ? q.where('status', '==', 'pending') : data.tab === 'published' ? q.where('hasPublished', '==', true) : q.where('status', 'in', ['approved', 'changes_requested', 'rejected']);
-      return page(q, ['updatedAt'], data.oldest ? 'asc' : 'desc', data.cursor, row => matches(row, data) && (!data.status || row.status === data.status));
+      return page(q, ['updatedAt'], data.oldest ? 'asc' : 'desc', data.cursor, row => !row.deleted && matches(row, data) && (!data.status || row.status === data.status));
     }
     case 'reviewContext': {
       const data = parse(z.object({ id, revision: z.number().int().nonnegative() }).strict(), value);

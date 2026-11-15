@@ -197,6 +197,12 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
       {draft.campus && <span className="procedure-badge">{draft.campus}</span>}
     </header>
 
+    <aside className="writing-beta-note" aria-label="A note for beta contributors">
+      <span className="writing-beta-tag">Beta</span>
+      <p>You have exclusive beta access before our wider launch. Please share it carefully and keep it within the invited circle for now.</p>
+      <p>Thanks for making time for this. Something you remember from your rounds could be exactly what a junior needs to hear.</p>
+    </aside>
+
     {pending.current?<div id="procedure-submitted" tabIndex={-1} className="contribute-notice studio-status-banner">
       <span className="studio-status-icon"><AppIcon name="clock"/></span>
       <div><strong>Pending approval</strong><p>Your experience is with an admin for review. You can check My contributions for updates. Once approved, everyone can read it.</p></div>

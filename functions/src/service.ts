@@ -109,6 +109,37 @@ export async function unpublish(db: Firestore, actorValue: Actor | undefined, va
   return result;
 }
 
+export async function deleteProcedure(db: Firestore, actorValue: Actor | undefined, value: unknown):Promise<{deleted:boolean;auditId?:string}> {
+  const actor=authorize(actorValue,true),input=parse(z.object({id:idSchema,expectedRevision:versionSchema,reason:z.string().trim().min(1).max(2000)}).strict(),value);
+  const ref=db.doc(`procedureSubmissions/${input.id}`),postRef=db.doc(`procedurePosts/${input.id}`);
+  const result=await db.runTransaction(async tx=>{
+    const snap=await tx.get(ref),post=await tx.get(postRef),old=snap.data(),published=post.data();
+    requireCondition(snap.exists||post.exists,'Experience not found.');
+    const revision=published?.revision??old?.revision??0;
+    requireCondition(revision===input.expectedRevision,'The experience changed. Reload it before deleting.');
+    const now=Date.now();
+    if(snap.exists&&old){
+      // Retain an ownership/version marker so an autosave in an old tab cannot recreate deleted writing.
+      tx.set(ref,{ownerUid:old.ownerUid,draftVersion:(old.draftVersion??0)+1,revision:old.revision,deleted:true,hasPublished:false,updatedAt:now});
+    }
+    tx.delete(postRef);
+    const auditRef=db.collection('procedureModeration').doc();
+    tx.create(auditRef,{submissionId:input.id,revision,action:'deleted_by_admin',feedback:input.reason,adminUid:actor.uid,createdAt:now});
+    if(published){
+      writeNotification(db,tx,published.authorUid,`deleted:${input.id}:${revision}:${published.publishedAt}`,{type:'content_hidden',submissionId:input.id,title:'Experience deleted',message:input.reason,revision,companyName:published.companyName||''},now);
+    }
+    return {deleted:true,auditId:auditRef.id};
+  });
+  // Cleanup is retryable after a lost response; the transaction already removed public access.
+  await db.recursiveDelete(ref.collection('revisions'));
+  await db.recursiveDelete(postRef);
+  for(const collection of ['procedureQuestions','procedureReports']){
+    for(;;){const rows=await db.collection(collection).where('postId','==',input.id).limit(400).get();if(rows.empty)break;const batch=db.batch();rows.docs.forEach(row=>batch.delete(row.ref));await batch.commit();}
+  }
+  invalidateCompanyDiscovery(db);
+  return result;
+}
+
 export async function vote(db: Firestore, actorValue: Actor | undefined, value: unknown) {
   const actor = authorize(actorValue), input = parse(z.object({ id: idSchema, value: z.union([z.literal(-1), z.literal(0), z.literal(1)]) }).strict(), value);
   const result=await db.runTransaction(async tx => {

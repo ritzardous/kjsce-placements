@@ -55,6 +55,9 @@ test('app API verifies Google tokens, rejects forged auth and enforces approval 
     assert.equal((await call(reader.token, 'procedureCommunity', { action: 'bookmark', payload: { postId: id, saved: true } })).status, 200);
     assert.equal((await call(reader.token, 'procedureCommunity', { action: 'overview' })).status, 403);
     assert.equal((await call(moderator.token, 'procedureCommunity', { action: 'overview' })).status, 200);
+    assert.equal((await call(reader.token, 'deleteProcedure', { id, expectedRevision: 1, reason: 'Not allowed' })).status, 403);
+    assert.equal((await call(moderator.token, 'deleteProcedure', { id, expectedRevision: 1, reason: 'API cleanup' })).status, 200);
+    assert.equal((await getFirestore(admin).doc(`procedurePosts/${id}`).get()).exists, false);
     await adminAuth(admin).setCustomUserClaims(moderator.uid, {});
     assert.equal((await call(moderator.token, 'unpublishProcedure', { id, reason: 'Revoked admin' })).status, 403);
     assert.equal((await call(moderator.token, 'procedureCommunity', { action: 'overview' })).status, 403);

@@ -4,7 +4,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { cert, getApps, initializeApp, type App } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
-import { HttpsError, authorize, saveDraft, submit, review, unpublish, vote, type Actor } from './service.js';
+import { HttpsError, authorize, saveDraft, submit, review, unpublish, deleteProcedure, vote, type Actor } from './service.js';
 import { community, adminCommunityActions } from './community.js';
 
 let serverApp: App | undefined;
@@ -44,7 +44,7 @@ export default async function handler(req: Request, res: ServerResponse) {
     try { body = await readBody(req); } catch (cause) { if (cause instanceof HttpsError) throw cause; throw new HttpsError('invalid-argument', 'Send a valid JSON request.'); }
     if (!body || typeof body !== 'object' || Array.isArray(body) || Object.keys(body).some(key=>!['name','data'].includes(key)) || typeof body.name !== 'string') throw new HttpsError('invalid-argument','Invalid request envelope.');
     const name = body.name;operation=name;
-    if (['reviewProcedure', 'unpublishProcedure'].includes(name) || name === 'procedureCommunity' && (adminCommunityActions.has(body.data?.action) || actor.token.role === 'admin')) {
+    if (['reviewProcedure', 'unpublishProcedure', 'deleteProcedure'].includes(name) || name === 'procedureCommunity' && (adminCommunityActions.has(body.data?.action) || actor.token.role === 'admin')) {
       authorize(actor, true);
       const account = await auth.getUser(actor.uid);
       if (account.disabled || account.customClaims?.role !== 'admin') throw new HttpsError('permission-denied', 'Admin access has been revoked.');
@@ -58,6 +58,7 @@ export default async function handler(req: Request, res: ServerResponse) {
       case 'submitProcedure': data = await submit(db, actor, body.data); break;
       case 'reviewProcedure': data = await review(db, actor, body.data); break;
       case 'unpublishProcedure': data = await unpublish(db, actor, body.data); break;
+      case 'deleteProcedure': data = await deleteProcedure(db, actor, body.data); break;
       case 'setProcedureVote': data = await vote(db, actor, body.data); break;
       default: throw new HttpsError('invalid-argument', 'Unknown community action.');
     }

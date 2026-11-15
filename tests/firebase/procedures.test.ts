@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { initializeApp, deleteApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
-import { authorize, saveDraft, submit, review, vote, unpublish, manageSubmission, type Actor } from '../../functions/src/service.js';
+import { authorize, saveDraft, submit, review, vote, unpublish, deleteProcedure, manageSubmission, type Actor } from '../../functions/src/service.js';
 import { community } from '../../functions/src/community.js';
 import { initialProcedureDraft, type ProcedureDraft } from '../../shared/procedures.js';
 
@@ -200,6 +200,32 @@ test('deleting a pending experience wins against a concurrent admin approval',as
  assert.equal((await db.collection(`procedureSubmissions/${id}/revisions`).get()).size,0);
 });
 
+
+test('admins can delete a published experience permanently with an exact revision and audit trail',async()=>{
+ const {actor,id,draft}=await fixture();
+ await review(db,admin,{id,revision:1,decision:'approved',feedback:''});
+ await assert.rejects(deleteProcedure(db,actor,{id,expectedRevision:1,reason:'Not allowed'}),/Admin access/);
+ await assert.rejects(deleteProcedure(db,admin,{id,expectedRevision:0,reason:'Stale view'}),/changed/);
+ await db.doc(`procedurePosts/${id}/votes/reader`).set({value:1});
+ await db.doc(`procedureQuestions/admin-delete-${id}`).set({postId:id,body:'A discussion'});
+ await db.doc(`procedureReports/admin-delete-${id}`).set({postId:id,content:'A report'});
+ const deleted=await deleteProcedure(db,admin,{id,expectedRevision:1,reason:'Privacy request'});
+ assert.ok(deleted.auditId);
+ assert.equal((await db.doc(`procedureModeration/${deleted.auditId}`).get()).data()!.action,'deleted_by_admin');
+ assert.equal((await db.doc(`procedurePosts/${id}`).get()).exists,false);
+ assert.equal((await db.doc(`procedurePosts/${id}/votes/reader`).get()).exists,false);
+ assert.equal((await db.collection(`procedureSubmissions/${id}/revisions`).get()).size,0);
+ assert.equal((await db.doc(`procedureQuestions/admin-delete-${id}`).get()).exists,false);
+ assert.equal((await db.doc(`procedureReports/admin-delete-${id}`).get()).exists,false);
+ const submission=(await db.doc(`procedureSubmissions/${id}`).get()).data()!;
+ assert.equal(submission.deleted,true);assert.equal(submission.hasPublished,false);
+ assert.ok((await db.collection(`procedureNotifications/${actor.uid}/items`).where('submissionId','==',id).where('type','==','content_hidden').get()).size>=1);
+ await assert.rejects(saveDraft(db,actor,{id,expectedVersion:submission.draftVersion,draft}),/deleted/);
+ const publishedQueue=await community(db,admin,{action:'queue',payload:{tab:'published'}}) as {rows:{id:string}[]};
+ const reviewedQueue=await community(db,admin,{action:'queue',payload:{tab:'reviewed'}}) as {rows:{id:string}[]};
+ assert.equal(publishedQueue.rows.some(row=>row.id===id),false);
+ assert.equal(reviewedQueue.rows.some(row=>row.id===id),false);
+});
 
 test('unpublishing also withdraws a pending revision so an admin cannot put it back online',async()=>{
  const {actor,id,draft}=await fixture();
