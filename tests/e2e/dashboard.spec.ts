@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import {hiddenYears} from '../../src/app/routing';
 import { signInGoogle } from './auth-helper';
 import { readFileSync } from 'node:fs';
 import { batch2026, datasetSchema } from '../../shared/dataset';
@@ -26,12 +25,15 @@ test.beforeEach(async ({ page }) => {
 });
 
 test('ongoing 2027 season stays explicit across routes, reload, refresh and year changes', async ({ page }) => {
-  if(hiddenYears.has(2027)){await page.goto('/#home');await expect(page.getByRole('heading',{name:'Class of 2027',exact:true})).toHaveCount(0);await page.goto('/#2027/overview');await expect(page).toHaveURL(/#home$/);return;}
-  await page.goto('/#2027/overview');
+  await page.goto('/#home');
+  const yearCard=page.getByRole('link').filter({has:page.getByRole('heading',{name:'Class of 2027',exact:true})});
+  await expect(yearCard).toContainText('LIVE');
+  await yearCard.click();
+  await expect(page).toHaveURL(/#2027\/overview$/);
   await expect(page.getByRole('heading', { name: /KJSCE '27/ })).toBeVisible();
   await expect(page.locator('.live-notice')).toContainText('Placements ongoing');
-  await expect(page.locator('.live-notice')).toContainText('08 Oct 2026');
-  await expect(page.locator('.stat').filter({ hasText: 'Candidate selections recorded' }).locator('.stat-value')).toHaveText('121');
+  await expect(page.locator('.live-notice')).toContainText('06 Nov 2026');
+  await expect(page.locator('.stat').filter({ hasText: 'Candidate selections recorded' }).locator('.stat-value')).toHaveText('142');
   await expect(page.locator('.stat').filter({ hasText: 'Placement rate' }).locator('.stat-value')).toHaveText('Not available');
   await chooseSection(page,'Companies');
   await expect(page).toHaveURL(/#2027\/companies/);
@@ -77,8 +79,30 @@ test('year switching keeps 2025 links, refresh, missing data and campus filters 
   await expect(page.getByRole('heading', { name: /KJSCE '26/ })).toBeVisible();
   await chooseSection(page,'Candidates & Roles');
   await expect(page.locator('.result-count')).toHaveText('311 / 311');
-  await expect(page.getByRole('combobox', { name: 'Campus status' })).toHaveCount(0);
+  const campus=page.getByRole('combobox', { name: 'Campus status' });
+  await expect(campus).toHaveValue('ALL');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('2027 November results remain available across all statistics sections', async ({page}) => {
+  for(const section of ['overview','companies','branches','candidates','timeline','insights','explore']) {
+    await page.goto('/#2027/'+section);
+    await expect(page.locator('.live-notice')).toContainText('06 Nov 2026');
+    await expect(page).toHaveURL(new RegExp('#2027/'+section));
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  }
+  await page.goto('/#2027/companies');
+  await page.getByRole('textbox',{name:'Search companies'}).fill('Framatome');
+  await page.locator('tbody').getByRole('link',{name:'Framatome',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Framatome',exact:true})).toBeVisible();
+  await expect(page.locator('.detail-stats')).toContainText('₹5.37L');
+  await expect(page.locator('.detail-stats')).toContainText('04 Nov 2026');
+  await page.locator('.company-source-details summary').click();
+  await expect(page.locator('.company-source-details')).toContainText('27batch all placements till now.pdf');
+  await page.goto('/#2027/candidates');
+  await expect(page.locator('.result-count')).toHaveText('142 / 142');
+  await page.getByRole('button',{name:'Next',exact:true}).click();
+  await expect(page.getByText('Page 2 of 6')).toBeVisible();
 });
 test('overview renders legacy totals, chart series, and fits viewport', async ({ page }) => {
   await page.goto('/#overview');

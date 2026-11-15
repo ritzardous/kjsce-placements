@@ -42,7 +42,7 @@ Dated test counts and live observations below are historical reports, not curren
 | --- | --- |
 | [Data dictionary](data-dictionary.md) | Fields, metric meanings and weighting differences |
 | [2025 source audit](2025-data-audit.md) | Report reconciliation and email enrichment |
-| [2027 source audit](2027-data-audit.md) | Retained, currently hidden ongoing-season snapshot |
+| [2027 source audit](2027-data-audit.md) | Ongoing-season source reconciliation and November update |
 | [Migration report](migration-report.md) | Legacy reconciliation |
 | [Legacy baseline](legacy-baseline.json) | Machine-readable historical metrics |
 | [Data quality and ingestion](data-quality-and-ingestion.md) | Identity audit, repair and validation |

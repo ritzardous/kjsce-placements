@@ -12,7 +12,7 @@
 | Support policy | Confirm supported revisions/releases, triage ownership and realistic response commitments. No SLA/support matrix was invented. |
 | Project portability | Live API startup/deployment helpers target the original project; deployment and verification helpers also reference a hard-coded administrator. Confirm whether to parameterize these in a separate code change. |
 | Production operations | Confirm actual Vercel install behavior for the nested Functions package, IAM, authorized domains, deployed rules/indexes, GitHub environment protection, backup retention and monitoring ownership. |
-| Hidden/retired functionality | Routing hides 2027; new questions/replies are disabled. Re-enabling requires an explicit reviewed application change, not a documentation edit. |
+| Hidden/retired functionality | The maintainer re-enabled 2027 on 15 November 2026. New questions/replies remain disabled; re-enabling other retired features requires an explicit reviewed application change. |
 | Privacy and retention | Define eligibility, erasure, audit/notification retention and repository visibility. Verified Google access currently has no college-domain restriction. |
 
 The adopted [MIT license text](../LICENSE) follows the [Open Source Initiative template](https://opensource.org/license/mit). Existing [Lora OFL](../public/fonts/lora/OFL.txt) and third-party notices remain intact.

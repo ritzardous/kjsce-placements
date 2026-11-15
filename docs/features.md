@@ -4,15 +4,15 @@
 
 ## Statistics
 
-Visible choices are 2025 and 2026. Dashboards provide overview, company list/detail, branch views, candidate search, timeline, insights and exploration. Source notes and identities accompany records. Available 2025 and 2026 LinkedIn profiles come from committed sources/mappings, not a live profile search.
+Visible choices are 2025, 2026 and the ongoing 2027 season. Dashboards provide overview, company list/detail, branch views, candidate search, timeline, insights and exploration. Source notes and identities accompany records. Available 2025 and 2026 LinkedIn profiles come from committed sources/mappings, not a live profile search.
 
 | Batch | Committed coverage and interpretation |
 | --- | --- |
 | 2025 | 360 official report selections, 323 distinct students; email-enriched dates/roles; no registration denominator; overall CTC selection-weighted |
 | 2026 | 100 announcements, 311 selections, 299 distinct students, 82 companies; B.Tech registration base 524; overall CTC announcement-weighted |
-| 2027 | Retained/tested: 22 announcements, 121 selections/distinct roll numbers, 19 companies; hidden in routing and redirected away by `App.tsx`; no denominator |
+| 2027 | 30 announcements, 142 selections/distinct roll numbers, 25 companies; ongoing, results through 4 November 2026; no denominator |
 
-Counts describe source coverage, not current college-wide outcomes. 2027's historical LIVE label means an ongoing source season, not automatic ingestion. Unknown/mixed CTC is excluded from numeric aggregates; unknown dates are excluded from timelines. See the [dictionary](data-dictionary.md).
+Counts describe source coverage, not current college-wide outcomes. 2027's LIVE label means an ongoing source season, not automatic ingestion. Unknown/mixed CTC is excluded from numeric aggregates; unknown dates are excluded from timelines. See the [dictionary](data-dictionary.md).
 
 ## Community and administration
 
@@ -34,7 +34,7 @@ Routes use URL hashes. Bare statistics routes default to 2026.
 | `#home` | Visible years and community entry |
 | `#statistics` | Selected-batch shortcut or year chooser |
 | `#2025/overview`, `#2026/overview` | Batch dashboards; other page names: `companies`, `company/<key>`, `branches`, `candidates`, `timeline`, `insights`, `explore` |
-| `#2027/overview` | Current configuration redirects to Home |
+| `#2027/overview` | Ongoing 2027 statistics; available from batch selection |
 | `#procedures` | Company/experience browsing |
 | `#procedures/<postId>` | Experience reader |
 | `#procedures/contribute?draft=<id>` | New editor or owner's draft |
