@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseRoute } from '../../src/app/routing';
+import { parseRoute, visibleYears, hiddenYears } from '../../src/app/routing';
 test('new public and portal routes remain distinct from legacy statistics links', () => {
   assert.equal(parseRoute('').page, 'landing');
   assert.equal(parseRoute('#login').page, 'login');
@@ -12,5 +12,7 @@ test('new public and portal routes remain distinct from legacy statistics links'
   assert.equal(parseRoute('#2025').page, 'overview');
   assert.equal(parseRoute('#2027/').page, 'overview');
   assert.equal(parseRoute('#2026/overview').year, 2026);
+  assert.deepEqual(visibleYears, [2027,2026,2025]);
+  assert.equal(hiddenYears.has(2027), false);
   assert.equal(parseRoute('#2025/company/%bad').parameter, undefined);
 });

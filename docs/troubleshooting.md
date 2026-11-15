@@ -12,7 +12,7 @@ These remedies follow checked-in guards and error paths. They are not claims tha
 | Existing account with another provider | Arrange authenticated account linking with the owner; do not delete/recreate the UID |
 | Firestore permission denied | Check Google verification, account policy, target project, active version and deployed rules. Do not loosen rules to make a query pass |
 | Missing published batch | Publish/verify the selected year in the intended project; committed JSON alone is insufficient |
-| 2027 returns Home | Intended current `hiddenYears` behavior, not a failed data import |
+| 2027 is missing or returns Home | The ongoing batch is enabled. Check for an older deployed frontend or cached build; its routes should remain on the selected 2027 section. |
 | Missing chunk/hash/schema error | Run trusted `db:verify`; investigate incomplete/conflicting publication. Prepare a corrected immutable version rather than editing active chunks |
 | Statistics work but community fails | Check `/api/procedures`, server credentials, compiled module inclusion, proxy port 5002 and index readiness |
 | API 503 module loading | Run backend build and confirm `functions/lib/functions/src/http.js` plus its imports are packaged |

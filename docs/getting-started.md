@@ -21,7 +21,7 @@ npm run dev:beta
 
 Open `http://localhost:5174`. Test buttons provide contributor, reader and admin accounts. These are Google-shaped emulator sessions, gated by development mode, emulator mode and `VITE_LOCAL_BETA`, not real OAuth accounts.
 
-The launcher builds backend code, starts Auth/Firestore/Functions for `demo-placementstats`, seeds all three batches and the recruiter directory, imports test accounts and starts Vite. It supplies demo configuration; no live `.env` is needed. Only 2025/2026 are visible because routing hides 2027. Stop with Ctrl+C; fixtures are not exported for persistence.
+The launcher builds backend code, starts Auth/Firestore/Functions for `demo-placementstats`, seeds all three batches and the recruiter directory, imports test accounts and starts Vite. It supplies demo configuration; no live `.env` is needed. All three batches are visible; 2027 is marked as an ongoing season. Stop with Ctrl+C; fixtures are not exported for persistence.
 
 | Service | Address/port |
 | --- | --- |

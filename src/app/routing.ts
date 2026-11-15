@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 export const years = [2027, 2026, 2025] as const;
-// Keep the 2027 dataset and routes available for re-enabling later.
-export const hiddenYears = new Set<number>([2027]);
+// The ongoing Class of 2027 season is visible alongside historical batches.
+export const hiddenYears = new Set<number>();
 export const visibleYears = years.filter(year => !hiddenYears.has(year));
 export const statisticsPages = ['overview','companies','company','branches','candidates','timeline','insights','explore'];
 export type Route = { page: string; parameter?: string; year: number };

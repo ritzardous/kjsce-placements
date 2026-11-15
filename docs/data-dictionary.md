@@ -29,5 +29,5 @@
 - The 2026 B.Tech registration base is 524, sourced to the T&PO director's 19 September 2025 mail.
 - Selection counts and company hire labels describe reported selections, not accepted offers or joining outcomes.
 - CTC does not imply base salary or take-home pay.
-- 2025 and retained 2027 have no sourced registration denominator; placement rate remains unavailable. Current routing hides 2027; see [features](features.md).
+- 2025 and ongoing 2027 have no sourced registration denominator; placement rate remains unavailable. All three batches are visible; see [features](features.md).
 - The original dataset provides no candidate-specific numerical values for its mixed compensation announcement; those rows remain excluded from compensation calculations.

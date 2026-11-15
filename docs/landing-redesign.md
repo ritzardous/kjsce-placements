@@ -34,7 +34,7 @@ The previous hero used fixed minimum heights alongside typography scaled only to
 
 ## Data provenance
 
-`archive-data.ts` contains only source-verified 2025/2026 examples, using source-specific route keys. `tests/landing-archive.test.ts` checks those combinations against the checked-in fixtures. IBM remains excluded because it appears only in the hidden 2027 data.
+`archive-data.ts` contains only source-verified 2025/2026 examples, using source-specific route keys. `tests/landing-archive.test.ts` checks those combinations against the checked-in fixtures. IBM remains excluded from these 2025/2026 landing examples because it appears only in the 2027 data.
 
 The original supplied [reference](https://github.com/Team-Managed/EVM-Web3MCP/blob/main/apps/website/components/HeroRibbonWave.tsx) was inspected during V1. This implementation uses original 3D woven pathways and SVG route traces, rather than that implementation's ASCII/dither ribbon.
 

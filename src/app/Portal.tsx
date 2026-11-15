@@ -1,3 +1,4 @@
+import { SeasonStatus } from '../ui/SeasonStatus';
 import { ProductFooter } from '../ui/ProductFooter';
 import LandingPage from '../landing/LandingPage';
 import {AppUtilities} from '../ui/AppUtilities';
@@ -27,7 +28,7 @@ export function PortalShell({ active, children, writing = false }: { active: str
 }
 export function Landing({ deepLink = false }: { deepLink?: boolean }) { return <LandingPage deepLink={deepLink}/>; }
 export function YearChoices() {
-  return <section aria-labelledby="years-title"><div className="portal-section-heading"><h2 id="years-title">Choose a batch</h2></div><div className="year-grid">{visibleYears.map(year => <a className={`year-card home-card ${year === 2027 ? 'year-card-live' : ''}`} key={year} href={routeHref('overview',year)}><div className="year-card-top"><span>{academicYear(year)}</span>{year === 2027 ? <span className="live-badge">LIVE</span> : <span className="year-status">HISTORICAL</span>}</div><h3>Class of {year}</h3><span className="year-card-link">View statistics <span aria-hidden="true">↗</span></span></a>)}</div></section>;
+  return <section aria-labelledby="years-title"><div className="portal-section-heading"><h2 id="years-title">Choose a batch</h2></div><div className="year-grid">{visibleYears.map(year => <a className={`year-card home-card ${year === 2027 ? 'year-card-live' : ''}`} key={year} href={routeHref('overview',year)}><div className="year-card-top"><span>{academicYear(year)}</span>{year === 2027 ? <SeasonStatus/> : <span className="year-status">HISTORICAL</span>}</div><h3>Class of {year}</h3><span className="year-card-link">View statistics <span aria-hidden="true">↗</span></span></a>)}</div></section>;
 }
 export function Home({ statisticsOnly = false }: { statisticsOnly?: boolean }) {
   const { user } = useAuth();

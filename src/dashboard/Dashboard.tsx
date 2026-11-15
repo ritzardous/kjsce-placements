@@ -1,3 +1,4 @@
+import { SeasonStatus } from '../ui/SeasonStatus';
 import { SourceNotes } from './SourceNotes';
 import {AppUtilities} from '../ui/AppUtilities';
 import { FetchLoader } from '../ui/FetchLoader';
@@ -69,8 +70,9 @@ export default function Dashboard({ route }: { route: Route }) {
   else if(active==='explore')page=<CareerExplorer statistics={s} view={route.page==='explore'?route.parameter:route.page} filters={candidateFilters} setFilters={setCandidateFilters}/>;
   else page = <Overview statistics={s} />;
   const notes = data?.metadata.extraction_notes;
+  const sourceUpdated = data?.metadata.source_updated_at;
   return <div id="app"><AppHeader active="statistics"/>
-    <main id="main" key={route.year}><nav className="nav dashboard-desktop-nav" aria-label="Dashboard">{nav.map(([key, label]) => <a className={'nav-item ' + (active === key ? 'active' : '')} aria-current={active === key ? 'page' : undefined} key={key} href={routeHref(key, route.year)}><AppIcon name={sectionIcons[key]}/><span>{label}</span></a>)}</nav>{page}{s && route.page !== 'company' && <SourceNotes key={`${route.year}/${route.page}/${route.parameter ?? ""}`}><ul>
+    <main id="main" key={route.year}><nav className="nav dashboard-desktop-nav" aria-label="Dashboard">{nav.map(([key, label]) => <a className={'nav-item ' + (active === key ? 'active' : '')} aria-current={active === key ? 'page' : undefined} key={key} href={routeHref(key, route.year)}><AppIcon name={sectionIcons[key]}/><span>{label}</span></a>)}</nav>{route.year===2027&&s?.batch.year===2027&&<aside className="live-notice"><SeasonStatus label="Placements ongoing"/>{typeof sourceUpdated==='string'&&<span>Latest included email: {date(sourceUpdated.slice(0,10),true)}</span>}<span className="season-linkedin-note">LinkedIn profiles for this batch are coming soon.</span></aside>}{page}{s && route.page !== 'company' && <SourceNotes key={`${route.year}/${route.page}/${route.parameter ?? ""}`}><ul>
       <li>{s.batch.registrationSource} Placement rate counts unique students, not selections. No rate is shown without a registration total.</li>
       <li>{s.batch.year === 2025 ? 'Final UG report, enriched with email results. Includes on-campus and off-campus selections. CTC averages are selection-weighted.' : 'Reviewed T&PO announcements; coverage is limited to supplied records. CTC averages are announcement-weighted.'} Unknown or mixed CTC values are excluded from averages.</li>
       <li>TPO counters, selections and unique students are separate measures. Missing counters remain unknown. {s.candidates.filter(c=>c.date===null).length} undated selections count toward totals but not timeline charts.</li>

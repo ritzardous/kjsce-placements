@@ -19,14 +19,14 @@ Placement announcements are useful evidence, but difficult to compare across com
 
 ## What is implemented
 
-- **Placement exploration:** company and branch views, candidate search, timelines, compensation distributions, insights and source notes for visible 2025 and 2026 batches.
+- **Placement exploration:** company and branch views, candidate search, timelines, compensation distributions, insights and source notes for visible 2025, 2026 and ongoing 2027 batches.
 - **Traceable calculations:** immutable publications with SHA-256 verification and schema validation. Unknown dates, compensation and registration denominators remain unknown.
 - **Reviewed experiences:** Live formatted drafts, version conflicts, submission snapshots, moderation, voting, bookmarks and private reports.
 - **Personal updates:** an in-app inbox with read/archive controls and opt-in company, experience and batch follows.
 - **Administrative operations:** moderation, account access, staged imports, guarded publication/rollback, identity repairs, audit history and bounded analytics.
 - **Responsive interface:** theme controls, keyboard navigation, reduced-motion treatments and static fallbacks for lazy-loaded landing graphics.
 
-The 2027 snapshot is retained and tested but hidden by current routing. New questions/replies and alumni contacts are unavailable. See [features and limits](docs/features.md).
+The 2027 season is visible with reviewed results through 4 November 2026. LIVE denotes an ongoing season, not automatic email ingestion. New questions/replies and alumni contacts are unavailable. See [features and limits](docs/features.md).
 
 ## Architecture at a glance
 

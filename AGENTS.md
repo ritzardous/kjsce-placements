@@ -47,7 +47,7 @@ Non-negotiable architectural facts:
 - Community writes go through the trusted Node API in production. Browser Firestore writes are denied except for the owner's constrained `users/{uid}.displayName` profile field.
 - `functions/src/index.ts` callable wrappers exist for isolated emulator testing. Production does **not** require Cloud Functions or a Blaze upgrade.
 - Placement data is published as immutable `batches/{year}/versions/{sha256}` documents with `views/chunk-####` payloads. The original source records live under private `imports/` paths.
-- The 2027 dataset and routes are retained but hidden by current routing. Do not "fix" that without an explicit product decision.
+- The maintainer re-enabled the ongoing 2027 batch on 15 November 2026. It is visible in batch selection and statistics routes; LIVE means reviewed ongoing-season coverage, not automatic ingestion.
 
 If a task appears to require changing one of these facts, treat it as an architecture decision and ask first.
 

@@ -53,7 +53,7 @@
 .year-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
 .year-card{display:flex;flex-direction:column;background:white;border:1px solid var(--line);padding:26px;min-height:250px;}
 .year-card:hover{border-color:var(--accent);box-shadow:4px 4px 0 var(--accent-dim);}
-.year-card-live{border-top:3px solid #078b65;padding-top:24px;}
+
 .year-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;font:500 11px var(--font-mono);}
 .year-status{font-size:9px;color:var(--ink-soft);}
 .year-card h3{font:600 27px var(--font-display);letter-spacing:-.03em;margin:25px 0 10px;}
@@ -90,7 +90,7 @@
 .skip-link:focus{top:12px;}
 :focus-visible{outline:2px solid var(--accent);outline-offset:4px;}
 @media(max-width:850px){.landing-hero{gap:32px;padding:48px 0;}.hero-copy h1{font-size:44px;}.landing-preview{padding:22px;}.pillar-grid article{padding:22px;}.year-grid{gap:12px;}.year-card{padding:20px;}.year-card h3{font-size:22px;}.year-card-top{flex-wrap:wrap;}.community-entry,.landing-trust{align-items:flex-start;flex-direction:column;}.recruiter-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
-@media(max-width:600px){.landing-header,.portal-header-inner{padding:20px;}.landing-main{padding:0 20px;}.landing-hero{grid-template-columns:1fr;gap:40px;}.hero-copy h1{font-size:46px;}.hero-copy>p{font-size:14px;}.landing-preview h2{font-size:30px;}.pillar-grid,.year-grid,.recruiter-grid{grid-template-columns:1fr;}.pillar-grid article+article{border-left:0;border-top:1px solid var(--line-soft);}.portal-section-heading h2,.landing-trust h2{font-size:26px;}.portal-main{padding:34px 20px 44px;}.area-nav{padding:14px 20px;gap:22px;}.portal-welcome{margin-bottom:30px;}.year-card{min-height:230px;padding:24px;}.year-card-live{padding-top:22px;}.year-card h3{font-size:28px;}.community-entry{padding:24px;}.portal-footer{padding:24px 20px;flex-direction:column;}.login-card{padding:28px;}.login-card h1{font-size:32px;}.login-main{padding:32px 20px;}.portal-empty{padding:28px 24px;}.portal-empty h2{font-size:24px;}.preview-year{grid-template-columns:1fr 1fr auto;}.portal-link{white-space:normal;}}
+@media(max-width:600px){.landing-header,.portal-header-inner{padding:20px;}.landing-main{padding:0 20px;}.landing-hero{grid-template-columns:1fr;gap:40px;}.hero-copy h1{font-size:46px;}.hero-copy>p{font-size:14px;}.landing-preview h2{font-size:30px;}.pillar-grid,.year-grid,.recruiter-grid{grid-template-columns:1fr;}.pillar-grid article+article{border-left:0;border-top:1px solid var(--line-soft);}.portal-section-heading h2,.landing-trust h2{font-size:26px;}.portal-main{padding:34px 20px 44px;}.area-nav{padding:14px 20px;gap:22px;}.portal-welcome{margin-bottom:30px;}.year-card{min-height:230px;padding:24px;}.year-card h3{font-size:28px;}.community-entry{padding:24px;}.portal-footer{padding:24px 20px;flex-direction:column;}.login-card{padding:28px;}.login-card h1{font-size:32px;}.login-main{padding:32px 20px;}.portal-empty{padding:28px 24px;}.portal-empty h2{font-size:24px;}.preview-year{grid-template-columns:1fr 1fr auto;}.portal-link{white-space:normal;}}
 
 .auth-button{display:inline-block;white-space:nowrap;}
 .auth-button[aria-current="page"]{color:var(--accent);border-color:var(--accent);}

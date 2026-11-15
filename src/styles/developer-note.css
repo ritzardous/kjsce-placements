@@ -5,7 +5,6 @@
 .note-header .theme-toggle { min-width:44px; min-height:44px; border:1px solid var(--identity-rule); border-radius:50%; background:transparent; color:inherit; display:grid; place-items:center; }
 .note-header .app-icon { width:20px; height:20px; }
 .developer-note { max-width:820px; margin:auto; padding:72px 32px 80px; }
-.note-kicker { font:500 11px/1.6 var(--font-mono); letter-spacing:.1em; color:var(--identity-muted); }
 .note-intro h1 { font:400 clamp(38px,6vw,66px)/1.13 var(--font-editorial); letter-spacing:-.045em; margin:20px 0 24px; }
 .note-lead { max-width:610px; font-size:18px; color:var(--identity-muted); }
 .note-signature { margin:24px 0 36px; font-size:13px; }
@@ -44,7 +43,12 @@
 .note-repository { display:inline-flex; align-items:center; gap:12px; min-height:44px; font-size:14px; }
 .note-repository .app-icon { width:18px; height:18px; }
 .note-policy-divider { padding-top:48px; }
+.note-policy-divider h2 { margin-bottom:12px; }
 .note-policy-divider>p:last-child { color:var(--identity-muted); font-size:14px; margin:8px 0 0; }
+.note-legal { font-size:15px; line-height:1.85; overflow-wrap:anywhere; }
+.developer-note .note-legal h2 { font:600 clamp(23px,3.4vw,29px)/1.35 var(--font-body); letter-spacing:-.035em; margin:0 0 32px; }
+.note-legal h3 { font:600 16px/1.5 var(--font-body); letter-spacing:-.015em; margin:32px 0 12px; }
+.note-legal p { max-width:74ch; color:var(--identity-muted); }
 .developer-note-page .note-return {
   position:fixed; right:24px; bottom:calc(20px + env(safe-area-inset-bottom,0px)); z-index:60;
   display:flex; align-items:center; justify-content:center; gap:10px; min-height:48px; padding:12px 18px;

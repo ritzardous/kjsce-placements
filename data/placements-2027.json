@@ -5,18 +5,28 @@
     "degree_scope": "UG",
     "season_status": "ongoing",
     "source_manifest": {
-      "source_file": "27batchemailthread.pdf",
-      "pages": 16,
-      "sha256": "ba053226777b4080ca7ed0a13a75bd1b0b7ca2dd5e14b82c7fe74081bac2685a",
-      "exported_at": "2026-10-08T17:03:00+05:30",
-      "latest_email_at": "2026-10-08T14:42:00+05:30",
-      "messages": 22
+      "source_file": "27batch all placements till now.pdf",
+      "pages": 21,
+      "sha256": "99e4e56eafdf781d30734344d4464fe8df18fe2f940afc20c8f5b9a2275b62b9",
+      "exported_at": "2026-11-15T19:15:27+05:30",
+      "latest_email_at": "2026-11-06T15:05:00+05:30",
+      "messages": 30,
+      "previous_sources": [
+        {
+          "source_file": "27batchemailthread.pdf",
+          "pages": 16,
+          "sha256": "ba053226777b4080ca7ed0a13a75bd1b0b7ca2dd5e14b82c7fe74081bac2685a",
+          "exported_at": "2026-10-08T17:03:00+05:30",
+          "latest_email_at": "2026-10-08T14:42:00+05:30",
+          "messages": 22
+        }
+      ]
     },
-    "source_updated_at": "2026-10-08T14:42:00+05:30",
+    "source_updated_at": "2026-11-06T15:05:00+05:30",
     "extraction_notes": [
-      "Ongoing placement season: this is the supplied email snapshot, not an automatic real-time email feed. Latest included email: 8 October 2026; latest declared result: 6 October 2026.",
-      "All 22 announcements and 121 candidate rows were transcribed from the 16-page image-based PDF and checked visually. Source file and page references are retained for each announcement.",
-      "The final sourced TPO counter is 121. Candidate selections and distinct roll numbers independently reconcile to 121; no milestone poster is counted as a separate result.",
+      "Ongoing placement season: this is the supplied email snapshot, not an automatic real-time email feed. Latest included email: 2026-11-06T15:05:00+05:30; latest declared result: 2026-11-04.",
+      "The reviewed transcription contains 30 announcements and 142 candidate rows. The latest source is 27batch all placements till now.pdf (21 image-based pages); earlier records retain their original source file and page references.",
+      "Every sourced running TPO counter reconciles to the cumulative candidate selections; the final counter is 142. Distinct students are counted independently by roll number; no milestone poster is counted as a separate result.",
       "Registration total is absent, so placement rate and unplaced count remain unavailable. Branch labels, including AI & DS, CCE, EXCP and RAI, follow the printed tables rather than older-batch branch assumptions.",
       "TCS Prime/Digital, KPMG, and Deloitte announcements contain mixed CTC bands and have no single numerical announcement CTC. Their source package text and role groups are preserved; these 52 selections are excluded from numerical compensation statistics.",
       "Average and median overview CTC remain announcement-weighted, consistent with the 2026 email dashboard. Branch CTC is selection-weighted; both exclude mixed/unknown numerical CTC. These are not official college averages.",
@@ -1562,6 +1572,433 @@
           16
         ],
         "raw_announcement_text": null
+      },
+      "notes": null
+    },
+    {
+      "placement_id": "Y27-0023",
+      "company": {
+        "name": "Bizom",
+        "normalized_name": "bizom",
+        "type": "IT"
+      },
+      "result": {
+        "declared_date": "2026-10-15",
+        "original_date_text": "15 - Oct - 2026"
+      },
+      "compensation": {
+        "ctc_text": "8.00 LPA",
+        "ctc_value_lpa": 8,
+        "currency": "INR",
+        "period": "year"
+      },
+      "roles": [
+        "Integration Coordinator"
+      ],
+      "hiring": {
+        "students_hired": 2,
+        "placement_count": 123
+      },
+      "candidates": [
+        {
+          "name": "Monish Dhiren Sampat",
+          "roll_number": "16014123031",
+          "branch": "CCE",
+          "role": "Integration Coordinator"
+        },
+        {
+          "name": "Ritessh Ratan Santra",
+          "roll_number": "16014023045",
+          "branch": "EXCP",
+          "role": "Integration Coordinator"
+        }
+      ],
+      "source": {
+        "source_file": "27batch all placements till now.pdf",
+        "page": 16,
+        "pages": [
+          16,
+          17
+        ],
+        "raw_announcement_text": null,
+        "email_sent_at": "2026-10-15T15:41:00+05:30"
+      },
+      "notes": null
+    },
+    {
+      "placement_id": "Y27-0024",
+      "company": {
+        "name": "ICICI Prudential AMC",
+        "normalized_name": "icici-prudential-amc",
+        "type": "BFSI"
+      },
+      "result": {
+        "declared_date": "2026-10-15",
+        "original_date_text": "15 - Oct - 2026"
+      },
+      "compensation": {
+        "ctc_text": "8.50 LPA",
+        "ctc_value_lpa": 8.5,
+        "currency": "INR",
+        "period": "year"
+      },
+      "roles": [
+        "Trainee - AI & Analytics"
+      ],
+      "hiring": {
+        "students_hired": 4,
+        "placement_count": 127
+      },
+      "candidates": [
+        {
+          "name": "Amrit Nigam",
+          "roll_number": "16010123038",
+          "branch": "COMP",
+          "role": "Trainee - AI & Analytics"
+        },
+        {
+          "name": "Arpit Mishra",
+          "roll_number": "16010123075",
+          "branch": "COMP",
+          "role": "Trainee - AI & Analytics"
+        },
+        {
+          "name": "Manik Prakash",
+          "roll_number": "16010123191",
+          "branch": "COMP",
+          "role": "Trainee - AI & Analytics"
+        },
+        {
+          "name": "Sanjana Madan Chavan",
+          "roll_number": "16010123303",
+          "branch": "COMP",
+          "role": "Trainee - AI & Analytics"
+        }
+      ],
+      "source": {
+        "source_file": "27batch all placements till now.pdf",
+        "page": 17,
+        "pages": [
+          17
+        ],
+        "raw_announcement_text": null,
+        "email_sent_at": "2026-10-16T12:13:00+05:30"
+      },
+      "notes": null
+    },
+    {
+      "placement_id": "Y27-0025",
+      "company": {
+        "name": "Capgemini",
+        "normalized_name": "capgemini",
+        "type": "IT"
+      },
+      "result": {
+        "declared_date": "2026-10-16",
+        "original_date_text": "16 - Oct - 2026"
+      },
+      "compensation": {
+        "ctc_text": "7.50 LPA",
+        "ctc_value_lpa": 7.5,
+        "currency": "INR",
+        "period": "year"
+      },
+      "roles": [
+        "Software Engineer"
+      ],
+      "hiring": {
+        "students_hired": 1,
+        "placement_count": 128
+      },
+      "candidates": [
+        {
+          "name": "Palak Pravin Nagar",
+          "roll_number": "16010123227",
+          "branch": "COMP",
+          "role": "Software Engineer"
+        }
+      ],
+      "source": {
+        "source_file": "27batch all placements till now.pdf",
+        "page": 18,
+        "pages": [
+          18
+        ],
+        "raw_announcement_text": null,
+        "email_sent_at": "2026-10-17T10:59:00+05:30"
+      },
+      "notes": null
+    },
+    {
+      "placement_id": "Y27-0026",
+      "company": {
+        "name": "IKS Health",
+        "normalized_name": "iks-health",
+        "type": "IT"
+      },
+      "result": {
+        "declared_date": "2026-10-19",
+        "original_date_text": "19 - Oct - 2026"
+      },
+      "compensation": {
+        "ctc_text": "8.00 LPA",
+        "ctc_value_lpa": 8,
+        "currency": "INR",
+        "period": "year"
+      },
+      "roles": [
+        "Tech Engineer",
+        "Business Analyst"
+      ],
+      "hiring": {
+        "students_hired": 7,
+        "placement_count": 135
+      },
+      "candidates": [
+        {
+          "name": "Rajdeep Udhav Jadhav",
+          "roll_number": "16010423072",
+          "branch": "IT",
+          "role": "Tech Engineer"
+        },
+        {
+          "name": "Sohan Rajesh Bhadalkar",
+          "roll_number": "16010123065",
+          "branch": "COMP",
+          "role": "Tech Engineer"
+        },
+        {
+          "name": "Archit Singh",
+          "roll_number": "16010123057",
+          "branch": "COMP",
+          "role": "Tech Engineer"
+        },
+        {
+          "name": "Ambuj Kumar Rai",
+          "roll_number": "16010123037",
+          "branch": "COMP",
+          "role": "Tech Engineer"
+        },
+        {
+          "name": "Aditya - Manoj",
+          "roll_number": "16014223005",
+          "branch": "AI & DS",
+          "role": "Tech Engineer"
+        },
+        {
+          "name": "Aryan Singh Thakur",
+          "roll_number": "16014023012",
+          "branch": "EXCP",
+          "role": "Business Analyst"
+        },
+        {
+          "name": "Manas Dharmesh Pandya",
+          "roll_number": "16014023031",
+          "branch": "EXCP",
+          "role": "Business Analyst"
+        }
+      ],
+      "source": {
+        "source_file": "27batch all placements till now.pdf",
+        "page": 18,
+        "pages": [
+          18,
+          19
+        ],
+        "raw_announcement_text": null,
+        "email_sent_at": "2026-10-21T16:26:00+05:30"
+      },
+      "notes": null
+    },
+    {
+      "placement_id": "Y27-0027",
+      "company": {
+        "name": "Saint Gobain",
+        "normalized_name": "saint-gobain",
+        "type": "Core"
+      },
+      "result": {
+        "declared_date": "2026-10-26",
+        "original_date_text": "26 - Oct - 2026"
+      },
+      "compensation": {
+        "ctc_text": "6.50 LPA",
+        "ctc_value_lpa": 6.5,
+        "currency": "INR",
+        "period": "year"
+      },
+      "roles": [
+        "Associate Software Engineer"
+      ],
+      "hiring": {
+        "students_hired": 2,
+        "placement_count": 137
+      },
+      "candidates": [
+        {
+          "name": "Samruddhi Prashant Ambre",
+          "roll_number": "16010124802",
+          "branch": "COMP",
+          "role": "Associate Software Engineer"
+        },
+        {
+          "name": "Maithily Rajendra Rajpure",
+          "roll_number": "16010123185",
+          "branch": "COMP",
+          "role": "Associate Software Engineer"
+        }
+      ],
+      "source": {
+        "source_file": "27batch all placements till now.pdf",
+        "page": 19,
+        "pages": [
+          19
+        ],
+        "raw_announcement_text": null,
+        "email_sent_at": "2026-10-29T15:07:00+05:30"
+      },
+      "notes": null
+    },
+    {
+      "placement_id": "Y27-0028",
+      "company": {
+        "name": "Zeus Learning",
+        "normalized_name": "zeus-learning",
+        "type": "IT"
+      },
+      "result": {
+        "declared_date": "2026-10-28",
+        "original_date_text": "28 - Oct - 2026"
+      },
+      "compensation": {
+        "ctc_text": "7.80 LPA",
+        "ctc_value_lpa": 7.8,
+        "currency": "INR",
+        "period": "year"
+      },
+      "roles": [
+        "Software Developer"
+      ],
+      "hiring": {
+        "students_hired": 1,
+        "placement_count": 138
+      },
+      "candidates": [
+        {
+          "name": "Ananya Dhiman",
+          "roll_number": "16010123041",
+          "branch": "COMP",
+          "role": "Software Developer"
+        }
+      ],
+      "source": {
+        "source_file": "27batch all placements till now.pdf",
+        "page": 19,
+        "pages": [
+          19,
+          20
+        ],
+        "raw_announcement_text": null,
+        "email_sent_at": "2026-11-02T12:26:00+05:30"
+      },
+      "notes": null
+    },
+    {
+      "placement_id": "Y27-0029",
+      "company": {
+        "name": "Marsh",
+        "normalized_name": "marsh",
+        "type": "IT"
+      },
+      "result": {
+        "declared_date": "2026-11-02",
+        "original_date_text": "2 - Nov - 2026"
+      },
+      "compensation": {
+        "ctc_text": "7.50 LPA",
+        "ctc_value_lpa": 7.5,
+        "currency": "INR",
+        "period": "year"
+      },
+      "roles": [
+        "Trainee Engineer"
+      ],
+      "hiring": {
+        "students_hired": 2,
+        "placement_count": 140
+      },
+      "candidates": [
+        {
+          "name": "Mohak Pramod Jaiswal",
+          "roll_number": "16010423054",
+          "branch": "IT",
+          "role": "Trainee Engineer"
+        },
+        {
+          "name": "Yashvi Lohiya",
+          "roll_number": "16014223112",
+          "branch": "AI & DS",
+          "role": "Trainee Engineer"
+        }
+      ],
+      "source": {
+        "source_file": "27batch all placements till now.pdf",
+        "page": 20,
+        "pages": [
+          20
+        ],
+        "raw_announcement_text": null,
+        "email_sent_at": "2026-11-04T13:37:00+05:30"
+      },
+      "notes": null
+    },
+    {
+      "placement_id": "Y27-0030",
+      "company": {
+        "name": "Framatome",
+        "normalized_name": "framatome",
+        "type": "Core"
+      },
+      "result": {
+        "declared_date": "2026-11-04",
+        "original_date_text": "4 - Nov - 2026"
+      },
+      "compensation": {
+        "ctc_text": "5.37 LPA",
+        "ctc_value_lpa": 5.37,
+        "currency": "INR",
+        "period": "year"
+      },
+      "roles": [
+        "Graduate Engineer Trainee"
+      ],
+      "hiring": {
+        "students_hired": 2,
+        "placement_count": 142
+      },
+      "candidates": [
+        {
+          "name": "Shubham Shrinarayan Mishra",
+          "roll_number": "16010523043",
+          "branch": "MECH",
+          "role": "Graduate Engineer Trainee"
+        },
+        {
+          "name": "Preet Amod Kalamkar",
+          "roll_number": "16010522026",
+          "branch": "MECH",
+          "role": "Graduate Engineer Trainee"
+        }
+      ],
+      "source": {
+        "source_file": "27batch all placements till now.pdf",
+        "page": 20,
+        "pages": [
+          20,
+          21
+        ],
+        "raw_announcement_text": null,
+        "email_sent_at": "2026-11-06T15:05:00+05:30"
       },
       "notes": null
     }

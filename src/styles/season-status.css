@@ -1,0 +1,27 @@
+/* A single breathing status bar. No nested shapes or expanding outlines. */
+:is(#app,.portal-shell) .live-badge.season-status {
+  display:inline-flex; align-items:center; gap:8px; flex:none;
+  padding:3px 0; margin:0; border:0; border-radius:0;
+  background:transparent; color:var(--identity-muted);
+  font:500 12px/1.5 var(--font-body); letter-spacing:0; text-transform:none;
+}
+:is(#app,.portal-shell) .live-badge.season-status::before { content:none; }
+.season-status .season-status-mark {
+  display:block; width:3px; height:12px; flex:none;
+  color:#087f5b; background:currentColor; border-radius:1px;
+  animation:season-status-pulse 3.2s cubic-bezier(.45,0,.55,1) infinite;
+}
+[data-theme=dark] .season-status .season-status-mark { color:#69dba6; }
+@keyframes season-status-pulse {
+  0%,100% { opacity:.45; }
+  50% { opacity:1; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .season-status .season-status-mark { animation:none; opacity:1; }
+}
+:is(#app,.portal-shell) .live-notice {
+  border:0; padding:0; margin:22px 0 6px; gap:6px 16px; align-items:center;
+  color:var(--identity-muted); font-size:12px;
+}
+:is(#app,.portal-shell) .live-notice .season-status { color:var(--identity-ink); }
+.live-notice .season-linkedin-note { flex-basis:100%; }

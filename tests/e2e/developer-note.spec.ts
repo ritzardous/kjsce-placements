@@ -7,13 +7,13 @@ test('developer note is public, navigable and honest about data practices', asyn
   await expect(page.locator('#note-story')).toContainText('Class of 2027');
   await page.getByRole('navigation',{name:'About this project'}).getByRole('link',{name:'Privacy',exact:true}).click();
   await expect(page).toHaveURL(/#about\/privacy$/);
-  await expect(page.getByRole('heading',{name:'Know what you’re sharing.'})).toBeInViewport();
+  await expect(page.getByRole('heading',{name:'2. Privacy and personal data',exact:true})).toBeInViewport();
   await expect(page.locator('#note-privacy')).toContainText('not a promise of complete erasure');
   await expect(page.locator('#note-contact a[href^="mailto:"]')).toHaveCount(3);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.getByRole('navigation',{name:'About this project'}).getByRole('link',{name:'Using the app'}).click();
-  await expect(page.locator('#note-terms')).toContainText('independent student-built project');
-  await expect(page.locator('#note-terms')).toContainText('do not imply affiliation');
+  await expect(page.locator('#note-sources')).toContainText('independent student-built project');
+  await expect(page.locator('#note-sources')).toContainText('do not imply affiliation');
 });
 
 test('footer opens the note and alumni card omits decorative clutter', async ({page}) => {
@@ -81,4 +81,23 @@ test('about copy names source types and uses no em dashes',async({page})=>{
  await page.goto('/#about/sources');await expect(page.locator('#note-sources')).toBeVisible();
  await expect(page.locator('#note-sources')).toContainText('official T&PO emails');await expect(page.locator('#note-sources')).toContainText('college website');await expect(page.locator('#note-sources')).toContainText('unofficial web sources');
  await expect(page.locator('.developer-note-page')).not.toContainText('—');
+ await expect(page.locator('.note-kicker')).toHaveCount(0);
+ await expect(page.locator('#note-privacy')).toContainText('does not make those repository copies confidential');
+ await expect(page.locator('#note-privacy')).toContainText('phased commencement');
+ await expect(page.locator('#note-terms')).toContainText('Nothing in this notice excludes or limits a liability that applicable law prohibits excluding');
+ await expect(page.locator('#note-privacy a[href*="c56ceae6"]')).toHaveCount(1);
+ await page.setViewportSize({width:320,height:740});
+ await page.goto('/#about');
+ for(const section of ['sources','privacy','terms']) {
+   await page.goto('/#about/'+section);
+   await expect(page.locator('#note-'+section+' h2')).toBeInViewport();
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+   await expect(page.getByRole('link',{name:'Back to Placement Stats',exact:true})).toBeInViewport();
+   await page.screenshot({path:`artifacts/legal-${section}-${test.info().project.name}.png`});
+ }
+ await page.locator('.note-header .theme-toggle').click();
+ await expect(page.locator('html')).not.toHaveClass(/theme-transitioning/);
+ await page.locator('#note-terms h2').scrollIntoViewIfNeeded();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:`artifacts/legal-dark-${test.info().project.name}.png`});
 });
