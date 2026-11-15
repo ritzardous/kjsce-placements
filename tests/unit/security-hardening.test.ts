@@ -5,6 +5,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import handler from '../../api/procedures.mjs';
 import { createCompanySchema, initialProcedureDraft, procedureDraftSchema } from '../../shared/procedures';
 import { notificationSettingsSchema } from '../../shared/notifications';
+import { safeWritingLink } from '../../src/procedures/writing-links';
 
 const root = new URL('../../', import.meta.url);
 const config = JSON.parse(readFileSync(new URL('vercel.json', root), 'utf8')) as {
@@ -28,7 +29,7 @@ test('every hosted route sends the security header policy', () => {
   assert.equal(headers.get('cross-origin-opener-policy'), 'same-origin-allow-popups');
   assert.match(headers.get('permissions-policy') ?? '', /camera=\(\)/);
   const csp = headers.get('content-security-policy') ?? '';
-  for (const directive of ["default-src 'self'", "base-uri 'self'", "object-src 'none'", "frame-ancestors 'none'", "form-action 'self'", "script-src 'self'", "worker-src 'self' blob:"]) {
+  for (const directive of ["default-src 'self'", "base-uri 'self'", "object-src 'none'", "frame-ancestors 'none'", "form-action 'self'", "upgrade-insecure-requests", "script-src 'self'", "worker-src 'self' blob:"]) {
     assert.ok(csp.includes(directive), directive);
   }
   assert.doesNotMatch(csp, /script-src[^;]*'unsafe-inline'/);
@@ -82,4 +83,44 @@ test('the API adapter rejects non-JSON requests before authentication', async ()
   assert.equal(res.statusCode, 400);
   assert.equal(headers['x-content-type-options'], 'nosniff');
   assert.match(res.body, /application\/json/);
+});
+
+test('the API adapter rejects oversized declared content-length', async () => {
+  const headers: Record<string, string> = {};
+  const res = {
+    statusCode: 0,
+    body: '',
+    setHeader(key: string, value: string) { headers[key.toLowerCase()] = value; },
+    end(body: string) { this.body = body; },
+  };
+  await handler(
+    { method: 'POST', headers: { 'content-type': 'application/json', 'content-length': '150000' } } as unknown as IncomingMessage,
+    res as unknown as ServerResponse,
+  );
+  assert.equal(res.statusCode, 400);
+  assert.match(res.body, /Request too large/);
+});
+
+test('safeWritingLink permits only safe web/email protocols and drops javascript/data/malformed links', () => {
+  assert.equal(safeWritingLink('https://example.com/path?q=1'), 'https://example.com/path?q=1');
+  assert.equal(safeWritingLink('http://kjsce.somaiya.edu'), 'http://kjsce.somaiya.edu/');
+  assert.equal(safeWritingLink('mailto:student@somaiya.edu'), 'mailto:student@somaiya.edu');
+  assert.equal(safeWritingLink('javascript:alert(1)'), null);
+  assert.equal(safeWritingLink('data:text/html,<script>alert(1)</script>'), null);
+  assert.equal(safeWritingLink('vbscript:msgbox(1)'), null);
+  assert.equal(safeWritingLink('https://user:pass@evil.com'), null);
+  assert.equal(safeWritingLink('https://example.com\u0000/null'), null);
+});
+
+test('input fields reject HTML tags and hidden characters in role, customName, title and summary', () => {
+  const base = initialProcedureDraft();
+  assert.equal(procedureDraftSchema.safeParse({ ...base, role: 'Software Engineer' }).success, true);
+  assert.equal(procedureDraftSchema.safeParse({ ...base, role: '<script>alert(1)</script>' }).success, false);
+  assert.equal(procedureDraftSchema.safeParse({ ...base, role: 'Software\u202eEngineer' }).success, false);
+  assert.equal(procedureDraftSchema.safeParse({ ...base, customName: 'Test Student' }).success, true);
+  assert.equal(procedureDraftSchema.safeParse({ ...base, customName: '<b>Admin</b>' }).success, false);
+  assert.equal(procedureDraftSchema.safeParse({ ...base, customName: 'Test\u200bStudent' }).success, false);
+  assert.equal(procedureDraftSchema.safeParse({ ...base, title: '<img src=x onerror=1>' }).success, false);
+  assert.equal(procedureDraftSchema.safeParse({ ...base, summary: '<p>malicious</p>' }).success, false);
+  assert.equal(procedureDraftSchema.safeParse({ ...base, summary: 'Required CPI > 7.5 and CTC < 20 LPA' }).success, true);
 });

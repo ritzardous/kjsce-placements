@@ -13,8 +13,8 @@ export const procedureStarter = `## Rounds I appeared for
 <!-- What helped, and what would you do differently? -->
 `;
 export const procedureDraftSchema = z.object({
-  title: z.string().trim().max(120).refine(value=>!hasHiddenText(value),hiddenTextMessage).default(''),
-  summary: z.string().trim().max(320).default(''),
+  title: z.string().trim().max(120).regex(/^[^<>\x00-\x1f\x7f]*$/, 'Use a plain title without < or >.').refine(value=>!hasHiddenText(value),hiddenTextMessage).default(''),
+  summary: z.string().trim().max(320).refine(val=>!/<[a-zA-Z\/!]/i.test(val),'HTML tags are not allowed in the summary.').refine(value=>!hasHiddenText(value),hiddenTextMessage).default(''),
   rounds: z.array(z.enum(['Aptitude', 'Coding', 'Technical interview', 'HR', 'Group discussion', 'Assignment', 'Other'])).max(7).refine(values=>new Set(values).size===values.length,'Choose each round once.').default([]),
   companyKey: z.string().trim().max(100).regex(/^[a-zA-Z0-9_-]*$/, 'Choose a valid company.').transform(canonicalCompanyKey),
   appearanceYear: z.number().int().min(2000).max(new Date().getFullYear() + 1).nullable(),
@@ -22,9 +22,9 @@ export const procedureDraftSchema = z.object({
   coverage: z.enum(['Full', 'Partial', 'Not specified']),
   campus: z.enum(['On campus', 'Off campus']).optional(),
   outcome: z.enum(['Selected', 'Not selected', 'Result pending', 'Not specified']),
-  role: z.string().trim().max(100),
+  role: z.string().trim().max(100).regex(/^[^<>\x00-\x1f\x7f]*$/, 'Use a plain role name without < or >.').refine(name=>!hasHiddenIdentityText(name),'Remove hidden characters from the role.'),
   attribution: z.enum(['anonymous', 'name', 'custom']),
-  customName: z.string().trim().max(60).default(''),
+  customName: z.string().trim().max(60).regex(/^[^<>\x00-\x1f\x7f]*$/, 'Use a plain name without < or >.').refine(name=>!hasHiddenIdentityText(name),'Remove hidden characters from the name.').default(''),
   body: z.string().max(20_000),
 }).strict().refine(draft=>Object.values(draft).every(value=>typeof value!=='string'||!hasHiddenText(value)),{message:'Remove hidden control characters from your writing.',path:['body']});
 export type ProcedureDraft = z.infer<typeof procedureDraftSchema>;

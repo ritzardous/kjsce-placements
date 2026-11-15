@@ -115,7 +115,7 @@ export async function notificationApi(db: Firestore, uid: string, action: string
       const keys = data.following.map(item => `${item.kind}:${item.key}`);
       if (new Set(keys).size !== keys.length) throw new HttpsError('invalid-argument', 'A follow can only be listed once.');
       for (const follow of data.following) {
-        if (follow.kind === 'batch' && !['2025', '2026'].includes(follow.key)) throw new HttpsError('invalid-argument', 'Choose an available batch.');
+        if (follow.kind === 'batch' && !['2025', '2026', '2027'].includes(follow.key)) throw new HttpsError('invalid-argument', 'Choose an available batch.');
       }
       await db.runTransaction(async tx => {
         const previous = (await tx.get(ref)).data();

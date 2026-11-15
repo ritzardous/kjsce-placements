@@ -47,7 +47,7 @@ export default async function handler(req: Request, res: ServerResponse) {
     try { body = await readBody(req); } catch (cause) { if (cause instanceof HttpsError) throw cause; throw new HttpsError('invalid-argument', 'Send a valid JSON request.'); }
     if (!body || typeof body !== 'object' || Array.isArray(body) || Object.keys(body).some(key=>!['name','data'].includes(key)) || typeof body.name !== 'string') throw new HttpsError('invalid-argument','Invalid request envelope.');
     const name = body.name;operation=name;
-    if (['reviewProcedure', 'unpublishProcedure', 'deleteProcedure'].includes(name) || name === 'procedureCommunity' && (adminCommunityActions.has(body.data?.action) || actor.token.role === 'admin')) {
+    if (['reviewProcedure', 'unpublishProcedure', 'deleteProcedure', 'adminWorkspace'].includes(name) || name === 'procedureCommunity' && (adminCommunityActions.has(body.data?.action) || actor.token.role === 'admin')) {
       authorize(actor, true);
       const account = await auth.getUser(actor.uid);
       if (account.disabled || account.customClaims?.role !== 'admin') throw new HttpsError('permission-denied', 'Admin access has been revoked.');

@@ -14,6 +14,12 @@ export default async function handler(req, res) {
     res.end(JSON.stringify({ error: { code: 'invalid-argument', message: 'Send an application/json request.' } }));
     return;
   }
+  const declared = Number(req.headers['content-length']);
+  if (Number.isFinite(declared) && declared > 100000) {
+    res.statusCode = 400;
+    res.end(JSON.stringify({ error: { code: 'invalid-argument', message: 'Request too large.' } }));
+    return;
+  }
   if (!req.headers.authorization?.match(/^Bearer (\S+)$/)) {
     res.statusCode = 401;
     res.end(JSON.stringify({ error: { code: 'unauthenticated', message: 'Sign in with Google.' } }));

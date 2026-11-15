@@ -209,7 +209,7 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
       return { status: 'pending' };
     }
     case 'report': {
-      const data = parse(z.object({ postId: id, questionId: id.optional(), target: z.enum(['post', 'question', 'answer']), reason: z.enum(['outdated', 'incorrect', 'privacy', 'abuse', 'duplicate']), details: z.string().trim().max(1000).refine(value=>!hasHiddenText(value),hiddenTextMessage) }).strict(), value);
+      const data = parse(z.object({ postId: id, questionId: id.optional(), target: z.enum(['post', 'question', 'answer']), reason: z.enum(['outdated', 'incorrect', 'privacy', 'abuse', 'duplicate']), details: z.string().trim().max(1000).refine(val=>!/<[a-zA-Z\/!]/i.test(val),'HTML tags are not allowed.').refine(value=>!hasHiddenText(value),hiddenTextMessage) }).strict(), value);
       if (data.target !== 'post') {
         required(data.questionId, 'Select a question.');
         const question = await db.doc(`procedureQuestions/${data.questionId}`).get();
