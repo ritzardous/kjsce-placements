@@ -3,7 +3,7 @@ const compact=(value:string)=>value.toLowerCase().replace(/[^a-z]/g,'');
 const aliases:Record<string,string[]>={
   godrej:['godrej_capital','godrej_boyce','godrej_and_boyce_ppo'],
   aptia:['aptia','aptia_india'], edelweiss:['edelweiss_global_markets'],
-  iciciprudential:['icici_prudential_amc_ltd','icici_prudential_life_insurance'],
+  iciciprudential:['icici-prudential','icici_prudential_amc_ltd','icici_prudential_life_insurance'],
   nsci:['ncsi_technologies_india'], parimalpharma:['piramal_pharma'],
   lloyd:['lloyds_advance_defence_systems'], axis:['axis_asset_management_company_ltd'],
   nsdl:['national_securities_depository_ltd'], ion:['ion','ion_group'],
