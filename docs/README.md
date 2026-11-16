@@ -13,6 +13,7 @@ Start with [Getting started](getting-started.md) to run the local beta, [Feature
 | [Agent instructions](../AGENTS.md) | Binding rules, hard stops, standards, and PR compliance |
 | [Getting started](getting-started.md) | Local beta, prerequisites and cloud setup |
 | [Features](features.md) | User journeys, routes and limits |
+| [Analytics](analytics.md) | GA4 setup, privacy boundaries, consent integration and verification |
 | [Search visibility](search-visibility.md) | Public indexing surface, sitemap, metadata and boundaries |
 | [Architecture](architecture.md) | Components and execution flows |
 | [Configuration](configuration.md) | Public settings, server credentials and test controls |

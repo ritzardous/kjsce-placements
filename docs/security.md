@@ -30,7 +30,7 @@ Reports and outcomes are private. Legacy questions are read through server filte
 
 The repository itself contains student names/rolls, source transcriptions and linked-profile mapping. Signed-in access does not restrict eligibility to a college domain. A verified Google account can read approved/statistical content under current rules. Maintainers must confirm publication consent, retention, repository visibility and data rights separately; this code does not establish those policies.
 
-Optional production analytics is enabled only by `VITE_GA_ID`; absence of that setting does not erase hosting/provider logs. Anonymous contribution display is not anonymous storage. Author deletion is not a complete erasure policy for audits, notifications, source records or external backups.
+Optional production analytics requires `VITE_GA_ID`, `VITE_GA_ENABLED=true`, the canonical production origin and no browser opt-out. [Analytics setup](analytics.md) documents manual page views, sanitized labels, required Google stream settings and the consent-manager boundary. No consent banner is implemented; maintainers must resolve applicable consent requirements before enabling collection. Disabling analytics does not erase hosting/provider logs. Anonymous contribution display is not anonymous storage. Author deletion is not a complete erasure policy for audits, notifications, source records or external backups.
 
 ## Operational defenses and gaps
 

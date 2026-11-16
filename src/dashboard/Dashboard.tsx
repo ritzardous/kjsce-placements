@@ -16,26 +16,12 @@ import { Branches, Companies, CompanyDetail, CareerExplorer, Overview, initialCo
 
 import {statisticsSections as nav} from '../app/statistics-navigation';
 const sectionIcons: Record<string,IconName> = {overview:'chart',companies:'building',branches:'branches',explore:'compass'};
-export function initAnalytics() {
-  const id = import.meta.env.VITE_GA_ID;
-  if (!import.meta.env.PROD || !id || document.getElementById('google-analytics')) return;
-  const dataLayer: unknown[][] = [];
-  Object.assign(window, { dataLayer });
-  const gtag = (...args: unknown[]) => dataLayer.push(args);
-  Object.assign(window, { gtag });
-  const script = document.createElement('script');
-  script.id = 'google-analytics'; script.async = true;
-  script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(id);
-  document.head.appendChild(script);
-  gtag('js', new Date()); gtag('config', id);
-}
 export default function Dashboard({ route }: { route: Route }) {
   const [data, setData] = useState<DashboardResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [companyFilters, setCompanyFilters] = useState(initialCompanyFilters);
   const [candidateFilters, setCandidateFilters] = useState<CandidateFilters>({ search: '', role: null });
-  useEffect(() => { initAnalytics(); }, []);
   useEffect(() => {
     setCompanyFilters(initialCompanyFilters); setCandidateFilters({ search: '', role: null });
     document.title = `Placement Stats @ KJSCE '${String(route.year).slice(-2)}`;
