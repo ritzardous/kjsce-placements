@@ -123,6 +123,7 @@ The [admin dispatcher](../functions/src/admin.ts) calls the sources linked below
 | `user` | `{uid}` | Safe account details and access version |
 | `changeUser` | `{uid,operation,role?,reason,expectedVersion,requestId}` | `{auditId}`; operation suspend/restore/revoke/role; role user/admin |
 | `repairPreview` | `{company}` | Alias-repair impact |
+| `setCompanyHiring` | `{companyKey,status,year:2027,expectedVersion}` | `{hiring,auditId}`; admin-only, version-guarded ongoing/upcoming/none status; [details](hiring-and-support.md#data-and-api) |
 | `createJob` | `{type,requestId,reason,year?,sourceName?,chunkCount?,company?,repairId?}` | `{id,auditId?}`; type quality/import/repair/recover |
 | `uploadChunk` | `{id,index,text}` | `{saved:true}`; index 0–99, ≤50,000 UTF-8 bytes |
 | `validateImport` | `{id}` | Job ID, validated preview/audit when newly validated |

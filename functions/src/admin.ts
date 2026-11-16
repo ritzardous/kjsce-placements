@@ -8,9 +8,10 @@ import {userList,userDetail,changeUser} from './admin-users.js';
 import {createJob,uploadChunk,validateImport,runJob,jobDetails,publish} from './admin-jobs.js';
 import {repairPreview} from './admin-quality.js';
 import {dashboard,operations,auditTrail,analytics} from './admin-metrics.js';
+import {setCompanyHiring} from './admin-company-hiring.js';
 export async function adminApi(db:Firestore,auth:Auth,value:Actor|undefined,input:unknown) {
   const actor=await currentActor(db,auth,value,true);
-  const request=parse(z.object({action:z.enum(['overview','users','user','changeUser','repairPreview','createJob','uploadChunk','validateImport','runJob','job','publish','rollback','operations','audit','analytics']),payload:z.unknown().default({})}).strict(),input);
+  const request=parse(z.object({action:z.enum(['overview','users','user','changeUser','repairPreview','createJob','uploadChunk','validateImport','runJob','job','publish','rollback','operations','audit','analytics','setCompanyHiring']),payload:z.unknown().default({})}).strict(),input);
   try {
     switch(request.action){
       case 'overview':parse(z.object({}).strict(),request.payload);return await dashboard(db,actor);
@@ -28,6 +29,7 @@ export async function adminApi(db:Firestore,auth:Auth,value:Actor|undefined,inpu
       case 'operations':return await operations(db,request.payload);
       case 'audit':return await auditTrail(db,request.payload);
       case 'analytics':return await analytics(db,request.payload);
+      case 'setCompanyHiring':return await setCompanyHiring(db,actor,request.payload);
     }
   }catch(error){await recordServiceFailure(db,actor.uid,request.action,error instanceof HttpsError?error.code:'internal','admin');throw error;}
 }

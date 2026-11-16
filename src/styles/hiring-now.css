@@ -1,0 +1,34 @@
+.hiring-now{display:grid;grid-template-columns:minmax(210px,.85fr) minmax(0,2.15fr);column-gap:44px;row-gap:18px;margin:0 0 32px;padding:28px 0 22px;border:0;border-bottom:1px solid var(--identity-rule);border-radius:0;background:none;min-width:0}
+.hiring-now-heading{padding:4px 0;min-width:0}
+.hiring-cohort{font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--identity-muted)}
+.procedure-ui .hiring-now-heading h2{font:400 clamp(25px,2.6vw,34px)/1.25 var(--font-editorial);letter-spacing:-.035em;margin:12px 0}
+.hiring-now-heading h2 em{font-weight:400;color:var(--identity-blue)}
+.hiring-now-heading p{font-size:13px;line-height:1.65;color:var(--identity-muted);margin:0;max-width:28ch}
+.hiring-now-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px;min-width:0;align-content:start}
+.hiring-company{display:grid;grid-template-columns:20px 38px minmax(0,1fr) 18px;align-items:center;gap:13px;min-width:0;padding:22px 4px;border:0;border-bottom:1px solid var(--identity-rule);border-radius:0;background:none;text-decoration:none;color:var(--identity-ink);transition:background-color .18s ease}
+.hiring-company:hover{background:var(--surface)}
+.hiring-company-index{font:400 11px var(--font-mono);color:var(--identity-muted)}
+.hiring-company>.company-logo{width:38px;height:38px;min-width:38px;box-sizing:border-box}
+.hiring-company-copy{min-width:0}
+.procedure-ui .hiring-company h3{font:600 15px/1.45 var(--font-body);margin:0 0 5px;overflow-wrap:anywhere}
+.hiring-state{font-size:11px;color:var(--identity-muted)}
+.hiring-state-upcoming{font-style:italic}
+.hiring-company>.app-icon{width:17px;height:17px;color:var(--identity-muted);justify-self:end}
+.hiring-now .hiring-curation{grid-column:2;font-size:11px;line-height:1.7;color:var(--identity-muted);margin:0}
+@media(max-width:900px){.hiring-now{grid-template-columns:1fr;gap:20px}.hiring-now-heading{display:grid;grid-template-columns:1fr 1fr;column-gap:24px}.hiring-cohort{grid-column:1/-1}.procedure-ui .hiring-now-heading h2{margin-bottom:0}.hiring-now-heading p{align-self:center;margin-top:12px}.hiring-now .hiring-curation{grid-column:1}}
+@media(max-width:540px){.hiring-now{padding:20px 0;margin-bottom:24px;gap:12px}.hiring-now-heading{display:block}.hiring-now-heading p{max-width:none;margin:0 0 8px}.procedure-ui .hiring-now-heading h2{font-size:27px;margin:10px 0}.hiring-now-heading h2 br{display:none}.hiring-now-heading h2 em{margin-left:6px}.hiring-now-grid{gap:0 18px}.hiring-company{grid-template-columns:30px minmax(0,1fr);gap:10px;padding:17px 0;position:relative}.hiring-company-index,.hiring-company>.app-icon{display:none}.hiring-company>.company-logo{width:30px;height:30px;min-width:30px}.procedure-ui .hiring-company h3{font-size:13px}.hiring-state{font-size:11px}}
+.home-community-link .home-experience-copy{font-size:14px;line-height:1.7;color:var(--identity-muted);margin:10px 0 0}
+.home-hiring-preview{display:flex;align-items:flex-start;flex-direction:column;gap:12px;margin-top:24px}
+.home-hiring-label{font-size:11px;color:var(--identity-blue);font-weight:600}
+.home-hiring-companies{display:flex;align-items:center;flex-wrap:wrap;gap:12px 22px;font-size:12px}
+.home-hiring-companies>span{display:flex;align-items:center;gap:9px}
+.home-hiring-companies .company-logo{width:26px;height:26px;padding:3px;min-width:26px}
+.admin-hiring>p{font-size:14px;color:var(--identity-muted);line-height:1.7}
+.admin-hiring-featured{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0}
+.admin-hiring-company{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:16px;background:var(--surface);border:1px solid var(--identity-rule);border-radius:8px;color:var(--identity-ink);cursor:pointer}
+.admin-hiring-company>span:last-child{font-size:12px;color:var(--identity-blue)}
+.admin-hiring-form{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;padding:24px 0;border-block:1px solid var(--identity-rule)}
+.admin-hiring-form label{display:flex;flex-direction:column;gap:9px;font-size:13px;min-width:200px;flex:1}
+.admin-hiring-form select{font:inherit;padding:12px;color:var(--identity-ink);background:var(--surface);border:1px solid var(--identity-rule);border-radius:6px;min-height:46px;max-width:100%}
+@media(max-width:640px){.admin-hiring-form{align-items:stretch;flex-direction:column}.admin-hiring-form label{min-width:0}.home-hiring-companies{gap:12px}}
+@media(prefers-reduced-motion:reduce){.hiring-company{transition:none}}

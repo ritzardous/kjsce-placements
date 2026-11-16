@@ -2,6 +2,8 @@
 
 [Documentation index](README.md) · [Architecture](architecture.md) · [Data dictionary](data-dictionary.md)
 
+The company catalog also supports optional admin-owned `hiring` metadata for the Class of 2027. It is separate from placement publications and historical `years`; see [Hiring focus and support](hiring-and-support.md#data-and-api) for the schema, defaults and concurrency rules.
+
 Cloud Firestore is the runtime database. There is no implemented SQL schema, MongoDB service or ORM migration system. Firebase Auth is the identity store. Storage is unused and denied by [storage.rules](../storage.rules). Local ignored files/directories are not evidence of another supported backend.
 
 ## Placement publication schema

@@ -18,7 +18,7 @@ try {
   if (!process.argv.includes('--dry-run')) {
     target = createAdminTarget();
     const batch = target.db.batch();
-    for (const entry of mergeCompanyDirectory([...directory.values()])) batch.set(target.db.doc(`procedureCompanies/${entry.key}`), entry);
+    for (const entry of mergeCompanyDirectory([...directory.values()])) batch.set(target.db.doc(`procedureCompanies/${entry.key}`), entry, {merge:true});
     await batch.commit();
   }
   console.log(`Prepared ${mergeCompanyDirectory([...directory.values()]).length} source-backed campus recruiters${target ? ' and seeded Firestore' : ' (dry run)'}.`);

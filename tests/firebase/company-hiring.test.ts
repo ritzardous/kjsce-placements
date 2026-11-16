@@ -1,0 +1,56 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { randomUUID } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { initializeApp, deleteApp } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
+import { adminApi } from '../../functions/src/admin.js';
+import type { Actor } from '../../functions/src/service.js';
+import type { CompanyHiring } from '../../shared/company-hiring.js';
+
+test('hiring status is guarded, versioned, audited and separate from placement data', async t => {
+  assert.equal(process.env.FIRESTORE_EMULATOR_HOST,'127.0.0.1:8080');
+  assert.equal(process.env.FIREBASE_AUTH_EMULATOR_HOST,'127.0.0.1:9099');
+  const app=initializeApp({projectId:'demo-placementstats-hiring-tests'},'hiring-tests'),db=getFirestore(app),auth=getAuth(app);
+  t.after(()=>deleteApp(app));
+  async function actor(admin=false):Promise<Actor> {
+    const uid=randomUUID();
+    await auth.createUser({uid,email:`${uid}@example.test`,emailVerified:true});
+    if(admin)await auth.setCustomUserClaims(uid,{role:'admin'});
+    return {uid,token:{firebase:{sign_in_provider:'google.com'},email_verified:true,auth_time:Math.floor(Date.now()/1000),...(admin?{role:'admin'}:{})}};
+  }
+  const admin=await actor(true),reader=await actor();
+  const company=db.doc('procedureCompanies/magellan');
+  const original={name:'Magellan',years:[],profile:{untouched:true}};
+  await company.set(original);
+  const call=(payload:unknown,who=admin)=>adminApi(db,auth,who,{action:'setCompanyHiring',payload}) as Promise<{hiring:CompanyHiring;auditId:string|null}>;
+  const update={companyKey:'magellan',status:'none',year:2027,expectedVersion:0};
+  await assert.rejects(call(update,reader),{code:'permission-denied'});
+  await assert.rejects(call({...update,actorUid:admin.uid}),{code:'invalid-argument'});
+  await assert.rejects(call({...update,companyKey:'missing'}),{code:'not-found'});
+  const result=await call(update);
+  assert.equal(result.hiring.status,'none'); assert.equal(result.hiring.version,1);
+  assert.ok(result.auditId);
+  const record=(await company.get()).data()!;
+  assert.deepEqual(record.profile,original.profile); assert.deepEqual(record.years,[]); assert.equal(record.name,'Magellan');
+  const audit=(await db.doc(`adminAudit/${result.auditId}`).get()).data()!;
+  assert.equal(audit.action,'setCompanyHiring');assert.equal(audit.actorUid,admin.uid);assert.equal(audit.summary.before,'ongoing');assert.equal(audit.summary.after,'none');
+  await assert.rejects(call({...update,status:'upcoming'}),{code:'failed-precondition'});
+  const races=await Promise.allSettled([call({...update,status:'upcoming',expectedVersion:1}),call({...update,status:'ongoing',expectedVersion:1})]);
+  assert.equal(races.filter(value=>value.status==='fulfilled').length,1);
+  assert.equal(races.filter(value=>value.status==='rejected').length,1);
+  const latest=(await company.get()).get('hiring') as CompanyHiring;
+  const repeated=await call({...update,status:latest.status,expectedVersion:latest.version});
+  assert.equal(repeated.auditId,null);assert.equal(repeated.hiring.version,latest.version);
+  await db.doc(`adminLocks/company-hiring-${admin.uid}`).set({startedAt:Date.now(),count:30});
+  await assert.rejects(call({...update,status:latest.status==='ongoing'?'upcoming':'ongoing',expectedVersion:latest.version}),{code:'resource-exhausted'});
+  assert.equal((await company.get()).get('hiring.version'),latest.version);
+  const preserved={status:'none',year:2027,version:5};
+  await db.doc('procedureCompanies/godrej-capital').set({name:'Godrej Capital',years:[],hiring:preserved});
+  execFileSync(process.execPath,['node_modules/tsx/dist/cli.mjs','scripts/seed-procedure-companies.ts','--emulator','--project','demo-placementstats-hiring-tests'],{env:process.env,windowsHide:true,stdio:'pipe'});
+  assert.deepEqual((await db.doc('procedureCompanies/godrej-capital').get()).get('hiring'),preserved);
+  await auth.setCustomUserClaims(admin.uid,{});
+  await assert.rejects(call({...update,expectedVersion:latest.version}),{code:'permission-denied'});
+  assert.equal((await db.collection('batches').get()).size,0);
+});

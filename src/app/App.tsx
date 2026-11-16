@@ -1,6 +1,7 @@
 import { experienceInvitation } from '../procedures/experience-invitation';
 import { ExperienceInvitation } from '../procedures/ExperienceInvitation';
 import DeveloperNote from './DeveloperNote';
+import SupportPage from './SupportPage';
 import { rememberExperienceOrigin } from './navigation-context';
 import { NotificationProvider } from '../notifications/notification-store';
 import { ThemeProvider } from '../ui/ThemeControl';
@@ -51,6 +52,7 @@ function Application() {
   const invitation=experienceInvitation(location.hash);
   if (!auth.allowed && invitation) return <ExperienceInvitation company={invitation}/>;
   if (route.page === 'about') return <DeveloperNote section={route.parameter} signedIn={auth.allowed}/>;
+  if (route.page === 'support') return <SupportPage signedIn={auth.allowed}/>;
   if (!auth.ready) return <div className="login-page session-loading"><FetchLoader variant="session" label="Getting your session ready…"/></div>;
   if (!auth.allowed) return <Landing deepLink={!['landing', 'login'].includes(route.page)} />;
   if (route.page === 'home' || route.page === 'landing' || route.page === 'login') return <Home />;

@@ -2,7 +2,7 @@ import { canonicalCompanyKey, companyGroups } from '../../shared/company-identit
 
 // Every event and string value is bounded here. Callers cannot send arbitrary text.
 export const analyticsValues = {
-  section: ['landing', 'home', 'statistics', 'overview', 'companies', 'company', 'branches', 'career_explorer', 'experiences', 'experience_company', 'experience_read', 'experience_write', 'saved', 'notifications', 'contributions', 'account', 'admin', 'about', 'not_found'],
+  section: ['landing', 'home', 'statistics', 'overview', 'companies', 'company', 'branches', 'career_explorer', 'experiences', 'experience_company', 'experience_read', 'experience_write', 'saved', 'notifications', 'contributions', 'account', 'admin', 'about', 'support', 'not_found'],
   academic_year: ['2025', '2026', '2027'],
   search_surface: ['companies', 'candidates', 'experiences', 'company_picker'],
   result_bucket: ['none', '1_5', '6_20', '21_50', '51_plus'],
@@ -14,7 +14,7 @@ export const analyticsValues = {
   outcome: ['success', 'cancelled', 'failed', 'not_authorized'],
   method: ['Google', 'native', 'clipboard'],
   content_type: ['company', 'experience', 'invitation'],
-  destination: ['landing', 'home', 'statistics', 'overview', 'companies', 'company', 'branches', 'career_explorer', 'experiences', 'experience_company', 'experience_read', 'experience_write', 'saved', 'notifications', 'contributions', 'account', 'admin', 'about', 'not_found'],
+  destination: ['landing', 'home', 'statistics', 'overview', 'companies', 'company', 'branches', 'career_explorer', 'experiences', 'experience_company', 'experience_read', 'experience_write', 'saved', 'notifications', 'contributions', 'account', 'admin', 'about', 'support', 'not_found'],
 } as const;
 export type AnalyticsParameters = Partial<Record<keyof typeof analyticsValues, string | number>>;
 export const productEvents = ['search', 'filter_apply', 'view_company', 'view_experience', 'navigation', 'alumni_contact', 'auth_start', 'auth_result', 'login', 'logout', 'writing_start', 'experience_submit', 'bookmark', 'vote', 'share', 'pagination'] as const;

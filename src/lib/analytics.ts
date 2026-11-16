@@ -14,6 +14,7 @@ type AnalyticsWindow = Window & {
 export function analyticsPage(route: Route, access: { ready: boolean; allowed: boolean; invitation: boolean; redirecting: boolean }): AnalyticsPage | null {
   const page = (path: string, title: string) => ({ path, title: `${title} · Placement Stats` });
   if (route.page === 'about') return page('/about', 'About');
+  if (route.page === 'support') return page('/support', 'Support');
   if (!access.allowed && access.invitation) return page('/experiences/invitation', 'Experience invitation');
   if (!access.ready || access.redirecting) return null;
   if (!access.allowed) return page('/landing', 'Welcome');
@@ -21,7 +22,7 @@ export function analyticsPage(route: Route, access: { ready: boolean; allowed: b
   if (route.page === 'statistics') return page('/statistics', 'Choose a batch');
   if (route.page === 'account') return page('/account', 'Account');
   if (route.page === 'admin') {
-    const section = ['procedures', 'users', 'data', 'analytics', 'operations'].includes(route.parameter ?? '') ? route.parameter : 'overview';
+    const section = ['procedures', 'hiring', 'users', 'data', 'analytics', 'operations'].includes(route.parameter ?? '') ? route.parameter : 'overview';
     return page(`/admin/${section}`, `Administration: ${section}`);
   }
   if (route.page === 'procedures') {
@@ -48,7 +49,7 @@ export function analyticsContext(page: AnalyticsPage): AnalyticsParameters {
     const sections: Record<string, string> = { company: 'experience_company', read: 'experience_read', contribute: 'experience_write', saved: 'saved', notifications: 'notifications', contributions: 'contributions' };
     return { section: Object.hasOwn(sections, segments[1]) ? sections[segments[1]] : 'experiences' };
   }
-  const sections: Record<string, string> = { landing: 'landing', home: 'home', statistics: 'statistics', account: 'account', admin: 'admin', about: 'about' };
+  const sections: Record<string, string> = { landing: 'landing', home: 'home', statistics: 'statistics', account: 'account', admin: 'admin', about: 'about', support: 'support' };
   return { section: Object.hasOwn(sections, segments[0]) ? sections[segments[0]] : 'not_found' };
 }
 

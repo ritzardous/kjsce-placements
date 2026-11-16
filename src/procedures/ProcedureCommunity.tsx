@@ -12,7 +12,9 @@ import {
 import { FollowButton } from "../notifications/NotificationSettings";
 import { notify } from "../ui/AppUtilities";
 import { BookmarkButton } from "../community/BookmarkButton";
-import { useBackgroundSync } from "../lib/background-sync";
+import { useCompanies } from "./useCompanyDirectory";
+export { useCompanies } from "./useCompanyDirectory";
+import { HiringNow } from "./HiringNow";
 import { FetchLoader } from "../ui/FetchLoader";
 import { AppIcon } from "../ui/AppIcon";
 import { PageState } from "../community/CommunityPageState";
@@ -34,7 +36,6 @@ import { CompanyIdentity, CompanyLogo } from "../dashboard/CompanyIdentity";
 import { Markdown } from "./ProcedureMarkdown";
 import {
   callProcedure,
-  procedureCompanies,
   procedureError,
 } from "./procedures-api";
 import {
@@ -48,42 +49,8 @@ import {
   readingMinutes,
   roundOptions,
   type ProcedurePost,
-  type ProcedureCompany,
 } from "../../shared/procedures";
 
-export function useCompanies() {
-  const [companies, setCompanies] = useState<ProcedureCompany[]>([]),
-    [error, setError] = useState(""),
-    [loading, setLoading] = useState(true),
-    [attempt, setAttempt] = useState(0);
-  useBackgroundSync(
-    async () => {
-      setAttempt((value) => value + 1);
-    },
-    120000,
-    Boolean(error),
-  );
-  useEffect(() => {
-    let active = true;
-    void procedureCompanies()
-      .then((rows) => {
-        if (active) {
-          setCompanies(rows);
-          setError("");
-        }
-      })
-      .catch((cause) => {
-        if (active) setError(procedureError(cause));
-      })
-      .finally(() => {
-        if (active) setLoading(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [attempt]);
-  return { companies, error, loading };
-}
 function RoundChips({ post }: { post: Partial<ProcedurePost> }) {
   if (!post.rounds?.length) return null;
   return (
@@ -285,6 +252,7 @@ export function ProcedureBrowse({ companyKey }: { companyKey?: string }) {
         }
       }}
     >
+      {!companyKey && <HiringNow companies={companies}/>}
       {companyKey && (
         <>
           <a

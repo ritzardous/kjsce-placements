@@ -21,6 +21,7 @@ Start with [Getting started](getting-started.md) to run the local beta, [Feature
 | [API reference](api-reference.md) | Envelopes, payloads, responses and errors |
 | [Database](database.md) | Firestore paths, indexes and publication lifecycle |
 | [Community company details](community-company-details.md) | Maintainer-supplied listing context, estimates and guarded catalog updates |
+| [Hiring focus and support](hiring-and-support.md) | Admin-curated ongoing/upcoming companies and the voluntary UPI support page |
 | [Authentication](authentication.md) | Google access, sessions, administrator and owner boundaries |
 | [Access and navigation](access-structure.md) | Route access and release acceptance checks |
 

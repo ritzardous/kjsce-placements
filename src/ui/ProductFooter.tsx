@@ -3,7 +3,7 @@ export function ProductFooter({ publicView = false, showCredits = true }: { publ
   return <footer className={`product-footer ${publicView ? 'lp-footer' : 'portal-footer'}`}>
     <div className="product-footer-inner">
       <span className="product-footer-brand">Placement Stats <span>× KJSCE</span></span>
-      <a className="product-footer-about" href="#about">About this project</a>
+      <nav className="product-footer-links" aria-label="Project"><a className="product-footer-about" href="#about">About this project</a><a className="product-footer-about" href="#support">Support us</a></nav>
       <div className="product-footer-end">
         {showCredits && <span className="product-footer-credit">By <a href="https://github.com/ritzardous" target="_blank" rel="noopener noreferrer">Ritesh</a> &amp; <a href="https://github.com/Saksham-Varshney07" target="_blank" rel="noopener noreferrer">Saksham</a></span>}
         <div id="footer-actions" className="product-footer-actions" />

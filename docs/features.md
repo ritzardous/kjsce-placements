@@ -28,6 +28,8 @@ The desktop bell opens a preview of up to five notifications; on phones it opens
 
 ## Routes
 
+Company Procedures includes an admin-curated ongoing/upcoming company section for the Class of 2027, also previewed on Home. Administrators manage it under **Hiring**. The separate public support page offers an optional UPI contribution and sponsorship contact. See [Hiring focus and support](hiring-and-support.md) for metadata, authority and payment boundaries.
+
 Routes use URL hashes. Bare statistics routes default to 2026.
 
 | Hash | Behavior |
@@ -38,6 +40,8 @@ Routes use URL hashes. Bare statistics routes default to 2026.
 | `#2025/overview`, `#2026/overview` | Batch dashboards; other page names: `companies`, `company/<key>`, `branches`, `candidates`, `timeline`, `insights`, `explore` |
 | `#2027/overview` | Ongoing 2027 statistics; available from batch selection |
 | `#procedures` | Company/experience browsing |
+| `#admin/hiring` | Administrator-only hiring-focus management |
+| `#support` | Public voluntary support page with the maintainer's UPI QR and sponsorship contact |
 | `#procedures/<postId>` | Experience reader |
 | `#procedures/contribute?draft=<id>` | New editor or owner's draft |
 | `#procedures/contributions` | Contributor workspace; legacy `#contributions` redirects here |

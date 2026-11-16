@@ -3,6 +3,7 @@ import {AdminLayout} from './AdminLayout';
 import {AdminProcedures} from '../procedures/ProcedureAdmin';
 import {AdminUsers} from './AdminUsers';
 import {AdminData} from './AdminData';
+import {AdminHiring} from './AdminHiring';
 import {AdminAnalytics} from './AdminAnalytics';
 import {AdminOperations} from './AdminOperations';
 import {useAdminQuery,QueryState,adminDate,type AdminOverview} from './admin-api';
@@ -12,6 +13,7 @@ export default function AdminWorkspace({section}:{section?:string}) {
  const params=new URLSearchParams(location.hash.split('?')[1]),jobId=params.get('job')||undefined,auditId=params.get('audit')||undefined;
  useEffect(()=>{document.title=`${section||'Administration'} · Placement Stats KJSCE`;},[section]);
  if(section==='procedures')return <AdminProcedures/>;
+ if(section==='hiring')return <AdminLayout active="Hiring"><AdminHiring/></AdminLayout>;
  const label=section==='users'?'Users':section==='data'?'Data':section==='analytics'?'Analytics':section==='operations'?'Operations':'Overview';
  return <AdminLayout active={label}>{!section?<Overview/>:section==='users'?<AdminUsers/>:section==='data'?<AdminData jobId={jobId}/>:section==='analytics'?<AdminAnalytics/>:section==='operations'?<AdminOperations jobId={jobId} auditId={auditId}/>:<p>Admin page not found. <a href="#admin">Open administration</a></p>}</AdminLayout>;
 }
