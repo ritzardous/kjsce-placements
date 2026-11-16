@@ -14,7 +14,7 @@ export function HiringNow({ companies }: { companies: ProcedureCompany[] }) {
   const featured = hiringCompanies(companies);
   if (!featured.length) return null;
   return <section className="hiring-now" aria-labelledby="hiring-now-title">
-    <header className="hiring-now-heading"><span className="hiring-cohort">Class of 2027 · In focus</span><h2 id="hiring-now-title">Your next rounds.<br/><em>A head start.</em></h2><p>Alumni experiences for the companies on your radar.</p></header>
+    <header className="hiring-now-heading"><span className="hiring-cohort">Class of 2027 · In focus</span><h2 id="hiring-now-title"><em>A head start.</em></h2></header>
     <div className="hiring-now-grid">{featured.map((company, index) => <a className="hiring-company" key={company.key} href={`#procedures/company?company=${encodeURIComponent(company.key)}`}>
       <span className="hiring-company-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span><CompanyLogo companyKey={company.key} name={company.name}/>
       <div className="hiring-company-copy"><h3>{company.name}</h3><span className={`hiring-state hiring-state-${company.hiring.status}`}>{company.hiring.status === 'ongoing' ? 'Ongoing' : 'Upcoming'}</span></div><AppIcon name="arrow"/>
