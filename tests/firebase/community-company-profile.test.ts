@@ -42,10 +42,12 @@ test('reviewed community additions preserve existing metadata and never create p
     await other.set({name:'Unrelated',years:[2026]});const untouched=await other.get();
     const preview=await run();await assert.rejects(()=>run(['--apply','--expected-hash','stale']));
     assert.equal((await db.doc('procedureCompanies/gracenote-nielsen').get()).exists,false);
-    assert.equal((await run(['--apply','--expected-hash',preview.hash])).changed,4);
+    assert.equal((await run(['--apply','--expected-hash',preview.hash])).changed,5);
     const intrade=(await existing.get()).data()!;assert.deepEqual(intrade.years,[2025]);assert.equal(intrade.customMarker,'preserve');assert.equal(intrade.profile.ctcEstimated,true);assert.deepEqual(intrade.profile.roles,[]);
-    for(const key of ['gracenote-nielsen','marico-limited','morgan-stanley']){const row=(await db.doc(`procedureCompanies/${key}`).get()).data()!;assert.deepEqual(row.years,[]);assert.equal(row.source,'community');}
+    for(const key of ['gracenote-nielsen','marico-limited','morgan-stanley','magellan']){const row=(await db.doc(`procedureCompanies/${key}`).get()).data()!;assert.deepEqual(row.years,[]);assert.equal(row.source,'community');}
     assert.equal((await db.doc('procedureCompanies/marico-limited').get()).get('profile'),undefined);
+    const magellan=(await db.doc('procedureCompanies/magellan').get()).data()!;
+    assert.deepEqual(magellan.profile.roles,['Full Stack Engineer']);assert.equal(magellan.profile.ctcMinLpa,6);assert.equal(magellan.profile.ctcMaxLpa,8);
     assert.ok((await other.get()).updateTime!.isEqual(untouched.updateTime!));
     assert.equal((await run(['--apply','--expected-hash',(await run()).hash])).changed,0);
     const stale=await run();await existing.update({customMarker:'newer edit'});await assert.rejects(()=>run(['--apply','--expected-hash',stale.hash]));

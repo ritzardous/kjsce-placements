@@ -26,10 +26,11 @@ The maintainer-requested inputs are preserved in [community-additions-2026-11-16
 | InTrade Systems | Estimated ₹12–14 LPA, explicitly uncertain; role unspecified |
 | Marico Limited | No salary or role supplied |
 | Morgan Stanley | ₹25 LPA, maintainer-supplied; role unspecified |
+| Magellan | ₹6–8 LPA; Full Stack Engineer |
 
-These are community catalog entries, not new placement announcements. New entries have `years:[]` and `source:community`; known years on existing records are preserved. Neither the amounts nor the entries contribute to any batch statistics. Logos come from the separate bundled brand manifest. Writers can find all four in the company picker and must supply their own recruitment route, graduation year and role.
+These are community catalog entries, not new placement announcements. New entries have `years:[]` and `source:community`; known years on existing records are preserved. Neither the amounts nor the entries contribute to any batch statistics. Logos come from the separate bundled brand manifest. Writers can find all five in the company picker and must supply their own recruitment route and graduation year; a listed role is company-level context, not a claim about a particular placement.
 
-Preview only the four fixed entries with:
+Preview only the five fixed entries with:
 
 ```sh
 npx tsx scripts/configure-community-companies.ts --project YOUR_PROJECT_ID --allow-production

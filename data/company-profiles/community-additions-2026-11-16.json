@@ -14,5 +14,10 @@
     "key":"morgan-stanley",
     "name":"Morgan Stanley",
     "profile":{"roles":[],"ctcMinLpa":25,"ctcMaxLpa":25,"currency":"INR","period":"year","source":"maintainer","logoPath":"/company-logos/morgan-stanley.svg","website":"https://www.morganstanley.com"}
+  },
+  {
+    "key":"magellan",
+    "name":"Magellan",
+    "profile":{"roles":["Full Stack Engineer"],"ctcMinLpa":6,"ctcMaxLpa":8,"currency":"INR","period":"year","source":"maintainer","logoPath":"/company-logos/magellan.jpg","website":"https://www.linkedin.com/company/magellangroup/"}
   }
 ]

@@ -36,6 +36,10 @@ test('additional companies are searchable with honest salary context and accessi
   await expect(page.locator('.writing-company-context')).toContainText('Estimated ₹12–14 LPA');
   await expect(page.locator('.writing-company-context')).toContainText('Role not specified');
   await expect(page.getByLabel('Role',{exact:true})).toHaveValue('');
+  await picker.fill('Magellan');await page.getByRole('option',{name:/Magellan/}).click();
+  await expect(page.locator('.writing-company-context')).toContainText('₹6–8 LPA');
+  await expect(page.locator('.writing-company-context')).toContainText('Full Stack Engineer');
+  await expect(page.locator('.writing-company-context img')).toHaveAttribute('src','/company-logos/magellan.jpg');
   const optional=page.locator('.studio-optional'),summary=optional.locator('summary');
   await expect(summary).toContainText('Optional details');await expect(summary).toContainText('Interview year');
   for(const width of [320,393,840,1280]){

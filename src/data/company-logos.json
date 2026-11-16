@@ -946,6 +946,15 @@
     "source": "https://www.ltts.com/themes/custom/ltts_revamp/logo.svg"
   },
   {
+    "id": "magellan",
+    "aliases": [
+      "magellan"
+    ],
+    "file": "/company-logos/magellan.jpg",
+    "website": "https://www.linkedin.com/company/magellangroup/",
+    "source": "https://www.linkedin.com/company/magellangroup/"
+  },
+  {
     "id": "mahindra",
     "aliases": [
       "mahindra-mahindra"

@@ -6,11 +6,11 @@ import {companyProfileSchema} from '../shared/company-profile.js';
 import {documentId} from '../shared/document-id.js';
 import {createAdminTarget,safeMigrationError} from './firebase-admin.js';
 
-// This command applies only the four maintainer-requested listings, never a catalog reseed.
-const keys=['gracenote-nielsen','intrade','marico-limited','morgan-stanley'];
+// This command applies only the reviewed community listings, never a catalog reseed.
+const keys=['gracenote-nielsen','intrade','marico-limited','morgan-stanley','magellan'];
 let target:ReturnType<typeof createAdminTarget>|undefined;
 try {
-  const entries=z.array(z.object({key:documentId(),name:z.string().trim().min(2).max(100),profile:companyProfileSchema.optional()}).strict()).length(4)
+  const entries=z.array(z.object({key:documentId(),name:z.string().trim().min(2).max(100),profile:companyProfileSchema.optional()}).strict()).length(5)
     .parse(JSON.parse(readFileSync(new URL('../data/company-profiles/community-additions-2026-11-16.json',import.meta.url),'utf8')));
   if(!isDeepStrictEqual(entries.map(row=>row.key),keys))throw new Error('The reviewed company scope differs. Stop and review the input.');
   for(const row of entries)if(row.profile&&!existsSync(new URL('../public'+row.profile.logoPath,import.meta.url)))throw new Error('A reviewed logo asset is missing.');

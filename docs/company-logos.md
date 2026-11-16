@@ -26,7 +26,7 @@ The four remaining names are **Emergence**, **CCS INC**, **Bajao international**
 
 Framatome and IKS Health already had bundled images; their 2027 keys were missing from the explicit alias lists. Those mappings now include `framatome` and `iks-health`, retaining the older aliases. New assets cover Saint-Gobain, Zeus Learning and Marsh. Saint-Gobain uses the mark from its [official India site](https://www.saint-gobain.co.in/); Zeus and Marsh use SVG assets linked from their official websites. Marsh's pale wordmark uses a dark tile for contrast.
 
-Community listings add Gracenote (Nielsen), Marico Limited and Morgan Stanley logos from their official sites; InTrade Systems reuses its existing official wordmark. The manifest records exact asset URLs and preserves source provenance. Nielsen identifies Gracenote as its [content intelligence business](https://www.nielsen.com/solutions/content-metadata/); this brand relationship does not merge their placement identities. Company sites establish branding, not the maintainer-supplied salary figures.
+Community listings add Gracenote (Nielsen), Marico Limited and Morgan Stanley logos from their official sites; InTrade Systems reuses its existing official wordmark. Magellan uses the logo image supplied from LinkedIn, bundled locally so the expiring CDN signature is not stored. The manifest records the LinkedIn company page as its provenance. Nielsen identifies Gracenote as its [content intelligence business](https://www.nielsen.com/solutions/content-metadata/); this brand relationship does not merge their placement identities. Company sites establish branding, not the maintainer-supplied salary figures.
 
 ## Registered names and brand matches
 

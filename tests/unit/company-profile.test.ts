@@ -24,11 +24,16 @@ test('community salary context preserves unknown roles and explicitly labels est
   assert.equal(rows.find(row=>row.key==='marico-limited')!.profile,undefined);
   const morganStanley=companyProfileSchema.parse(rows.find(row=>row.key==='morgan-stanley')!.profile);
   assert.equal(companyProfileCtc(morganStanley),'₹25 LPA');assert.deepEqual(morganStanley.roles,[]);
+  const magellan=companyProfileSchema.parse(rows.find(row=>row.key==='magellan')!.profile);
+  assert.deepEqual(magellan.roles,['Full Stack Engineer']);assert.equal(companyProfileCtc(magellan),'₹6–8 LPA');
 });
 
 test('all 2027 company keys resolve to bundled logo assets',()=>{
   const data=JSON.parse(readFileSync('data/placements-2027.json','utf8')) as {placements:{company:{normalized_name:string}}[]};
   const logos=JSON.parse(readFileSync('src/data/company-logos.json','utf8')) as {aliases:string[];file:string}[];
+  const magellan=companyProfileSchema.parse((JSON.parse(readFileSync('data/company-profiles/community-additions-2026-11-16.json','utf8')) as {key:string;profile?:unknown}[]).find(row=>row.key==='magellan')!.profile);
+  const magellanLogo=logos.find(row=>row.aliases.includes('magellan'));
+  assert.ok(magellanLogo);assert.equal(magellanLogo.file,magellan.logoPath);assert.ok(existsSync('public'+magellanLogo.file));
   for(const key of new Set(data.placements.map(row=>row.company.normalized_name.replaceAll('_','-')))){
     const logo=logos.find(row=>row.aliases.includes(key));
     assert.ok(logo,`Missing reviewed logo mapping: ${key}`);assert.ok(existsSync('public'+logo.file));
