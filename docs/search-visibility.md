@@ -21,4 +21,4 @@ Do not add keyword lists, fabricated salary figures, unreviewed recruiter claims
 3. If the production hostname changes, update the canonical and Open Graph URLs in `index.html`, structured data in `public/seo-init.js`, `public/sitemap.xml`, `public/robots.txt`, and the origin in `scripts/build-social-pages.mjs` together. Confirm the deployment's redirect/canonical behavior before submitting the new sitemap.
 4. Monitor indexing, query coverage and Core Web Vitals in Search Console. Repository metadata cannot guarantee rankings or indexing.
 
-No Search Console property, verification token, sitemap submission, or production setting is configured by this repository change.
+The homepage includes the maintainer-supplied Google Search Console verification meta tag directly in `index.html`'s `<head>`. Retain it while the URL-prefix property uses HTML-tag verification. The tag is public ownership proof; it is not a server credential. Deploying it does not confirm that ownership verification, sitemap submission or indexing requests have been completed in Search Console; those steps remain with the property owner.
