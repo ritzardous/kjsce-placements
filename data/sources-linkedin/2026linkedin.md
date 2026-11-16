@@ -453,6 +453,7 @@ https://www.linkedin.com/in/virtidoshi/
 
 EY
 https://www.linkedin.com/in/shuubham-satish-narrkar/
+https://www.linkedin.com/in/aditi-yenurkar-b646222b3/
 
 IDFY
 https://www.linkedin.com/in/harikrishnangopal/

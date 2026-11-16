@@ -70,6 +70,7 @@ export function Overview({ statistics: s }: { statistics: Statistics }) {
       <Stat value={m.companies} label="Companies represented" extra={`${s.types.length} company types`} />
       <Stat value={money(m.highestCtc)} label="Highest CTC" extra={topCtc[0]?.name} />
       <Stat value={money(m.avgCtc)} label="Average CTC" extra={`across ${m.ctcCoverage} valued ${s.batch.ctcWeighting === "selection" ? "selection rows" : "announcements"}`} />
+      <Stat value={money(m.medianCtc)} label="Median CTC" extra={`across ${m.ctcCoverage} valued ${s.batch.ctcWeighting === "selection" ? "selection rows" : "announcements"}`} />
       <Stat value={topHiring[0]?.name ?? 'Not available'} label="Most hiring company" extra={`${topHiring[0]?.totalHired ?? 0} selections`} />
       <Stat value={date(m.latestDate)} label="Most recent result" extra={recent[0]?.company.name} />
     </div>
