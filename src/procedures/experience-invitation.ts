@@ -14,3 +14,6 @@ export function experienceInviteHref(company:{key:string;name:string}) {
 export function experienceInviteUrl(base:string,company:{key:string;name:string}) {
   const url=new URL(base);url.search='';url.hash=experienceInviteHref(company);return url.href;
 }
+export function experienceInviteMessage(company:{name:string}) {
+  return `Hi! Could you share your ${company.name} interview experience on Placement Stats? Your juniors would love to learn from you.`;
+}

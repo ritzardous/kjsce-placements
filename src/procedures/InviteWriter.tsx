@@ -2,7 +2,7 @@ import "../styles/experience-invite.css";
 import { useAuth } from "../lib/auth";
 import { useState } from "react";
 import { AppIcon } from "../ui/AppIcon";
-import { experienceInviteUrl } from "./experience-invitation";
+import { experienceInviteMessage, experienceInviteUrl } from "./experience-invitation";
 export function InviteWriter({
   company,
   className,
@@ -18,23 +18,25 @@ export function InviteWriter({
   async function share() {
     if (!user) return;
     const url = experienceInviteUrl(location.href, company);
+    const text = experienceInviteMessage(company);
+    const invitation = `${text}\n\n${url}`;
     try {
       if (navigator.share) {
         await navigator.share({
           title: "Share your " + company.name + " experience",
-          text: "Would you share your interview experience? The company is already selected-just sign in and write.",
+          text,
           url,
         });
         setMessage("");
       } else {
-        await navigator.clipboard.writeText(url);
-        setMessage("Invitation link copied");
+        await navigator.clipboard.writeText(invitation);
+        setMessage("Message and link copied");
       }
       setFallback("");
     } catch (error) {
       if ((error as Error).name === "AbortError") return;
-      setFallback(url);
-      setMessage("Copy this invitation link");
+      setFallback(invitation);
+      setMessage("Copy this message and link");
     }
   }
   if (!user) return null;
@@ -50,8 +52,9 @@ export function InviteWriter({
       </button>
       {message && <span role="status">{message}</span>}
       {fallback && (
-        <input
-          aria-label="Experience invitation link"
+        <textarea
+          aria-label="Experience invitation message"
+          rows={5}
           readOnly
           value={fallback}
           onFocus={(event) => event.target.select()}

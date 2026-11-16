@@ -49,8 +49,19 @@ test('company invitation controls allow inviting alumni with a manual-copy fallb
  await expect(page.getByRole('button',{name:'Invite an alum',exact:true})).toBeVisible();
  await page.evaluate(()=>{Object.defineProperty(navigator,'share',{value:undefined,configurable:true});Object.defineProperty(navigator,'clipboard',{value:{writeText:async()=>{throw new Error('Clipboard unavailable');}},configurable:true});});
  await page.getByRole('button',{name:'Invite an alum',exact:true}).click();
- const value=await page.getByRole('textbox',{name:'Experience invitation link'}).inputValue();
- expect(new URL(value).hash).toMatch(/^#procedures\/contribute\?company=barclays&name=Barclays$/);
+ const value=await page.getByRole('textbox',{name:'Experience invitation message'}).inputValue();
+ expect(value).toContain('Could you share your Barclays interview experience on Placement Stats?');
+ const url=value.split('\n\n').at(-1)!;
+ expect(new URL(url).hash).toMatch(/^#procedures\/contribute\?company=barclays&name=Barclays$/);
+ await page.evaluate(()=>{Object.defineProperty(navigator,'clipboard',{value:{writeText:async(text:string)=>{sessionStorage.setItem('test-invitation',text);}},configurable:true});});
+ await page.getByRole('button',{name:'Invite an alum',exact:true}).click();
+ await expect(page.getByRole('status').filter({hasText:'Message and link copied'})).toBeVisible();
+ expect(await page.evaluate(()=>sessionStorage.getItem('test-invitation'))).toBe(value);
+ await expect(page.getByRole('textbox',{name:'Experience invitation message'})).toHaveCount(0);
+ await page.evaluate(()=>{Object.defineProperty(navigator,'share',{value:async(data:ShareData)=>{sessionStorage.setItem('test-native-invitation',JSON.stringify(data));},configurable:true});});
+ await page.getByRole('button',{name:'Invite an alum',exact:true}).click();
+ const shared=JSON.parse((await page.evaluate(()=>sessionStorage.getItem('test-native-invitation')))!);
+ expect(shared.text).toBe(value.split('\n\n')[0]);expect(shared.url).toBe(url);
 });
 
 test('different company invitations do not reuse another company’s writing',async({page})=>{

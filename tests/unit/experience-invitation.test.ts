@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {experienceInvitation,experienceInviteHref,experienceInviteUrl} from '../../src/procedures/experience-invitation';
+import {experienceInvitation,experienceInviteHref,experienceInviteUrl,experienceInviteMessage} from '../../src/procedures/experience-invitation';
 import {initialProcedureDraft,submissionSchema} from '../../shared/procedures';
 test('company invitations preserve a canonical company through URLs and ignore draft links',()=>{
  const href=experienceInviteHref({key:'jp_morgan_chase_co',name:'JPMorgan Chase & Co.'});
@@ -17,4 +17,11 @@ test('an invited writer supplies route, graduation batch and role without guessi
  assert.equal(draft.appearanceYear,null);assert.equal(draft.outcome,'Not specified');assert.equal(draft.coverage,'Not specified');
  for(const patch of [{body:''},{campus:undefined},{graduationYear:null},{role:''}])assert.equal(submissionSchema.safeParse({...draft,...patch}).success,false);
  assert.equal(submissionSchema.safeParse({...draft,appearanceYear:2025,coverage:'Full',outcome:'Selected'}).success,true);
+});
+
+test('invitation copy names the selected company in a short personal request',()=>{
+ const message=experienceInviteMessage({name:'JPMorgan Chase & Co.'});
+ assert.ok(message.includes('JPMorgan Chase & Co. interview experience'));
+ assert.ok(message.includes('Placement Stats'));
+ assert.ok(message.length<200);
 });
