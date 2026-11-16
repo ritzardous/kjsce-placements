@@ -63,6 +63,19 @@ function RoundChips({ post }: { post: Partial<ProcedurePost> }) {
     </div>
   );
 }
+export function formatProcedureDate(value?: number | string | null) {
+  if (!value) return null;
+  const timestamp = typeof value === 'string' ? Number(value) || Date.parse(value) : value;
+  if (!timestamp || isNaN(timestamp)) return null;
+  const d = new Date(timestamp);
+  if (isNaN(d.getTime())) return null;
+  return d.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
 export function PostCard({
   post,
   companyPage = false,
@@ -70,10 +83,22 @@ export function PostCard({
   post: ProcedurePost & { saved?: boolean };
   companyPage?: boolean;
 }) {
+  const publishedDate = formatProcedureDate(post.publishedAt);
+  const publishedText = publishedDate || (post.appearanceYear ? `Season ${post.appearanceYear}` : null);
   return (
     <article className="procedure-card has-bookmark">
       <div className="procedure-heading">
-        <CompanyIdentity companyKey={post.companyKey} name={post.companyName} />
+        <div className="procedure-heading-identity">
+          <CompanyIdentity companyKey={post.companyKey} name={post.companyName} />
+          {publishedText && (
+            <time
+              className="procedure-published-date"
+              dateTime={post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined}
+            >
+              Published {publishedText}
+            </time>
+          )}
+        </div>
         {post.coverage !== "Not specified" && (
           <span
             className={`procedure-badge coverage-${post.coverage.toLowerCase()}`}
@@ -764,6 +789,8 @@ export function PostDetail({ id }: { id: string }) {
         <a href="#procedures">Back to experiences</a>
       </section>
     );
+  const publishedDate = formatProcedureDate(post.publishedAt);
+  const publishedText = publishedDate || (post.appearanceYear ? `Season ${post.appearanceYear}` : null);
   return (
     <article className="procedure-card procedure-detail reader-view has-bookmark">
       <BookmarkButton postId={id} />
@@ -772,6 +799,26 @@ export function PostDetail({ id }: { id: string }) {
         label={post.companyName + " experiences"}
       />
       <h1>{postTitle(post)}</h1>
+      <p className="procedure-reader-meta">
+        {publishedText && (
+          <time
+            className="procedure-published-date"
+            dateTime={post.publishedAt ? new Date(post.publishedAt).toISOString() : undefined}
+          >
+            Published {publishedText}
+          </time>
+        )}
+        <span>·</span>
+        <span>{post.authorName}</span>
+        {post.role && (
+          <>
+            <span>·</span>
+            <span>{post.role}</span>
+          </>
+        )}
+        <span>·</span>
+        <span>{readingMinutes(post.body)} min read</span>
+      </p>
       <Markdown body={post.body} showMeta={false} />
       <footer className="reader-footer">
         <div className="procedure-actions">
