@@ -1,3 +1,4 @@
+import { documentId } from './document-id.js';
 import { z } from 'zod';
 import { hasHiddenText, hiddenTextMessage } from './text-safety.js';
 
@@ -43,6 +44,6 @@ export function notificationAction(row: AppNotification): { href: string; label:
 export const notificationSettingsSchema = z.object({
   version: z.number().int().nonnegative().default(0),
   discovery: z.boolean().default(false),
-  following: z.array(z.object({ kind: z.enum(['company', 'experience', 'batch']), key: z.string().regex(/^[a-zA-Z0-9_-]{1,100}$/), label: z.string().trim().min(1).max(120).refine(value=>!hasHiddenText(value),hiddenTextMessage), muted: z.boolean().default(false), since: z.number().nonnegative().default(0) }).strict()).max(20).default([]),
+  following: z.array(z.object({ kind: z.enum(['company', 'experience', 'batch']), key: documentId(100,true), label: z.string().trim().min(1).max(120).refine(value=>!hasHiddenText(value),hiddenTextMessage), muted: z.boolean().default(false), since: z.number().nonnegative().default(0) }).strict()).max(20).default([]),
 }).strict();
 export type NotificationSettings = z.infer<typeof notificationSettingsSchema>;

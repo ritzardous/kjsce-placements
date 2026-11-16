@@ -1,3 +1,4 @@
+import { documentId } from '../../shared/document-id.js';
 import { writeNotification } from './notifications.js';
 import { invalidateCompanyDiscovery } from './company-discovery.js';
 import type { Firestore, Transaction } from 'firebase-admin/firestore';
@@ -14,7 +15,7 @@ export function authorize(actor: Actor | undefined, admin = false): Actor {
   if (admin && actor.token.role !== 'admin') throw new HttpsError('permission-denied', 'Admin access is required.');
   return actor;
 }
-const idSchema = z.string().regex(/^[a-zA-Z0-9-]{1,100}$/);
+const idSchema = documentId();
 const versionSchema = z.number().int().nonnegative();
 function parse<T>(schema: z.ZodType<T>, value: unknown): T { const result = schema.safeParse(value); if (!result.success) throw new HttpsError('invalid-argument', result.error.issues[0]?.message ?? 'Invalid request.'); return result.data; }
 function requireCondition(value: unknown, message: string): asserts value { if (!value) throw new HttpsError('failed-precondition', message); }

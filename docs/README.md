@@ -31,6 +31,7 @@ These guides describe the checked-in implementation. They do not establish curre
 | [Admin workspace](admin-workspace-implementation.md) | Account, job, repair and audit procedures |
 | [Troubleshooting](troubleshooting.md) | Implementation-backed diagnostics |
 | [Security architecture](security.md) | Trust boundaries and residual limits |
+| [Hardening review](security-hardening-plan.md) | Input review plan, dependency checks and verification limits |
 | [Maintainer decisions](maintainer-decisions.md) | Licensing, contacts, portability and verification gaps |
 | [Legal notice review](legal-notice-review.md) | Statutory references, notice scope and outstanding legal/operational review |
 | [Contributing](../CONTRIBUTING.md) | Change and review expectations |

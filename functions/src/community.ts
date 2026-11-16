@@ -1,3 +1,4 @@
+import { documentId } from '../../shared/document-id.js';
 import { createHash } from 'node:crypto';
 import { canonicalCompanyKey, canonicalCompanyName } from '../../shared/company-identity.js';
 import { notificationActions, notificationApi } from './notification-api.js';
@@ -12,7 +13,7 @@ import { publishedCompanyMetadata, invalidateCompanyDiscovery } from './company-
 import { matchesSearch } from '../../shared/search.js';
 
 export const adminCommunityActions = new Set(['queue', 'reviewContext', 'moderationInbox', 'moderateQuestion', 'resolveReport', 'overview']);
-const id = z.string().regex(/^[a-zA-Z0-9-]{1,100}$/);
+const id = documentId();
 const cursorSchema = z.object({ id, values: z.array(z.number()).max(2) }).nullable().optional();
 function parse<T>(schema: z.ZodType<T>, input: unknown): T {
   const result = schema.safeParse(input);

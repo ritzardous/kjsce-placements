@@ -34,7 +34,7 @@ export default async function handler(req: Request, res: ServerResponse) {
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); res.statusCode = 405; res.end(JSON.stringify({ error: { code: 'invalid-argument', message: 'POST required.' } })); return; }
   let authorized:Actor|undefined,operation='';
   try {
-    if (!/^application\/json\b/i.test(String(req.headers['content-type'] || ''))) throw new HttpsError('invalid-argument', 'Send an application/json request.');
+    if (String(req.headers['content-type'] || '').split(';', 1)[0].trim().toLowerCase() !== 'application/json') throw new HttpsError('invalid-argument', 'Send an application/json request.');
     const declared = Number(req.headers['content-length']);
     if (Number.isFinite(declared) && declared > 100000) throw new HttpsError('invalid-argument', 'Request too large.');
     const bearer = req.headers.authorization?.match(/^Bearer (\S+)$/)?.[1];

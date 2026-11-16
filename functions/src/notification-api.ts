@@ -1,10 +1,11 @@
+import { documentId } from '../../shared/document-id.js';
 import type { Firestore, Query, DocumentData } from 'firebase-admin/firestore';
 import { HttpsError } from 'firebase-functions/v2/https';
 import { z } from 'zod';
 import { enrichNotifications, eventKey, settingsFor, syncDiscovery } from './notifications.js';
 import { notificationSettingsSchema } from '../../shared/notifications.js';
 
-const id = z.string().regex(/^[a-zA-Z0-9-]{1,200}$/);
+const id = documentId(200);
 const cursor = z.object({ id, values: z.tuple([z.number().nonnegative()]) }).nullable().optional();
 function parse<T>(schema: z.ZodType<T>, value: unknown): T {
   const result = schema.safeParse(value);

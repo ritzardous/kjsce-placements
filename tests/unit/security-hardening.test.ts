@@ -6,6 +6,15 @@ import handler from '../../api/procedures.mjs';
 import { createCompanySchema, initialProcedureDraft, procedureDraftSchema } from '../../shared/procedures';
 import { notificationSettingsSchema } from '../../shared/notifications';
 import { safeWritingLink } from '../../src/procedures/writing-links';
+import { documentId } from '../../shared/document-id';
+
+test('record identifiers validate every character without rewriting the target', () => {
+  assert.equal(documentId().parse('record-123'), 'record-123');
+  assert.equal(documentId(128, true).parse('record_123'), 'record_123');
+  for (const value of ['record\n', 'record\r', 'record/path', 'record_123', 'record\u200b', 'é', 'a'.repeat(101), '']) {
+    assert.equal(documentId().safeParse(value).success, false);
+  }
+});
 
 const root = new URL('../../', import.meta.url);
 test('the document shell keeps scripts external in /theme-init.js', () => {
@@ -38,7 +47,7 @@ test('the API adapter rejects non-JSON requests before authentication', async ()
     end(body: string) { this.body = body; },
   };
   await handler(
-    { method: 'POST', headers: { 'content-type': 'text/plain' } } as unknown as IncomingMessage,
+    { method: 'POST', headers: { 'content-type': 'application/json-invalid' } } as unknown as IncomingMessage,
     res as unknown as ServerResponse,
   );
   assert.equal(res.statusCode, 400);
@@ -60,6 +69,18 @@ test('the API adapter rejects oversized declared content-length', async () => {
   );
   assert.equal(res.statusCode, 400);
   assert.match(res.body, /Request too large/);
+});
+
+test('JSON media types allow charset parameters and still require authentication', async () => {
+  for (const contentType of ['application/json', 'Application/JSON; charset=utf-8']) {
+    const res = { statusCode: 0, body: '', setHeader() {}, end(body: string) { this.body = body; } };
+    await handler(
+      { method: 'POST', headers: { 'content-type': contentType } } as unknown as IncomingMessage,
+      res as unknown as ServerResponse,
+    );
+    assert.equal(res.statusCode, 401);
+    assert.match(res.body, /unauthenticated/);
+  }
 });
 
 test('safeWritingLink permits only safe web/email protocols and drops javascript/data/malformed links', () => {

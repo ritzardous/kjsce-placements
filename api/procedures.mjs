@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     res.end(JSON.stringify({ error: { code: 'invalid-argument', message: 'POST required.' } }));
     return;
   }
-  if (!/^application\/json\b/i.test(String(req.headers['content-type'] || ''))) {
+  if (String(req.headers['content-type'] || '').split(';', 1)[0].trim().toLowerCase() !== 'application/json') {
     res.statusCode = 400;
     res.end(JSON.stringify({ error: { code: 'invalid-argument', message: 'Send an application/json request.' } }));
     return;

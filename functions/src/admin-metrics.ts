@@ -1,3 +1,4 @@
+import { documentId } from '../../shared/document-id.js';
 import type {Firestore} from 'firebase-admin/firestore';
 import {z} from 'zod';
 import type {Actor} from './service.js';
@@ -15,7 +16,7 @@ export async function operations(db:Firestore,input:unknown) {
 }
 const eventCursor=z.object({time:z.number(),id:z.string().max(1500)}).nullable().optional();
 export async function auditTrail(db:Firestore,input:unknown) {
-  const data=parse(z.object({admin:eventCursor,moderation:eventCursor,record:z.string().regex(/^[a-zA-Z0-9_-]{1,128}$/).optional(),kind:z.enum(['all','users','data','moderation']).default('all')}).strict(),input);
+  const data=parse(z.object({admin:eventCursor,moderation:eventCursor,record:documentId(128,true).optional(),kind:z.enum(['all','users','data','moderation']).default('all')}).strict(),input);
   const sources=['adminAudit','procedureModeration'] as const;
   if(data.record){const docs=await Promise.all(sources.map(source=>db.doc(`${source}/${data.record}`).get()));return {rows:docs.filter(doc=>doc.exists).map(doc=>{const row=doc.data()!;return {id:doc.id,source:doc.ref.parent.id,...row,actorUid:row.actorUid||row.adminUid||row.ownerUid||'',target:row.target||row.submissionId||'',reason:row.reason||row.feedback||'',status:row.status||'succeeded',summary:row.summary||{revision:row.revision||null}};}),cursor:null,scanned:docs.length};}
   const pages=await Promise.all(sources.map(async(source,index)=>{let query=db.collection(source).orderBy('createdAt','desc').orderBy('__name__','desc').limit(26);const cursor=index?data.moderation:data.admin;if(cursor)query=query.startAfter(cursor.time,cursor.id);const page=await query.get();return page.docs.map(doc=>{const row=doc.data();return {id:doc.id,source,createdAt:row.createdAt,actorUid:row.actorUid||row.adminUid||row.ownerUid||'',action:row.action,target:row.target||row.submissionId||row.reportId||'',reason:row.reason||row.feedback||'',status:row.status||'succeeded',summary:row.summary||{revision:row.revision||null}};});}));

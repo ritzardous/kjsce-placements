@@ -18,6 +18,8 @@ The browser, its environment variables, route state, Markdown and all submitted 
 
 ## Content handling
 
+Record identifiers use a shared per-character allowlist with endpoint-specific length and underscore policies. Identifiers are rejected rather than normalized into another record. Both HTTP adapters require an exact `application/json` media type, with optional parameters, before dispatch. See the [hardening review](security-hardening-plan.md) for review scope and limits.
+
 Experience Markdown uses react-markdown with `skipHtml`, GFM support, protocol-sanitized links (restricting to safe `https:`, `http:` and `mailto:` targets and neutralizing `javascript:`, `data:` or user-credential links), external links with `noopener noreferrer` and text placeholders for images. The form has no user file-upload endpoint. Schemas reject forged fields, oversized writing, unsafe company path characters, duplicate rounds, HTML tags in titles, roles, custom names, summaries and report details, as well as hidden control characters, including bidi overrides and zero-width spoofing in company identities, follow labels and moderation text. Submitted custom attribution is included publicly only when selected; ownership UIDs remain stored.
 
 Reports and outcomes are private. Legacy questions are read through server filtering to remove pending answers; normal browser direct access is denied. New question/reply creation is disabled. Notification destinations are constructed from known entity types rather than executing stored legacy links.
