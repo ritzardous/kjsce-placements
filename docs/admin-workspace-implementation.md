@@ -27,6 +27,8 @@ The application now exposes `#admin` with Overview, Moderation, Users, Data, Ana
 
 ## Deliberate bounds
 
+Pending experience reviews show **Approve**, **Request changes** and **Reject** directly in the decision bar. Approval does not require feedback or checklist completion. Requesting changes or rejecting requires feedback; rejection also asks for confirmation. Decisions still apply to the exact pending revision, record an audit event and notify the contributor. Rejection does not unpublish an earlier approved revision; use the separate publication action for that.
+
 - User directory: 50 accounts per page. Email/UID lookup is exact; name matching scans one page at a time. The last-admin safeguard inspects up to 10,000 Auth accounts and fails closed if it cannot verify the inventory.
 - Imports: the existing `shared/dataset.ts` placement format, up to 4.5 MB from the UI and 5,000 announcements. Each upload chunk is immutable; resume with the original file. Corrected source data starts a new import. Metadata and individual announcement sizes are validated.
 - Jobs process bounded batches and persist progress. Closing the page leaves checkpoints available in Operations. Uploads, staging, backups, telemetry and audit collections are private; clients cannot write them directly.

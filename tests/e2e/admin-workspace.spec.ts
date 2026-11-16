@@ -45,6 +45,37 @@ test('moderation case links preserve feedback between admin sections and decisio
  await page.goto(`/#admin/procedures?case=${id}`);const feedback=page.getByRole('textbox',{name:'Review feedback / unpublish reason',exact:true});await feedback.fill('Please clarify the coding round format.');await page.getByRole('navigation',{name:'Administration',exact:true}).getByRole('link',{name:'Analytics',exact:true}).click();await page.goto(`/#admin/procedures?case=${id}`);await expect(feedback).toHaveValue('Please clarify the coding round format.');await page.getByRole('button',{name:'Request changes',exact:true}).click();await expect(page.getByRole('link',{name:'View audit record',exact:true})).toBeVisible();await page.getByRole('link',{name:'View audit record',exact:true}).click();await expect(page.getByText('changes_requested · succeeded',{exact:true})).toBeVisible();
 });
 
+test('submitted experiences expose direct approval and rejection with audited outcomes',async({page})=>{
+ await admin(page);
+ for(const decision of ['approved','rejected'] as const){
+  const id=randomUUID(),ownerUid=`review-owner-${id}`,now=Date.now();
+  const draft={...initialProcedureDraft(),companyKey:'barclays',title:'Recruitment experience',role:'Graduate Technology Trainee',graduationYear:2026,campus:'On campus',body:'I attended a technical interview and explained the design and testing of my project.'};
+  await db.doc(`procedureSubmissions/${id}`).set({ownerUid,draft,companyName:'Barclays',draftVersion:1,revision:1,status:'pending',hasPublished:false,feedback:'',updatedAt:now});
+  await db.doc(`procedureSubmissions/${id}/revisions/1`).set({...draft,companyName:'Barclays',authorUid:ownerUid,authorName:'Contributor',revision:1,submittedAt:now});
+  await page.goto(`/#admin/procedures?case=${id}`);
+  const approve=page.getByRole('button',{name:'Approve',exact:true}),reject=page.getByRole('button',{name:'Reject',exact:true});
+  await expect(approve).toBeVisible();await expect(approve).toBeEnabled();await expect(reject).toBeVisible();
+  await expect(page.getByRole('button',{name:'More review decisions',exact:true})).toHaveCount(0);
+  if(decision==='approved')await approve.click();
+  else{
+   await expect(reject).toBeDisabled();
+   await page.getByRole('textbox',{name:'Review feedback / unpublish reason',exact:true}).fill('This submission does not describe a firsthand recruitment experience.');
+   await reject.click();
+   const confirmation=page.getByRole('dialog',{name:'Reject this submitted revision?',exact:true});
+   await confirmation.getByRole('button',{name:'Cancel',exact:true}).click();
+   expect((await db.doc(`procedureSubmissions/${id}`).get()).data()!.status).toBe('pending');
+   await expect(reject).toBeFocused();await reject.click();
+   await confirmation.getByRole('button',{name:'Confirm rejection',exact:true}).click();
+  }
+  await expect(page.getByRole('link',{name:'View audit record',exact:true})).toBeVisible();
+  await expect.poll(async()=>(await db.doc(`procedureSubmissions/${id}`).get()).data()!.status).toBe(decision);
+  expect((await db.doc(`procedurePosts/${id}`).get()).exists).toBe(decision==='approved');
+  expect((await db.doc(`procedureModeration/${id}-1-reviewed`).get()).data()!.action).toBe(decision);
+  expect((await db.doc(`procedureNotifications/${ownerUid}/items/${id}-1-reviewed`).get()).data()!.type).toBe(decision);
+  await contained(page);
+ }
+});
+
 test('quality scan previews reviewed aliases and runs a backed-up repair',async({page},info)=>{
  await admin(page);await db.doc('procedureCompanies/jp-morgan-chase-co').set({name:'JP Morgan Chase',years:[2026]});
  await page.goto('/#admin/data');await page.getByRole('button',{name:'Start quality scan',exact:true}).click();let job=page.getByRole('region',{name:'Job details',exact:true});await job.getByRole('button',{name:'Run / resume job',exact:true}).click();await expect(job.getByText('completed',{exact:true})).toBeVisible({timeout:60000});
