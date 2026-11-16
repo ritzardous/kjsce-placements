@@ -25,7 +25,7 @@ The maintainer-requested inputs are preserved in [community-additions-2026-11-16
 | Gracenote (Nielsen) | ₹16 LPA, maintainer-supplied; role unspecified |
 | InTrade Systems | Estimated ₹12–14 LPA, explicitly uncertain; role unspecified |
 | Marico Limited | No salary or role supplied |
-| Morgan Stanley | No salary or role supplied |
+| Morgan Stanley | ₹25 LPA, maintainer-supplied; role unspecified |
 
 These are community catalog entries, not new placement announcements. New entries have `years:[]` and `source:community`; known years on existing records are preserved. Neither the amounts nor the entries contribute to any batch statistics. Logos come from the separate bundled brand manifest. Writers can find all four in the company picker and must supply their own recruitment route, graduation year and role.
 
@@ -41,6 +41,6 @@ Deploy the compatible profile reader and logo assets before applying these profi
 
 ### Release verification
 
-On 16 November 2026, the compatible frontend was deployed through the existing Vercel integration before the guarded apply created all four listings in `placement-stats-kjsce`. Their names, empty year lists, community source and supplied profiles were verified by read-back; Marico and Morgan Stanley retained no salary profile. All six new logo assets were fetched from the production origin and matched their committed file hashes. The active 2027 statistics publication remained unchanged.
+On 16 November 2026, the compatible frontend was deployed through the existing Vercel integration before the guarded apply created all four listings in `placement-stats-kjsce`. Their names, empty year lists, community source and supplied profiles were verified by read-back. Marico and Morgan Stanley initially had no salary profile; the maintainer subsequently supplied Morgan Stanley's ₹25 LPA company-level figure, with its role remaining unspecified. Marico still has no salary profile. All six new logo assets were fetched from the production origin and matched their committed file hashes. Catalog salary context does not change any placement statistics.
 
 Local verification passed 87 unit tests, two guarded catalog-update emulator tests and six desktop/mobile browser checks covering existing Wissen compatibility, new listing search, estimate/unknown-role labels, every 2027 logo, native optional-details expansion and layout from 320px upward. The production build passed with its existing bundle-size advisory. Live Google sign-in was not exercised, and these focused checks do not establish a clean full-suite result.

@@ -22,7 +22,8 @@ test('community salary context preserves unknown roles and explicitly labels est
   assert.equal(companyProfileSchema.safeParse({...intrade,ctcEstimated:'yes'}).success,false);
   assert.equal(companyProfileSchema.safeParse({...intrade,ctcMinLpa:15}).success,false);
   assert.equal(rows.find(row=>row.key==='marico-limited')!.profile,undefined);
-  assert.equal(rows.find(row=>row.key==='morgan-stanley')!.profile,undefined);
+  const morganStanley=companyProfileSchema.parse(rows.find(row=>row.key==='morgan-stanley')!.profile);
+  assert.equal(companyProfileCtc(morganStanley),'₹25 LPA');assert.deepEqual(morganStanley.roles,[]);
 });
 
 test('all 2027 company keys resolve to bundled logo assets',()=>{

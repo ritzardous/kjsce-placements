@@ -10,5 +10,9 @@
     "profile":{"roles":[],"ctcMinLpa":12,"ctcMaxLpa":14,"ctcEstimated":true,"currency":"INR","period":"year","source":"maintainer","logoPath":"/company-logos/intrade.svg","website":"https://www.intradets.com"}
   },
   {"key":"marico-limited","name":"Marico Limited"},
-  {"key":"morgan-stanley","name":"Morgan Stanley"}
+  {
+    "key":"morgan-stanley",
+    "name":"Morgan Stanley",
+    "profile":{"roles":[],"ctcMinLpa":25,"ctcMaxLpa":25,"currency":"INR","period":"year","source":"maintainer","logoPath":"/company-logos/morgan-stanley.svg","website":"https://www.morganstanley.com"}
+  }
 ]
