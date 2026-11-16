@@ -1125,15 +1125,28 @@
   border:1px solid var(--line-soft); border-radius:8px; background:var(--surface);
 }
 :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional>summary {
-  gap:6px; min-height:64px; padding:16px 44px 16px 18px;
+  display:grid; grid-template-columns:32px minmax(0,1fr) 16px; align-items:center;
+  gap:12px; min-height:76px; padding:16px 18px;
   background:color-mix(in srgb,var(--accent) 5%,var(--surface));
 }
 :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional>summary:hover {
   background:color-mix(in srgb,var(--accent) 9%,var(--surface));
 }
-.studio-optional-title { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
-.studio-optional-title>.app-icon { width:17px; height:17px; color:var(--accent); flex:none; }
-.studio-optional-badge { padding:3px 7px; border-radius:4px; background:var(--accent-soft); color:var(--accent); font-size:10px; font-weight:500; letter-spacing:.02em; }
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional>summary>.studio-optional-icon {
+  display:grid; place-items:center; width:32px; height:32px; margin:0;
+  color:var(--accent); background:var(--accent-soft); border-radius:7px;
+}
+.studio-optional-icon>.app-icon { display:block; width:17px; height:17px; }
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional>summary>.studio-optional-copy {
+  display:grid; gap:4px; margin:0; min-width:0; color:var(--ink);
+}
+.studio-optional-copy>strong { font-size:14px; font-weight:600; line-height:1.4; }
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional>summary::after {
+  content:''; position:static; width:8px; height:8px; margin:0;
+  border-right:1.5px solid currentColor; border-bottom:1.5px solid currentColor;
+  transform:rotate(45deg); justify-self:center; align-self:center;
+}
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional[open]>summary::after { content:''; transform:rotate(225deg); }
 :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional>summary .studio-details-hint {
   display:block; font-size:12px; line-height:1.5; color:var(--ink-soft);
 }
@@ -1141,4 +1154,8 @@
 :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional-body { padding:8px 18px 20px; }
 :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional>summary:focus-visible {
   outline:2px solid var(--focus-ring); outline-offset:-3px; border-radius:7px;
+}
+@media(max-width:480px) {
+  :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional>summary { grid-template-columns:28px minmax(0,1fr) 14px; gap:10px; padding:14px; }
+  :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional>summary>.studio-optional-icon { width:28px; height:28px; }
 }

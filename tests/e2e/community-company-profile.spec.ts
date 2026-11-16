@@ -38,6 +38,16 @@ test('additional companies are searchable with honest salary context and accessi
   await expect(page.getByLabel('Role',{exact:true})).toHaveValue('');
   const optional=page.locator('.studio-optional'),summary=optional.locator('summary');
   await expect(summary).toContainText('Optional details');await expect(summary).toContainText('Interview year');
+  for(const width of [320,393,840,1280]){
+    await page.setViewportSize({width,height:844});
+    const geometry=await summary.evaluate(element=>{
+      const icon=element.querySelector('.studio-optional-icon')!.getBoundingClientRect(),copy=element.querySelector('.studio-optional-copy')!.getBoundingClientRect(),box=element.getBoundingClientRect();
+      return {gap:copy.left-icon.right,iconWidth:icon.width,copyRight:copy.right,right:box.right,layout:getComputedStyle(element).display,position:getComputedStyle(element,'::after').position};
+    });
+    expect(geometry.layout).toBe('grid');expect(geometry.gap).toBeGreaterThanOrEqual(10);expect(geometry.iconWidth).toBeGreaterThanOrEqual(28);expect(geometry.copyRight).toBeLessThan(geometry.right-20);expect(geometry.position).toBe('static');
+  }
+  await page.setViewportSize(info.project.name==='mobile'?{width:393,height:851}:{width:1280,height:844});
+  await summary.screenshot({path:`artifacts/company-completion/optional-summary-${info.project.name}.png`});
   await summary.focus();await page.keyboard.press('Enter');await expect(optional).toHaveAttribute('open','');
   await expect(page.getByLabel('Year you appeared',{exact:true})).toBeVisible();
   await expect(summary).toHaveCSS('outline-offset','-3px');

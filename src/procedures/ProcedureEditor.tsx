@@ -273,7 +273,7 @@ export function ProcedureEditor({ draftId, freshKey }: {draftId?:string;freshKey
 
         <aside className="studio-rail" aria-label="Experience settings">
           <details className="procedure-optional studio-optional studio-rail-card">
-            <summary><span className="studio-optional-title"><AppIcon name="pen"/>Optional details<span className="studio-optional-badge">Add context</span></span><span className="studio-details-hint">Interview year, summary &amp; how your name appears</span></summary>
+            <summary><span className="studio-optional-icon"><AppIcon name="pen"/></span><span className="studio-optional-copy"><strong>Optional details</strong><span className="studio-details-hint">Interview year, summary and public name</span></span></summary>
             <div className="studio-optional-body">
           <div className="document-metadata">
 
