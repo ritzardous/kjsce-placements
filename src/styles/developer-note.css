@@ -32,7 +32,7 @@
 
 .note-contacts span,.note-small { font-size:13px; color:var(--identity-muted); }
 
-.developer-note-page :is(a,button):focus-visible { outline:2px solid var(--identity-blue); outline-offset:4px; }
+.developer-note-page :is(a,button):focus-visible { outline:2px solid var(--focus-ring); outline-offset:2px; }
 @media(max-width:560px) { .note-header { padding:16px 20px; } .note-header>a>span { font-size:12px; margin-left:8px; } .developer-note { padding:40px 22px 56px; font-size:15px; } .note-lead { font-size:17px; } .note-contacts { grid-template-columns:1fr; } .developer-note section { padding:36px 0; } }
 
 .note-feedback .note-feedback-line {
@@ -57,7 +57,7 @@
   text-decoration:none; box-shadow:0 4px 20px #0002;
 }
 .note-return .app-icon { width:18px; height:18px; flex:none; }
-.note-return:hover { outline:2px solid var(--identity-blue); outline-offset:2px; }
+.note-return:hover { outline:2px solid var(--focus-ring); outline-offset:2px; }
 .developer-note-page .product-footer { padding-bottom:calc(100px + env(safe-area-inset-bottom,0px)); }
 @media(max-width:560px) {
   .developer-note-page .note-return { left:16px; right:16px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); }

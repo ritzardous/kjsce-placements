@@ -216,7 +216,7 @@
   box-shadow: var(--studio-shadow-sm);
 }
 :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio .procedure-company-input input:focus-visible {
-  outline: 3px solid var(--accent);
+  outline:2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio .procedure-company-search-icon {
@@ -766,7 +766,7 @@
   color: var(--accent-ink);
 }
 :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio .procedure-rounds label:has(input:focus-visible) {
-  outline: 3px solid var(--accent);
+  outline:2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio .procedure-rounds input {
@@ -904,16 +904,16 @@
   box-shadow: var(--studio-shadow-sm);
 }
 :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio :is(input,select):focus-visible {
-  outline: 3px solid var(--accent);
+  outline:2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio .studio-rail textarea:focus-visible {
-  outline: 3px solid var(--accent);
+  outline:2px solid var(--focus-ring);
   outline-offset: 2px;
 }
 :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio :is(button,a,summary):focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 3px;
+  outline:2px solid var(--focus-ring);
+  outline-offset:2px;
 }
 
 /* Loading and submission views -------------------------------------------- */

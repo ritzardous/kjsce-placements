@@ -56,7 +56,7 @@ button{color:inherit;}
 .campus-filter{display:flex;align-items:center;gap:10px;font-size:12px;margin:12px 0;}
 .a-role .tag{margin-left:8px;}
 @media(max-width:850px){.topbar-inner{flex-wrap:wrap;gap:10px;}.batch-picker{order:3;margin-left:0;width:100%;}.batch-picker select{max-width:none;width:100%;}.auth-controls{margin-left:auto;}.topbar-meta{display:none;}}
-:focus-visible{outline:2px solid var(--accent);outline-offset:3px;}
+:focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px;}
 .company-identity{display:inline-flex;align-items:center;gap:10px;max-width:100%;min-width:0;vertical-align:middle;}
 .candidate-linkedin{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:6px 10px;border:1px solid var(--line-soft);border-radius:4px;font:500 12px var(--font-body);color:#0a66c2;background:var(--surface);white-space:nowrap;}
 .candidate-linkedin svg{width:17px;height:17px;flex-shrink:0;}

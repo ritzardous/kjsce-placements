@@ -7,7 +7,7 @@
 }
 .app-icon { width:18px; height:18px; flex:none; vertical-align:middle; }
 :is(.procedure-ui,#app,.portal-shell) :is(button,a,summary) { -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
-:is(.procedure-ui,#app,.portal-shell) :is(button,a,summary):focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+:is(.procedure-ui,#app,.portal-shell) :is(button,a,summary):focus-visible { outline:2px solid var(--focus-ring); outline-offset:2px; }
 :is(.procedure-ui,#app,.portal-shell) :is(button,a)[aria-disabled=true] { pointer-events:none; }
 :is(.procedure-ui,#app,.portal-shell) :is(button,.action-button,.portal-link,.nav-item,.account-content-shortcuts a,.mobile-app-nav a,.area-nav a) {
  transition:background-color var(--ui-fast),border-color var(--ui-fast),color var(--ui-fast),box-shadow var(--ui-fast),transform var(--ui-fast);

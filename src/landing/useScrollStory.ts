@@ -49,9 +49,10 @@ export function useScrollStory(count: number, enabled: boolean, pinOnly = false)
       const height = panel.offsetHeight;
       const style = getComputedStyle(section);
       padding = parseFloat(style.paddingTop);
-      pinned = height <= innerHeight - 144 && innerHeight >= 620;
+      const phoneExperience = innerWidth <= 760 && section.classList.contains('lp-experiences');
+      pinned = height <= innerHeight - (phoneExperience ? 96 : 144) && innerHeight >= (phoneExperience ? 480 : 620);
       runway = Math.min(1100, Math.max(640, innerHeight * 1.1));
-      top = Math.max(112, (innerHeight - height) / 2);
+      top = Math.max(phoneExperience ? 80 : 112, (innerHeight - height) / 2);
       section.dataset.scrollStory = pinned ? "pinned" : pinOnly ? "manual" : "inline";
       section.style.setProperty("--story-height", `${height}px`);
       section.style.setProperty("--story-runway", `${runway}px`);

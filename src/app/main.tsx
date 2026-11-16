@@ -17,5 +17,6 @@ import '../styles/product-header.css';
 import '../styles/product-footer.css';
 import '../styles/loading.css';
 import '../styles/internal-pages.css';
+import '../styles/interaction.css';
 
 createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);

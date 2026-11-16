@@ -58,7 +58,7 @@ body:has(:is(#app,.portal-shell,.login-page)) { background:var(--identity-paper)
 :is(#app,.portal-shell) :is(input,textarea)::placeholder { color:var(--ink-soft); opacity:1; }
 :is(#app,.portal-shell) input:is([type=checkbox],[type=radio]) { accent-color:var(--accent); width:20px; height:20px; cursor:pointer; }
 :is(#app,.portal-shell) label { font-size:13px; font-weight:600; }
-:is(#app,.portal-shell,.mobile-statistics-sheet) :is(button,a,input,textarea,select,summary,[role=option]):focus-visible { outline:3px solid var(--accent); outline-offset:4px; }
+:is(#app,.portal-shell,.mobile-statistics-sheet) :is(button,a,input,textarea,select,summary,[role=option]):focus-visible { outline:2px solid var(--focus-ring); outline-offset:2px; }
 :is(#app,.portal-shell) main:focus { outline:none; }
 :is(#app,.portal-shell) :is(.procedure-tabs,.dashboard-desktop-nav,.career-explorer-tabs) { gap:8px; border-bottom:2px solid var(--line); padding-bottom:12px; }
 :is(#app,.portal-shell) :is(.procedure-tabs,.dashboard-desktop-nav,.career-explorer-tabs) a {
@@ -382,7 +382,7 @@ body:has(:is(#app,.portal-shell,.login-page)) { background:var(--identity-paper)
 :is(#app,.portal-shell) .home-community-link { position:relative; overflow:hidden; color:var(--ink); text-decoration:none; border-color:var(--line); background:var(--surface); transition:transform 160ms ease,box-shadow 160ms ease; }
 :is(#app,.portal-shell) .home-community-link::after { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(110deg,transparent 30%,color-mix(in srgb,var(--accent) 9%,transparent) 48%,transparent 66%); transform:translateX(-110%); animation:community-sweep 7s ease-in-out infinite; }
 :is(#app,.portal-shell) .home-community-link .portal-link { display:flex; align-items:center; gap:12px; }
-:is(#app,.portal-shell) .home-community-link:focus-visible { outline:3px solid var(--accent); outline-offset:5px; }
+:is(#app,.portal-shell) .home-community-link:focus-visible { outline:2px solid var(--focus-ring); outline-offset:2px; }
 @keyframes community-sweep { 0%,65% { transform:translateX(-110%); } 95%,100% { transform:translateX(110%); } }
 /* Home destinations share one surface in every interaction state. */
 :is(#app,.portal-shell) .home-card { background:var(--surface); color:var(--ink); border:2px solid var(--line); padding:28px; box-shadow:4px 4px 0 var(--neo-shadow); text-decoration:none; transition:transform 160ms ease,box-shadow 160ms ease,background-color 160ms ease; }

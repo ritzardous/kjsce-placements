@@ -161,8 +161,8 @@
 
 :is(#app, .portal-shell) .app-header .app-header-inner :is(.auth-button, .home-control, .account-menu>summary):focus-visible,
 :is(#app, .portal-shell) .workspace-area-navigation .area-switcher a:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 4px;
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
 }
 
 :is(#app, .portal-shell) :is(.portal-welcome, .procedure-intro, .hero, .workspace-page-header) h1,

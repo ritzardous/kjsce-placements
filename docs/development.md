@@ -86,3 +86,5 @@ For a community action, define a strict payload schema in the service layer, enf
 For a statistics change, update shared types/calculations and source-backed tests before preparing a new immutable publication. Preserve batch weighting differences and null semantics. Never repair a published payload directly to make a test pass.
 
 For company identities, use reviewed mappings and evidence; shared logos or parent brands are insufficient. For UI work, preserve focus, keyboard access, small-screen containment, reduced-motion and failed-network recovery. Update the relevant guide when behavior changes.
+
+Phone experience scroll chapters pin only when the complete panel fits the viewport. Compact phone layouts keep all three rounds visible; short viewports, enlarged text and reduced motion retain manual step controls. Focus uses the shared `--focus-ring` token and a 2px outline, without stacked input shadows. Back links retain 44px touch targets and visible keyboard focus. The landing and mobile UI browser suites cover these interactions.

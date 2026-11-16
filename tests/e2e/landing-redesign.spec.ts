@@ -51,7 +51,7 @@ test("scroll chapters advance and reverse both stories while retaining manual co
   if (info.project.name === "desktop") await page.setViewportSize({ width: 1440, height: 1000 });
   await ready(page);
   await expect(page.locator('.lp-header .lp-index-link')).toHaveCount(0);
-  await expect(page.locator('.lp-experiences')).toHaveAttribute('data-scroll-story', /pinned|inline/);
+  await expect(page.locator('.lp-experiences')).toHaveAttribute('data-scroll-story', /pinned|manual/);
   await expect(page.locator('.lp-people')).toHaveAttribute('data-scroll-story', /pinned|manual/);
   await expect(page.getByRole("button", {name: /Pause .*animation/})).toHaveCount(0);
   for (const [section, group] of [
@@ -97,7 +97,7 @@ test("scroll chapters advance and reverse both stories while retaining manual co
       }
       if (await story.getAttribute('data-scroll-story') === 'pinned') {
         const pin = await story.locator('.lp-story-pin').boundingBox();
-        expect(pin!.y).toBeGreaterThanOrEqual(100);
+        expect(pin!.y).toBeGreaterThanOrEqual(info.project.name === 'mobile' ? 80 : 100);
         expect(pin!.y + pin!.height).toBeLessThanOrEqual(page.viewportSize()!.height - 20);
       }
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -109,6 +109,29 @@ test("scroll chapters advance and reverse both stories while retaining manual co
     await seek(.5);
     await expect(controls.nth(1)).toHaveAttribute('aria-pressed', 'true');
     await story.locator('.lp-story-pin').screenshot({ animations: 'disabled', path: `artifacts/scroll-story-${section.slice(1)}-${info.project.name}.png` });
+  }
+});
+
+test('phone experience card stays fully pinned through all three rounds', async ({ page }, info) => {
+  test.skip(info.project.name !== 'mobile', 'Phone geometry');
+  await ready(page);
+  for (const size of [{width:320,height:568},{width:320,height:640},{width:390,height:844},{width:430,height:740},{width:760,height:650}]) {
+    await page.setViewportSize(size);
+    const story = page.locator('.lp-experiences');
+    await expect(story).toHaveAttribute('data-scroll-story', 'pinned');
+    let firstTop: number | undefined;
+    for (const [index, progress] of [.1,.5,.9].entries()) {
+      await story.evaluate((element, p) => {
+        const style = getComputedStyle(element);
+        scrollTo({top:scrollY+element.getBoundingClientRect().top+parseFloat(style.paddingTop)-parseFloat(style.getPropertyValue('--story-top'))+p*parseFloat(style.getPropertyValue('--story-runway')),behavior:'instant'});
+      }, progress);
+      await expect(page.getByRole('group',{name:'Explore hiring experiences'}).getByRole('button').nth(index)).toHaveAttribute('aria-pressed','true');
+      const card = await story.locator('.lp-story-pin').boundingBox();
+      firstTop ??= card!.y;
+      expect(Math.abs(card!.y-firstTop)).toBeLessThanOrEqual(1);
+      expect(card!.y).toBeGreaterThanOrEqual(80);
+      expect(card!.y+card!.height).toBeLessThanOrEqual(size.height-16);
+    }
   }
 });
 
@@ -330,8 +353,8 @@ test("keyboard, source controls and three product stories work without exposing 
   await expect(page.locator('a[href*="linkedin.com"]')).toHaveCount(0);
   await page.getByRole("link", { name: 'About this project' }).click();
   await page.getByRole("link",{name:"Using the app",exact:true}).click();
-  await expect(page.locator("#note-terms")).toContainText("do not imply affiliation");
-  await expect(page).toHaveURL(/#landing$/);
+  await expect(page.locator("#note-terms")).toContainText("Conditions of use and legal boundaries");
+  await expect(page).toHaveURL(/#about\/terms$/);
 });
 
 test("reduced motion and save-data retain the diagram without downloading Three.js", async ({

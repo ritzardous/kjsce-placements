@@ -87,6 +87,10 @@ for(const width of [320,390,430]) {
     expect(backBounds!.x).toBeGreaterThanOrEqual(sheetBounds!.x);
     expect(backBounds!.x+backBounds!.width).toBeLessThanOrEqual(sheetBounds!.x+sheetBounds!.width);
     await back.focus();
+    // Touch focus need not draw a keyboard ring. Exercise actual keyboard navigation.
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Tab');
+    await expect(back).toBeFocused();
     await expect(back).toHaveCSS('outline-width','2px');
     await expect(back).toHaveCSS('outline-offset','2px');
     for(const link of await menu.getByRole('navigation',{name:'Statistics sections'}).getByRole('link').all())expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);

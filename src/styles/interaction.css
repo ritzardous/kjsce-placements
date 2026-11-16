@@ -1,0 +1,40 @@
+:root {
+  --focus-ring:color-mix(in srgb,var(--identity-blue) 78%,var(--identity-paper));
+  --focus-border:color-mix(in srgb,var(--identity-blue) 65%,var(--identity-rule));
+}
+
+/* One focus treatment, without the stacked hard shadow around input fields. */
+:is(#app,.portal-shell,.mobile-statistics-sheet,.ps-landing) :is(button,a,input,select,textarea,summary,[role=option]):focus-visible {
+  outline:2px solid var(--focus-ring); outline-offset:2px;
+}
+:is(#app,.portal-shell) :is(input:not([type=checkbox]):not([type=radio]),select,textarea):focus {
+  border-color:var(--focus-border); box-shadow:none;
+}
+:is(#app,.portal-shell) :is(input[type=search],.search-box input,.procedure-search-input input):focus-visible {
+  outline:2px solid var(--focus-ring); outline-offset:2px; box-shadow:none;
+}
+:is(#app,.portal-shell) :is(.search-box input,.procedure-search-input input,select.filter) { border-radius:6px; }
+:is(#app,.portal-shell,.mobile-statistics-sheet) :is(button[aria-pressed=true],[role=option][aria-selected=true]) {
+  box-shadow:none; transform:none;
+}
+
+:is(#app,.portal-shell) :is(.batch-back,.back-link,.procedure-back-link) {
+  display:inline-flex; align-items:center; gap:8px; min-height:44px;
+  padding:8px 12px; border:1px solid transparent; border-radius:6px;
+  background:transparent; color:var(--ink-soft); font-size:13px; font-weight:500;
+  text-decoration:none; box-shadow:none;
+}
+:is(#app,.portal-shell) :is(.batch-back,.back-link,.procedure-back-link):hover {
+  background:var(--accent-soft); border-color:var(--line-faint); color:var(--ink); text-decoration:none;
+}
+:is(#app,.portal-shell) :is(.batch-back,.back-link,.procedure-back-link) .app-icon { width:17px; height:17px; flex:none; }
+#app .mobile-statistics-sheet > .batch-back {
+  padding:10px 12px; border:1px solid var(--line-faint); border-radius:6px;
+  background:var(--bg); font-size:13px; line-height:1.5; text-decoration:none;
+}
+#app .mobile-statistics-sheet > .batch-back:focus-visible { outline:2px solid var(--focus-ring); outline-offset:2px; }
+#app .mobile-statistics-sheet nav a { border-radius:6px; }
+#app .mobile-statistics-sheet nav a[aria-current=page] { border-color:var(--line-soft); }
+@media(forced-colors:active) {
+  :is(#app,.portal-shell,.mobile-statistics-sheet,.ps-landing) :focus-visible { outline:2px solid Highlight; }
+}

@@ -25,7 +25,7 @@
 .admin-chart{height:150px;display:flex;align-items:flex-end;gap:3px;border-bottom:1px solid var(--line-soft);padding-top:8px;margin-block:20px}.admin-chart>span{flex:1;min-width:1px;background:var(--accent)}
 .admin-audit{margin-top:36px;border-top:1px solid var(--line-soft);padding-top:24px}.admin-json{max-width:100%;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px}
 .admin-workspace details>summary{min-height:44px;cursor:pointer;padding-block:12px}
-.admin-job-detail>.procedure-actions{flex-wrap:wrap}.admin-workspace :is(button,a,summary):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.admin-job-detail>.procedure-actions{flex-wrap:wrap}.admin-workspace :is(button,a,summary):focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
 @media(max-width:760px){.admin-split,.admin-data-tools{grid-template-columns:minmax(0,1fr)}.admin-split{gap:12px}.admin-navigation{gap:0}.admin-navigation>a{flex:1 1 30%;justify-content:center;padding-inline:8px!important}.admin-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.admin-workspace .workspace-toolbar>label{flex-basis:100%}.admin-workspace .procedure-card{padding:16px!important}.admin-facts{grid-template-columns:minmax(80px,.35fr) minmax(0,1fr)}.admin-workspace .procedure-actions{gap:10px}.admin-workspace .procedure-actions>button{min-height:44px}}
 /* Admin tables must not inherit the statistics table's 720px minimum. */
 .admin-table-scroll table{min-width:0}

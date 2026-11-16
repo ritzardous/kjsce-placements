@@ -37,7 +37,7 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
     allowed = useMotionPolicy(),
     [batch, setBatch] = useState(2026);
   // Background playback must not collapse the scroll chapters and shift the page.
-  const experience = useScrollStory(3, allowed);
+  const experience = useScrollStory(3, allowed, true);
   const people = useScrollStory(3, allowed, true);
   const round = experience.index, current = rounds[round];
   usePageMotion(root, allowed);
