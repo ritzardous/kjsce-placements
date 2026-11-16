@@ -1,4 +1,5 @@
 import {notify} from '../ui/AppUtilities';
+import {trackProductEvent} from '../lib/analytics';
 import {useEffect,useRef,useState} from 'react';
 import {AppIcon} from '../ui/AppIcon';
 import {community,invalidatePages} from './community-api';
@@ -32,6 +33,7 @@ export function BookmarkButton({postId,initialSaved,onChange}:{postId:string;ini
     broadcast(next);notify(next?'Saving to your profile…':'Removing bookmark…','progress',postId);
     try {
       const result=await community<{saved:boolean}>('bookmark',{postId,saved:next});
+      trackProductEvent('bookmark',{action_type:result.saved?'save':'remove'});
       if(mounted.current){setSaved(result.saved);}
       invalidatePages('saved');invalidatePages('browse');broadcast(result.saved);
       notify(result.saved?'Bookmarked. Find it in Saved for prep.':'Bookmark removed.','success',postId);

@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { GoogleAuthProvider, onIdTokenChanged, signInWithPopup, signInWithCredential, signOut, type User } from 'firebase/auth';
 import { firebaseMessage, getFirebase } from './firebase';
 import { withTimeout } from './request-timeout';
+import { trackProductEvent } from './analytics';
 import { syncGoogleProfile } from './account-profile';
 import { useBackgroundSync } from './background-sync';
 
@@ -61,10 +62,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try { await action(); } catch (cause) { setError(firebaseMessage(cause)); }
     finally { operation.current = false; setBusy(false); }
   }
-  const login = () => act(() => {
+  const login = () => act(async () => {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
-    return signInWithPopup(getFirebase().auth, provider);
+    trackProductEvent('auth_start', { method: 'Google' });
+    try {
+      const result = await signInWithPopup(getFirebase().auth, provider);
+      if (result.user.emailVerified && result.user.providerData.some(entry => entry.providerId === 'google.com')) trackProductEvent('login', { method: 'Google' });
+      else trackProductEvent('auth_result', { method: 'Google', outcome: 'not_authorized' });
+      return result;
+    } catch (cause) {
+      const code = (cause as { code?: string })?.code;
+      trackProductEvent('auth_result', { method: 'Google', outcome: ['auth/popup-closed-by-user', 'auth/cancelled-popup-request'].includes(code ?? '') ? 'cancelled' : 'failed' });
+      throw cause;
+    }
   });
   const betaLogin = (role: string) => act(async () => {
     if (!import.meta.env.DEV || import.meta.env.VITE_USE_FIREBASE_EMULATORS !== 'true' || import.meta.env.VITE_LOCAL_BETA !== 'true' || !['contributor', 'admin', 'reader'].includes(role)) throw new Error('Local beta accounts are unavailable.');
@@ -72,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
   const logout = () => act(async () => {
     await signOut(getFirebase().auth);
+    trackProductEvent('logout');
     location.hash = '#landing';
   });
   return <AuthContext.Provider value={{ user, ready, allowed, admin, busy, error, profileError, login, logout, betaLogin }}>{children}</AuthContext.Provider>;

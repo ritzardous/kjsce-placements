@@ -1,4 +1,5 @@
 import "../styles/experience-invite.css";
+import { trackProductEvent } from '../lib/analytics';
 import { useAuth } from "../lib/auth";
 import { useState } from "react";
 import { AppIcon } from "../ui/AppIcon";
@@ -20,6 +21,7 @@ export function InviteWriter({
     const url = experienceInviteUrl(location.href, company);
     const text = experienceInviteMessage(company);
     const invitation = `${text}\n\n${url}`;
+    const method = typeof navigator.share === 'function' ? 'native' : 'clipboard';
     try {
       if (navigator.share) {
         await navigator.share({
@@ -33,6 +35,7 @@ export function InviteWriter({
         setMessage("Message and link copied");
       }
       setFallback("");
+      trackProductEvent('share', { method, content_type: 'invitation' });
     } catch (error) {
       if ((error as Error).name === "AbortError") return;
       setFallback(invitation);

@@ -1,48 +1,128 @@
-# Google Analytics 4
+# Product analytics (GA4)
 
 [Documentation index](README.md) · [Configuration](configuration.md) · [Security](security.md)
 
-The app is React/Vite with hash routing, not Next.js. It uses one asynchronous Google tag, managed in [analytics.ts](../src/lib/analytics.ts) and called by [App.tsx](../src/app/App.tsx). Firebase Authentication, Firestore and the trusted community API are independent of this integration. There is no Firebase Analytics initialization or Google Tag Manager container in the supported application source.
+The React/Vite application uses one asynchronous Google tag and manual virtual page views. Firebase Authentication, Firestore and the trusted API remain independent. Sources: [tracker](../src/lib/analytics.ts), [event boundary](../src/lib/analytics-events.ts), [React hooks](../src/lib/analytics-hooks.ts), [routing](../src/app/App.tsx).
 
-## Production setup
+## Property audit and `(other)` investigation
 
-Before enabling collection, open Google Analytics **Admin → Data collection and modification → Data streams → the web stream for `https://kjsce-placements.vercel.app`**. Confirm measurement ID `G-C9YFLJ7WPC`.
+Read-only checks on 16 November 2026 established:
 
-1. Turn **Enhanced measurement off** for this stream. Also inspect **Configure tag settings → Manage automatic event detection** and disable history page views, outbound clicks, site search, form interactions, downloads and video detection. Labels can differ across Google interfaces. This implementation sends its own page views and 90% scroll events. Automatic link/form tracking could expose profile URLs or user-entered text; automatic history tracking could duplicate views.
-2. Leave user-provided data collection, Google Signals and advertising personalization disabled. Do not add a second tag through Firebase Analytics, GTM, Vercel injection or another script. Audit any connected tag destinations separately.
-3. Confirm the applicable analytics notice and consent requirements before enabling. There is no consent banner in this repository; this change adds no visible UI or new privacy policy. If prior consent is required, integrate a consent manager before enabling, as described below.
-4. In **Vercel → Project → Settings → Environment Variables**, set these for **Production only**, then redeploy:
+| Destination | Evidence | Conclusion |
+| --- | --- | --- |
+| Firebase-linked `placement-stats-kjsce`, **`G-QK3FD7FTJC`** | Firebase CLI web SDK configuration identified this ID. The deployed bundle configured the same ID. An isolated signed-out visit loaded one tag for it and generated one intercepted `page_view` with virtual `/landing` and `Welcome · Placement Stats`. | Verified production destination; retain it |
+| Standalone **`G-C9YFLJ7WPC`** | Earlier maintainer-supplied ID, previously in the example configuration and guide. Absent from the audited entry bundle and observed tag/collection requests. | Historical alternative; not observed collecting alongside the primary in this visit |
+
+The audited production asset was `/assets/index-NVFhln9L.js`. Collection was intercepted locally, so the audit did not intentionally send test events to Google. The checkout and production used the same environment-driven loader, with different example/deployed IDs. This is not evidence of two active integrations. Different properties keep separate datasets; their totals should not be added together.
+
+There is no Firebase Analytics initialization or GTM container in supported application source. A dependency string mentioning Firebase Analytics does not prove `getAnalytics()` is running. A Google tag can send to the Firebase-linked stream without adding Firebase Analytics initialization. No existing Firebase functionality was removed.
+
+The GA console could not be safely inspected through browser automation. Connected destinations, historical backup traffic, stream settings, data filters, and the Firebase Analytics-link screen remain unverified. SDK configuration identifies the Firebase-associated ID, not a complete account-level reporting audit. No production setting or property was changed.
+
+**`(other)` is a GA4 reporting aggregation label, not an application route.** Google documents row limits and high-cardinality dimensions as causes, including in Realtime cards. Missing fields commonly appear as `(not set)`, which is a different diagnostic. Hash routing can collapse automatic tracking to `/`; it does not by itself explain `(other)`.
+
+The observed production hit already had a valid full virtual location and fixed title. That rules out malformed location for that hit, not every signed-in event. Concrete instrumentation gaps corrected here are distinct career-explorer tab paths, experience-company query identity deduplication, explicit `page_path`, low-cardinality page context, clearing stale academic-year context, and explicit single-destination event delivery.
+
+To diagnose the actual report:
+
+1. Select the primary property/stream above and record the exact Realtime Pages dimension: title, path or location.
+2. Inspect its data-quality indicator for aggregation/cardinality notices. Compare a short date range in Pages and screens with minimal secondary dimensions.
+3. Inspect Tag Assistant/DebugView and Network: `tid`, `en`, `dl`, `dt`, `ep.section`. Expect a single view per real navigation and virtual paths below, not raw hash/query URLs.
+4. If payloads are correct while reporting aggregates, investigate report limits, high-cardinality custom definitions, old traffic, connected destinations and other clients sharing the stream. Do not rewrite working routes to disguise a report limit.
+
+The exact cause of the reported `(other)` row remains unconfirmed without report access. New code cannot relabel historical hits or guarantee removal of Google's aggregation bucket.
+
+## Production configuration
+
+In **GA4 → Admin → Data collection and modification → Data streams → the production web stream**, verify `G-QK3FD7FTJC`.
+
+1. Turn **Enhanced measurement off**. Also inspect **Configure tag settings → Manage automatic event detection** and disable history page views, outbound clicks, site search, form interactions, downloads and videos. UI labels can vary. Automatic history views can duplicate manual views; automatic link/form/search events can collect sensitive URLs or text.
+2. Keep user-provided data collection, Google Signals and advertising personalization disabled. Audit connected destinations and any Firebase/GTM/Vercel injection separately. Do not delete the historical property without checking its Realtime/DebugView.
+3. Resolve applicable consent requirements before enabling. No consent banner is implemented; where prior consent is required, integrate a pre-boot denial as described below.
+4. Configure these **Production-only** Vercel variables and redeploy the reviewed release:
 
    | Variable | Value |
    | --- | --- |
-   | `VITE_GA_ID` | `G-C9YFLJ7WPC` |
+   | `VITE_GA_ID` | `G-QK3FD7FTJC` |
    | `VITE_GA_ENABLED` | `true` |
 
-Both values are public build-time settings, not credentials. An existing `VITE_GA_ID` alone no longer enables collection. Set `VITE_GA_ENABLED=false` and redeploy to disable it. No server secret, Firebase measurement setting, Next.js package or dependency is needed.
+These are public build-time settings. The example remains disabled. Missing ID/enablement or `false` disables collection. Only production builds at exactly `https://kjsce-placements.vercel.app`, with emulators off, load the tag. Localhost, development and preview origins do not collect. A new production hostname requires an allowlist review.
 
-The tag loads only in production builds at exactly `https://kjsce-placements.vercel.app`, with emulator mode off. Localhost, development, preview deployment URLs and other origins do not collect, even if the ID is present. A future production domain change requires updating the origin allowlist. Google stream settings cannot be inspected or changed using a measurement ID alone; a property administrator must complete the steps above.
+The loader will not replace an existing `window.gtag` or other Google-tag script; conflicting injection stops this loader instead of adding another tracker. Failed/blocked script loads do not affect UI or Firebase. Reload after resolving a blocker to retry. `send_page_view:false` alone does **not** disable Enhanced Measurement history views, so the console step is essential. All manual events use `send_to` for the single configured ID.
 
-## Events and data boundaries
+## Virtual page views
 
-| Event | Behavior |
+| Screen | Virtual path |
 | --- | --- |
-| `page_view` | Initial rendered page and subsequent hash navigation; duplicate renders/remounts and query-only filter changes do not add views; Back/Forward between distinct page labels does |
-| `scroll` | Once per measured page, after reaching 90% of a scrollable document |
-| GA4 automatic events | The Google library manages users, sessions, first visits and engagement; these are not recreated by application code |
+| Public landing / company invitation | `/landing`, `/experiences/invitation` |
+| Home / batch picker | `/home`, `/statistics` |
+| Batch statistics | `/{year}/overview`, `/{year}/companies`, `/{year}/company`, `/{year}/branches` |
+| Career explorer | `/{year}/explore/candidates`, `/{year}/explore/timeline`, `/{year}/explore/insights` |
+| Experience directory / company / article | `/experiences`, `/experiences/company`, `/experiences/read` |
+| Writing / contributions | `/experiences/contribute`, `/experiences/contributions` |
+| Saved / notifications / comparison | `/experiences/saved`, `/experiences/notifications`, `/experiences/compare` |
+| Account / about | `/account`, `/about` |
+| Administration | `/admin/overview`, `/admin/procedures`, `/admin/users`, `/admin/data`, `/admin/analytics`, `/admin/operations` |
+| Unknown destination | `/not-found` |
 
-`send_page_view:false` disables the configuration page view. **It does not disable Enhanced Measurement history events**, which is why the property setup above is required. Page context is updated before each manual view, so subsequent engagement has the same sanitized location/title.
+Years are limited to 2025–2027. Legacy candidates/timeline/insights routes use equivalent explorer paths. These are reporting labels, not new server routes. Loading/redirect placeholders are excluded; signed-out requests measure the screen actually shown. About subsections and notification preferences intentionally share their parent label.
 
-Analytics uses virtual page paths such as `/landing`, `/home`, `/2027/overview`, `/2027/company`, `/experiences`, `/experiences/contribute`, `/experiences/read`, `/account` and `/about`. These are reporting labels, not new application routes. Company IDs, experience IDs, author names, account identifiers, draft IDs, search/filter strings, editor contents and actual document titles are never included by application tracking. Individual companies and experiences intentionally share a page label, but navigating between distinct records still counts a view. Record identity is used only in memory for deduplication and is never sent to GA. About subsections share `/about`. The signed-out landing screen is measured as landing, rather than as the protected destination requested by its URL. Loading/redirect placeholders are excluded.
+Record identity stays in memory to distinguish company/article/branch navigation. No company/article/draft/student identifier becomes a path or event field. Different records count separate views under a shared generic label. Remounts, query-only filtering/search/pagination and autosave do not add views. Back/Forward and reloads count normally.
 
-Initial external referrers retain only their origin; authentication callbacks and same-origin referrers are excluded. Subsequent views reference the preceding virtual page. Raw landing URL queries, UTM fields and advertising click IDs are not forwarded by this implementation. Referral/organic attribution can still use referrer origins, but granular campaign/paid-click attribution is limited intentionally. Do not put personal information into campaign tags or hostnames. Google receives network requests and uses its standard analytics identifiers; this is not anonymous, cookie-free analytics or a guarantee of legal compliance.
+Views include sanitized full `page_location`, explicit `page_path`, fixed `page_title` and sanitized `page_referrer`. Every event has `section`, `instrumentation_version=2`, and `academic_year` when viewing a batch. Changing sections clears stale year context. GA's library/cookies own session IDs, first visits, new/returning visitor recognition and engagement; these are not recreated by application code or linked to Firebase UIDs.
 
-There are no user IDs, user properties, form-value events, profile click events or successful-write events. A page view does not prove a database read, published experience or successful authentication. Blockers, privacy choices and network failures reduce counts. Optional analytics failures never alter the app UI or Firebase workflow.
+## Product events
+
+| Event | Trigger | Additional parameters |
+| --- | --- | --- |
+| `page_view` | Initial rendered screen and meaningful navigation | Sanitized location/path/title/referrer |
+| `scroll` | First 90% scroll of a scrollable document per view | `percent_scrolled=90` |
+| `search` | Changed nonempty query settles for 800 ms; cancelled on leaving | `search_surface`, `result_bucket`; **no search term** |
+| `filter_apply` | Changed company category/salary/sort, candidate role/campus, timeline metric, or applied experience filter | `filter_name`, `filter_state`; category when known |
+| `view_company` | Statistics company or experience company hub successfully loads | `company_group`, `company_category`, `content_type=company` |
+| `view_experience` | Published article successfully loads | `company_group`, `content_type=experience` |
+| `navigation` | Uncancelled internal link to a different virtual page | Requested `destination` section; no href/label |
+| `alumni_contact` | Available candidate LinkedIn link is clicked | `action_type=linkedin`; no URL/name |
+| `auth_start` | User starts Google popup sign-in | `method=Google` |
+| `login` | Popup completes with a verified Google user | `method=Google`; not token refresh/restored session |
+| `auth_result` | Sign-in cancellation, failure or unverified result | `method=Google`, bounded `outcome`; no error message |
+| `logout` | Firebase sign-out succeeds | None |
+| `writing_start` | First nonempty body edit per editor instance | None; no text/length/title/role |
+| `experience_submit` | Submission API succeeds | `outcome=success`; no draft ID |
+| `bookmark` | Bookmark API succeeds | `action_type=save/remove` |
+| `vote` | Vote API succeeds | `action_type=upvote/downvote/remove` |
+| `share` | Native share or clipboard write succeeds | `method=native/clipboard`, `content_type=experience/invitation` |
+| `pagination` | Dashboard table page changes | `action_type=next/previous`; no page number |
+
+A share is API completion, not proof of delivery. Autosaves, background refresh, keystrokes, focus, private reports and routine clicks are not tracked. Failed mutations do not emit successful events. Content-view events distinguish loaded content from a route request that fails.
+
+Search surfaces are companies, candidates, experiences and company picker. Result buckets are `none`, `1_5`, `6_20`, `21_50`, `51_plus`. Server-paged experience counts describe the loaded window, not a global total. Restored initial text is not a new search. Rapid identical bucket events can coalesce.
+
+Identical product events within one second are coalesced; product events are capped at 60 per minute per document. Views and one-per-view scroll are outside that cap. Loaded-content events deduplicate per record/view, including background snapshots and StrictMode. Totals measure usage, not an accounting ledger.
+
+Company categories are `it`, `bfsi`, `core`, `consultancy`, `fmcg`, `ecommerce`, `other`, `unknown`. Company groups are the 16 reviewed identity groups in [company-identity.ts](../shared/company-identity.ts); all other/user-created names become `other_company`. No free-form company name or author/article dimension is sent.
+
+## Acquisition and privacy
+
+Initial external referrers retain only their origin. Same-origin and Google/Firebase auth redirects are excluded. Subsequent views reference the previous virtual page. Acquisition settings apply once, retaining normal GA session/cookie and returning-visitor behavior.
+
+Only these exact reviewed labels are accepted from the initial URL query or hash query:
+
+| Parameter | Allowed values |
+| --- | --- |
+| `utm_source` | `google`, `linkedin`, `instagram`, `whatsapp`, `telegram`, `github`, `college` |
+| `utm_medium` | `organic`, `social`, `referral`, `email`, `cpc`, `paid_social`, `qr` |
+| `utm_campaign` | `public_launch`, `alumni_invite`, `campus_launch`, `community_share` |
+
+Example: `https://kjsce-placements.vercel.app/?utm_source=linkedin&utm_medium=social&utm_campaign=public_launch#landing`. These are supported labels, not evidence that campaigns have run. They map to `campaign_source`, `campaign_medium`, `campaign_name`. Arbitrary values, ad click IDs, `utm_term`, `utm_content` and raw URL queries are dropped. Referral/organic reporting remains available; untagged private-message links can legitimately be Direct. Detailed paid-click attribution and arbitrary campaign names are intentionally unsupported.
+
+No application event sends email, Firebase UID, student/roll identity, profile URL, search text, private/editor content, draft/post ID, dynamic DOM title or sensitive query string. Advertising storage/user data/personalization are denied and Google Signals disabled. Google still receives network traffic and standard pseudonymous identifiers; this is not anonymous/cookie-free analytics or legal certification.
 
 ## Consent integration
 
-The existing optional-analytics model is retained behind explicit deployment enablement; consent is not inferred from signing in. The loader honors `navigator.doNotTrack`, Global Privacy Control, Google's `ga-disable-G-C9YFLJ7WPC` flag and an explicit consent denial. Advertising storage, advertising user data and advertising personalization are denied; Google Signals are disabled.
+Deployment enablement retains the existing optional-analytics model. DNT, Global Privacy Control, Google's `ga-disable-{measurementId}` flag and explicit denial suppress tracking. Signing in is not consent.
 
-For a consent manager, set `window.placementStatsAnalyticsConsent = 'denied'` **before the app boots** to prevent even loading the tag until permission is granted. Deliver changes through:
+Where prior consent is required, set `window.placementStatsAnalyticsConsent = 'denied'` **before app boot** through a consent manager. This prevents loading the tag. Deliver changes with:
 
 ```js
 window.dispatchEvent(new CustomEvent('placementstats:analytics-consent', {
@@ -50,23 +130,61 @@ window.dispatchEvent(new CustomEvent('placementstats:analytics-consent', {
 }));
 ```
 
-A grant measures the current page rather than replaying earlier browsing. A denial updates Google consent mode and the Google disable flag, preventing further collection; it does not erase past events or cookies. A consent manager owns persistence, withdrawal UI and any cookie removal required by policy. Without a pre-boot denial, an explicitly enabled deployment loads analytics by default unless a privacy signal opts out. Maintainers must resolve jurisdiction-specific consent requirements before rollout.
+Grant measures the current page without replaying earlier browsing; repeated grants do not duplicate it. Denial updates consent mode and the disable flag. Withdrawal does not erase existing cookies/events. Preference persistence, withdrawal UI and required cookie removal belong to the consent manager. Without pre-boot denial, an enabled deployment collects by default unless a privacy signal opts out. This revision adds no visible consent UI or privacy policy; maintainers must resolve consent requirements before launch.
 
-## Verification
+## Custom dimensions and reports
 
-1. Complete stream settings and deploy with Production environment values above. Visit the canonical HTTPS site in a browser without an analytics blocker or enabled privacy opt-out. Do not enter real personal information for testing.
-2. In browser DevTools → Network, filter `gtag/js`: there should be one loader for `G-C9YFLJ7WPC`. Filter `collect`: GA4 requests should include `tid=G-C9YFLJ7WPC` and `en=page_view`. Inspect `dl` (location), `dt` (title), and `dr` (referrer): they must contain only the documented sanitized context. Requests may be batched.
-3. Open **Google Analytics → Reports → Realtime overview**. Within a few minutes, check an active user and `page_view` in Event count by Event name. Open its details and inspect page location/title where available. GA4 Realtime reports may aggregate and are not an exact per-click counter.
-4. Sign in, choose 2027 and navigate Overview → Companies → Back. Confirm those virtual paths appear. Re-rendering a page or changing a search filter should not add a new view. Opening another company should add a view under the same generic company label. Reloading the page should also add a view. Scroll to 90% on a long page and check `scroll`.
-5. Check acquisition/referral reporting after processing. A manually pasted URL can legitimately be Direct; query campaign attribution is deliberately omitted. For detailed sequencing, use Google's Tag Assistant to enable DebugView and inspect **Admin → Data display → DebugView**; application code does not enable debug events for all users.
-6. On localhost and Vercel previews, confirm there is no Google tag request. For denial testing on production, set the pre-boot denial using a consent manager, or dispatch the denial event and confirm subsequent navigations stop generating collection requests. Revoke test consent when finished.
+In the **primary property**, open **Admin → Data display → Custom definitions → Create custom dimension**. Set **Scope: Event**, then use these exact parameters:
 
-Automated checks cover environment gates, privacy-safe route mapping, access states, referrer stripping, deduplication, back navigation and scroll counts. Controlled browser checks can intercept the Google script so no test traffic reaches GA. Actual property ingestion, stream settings, filters and Realtime visibility require access to the GA account and cannot be proven by a local build.
+| Display name | Event parameter |
+| --- | --- |
+| Product section | `section` |
+| Academic year | `academic_year` |
+| Search surface | `search_surface` |
+| Result bucket | `result_bucket` |
+| Filter name | `filter_name` |
+| Filter state | `filter_state` |
+| Company category | `company_category` |
+| Company group | `company_group` |
+| Action type | `action_type` |
+| Destination section | `destination` |
+| Action outcome | `outcome` |
+| Content type | `content_type` |
+| Interaction method | `method` |
+
+Optionally register `instrumentation_version` for rollout comparisons. Use built-in page/source/medium/campaign/session/engagement dimensions; do not register user IDs, timestamps, raw URLs or duplicate page dimensions. Custom definitions are not retroactive and generally take 24–48 hours for reporting; DebugView exposes event parameters sooner.
+
+Suggested Explorations:
+
+- Feature popularity: section × academic year, views, active users and engagement; filter `page_view` for view counts.
+- Reading journey: `search` → `view_company` → `view_experience`, segmented by section/company group. Alumni contact is an alternative useful outcome.
+- Contribution funnel: invitation/writer page → `auth_start` → `login` → `writing_start` → `experience_submit`. Use open funnels for already-signed-in alumni. Cross-session writing means this is not a deterministic submission ledger.
+- Search quality: search surface × result bucket. Topics/queries cannot be inferred.
+- Acquisition: built-in Session source/medium and Session campaign with engagement; inspect First user acquisition separately.
+
+Optionally mark `experience_submit` as a key event in **Admin → Data display → Events** once verified. Do not mark every view/search/login as a key event by default.
+
+## Verification and rollout
+
+1. Complete stream settings, custom definitions and consent review. Confirm Vercel's primary ID and redeploy reviewed code. A local build does not deploy it.
+2. In **DevTools → Network**, expect one `gtag/js` loader and collection with `tid=G-QK3FD7FTJC`, one initial `en=page_view`, sanitized `dl`/`dt` and `ep.instrumentation_version=2`. Requests can batch.
+3. Open **GA4 → Reports → Realtime overview / Realtime pages**. Visit landing → sign in → 2027 Overview → Companies → company → Back → Branches → all explorer tabs. Check meaningful virtual paths. Search/pagination must not add views; opening another company hub must.
+4. Enable debug mode with Tag Assistant, then open **Admin → Data display → DebugView**. Inspect debounced search, applied filters, loaded-content, alumni and authentication events. Confirm no query text, names, profile URLs, IDs or private text in parameters.
+5. Exercise writing/submission/bookmark/vote/share success and failure in an isolated environment. Success events must follow successful APIs, not optimistic UI. Remounts/background snapshots must not duplicate listeners/content views.
+6. Confirm no tag on localhost/previews and no events after denial. Grant should measure only the current page. Inspect both properties before retiring any account-level integration; the single inspected production visit is not a historical audit.
+7. Check approved campaign links and acquisition reports after processing. Compare Realtime with Pages and screens and its data-quality indicator before treating `(other)` as a code error. Historical events will not change.
+
+Verification for this revision: `npm test` passed 100 unit tests; `E2E_PORT=5187 npx playwright test tests/e2e/analytics.spec.ts --workers=2` passed 26 desktop/mobile runtime checks; `npm run build` passed TypeScript, backend compilation and frontend/social generation with the existing large-chunk warning. A separate production-mode build with synthetic Firebase configuration and the real Google tag generated one intercepted sanitized page view in each approved/unapproved campaign case; approved LinkedIn/social/public_launch attribution arrived as expected and synthetic private query values were absent. JSX structure/text/presentation attributes were unchanged in all eight modified UI files. Node 26.13 was used locally; CI targets Node 22. Firebase emulator regressions were not run because Java 21 was unavailable.
+
+Unit and browser runtime checks cover route privacy/identity, event allowlists, campaign/referrer sanitization, current context, deduplication, consent and noise guards. Browser tests intercept Google traffic. Console setup, actual ingestion, signed-in production journeys and a production release require separate verification. Blockers, opt-outs and rate limits reduce counts.
 
 ## References
 
-- [Google: manual page views and Enhanced Measurement warning](https://developers.google.com/analytics/devguides/collection/ga4/views)
-- [Google: single-page application measurement](https://developers.google.com/analytics/devguides/collection/ga4/single-page-applications)
-- [Google: configuration reference](https://developers.google.com/analytics/devguides/collection/ga4/reference/config)
-- [Google: Enhanced Measurement settings](https://support.google.com/analytics/answer/9216061)
-- [Google: consent integration](https://developers.google.com/tag-platform/security/guides/consent)
+- [Google: `(other)` aggregation](https://support.google.com/analytics/answer/13331684)
+- [Google: Realtime limits](https://support.google.com/analytics/answer/9271392)
+- [Google: manual views and Enhanced Measurement warning](https://developers.google.com/analytics/devguides/collection/ga4/views)
+- [Google: SPA measurement](https://developers.google.com/analytics/devguides/collection/ga4/single-page-applications)
+- [Google: configuration](https://developers.google.com/analytics/devguides/collection/ga4/reference/config)
+- [Google: recommended events](https://developers.google.com/analytics/devguides/collection/ga4/reference/recommended-events)
+- [Google: custom dimensions](https://support.google.com/analytics/answer/14240153)
+- [Google: consent](https://developers.google.com/tag-platform/security/guides/consent)

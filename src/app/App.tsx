@@ -7,7 +7,7 @@ import { ThemeProvider } from '../ui/ThemeControl';
 import { FetchLoader } from '../ui/FetchLoader';
 import { Component, lazy, Suspense, useEffect, type ReactNode } from 'react';
 import Dashboard from '../dashboard/Dashboard';
-import { analyticsPage, trackPage } from '../lib/analytics';
+import { analyticsNavigationKey, analyticsPage, trackPage } from '../lib/analytics';
 import { AuthProvider, useAuth } from '../lib/auth';
 import { Home, Landing, Account, PortalShell } from './Portal';
 import {rememberBatch,selectedBatch,batchHref} from './statistics-navigation';
@@ -19,6 +19,7 @@ const communityLoading = <PortalShell active="procedures"><FetchLoader label="Lo
 function Application() {
   const route = useRoute();
   const auth = useAuth();
+  const companyTarget = route.page === 'procedures' && route.parameter === 'company' ? new URLSearchParams(location.hash.split('?')[1]).get('company') : null;
   useEffect(()=>{const capture=(event:MouseEvent)=>{const anchor=(event.target as HTMLElement).closest?.('a[href]');if(anchor instanceof HTMLAnchorElement)rememberExperienceOrigin(auth.user?.uid,anchor);};document.addEventListener('click',capture,true);return()=>document.removeEventListener('click',capture,true);},[auth.user?.uid]);
   useEffect(() => {
     const page = analyticsPage(route, {
@@ -27,9 +28,8 @@ function Application() {
         || (auth.allowed && route.page === 'statistics' && Boolean(selectedBatch()))
         || (auth.allowed && statisticsPages.includes(route.page) && hiddenYears.has(route.year)),
     });
-    const recordPage = auth.allowed && (['company', 'branches'].includes(route.page) || page?.path === '/experiences/read');
-    trackPage(page, recordPage ? `${page?.path}/${route.parameter ?? ''}` : page?.path);
-  }, [route.page, route.parameter, route.year, auth.ready, auth.allowed]);
+    trackPage(page, analyticsNavigationKey(route, page, location.hash));
+  }, [route.page, route.parameter, route.year, companyTarget, auth.ready, auth.allowed]);
   useEffect(()=>{if(!auth.allowed)return;if(statisticsPages.includes(route.page)&&hiddenYears.has(route.year)){location.replace('#home');return;}rememberBatch(route);if(route.page==='statistics'&&selectedBatch())location.replace(batchHref(selectedBatch()!));},[auth.allowed,route.page,route.year]);
   useEffect(() => {
     if (auth.ready && auth.allowed && ['login', 'landing'].includes(route.page)) location.replace('#home');

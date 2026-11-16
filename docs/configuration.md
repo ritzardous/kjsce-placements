@@ -18,7 +18,7 @@ Vite embeds `VITE_*` in client output. They are public configuration, never a pl
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | Optional SDK setting; does not enable push messaging |
 | `VITE_USE_FIREBASE_EMULATORS` | Only literal `true` enables emulators; requires `demo-` project; rejected in production runtime |
 | `VITE_LOCAL_BETA` | Launcher sets `true` for development-only test login buttons; also requires emulator mode |
-| `VITE_GA_ID` | Public GA4 measurement ID (`G-C9YFLJ7WPC` for this project); see [Analytics](analytics.md) |
+| `VITE_GA_ID` | Public GA4 measurement ID (`G-QK3FD7FTJC`, verified Firebase-linked production stream); see [Analytics](analytics.md) |
 | `VITE_GA_ENABLED` | Only `true` enables GA4 on the canonical production origin after stream/privacy setup; unset or `false` disables it |
 
 Client initialization is in [firebase.ts](../src/lib/firebase.ts). Emulator endpoints are fixed at Auth 9099, Firestore 8080 and Functions 5001 on loopback. The Functions region is `asia-south1`; there is no browser variable for arbitrary API base URLs.

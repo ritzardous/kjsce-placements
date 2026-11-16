@@ -1,4 +1,5 @@
 import { canonicalCompanyKey, companyGroups } from '../../shared/company-identity';
+import { useAnalyticsSearch } from '../lib/analytics-hooks';
 import {matchesSearch} from '../../shared/search';
 import { useEffect, useId, useState } from 'react';
 import type { ProcedureCompany } from '../../shared/procedures';
@@ -14,6 +15,7 @@ export function ProcedureCompanyPicker({ companies, value, onChange, loading, di
   const [creating,setCreating]=useState(false),[createError,setCreateError]=useState('');
   const selected=companies.find(company=>company.key===canonicalCompanyKey(value));
   const matches=companies.filter(company=>!query||query===selected?.name||matchesSearch(company.name+' '+(companyGroups.find(group=>group[0]===company.key)?.join(' ')||''),query));
+  useAnalyticsSearch('company_picker', query === selected?.name ? '' : query, matches.length, open && !loading);
   useEffect(()=>{if(open&&active>=0)document.getElementById(`${listId}-${active}`)?.scrollIntoView({block:'nearest'});},[open,active,listId]);
   async function create() {
     if(!onCreate||creating||disabled)return;

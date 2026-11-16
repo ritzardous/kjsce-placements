@@ -1,4 +1,7 @@
 import { InviteWriter } from '../procedures/InviteWriter';
+import { trackFilter, trackProductEvent } from '../lib/analytics';
+import { companyAnalytics } from '../lib/analytics-events';
+import { useAnalyticsContent, useAnalyticsSearch } from '../lib/analytics-hooks';
 import { useCompanyExperienceCount } from '../procedures/useCompanyExperiences';
 import { canonicalCompanyKey } from '../../shared/company-identity';
 import { highestCtcCompanies } from '../../shared/statistics';
@@ -16,8 +19,9 @@ import { ColumnChart, Donut, Empty, LineChart, RankedBars, Section, Stat, Table,
 
 const campusLabel = (records: Announcement[]) => [...new Set(records.flatMap(p => p.campus ? [p.campus] : p.company.normalized_name === 'google' ? ['Off campus'] : []))].join(' / ');
 const PAGE_SIZE = 25;
-function Pagination({ page, total, onChange }: { page: number; total: number; onChange: (page: number) => void }) {
+function Pagination({ page, total, onChange: applyPage }: { page: number; total: number; onChange: (page: number) => void }) {
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const onChange = (next: number) => { trackProductEvent('pagination', { action_type: next > page ? 'next' : 'previous' }); applyPage(next); };
   return total > PAGE_SIZE ? <nav className="pagination" aria-label="Table pages"><span role="status">{(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} of {total}</span><button type="button" disabled={page === 1} onClick={() => onChange(page - 1)}>Previous</button><span>Page {page} of {pages}</span><button type="button" disabled={page === pages} onClick={() => onChange(page + 1)}>Next</button></nav> : null;
 }
 const ctcLabel = (p: Announcement) => p.compensation.ctc_value_lpa !== null ? money(p.compensation.ctc_value_lpa) : p.compensation.ctc_text || 'Not available';
@@ -51,7 +55,7 @@ export function Progress({ statistics: s }: { statistics: Statistics }) {
     const value = series === 'reported' ? p.reportedCumulative : series === 'unique' ? p.uniqueStudents : p.selections;
     return value === null ? [] : [{ ...p, value }];
   });
-  return <><div className="chart-controls" aria-label="Timeline metric">{(['reported', 'selections', 'unique'] as const).map(key => <button key={key} className={'chip ' + (series === key ? 'active' : '')} aria-pressed={series === key} onClick={() => setSeries(key)}>{key === 'reported' ? 'TPO counter' : key === 'unique' ? 'Unique students' : 'Selections'}</button>)}</div><LineChart points={points} label={label} /></>;
+  return <><div className="chart-controls" aria-label="Timeline metric">{(['reported', 'selections', 'unique'] as const).map(key => <button key={key} className={'chip ' + (series === key ? 'active' : '')} aria-pressed={series === key} onClick={() => { if (key !== series) trackFilter('timeline_metric', true); setSeries(key); }}>{key === 'reported' ? 'TPO counter' : key === 'unique' ? 'Unique students' : 'Selections'}</button>)}</div><LineChart points={points} label={label} /></>;
 }
 export function Overview({ statistics: s }: { statistics: Statistics }) {
   const m = s.summary;
@@ -108,7 +112,13 @@ export function Companies({ statistics: s, filters, setFilters }: { statistics: 
   const rows = scored.map(item => item.company);
   const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
   const [page, setPage] = usePersistentPage(`statistics-companies-page:${s.batch.year}`, [routeHref('companies', s.batch.year)], totalPages);
-  const set = (next: Partial<CompanyFilters>) => { setPage(1); setFilters({ ...filters, ...next }); };
+  useAnalyticsSearch('companies', filters.search, rows.length);
+  const set = (next: Partial<CompanyFilters>) => {
+    if (next.type !== undefined && next.type !== filters.type) trackFilter('company_category', next.type !== 'ALL', String(companyAnalytics('', next.type).company_category));
+    if (next.ctc !== undefined && next.ctc !== filters.ctc) trackFilter('salary', next.ctc !== 'ALL');
+    if (next.sort) trackFilter('sort', true);
+    setPage(1); setFilters({ ...filters, ...next });
+  };
   const currentPage = Math.min(page, totalPages);
 
   useEffect(() => {
@@ -151,6 +161,7 @@ export function Companies({ statistics: s, filters, setFilters }: { statistics: 
   </Section>;
 }
 export function CompanyDetail({ company: c, year }: { company: Company | undefined; year: number }) {
+  useAnalyticsContent('company', c?.key, c?.key ?? '', c?.type);
   useEffect(() => {
     if (c?.key) {
       try { sessionStorage.setItem('return-company-key', c.key); } catch { }
@@ -196,7 +207,12 @@ export function Candidates({ statistics: s, filters, setFilters }: { statistics:
   const pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const [page, setPage] = usePersistentPage(`statistics-candidates-page:${s.batch.year}`, [routeHref('candidates', s.batch.year), routeHref('explore', s.batch.year), routeHref('explore/candidates', s.batch.year)], pages);
   const currentPage = Math.min(page, pages);
-  const update = (next: CandidateFilters) => { setPage(1); setFilters(next); };
+  useAnalyticsSearch('candidates', filters.search, filtered.length);
+  const update = (next: CandidateFilters) => {
+    if (next.role !== filters.role) trackFilter('role', Boolean(next.role));
+    if (next.campus !== filters.campus) trackFilter('campus', Boolean(next.campus && next.campus !== 'ALL'));
+    setPage(1); setFilters(next);
+  };
   return <Section title="Candidates and roles" note={`${s.summary.selections} candidate selections recorded (not unique students)`}>
     <div className="role-summary">{s.roles.slice(0, 10).map(r => <button key={r.label} className={'role-chip ' + (filters.role === r.label ? 'active' : '')} aria-pressed={filters.role === r.label} onClick={() => update({ ...filters, role: filters.role === r.label ? null : r.label, search: '' })}><span>{r.label}</span><span className="rc-n">{r.value}</span></button>)}</div>
     <div className="controls"><div className="search-box"><AppIcon name="search" /><input aria-label="Search candidates" placeholder="Search name, roll no., branch, role or company…" value={filters.search} onChange={e => update({ ...filters, search: e.target.value, role: null })} /></div><div className="result-count">{filtered.length} / {s.candidates.length}</div></div>

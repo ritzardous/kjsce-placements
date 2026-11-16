@@ -1,4 +1,6 @@
 import { InviteWriter } from "./InviteWriter";
+import { trackProductEvent } from '../lib/analytics';
+import { trackChangedFilters, useAnalyticsContent, useAnalyticsSearch } from '../lib/analytics-hooks';
 import { CompanyProfileDetails } from "./CompanyProfileDetails";
 import { experienceInviteHref } from "./experience-invitation";
 import { DialogPortal, openTaskDialog } from "../ui/overlay";
@@ -173,6 +175,7 @@ export function ProcedureBrowse({ companyKey }: { companyKey?: string }) {
       true,
     ),
     focusRestored = useRef(false);
+  useAnalyticsSearch(companyKey ? 'experiences' : 'companies', search, state.rows.length, !state.loading);
   useEffect(() => {
     if (state.loading || focusRestored.current) return;
     focusRestored.current = true;
@@ -230,6 +233,7 @@ export function ProcedureBrowse({ companyKey }: { companyKey?: string }) {
   }, [key, companyKey]);
 
   const company = companies.find((row) => row.key === companyKey);
+  useAnalyticsContent('company', companyKey && company?.key, company?.key ?? '');
   const filtered = Boolean(
     filters.company ||
     filters.year ||
@@ -362,9 +366,10 @@ export function ProcedureBrowse({ companyKey }: { companyKey?: string }) {
               outcome: filters.outcome,
               round: filters.round,
             }}
-            onApply={(value) =>
-              setFilters((previous) => ({ ...previous, ...value }))
-            }
+            onApply={(value) => {
+              trackChangedFilters(filters, value);
+              setFilters((previous) => ({ ...previous, ...value }));
+            }}
           />
         </div>
       </div>
@@ -669,6 +674,7 @@ export function PostDetail({ id }: { id: string }) {
     [myVote, setMyVote] = useState(0),
     [busy, setBusy] = useState(false),
     [shareMessage, setShareMessage] = useState("");
+  useAnalyticsContent('experience', post?.published ? id : undefined, post?.companyKey ?? '');
   useEffect(() => {
     const timer = setTimeout(() => {
       setError(
@@ -732,6 +738,7 @@ export function PostDetail({ id }: { id: string }) {
   }, [post?.title, post?.companyName, post?.appearanceYear]);
   async function share() {
     setShareMessage("");
+    const method = typeof navigator.share === 'function' ? 'native' : 'clipboard';
     try {
       const url = location.origin + location.pathname + `#procedures/${id}`;
       if (navigator.share)
@@ -744,6 +751,7 @@ export function PostDetail({ id }: { id: string }) {
         setShareMessage("Experience link copied.");
         notify("Experience link copied.");
       }
+      trackProductEvent('share', { method, content_type: 'experience' });
     } catch (cause) {
       if ((cause as Error).name !== "AbortError")
         setShareMessage(
@@ -765,6 +773,7 @@ export function PostDetail({ id }: { id: string }) {
         { id, value: next },
       );
       setMyVote(result.value);
+      trackProductEvent('vote', { action_type: next === 1 ? 'upvote' : next === -1 ? 'downvote' : 'remove' });
       notify(next ? "Thanks for your feedback." : "Vote removed.");
     } catch (cause) {
       setMyVote(previous);
