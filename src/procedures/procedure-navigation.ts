@@ -11,7 +11,7 @@ export function browseFilters(hash: string, stored: Partial<BrowseFilters> = {},
     year: /^\d{4}$/.test(String(source.year || '')) ? String(source.year) : '',
     coverage: ['Full', 'Partial'].includes(String(source.coverage)) ? String(source.coverage) : '',
     outcome: ['Selected', 'Not selected', 'Result pending'].includes(String(source.outcome)) ? String(source.outcome) : '',
-    sort: source.sort === 'helpful' ? 'helpful' : 'newest',
+    sort: ['oldest', 'helpful', 'detailed', 'concise'].includes(String(source.sort)) ? String(source.sort) : 'newest',
     search: String(source.search || '').slice(0, 120),
     round: roundOptions.includes(source.round as typeof roundOptions[number]) ? String(source.round) : '',
   };

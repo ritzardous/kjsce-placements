@@ -3,7 +3,7 @@ import { httpsCallable } from 'firebase/functions';
 import { collection, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, startAfter, where, type DocumentData, type QueryConstraint, type QueryDocumentSnapshot } from 'firebase/firestore';
 import { getFirebase } from '../lib/firebase';
 import { withTimeout } from '../lib/request-timeout';
-import type { ProcedureCompany, ProcedureDraft, ProcedurePost, ProcedureSubmission } from '../../shared/procedures';
+import { meaningfulBody, type ProcedureCompany, type ProcedureDraft, type ProcedurePost, type ProcedureSubmission } from '../../shared/procedures';
 
 export function procedureError(cause: unknown) {
   const code = (cause as { code?: string })?.code ?? '';
@@ -47,11 +47,17 @@ export async function loadProcedurePosts(filters: PostFilters, cursor?: QueryDoc
   if (filters.year) clauses.push(where('appearanceYear', '==', Number(filters.year)));
   if (filters.coverage) clauses.push(where('coverage', '==', filters.coverage));
   if (filters.outcome) clauses.push(where('outcome', '==', filters.outcome));
-  clauses.push(...(filters.sort === 'helpful' ? [orderBy('score', 'desc'), orderBy('publishedAt', 'desc')] : [orderBy('publishedAt', 'desc')]));
+  clauses.push(...(filters.sort === 'helpful' ? [orderBy('score', 'desc'), orderBy('publishedAt', 'desc')] : filters.sort === 'oldest' ? [orderBy('publishedAt', 'asc')] : [orderBy('publishedAt', 'desc')]));
   if (cursor) clauses.push(startAfter(cursor));
   clauses.push(limit(12));
   const result = await withTimeout(getDocs(query(collection(getFirebase().db, 'procedurePosts'), ...clauses)));
-  return { rows: result.docs.map(d => ({ ...d.data(), id: d.id }) as ProcedurePost), cursor: result.docs.at(-1), more: result.size === 12 };
+  const rows = result.docs.map(d => ({ ...d.data(), id: d.id }) as ProcedurePost);
+  if (filters.sort === 'detailed') {
+    rows.sort((a, b) => meaningfulBody(b.body || '').length - meaningfulBody(a.body || '').length || (b.publishedAt || 0) - (a.publishedAt || 0));
+  } else if (filters.sort === 'concise') {
+    rows.sort((a, b) => meaningfulBody(a.body || '').length - meaningfulBody(b.body || '').length || (b.publishedAt || 0) - (a.publishedAt || 0));
+  }
+  return { rows, cursor: result.docs.at(-1), more: result.size === 12 };
 }
 
 export function invalidateCompanyDirectory() { companyCache.clear(); }

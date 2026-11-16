@@ -45,6 +45,7 @@ import {
   storeSession,
 } from "../community/community-api";
 import {
+  meaningfulBody,
   postTitle,
   readingMinutes,
   roundOptions,
@@ -248,8 +249,30 @@ export function ProcedureBrowse({ companyKey }: { companyKey?: string }) {
     ),
     company: "",
   });
+  const rawPosts = (companyKey ? state.rows : []) as ProcedurePost[];
+  const sortedPosts = [...rawPosts].sort((a, b) => {
+    if (filters.sort === "oldest") {
+      return (a.publishedAt || 0) - (b.publishedAt || 0);
+    }
+    if (filters.sort === "helpful") {
+      return (b.score || 0) - (a.score || 0) || (b.publishedAt || 0) - (a.publishedAt || 0);
+    }
+    if (filters.sort === "detailed") {
+      return (
+        meaningfulBody(b.body || "").length - meaningfulBody(a.body || "").length ||
+        (b.publishedAt || 0) - (a.publishedAt || 0)
+      );
+    }
+    if (filters.sort === "concise") {
+      return (
+        meaningfulBody(a.body || "").length - meaningfulBody(b.body || "").length ||
+        (b.publishedAt || 0) - (a.publishedAt || 0)
+      );
+    }
+    return (b.publishedAt || 0) - (a.publishedAt || 0);
+  });
   const groups = new Map<string, ProcedurePost[]>();
-  for (const post of (companyKey ? state.rows : []) as ProcedurePost[]) {
+  for (const post of sortedPosts) {
     const group = `${post.appearanceYear ?? "Experiences"}${post.role ? ` · ${post.role}` : ""}`;
     groups.set(group, [...(groups.get(group) || []), post]);
   }

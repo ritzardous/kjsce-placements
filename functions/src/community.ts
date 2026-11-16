@@ -7,7 +7,7 @@ import { type Firestore, type Query, type DocumentData } from 'firebase-admin/fi
 import type { Auth } from 'firebase-admin/auth';
 import { z } from 'zod';
 import { authorize, manageSubmission, HttpsError, type Actor } from './service.js';
-import { createCompanySchema, postTitle } from '../../shared/procedures.js';
+import { createCompanySchema, postTitle, meaningfulBody } from '../../shared/procedures.js';
 import { hasHiddenText, hiddenTextMessage } from '../../shared/text-safety.js';
 import { publishedCompanyMetadata, invalidateCompanyDiscovery } from './company-discovery.js';
 import { matchesSearch } from '../../shared/search.js';
@@ -121,7 +121,7 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
     }
     case 'manageSubmission': return manageSubmission(db,actor,value);
     case 'companyBrowse': {
-      const filters=parse(z.object({company:z.string().max(120).default(''),year:z.string().max(4).default(''),coverage:z.string().max(20).default(''),outcome:z.string().max(30).default(''),search:z.string().max(120).default(''),round:z.string().max(40).default(''),sort:z.enum(['newest','helpful']).default('newest'),cursor:cursorSchema}).strict(),value);
+      const filters=parse(z.object({company:z.string().max(120).default(''),year:z.string().max(4).default(''),coverage:z.string().max(20).default(''),outcome:z.string().max(30).default(''),search:z.string().max(120).default(''),round:z.string().max(40).default(''),sort:z.enum(['newest','oldest','helpful','detailed','concise']).default('newest'),cursor:cursorSchema}).strict(),value);
       const groups=new Map<string,{id:string;companyKey:string;companyName:string;count:number;publishedAt:number;score:number}>();
       for(const row of await publishedCompanyMetadata(db)) {
         if(!matches(row,filters))continue;
@@ -129,13 +129,25 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
         const group=groups.get(row.companyKey)||{id:row.companyKey,companyKey:row.companyKey,companyName:row.companyName,count:0,publishedAt:0,score:0};
         group.count++;group.publishedAt=Math.max(group.publishedAt,Number(row.publishedAt)||0);group.score+=Number(row.score)||0;groups.set(row.companyKey,group);
       }
-      const rows=[...groups.values()].sort((a,b)=>(filters.sort==='helpful'?b.score-a.score:0)||b.publishedAt-a.publishedAt||a.companyName.localeCompare(b.companyName));
+      const rows=[...groups.values()].sort((a,b)=>(filters.sort==='helpful'?b.score-a.score:filters.sort==='oldest'?a.publishedAt-b.publishedAt:0)||b.publishedAt-a.publishedAt||a.companyName.localeCompare(b.companyName));
       return {rows,cursor:null,more:false};
     }
     case 'browse': {
-      const filters = parse(z.object({ company: z.string().max(120).default(''), year: z.string().max(4).default(''), coverage: z.string().max(20).default(''), outcome: z.string().max(30).default(''), search: z.string().max(120).default(''), round: z.string().max(40).default(''), sort: z.enum(['newest', 'helpful']).default('newest'), cursor: cursorSchema }).strict(), value);
+      const filters = parse(z.object({ company: z.string().max(120).default(''), year: z.string().max(4).default(''), coverage: z.string().max(20).default(''), outcome: z.string().max(30).default(''), search: z.string().max(120).default(''), round: z.string().max(40).default(''), sort: z.enum(['newest', 'oldest', 'helpful', 'detailed', 'concise']).default('newest'), cursor: cursorSchema }).strict(), value);
       const fields = filters.sort === 'helpful' ? ['score', 'publishedAt'] : ['publishedAt'];
-      const results = await page(db.collection('procedurePosts').where('published', '==', true), fields, 'desc', filters.cursor, row => matches(row, filters), 12);
+      const direction = filters.sort === 'oldest' ? 'asc' : 'desc';
+      let results;
+      try {
+        results = await page(db.collection('procedurePosts').where('published', '==', true), fields, direction, filters.cursor, row => matches(row, filters), 12);
+      } catch {
+        results = await page(db.collection('procedurePosts').where('published', '==', true), ['publishedAt'], 'desc', filters.cursor, row => matches(row, filters), 12);
+        if (filters.sort === 'oldest') results.rows.reverse();
+      }
+      if (filters.sort === 'detailed') {
+        results.rows.sort((a, b) => meaningfulBody(b.draft?.body || b.body || '').length - meaningfulBody(a.draft?.body || a.body || '').length || (b.publishedAt || 0) - (a.publishedAt || 0));
+      } else if (filters.sort === 'concise') {
+        results.rows.sort((a, b) => meaningfulBody(a.draft?.body || a.body || '').length - meaningfulBody(b.draft?.body || b.body || '').length || (b.publishedAt || 0) - (a.publishedAt || 0));
+      }
       const bookmarks = results.rows.length ? await db.getAll(...results.rows.map(row=>db.doc(`procedureBookmarks/${actor.uid}/items/${row.id}`))) : [];
       return {...results,rows:results.rows.map((row,index)=>({...row,companyKey:canonicalCompanyKey(row.companyKey),companyName:canonicalCompanyName(row.companyKey,row.companyName),saved:bookmarks[index].exists}))};
     }
