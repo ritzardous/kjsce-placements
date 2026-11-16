@@ -22,7 +22,9 @@ Contributors choose On campus or Off campus before submitting. The choice is ret
 
 Anonymous attribution changes the displayed author name; ownership remains visible to the service and administrators. Owners can withdraw, hide or delete with version checks. Administrators review immutable revisions, unpublish exact revisions, resolve reports, manage accounts, inspect bounded analytics and run staged import/quality/repair jobs.
 
-Notifications are in-app only, with categories, read/archive state, private outcomes and versioned preferences. Follows are opt-in; batch follows support 2025/2026. Discovery happens during requests, without email, push or a scheduled worker. Cleanup targets read following/statistics updates older than 90 days in bounded batches, not all history.
+Notifications are in-app only, with categories, read/archive state, private outcomes and versioned preferences. Follows are opt-in; the settings picker offers 2025/2026 batches, while the API also accepts 2027. Discovery happens during requests, without email, push or a scheduled worker. Cleanup targets read following/statistics updates older than 90 days in bounded batches, not all history.
+
+The desktop bell opens a preview of up to five notifications; on phones it opens the inbox. Activating the bell or opening its desktop preview also requests marking notifications read. The inbox tracks opened, visible items separately and offers explicit bulk read/archive controls. Bulk read currently scans at most 500 unread records; it does not implement cursor continuation. See [API behavior](api-reference.md#notification-actions) and the [known verification gap](maintainer-decisions.md#current-checkout-review-16-november-2026).
 
 ## Routes
 
@@ -39,6 +41,10 @@ Routes use URL hashes. Bare statistics routes default to 2026.
 | `#procedures/<postId>` | Experience reader |
 | `#procedures/contribute?draft=<id>` | New editor or owner's draft |
 | `#procedures/contributions` | Contributor workspace; legacy `#contributions` redirects here |
+| `#procedures/company?company=<key>` | Company-specific experience collection and contribution/invitation controls |
+| `#procedures/contribute?company=<key>&name=<name>` | Company invitation; public context before sign-in, then the prefilled editor |
+| `#procedures/notifications`, `#procedures/notifications?preferences=1`, `#procedures/saved` | Private inbox, notification preferences and bookmarks |
+| `#about`, `#about/<section>` | Public story, contacts, sources, privacy and legal notes |
 | `#account` | Account/profile workspace |
 | `#admin`, `#admin/procedures` | Overview/moderation; further sections: users, data, analytics, operations |
 | `#alumni` | Redirects to statistics; contact directory unavailable |
@@ -69,7 +75,7 @@ All graduation years accepted by the schema, including 2027, can contribute. In 
 
 ### Writing and alumni invitations
 
-Users can use **Invite an alum** on a company’s experience page or placement-detail page (when no experiences are yet listed) to share a link to `#procedures/contribute?company=KEY&name=DISPLAY_NAME`. The public invitation explains the request before Google sign-in; the same destination is retained after authentication. The editor verifies the company against its signed-in directory. Invitation links do not include draft IDs. If sharing or clipboard access is unavailable, a selectable link is shown.
+Users can use **Invite an alum** on a company’s experience page or placement-detail page (when no experiences are yet listed) to share a link to `#procedures/contribute?company=KEY&name=DISPLAY_NAME`. The public invitation explains the request before Google sign-in; the same destination is retained after authentication. The editor verifies the company against its signed-in directory. Invitation links do not include draft IDs. Native sharing includes a short request naming the selected company and its invitation link. Clipboard copying includes the message and link together, ready to paste. If sharing or clipboard access is unavailable, the complete invitation appears in a selectable text area.
 
 The writer opens a focused document with automatic saving, live bold/italic, headings, lists, code, quotes, links, undo/redo and a reader preview. Formatting applies to selected text without exposing Markdown markers; bodies remain Markdown in storage for existing readers and drafts.
 
@@ -79,7 +85,7 @@ Company selection is collapsed when prefilled; recruitment route, graduation bat
 
 **Clear** resets blog text, title, interview year, summary, coverage, outcome, rounds and public attribution. Company, recruitment route, graduation batch and role stay selected. **Save & close** keeps the draft. **Cancel & back** discards this editing session: a new autosaved draft is removed, or an existing draft is restored to its opening contents. It waits for in-flight saves and checks versions before cleanup, retains newer changes from other tabs, and leaves published experiences intact. Cancellation also removes this draft’s device recovery copies. If cleanup fails, the editor stays open with an error.
 
-Invitation controls are admin-only; the generated contribution link remains a public entry point for an invited author. This controls the invitation tool, not who may submit an experience or manually share a public URL.
+Invitation controls currently render for signed-in users. The generated contribution link is a public entry point for an invited author and contains no draft identifier or access token. It preserves company context through sign-in; it does not grant an administrator role, bypass review or restrict who can contribute. An earlier admin-only description did not match the current component; the intended invitation-tool audience remains a [maintainer decision](maintainer-decisions.md).
 
 The company directory describes its published experience counts as “shared so far” and acknowledges the alumni time behind the collection. The editor currently includes a temporary **Beta** note requesting discretion during the early rollout and thanking contributors. This is informational copy, not an additional access restriction; remove it when the wider launch begins.
 

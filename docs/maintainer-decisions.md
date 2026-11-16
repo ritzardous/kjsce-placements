@@ -17,6 +17,22 @@
 
 The adopted [MIT license text](../LICENSE) follows the [Open Source Initiative template](https://opensource.org/license/mit). Existing [Lora OFL](../public/fonts/lora/OFL.txt) and third-party notices remain intact.
 
+## Current checkout review: 16 November 2026
+
+The project homepage and current guides were reconciled with the checked-in app and local invitation/review changes. Coverage includes the live editor, company-specific invitation message/link, direct approve/reject controls, phone pinning/focus behavior, notification read semantics, request hardening, public metadata and all three visible batches. Dated engineering records below remain historical evidence, not current test claims.
+
+| Item | Current behavior / remaining action |
+| --- | --- |
+| Invitation-tool audience | `InviteWriter` currently renders for signed-in users. Earlier guidance described admin-only controls. Confirm whether to restore that product restriction in a separate application change; invitation URLs themselves remain public context links |
+| Notification bulk-read contract | The handler scans at most 500 unread records and does not continue by cursor. The existing backend test expects 50-item pages and fails. Reconcile implementation and test contract before describing a clean full-suite result |
+| 2027 follows | The API accepts 2027; the notification settings batch picker still offers only 2025/2026. Statistics visibility is independent of that picker |
+| Security review | The [hardening review](security-hardening-plan.md) records the compatible updates, remaining moderate root dependency advisories and operational limits. Passing local tests is not production certification |
+| Release verification | Recheck real Google sign-in, invitation return, production rules/indexes, nested dependency installation and private reporting contacts before launch. No deployment, Search Console submission or live data repair was performed by this documentation update |
+
+For the accompanying local changes, `npm run typecheck`, `npm run build` and all 85 unit tests passed. The build retains its bundle-size advisory. Fourteen procedure backend tests passed in isolated emulators. Direct approve/reject browser regressions passed on desktop and mobile; invitation native-share, clipboard-copy and manual-copy regressions also passed on both projects. These focused results do not supersede the known full-suite notification failure. The host uses Node 26 with Java 21; production/CI target Node 22.
+
+Documentation verification covered 31 Markdown files, 211 local file/image targets, four local heading anchors and referenced `npm run` script names, with no missing targets or case mismatches. External URLs and real authenticated production flows were not revalidated; Mermaid source was reviewed without a visual Markdown-renderer check. The documentation refresh does not change dependencies, rules, configuration or placement data. The only runtime edits accompanying it are the separately requested invitation-message and direct-review controls.
+
 ## Documentation audit: 12 November 2026
 
 Repository inspection covered tracked source/configuration, frontend routes and providers, shared schemas/statistics, backend dispatch/services, Firestore/Storage rules, indexes, scripts, workflows, tests and existing engineering records. No repository `AGENTS.md` or checked parent instruction file was found at audit time. A binding [`AGENTS.md`](../AGENTS.md) now exists; this audit predates it. Private environment files were not copied into documentation.

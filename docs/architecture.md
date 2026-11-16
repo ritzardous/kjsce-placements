@@ -62,11 +62,33 @@ The authoring surface uses Tiptap/ProseMirror with a restricted document schema.
 
 Draft saves compare `expectedVersion` transactionally. Submission freezes a revision and writes status, moderation event and private notification atomically. Approval copies that revision into `procedurePosts`; later draft edits do not silently change the public snapshot. Rejection/change requests require feedback. Votes update per-user state and aggregate counts in one transaction; self-voting is denied.
 
+### Company invitation flow
+
+```mermaid
+sequenceDiagram
+  participant S as Signed-in sender
+  participant I as Invitation helper
+  participant A as Invited alum
+  participant App as Application
+  S->>I: Invite an alum for a company
+  I-->>S: Short company-specific message and public URL
+  S-->>A: Share message and link
+  A->>App: Open company contribution URL
+  App-->>A: Invitation context and Google sign-in
+  A->>App: Authenticate
+  App->>App: Restore destination and verify company in directory
+  App-->>A: Prefilled company, recorded context and writing document
+```
+
+`experience-invitation.ts` builds a canonical company URL without a private draft ID or access token. `InviteWriter` passes message and URL to native sharing, copies both as plain text when native sharing is absent, and exposes a selectable fallback when copying fails. Cancelling native sharing does not create a draft or report a successful send. Sign-in and normal submission review remain required; the URL conveys context, not authority.
+
 Author deletion removes public access and leaves a tombstone to stop stale autosave from recreating writing. Revision/post/discussion/report cleanup follows outside the transaction and can be retried. This is not a complete account-erasure or backup-purge mechanism.
 
 ## Refresh, jobs and failures
 
 Community reads coalesce pending requests by user/action/payload; preserved page windows are bounded in memory. `useBackgroundSync` runs while visible and online, reacts to focus/connectivity/data-change events, prevents overlap and backs off after failure up to ten minutes. Review queues require explicit refresh to avoid silently replacing a case while an administrator acts.
+
+The shared notification provider refreshes the summary, caches inbox pages and invalidates other tabs through BroadcastChannel/storage events. The bell uses a five-item desktop preview and opens the inbox on phones. Bulk-read UI changes are optimistic: the provider records local read state and can suppress a returning unread count for up to five minutes; a failed server sync logs a warning while retaining local state. This is not proof that every server record is read. The current bulk-read handler scans at most 500 unread records without cursor continuation; see [API limits](api-reference.md#notification-actions) and [maintainer decisions](maintainer-decisions.md).
 
 Admin jobs are client-driven bounded steps with checkpoints and leases, not autonomous workers. Imports stage privately before a separate publish action; repairs use reviewed aliases, backups and guarded recovery. See [admin operations](admin-workspace-implementation.md).
 

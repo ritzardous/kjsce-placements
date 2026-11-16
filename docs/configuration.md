@@ -61,4 +61,4 @@ The Vercel API reads `process.env` supplied by hosting; it does not load a local
 | [tsconfig.json](../tsconfig.json), [Functions config](../functions/tsconfig.json) | Strict browser/root checks and NodeNext backend output |
 | [playwright.config.ts](../playwright.config.ts) | Desktop Chrome/Pixel 7 projects and emulator-mode frontend |
 
-The production origin is hard-coded in social metadata/build scripts; it is not derived from a `SITE_URL` variable. Forks must review those references. No lint script, container deployment or infrastructure-as-code stack is configured.
+The production origin is hard-coded in `index.html`, `public/seo-init.js`, `public/sitemap.xml`, `public/robots.txt` and `scripts/build-social-pages.mjs`; it is not derived from a `SITE_URL` variable. Forks must review those references together. No lint script, container deployment or infrastructure-as-code stack is configured.

@@ -4,7 +4,7 @@
 
 ## Current public search surface
 
-The public, canonical landing page is `https://kjsce-placements.vercel.app/`. Its HTML provides a concise KJSCE placement title and description, a canonical URL, Open Graph/Twitter sharing metadata and `WebSite` structured data. The XML sitemap intentionally lists only this page, and `robots.txt` advertises that sitemap.
+The public, canonical landing page is `https://kjsce-placements.vercel.app/`. Its HTML provides a concise KJSCE placement title and description, a canonical URL and Open Graph/Twitter sharing metadata. The external `public/seo-init.js` bootstrap appends `WebSite` JSON-LD structured data to the document head. The XML sitemap intentionally lists only this page, and `robots.txt` advertises that sitemap.
 
 The generated `/share/` page exists for social previews, not as a second search result. It carries `noindex, follow` and the landing page's canonical URL.
 
@@ -18,7 +18,7 @@ Do not add keyword lists, fabricated salary figures, unreviewed recruiter claims
 
 1. Verify ownership of the actual production hostname in Google Search Console using a maintainer-approved verification method.
 2. Submit `https://kjsce-placements.vercel.app/sitemap.xml` in Search Console and inspect the canonical landing URL.
-3. If the production hostname changes, update the canonical, Open Graph and structured-data URLs in `index.html`, `public/sitemap.xml`, `public/robots.txt`, and the origin in `scripts/build-social-pages.mjs` together. Confirm the deployment's redirect/canonical behavior before submitting the new sitemap.
+3. If the production hostname changes, update the canonical and Open Graph URLs in `index.html`, structured data in `public/seo-init.js`, `public/sitemap.xml`, `public/robots.txt`, and the origin in `scripts/build-social-pages.mjs` together. Confirm the deployment's redirect/canonical behavior before submitting the new sitemap.
 4. Monitor indexing, query coverage and Core Web Vitals in Search Console. Repository metadata cannot guarantee rankings or indexing.
 
 No Search Console property, verification token, sitemap submission, or production setting is configured by this repository change.

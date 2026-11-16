@@ -31,7 +31,7 @@ Set required browser `VITE_FIREBASE_*` values at build time; set `FIREBASE_PROJE
 2. Deploy reviewed rules and composite indexes to that project. Wait for index readiness; rules changes can affect old clients, so coordinate compatibility.
 3. Seed or reconcile the recruiter catalog and required placement publications using explicit-target operations. Existing data need not be blindly reimported.
 4. Deploy compiled API and frontend with matching configuration. Configure owner UIDs only for existing authorized admins.
-5. Test signed-out landing/no private reads, Google popup login/deep-link return, both visible batches, draft save/submit, review, voting and inbox. Verify ordinary users cannot access private/admin state.
+5. Test signed-out landing/no private reads, Google popup login/deep-link return, all three visible batches, company invitation return, draft save/submit, approval/rejection, voting and inbox. Check phone scroll chapters and keyboard focus. Verify ordinary users cannot access private/admin state.
 6. Sign out/in after claim changes. Inspect failed jobs and private hosting logs without copying credentials or student data into public reports.
 
 No live deployment or account change is performed by writing these docs. Existing dated cloud observations need a fresh audit.

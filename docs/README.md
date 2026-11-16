@@ -2,7 +2,7 @@
 
 [Project homepage](../README.md)
 
-These guides describe the checked-in implementation. They do not establish current live deployment, IAM, account or database state.
+Start with [Getting started](getting-started.md) to run the local beta, [Features](features.md) to explore the product, or [Architecture](architecture.md) to follow its data flows. The operating guides cover deployment, review, publication and recovery; dated audits preserve the evidence behind source and engineering decisions.
 
 > **Mandatory for all contributors and coding agents:** read [`AGENTS.md`](../AGENTS.md) before changing anything. Every pull request must state whether it was followed.
 
@@ -20,6 +20,7 @@ These guides describe the checked-in implementation. They do not establish curre
 | [API reference](api-reference.md) | Envelopes, payloads, responses and errors |
 | [Database](database.md) | Firestore paths, indexes and publication lifecycle |
 | [Authentication](authentication.md) | Google access, sessions, administrator and owner boundaries |
+| [Access and navigation](access-structure.md) | Route access and release acceptance checks |
 
 ## Operate and maintain
 
@@ -32,7 +33,7 @@ These guides describe the checked-in implementation. They do not establish curre
 | [Troubleshooting](troubleshooting.md) | Implementation-backed diagnostics |
 | [Security architecture](security.md) | Trust boundaries and residual limits |
 | [Hardening review](security-hardening-plan.md) | Input review plan, dependency checks and verification limits |
-| [Maintainer decisions](maintainer-decisions.md) | Licensing, contacts, portability and verification gaps |
+| [Maintainer decisions](maintainer-decisions.md) | Release decisions, known mismatches and verification history |
 | [Legal notice review](legal-notice-review.md) | Statutory references, notice scope and outstanding legal/operational review |
 | [Contributing](../CONTRIBUTING.md) | Change and review expectations |
 | [Security reporting](../SECURITY.md) | Private reporting and support policy |
@@ -53,4 +54,3 @@ Dated test counts and live observations below are historical reports, not curren
 | [Company logos](company-logos.md) | Asset provenance and unresolved identities |
 | [Landing redesign](landing-redesign.md) | Graphics, accessibility and design history |
 | [Loading experience](loading-experience.md) | Skeletons, bootstrap theme and graphics readiness |
-| [Access structure](access-structure.md) | Current route/access summary |

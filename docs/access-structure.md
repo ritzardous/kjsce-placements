@@ -17,7 +17,7 @@ The HTTP service verifies revoked tokens and current account state. Administrati
 1. Confirm Google is enabled and actual hostnames are authorized in Firebase Authentication.
 2. Deploy compatible rules, indexes, API and frontend using [deployment](deployment.md).
 3. Open the landing signed out; confirm no private placement reads.
-4. Open a protected 2025/2026 deep link, sign in and confirm return to that destination.
+4. Open protected 2025/2026/2027 deep links and a company contribution invitation, sign in and confirm return to each destination.
 5. Check Home, statistics, company reader, draft save/submit, contributions, bookmarks and inbox at desktop/mobile widths.
 6. Confirm sign-out removes protected content and requires sign-in again; confirm a non-admin cannot use admin APIs.
 7. Confirm 2027 opens from Home and its ongoing-season notice shows the latest included email date and no unavailable alumni/discussion feature is promised.

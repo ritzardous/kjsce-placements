@@ -18,7 +18,7 @@ Content-Type: application/json
 
 Example success: `{"data":{"saved":false}}`. Example failure: `{"error":{"code":"unauthenticated","message":"Sign in with Google."}}`. The example post ID is illustrative, not a seeded record. Responses use JSON and `Cache-Control: no-store`.
 
-The envelope allows only `name` and `data`. Requests must use `application/json`; the adapter rejects other content types before authentication. Bodies over 100,000 bytes are rejected; malformed JSON and unknown names are invalid arguments. Authentication occurs before body dispatch. The server verifies revoked tokens, current Auth status and account policy. Verified Google identity is required for every dispatched operation. Administrative calls also validate current administrator access.
+The envelope allows only `name` and `data`. Requests must use the exact `application/json` media type, case-insensitively, with optional parameters such as `charset=utf-8`; both HTTP adapters reject other media types before authentication. Bodies over 100,000 bytes are rejected; malformed JSON and unknown names are invalid arguments. Authentication occurs before body dispatch. The server verifies revoked tokens, current Auth status and account policy. Verified Google identity is required for every dispatched operation. Administrative calls also validate current administrator access.
 
 In emulator mode, `callProcedure` uses `httpsCallable` with the same operation names and data through Functions on port 5001 in `asia-south1`. Firebase callable transport supplies its own protocol/errors; do not send the HTTP multiplexing envelope directly to a callable. Both client paths have a 20-second service timeout.
 
@@ -104,13 +104,13 @@ These also use `procedureCommunity`; all operate on the caller's private inbox. 
 | `readNotification` | `{id}` → `{read:true}` |
 | `readNotifications` | `{ids}` with 1–50 IDs → `{read:true}` |
 | `updateNotifications` | `{ids, read?, archived?}`; at least one state change; archiving marks read |
-| `readAllNotifications` | `{cutoff, cursor?}` → `{count, more, cursor, cutoff}`; cutoff cannot be future; steps of up to 50 |
+| `readAllNotifications` | `{cutoff?, cursor?}` → `{count, more:false, cursor:null, cutoff}`; optional nonnegative cutoff defaults to server time; scans up to 500 unread records, then marks eligible records at or before the cutoff read. Cursor is accepted but currently unused |
 | `notificationSettings` | `{}` → current settings |
 | `saveNotificationSettings` | `{version, discovery, following}` → new settings; exact version required |
 | `notificationOutcome` | `{id}` → private outcome; report ownership checked |
 | `cleanupNotifications` | `{}` → `{removed, more}`; bounded retention cleanup |
 
-Notification cursors use `{id, values:[createdAt]}`. Following accepts up to 20 unique `{kind,key,label,muted?,since?}` items; kind is company/experience/batch. Server validates new targets and owns follow start times; batch keys are only `2025` and `2026`. Restore archived items before marking unread. Preference version conflicts return `aborted` (409).
+Notification cursors use `{id, values:[createdAt]}`; notification IDs allow up to 200 ASCII letters, digits or hyphens. Following accepts up to 20 unique `{kind,key,label,muted?,since?}` items; kind is company/experience/batch, and keys allow up to 100 ASCII letters, digits, underscores or hyphens. Server validates new targets and owns follow start times; accepted batch keys are `2025`, `2026` and `2027` (the current settings picker offers only 2025/2026). Restore archived items before marking unread. Preference version conflicts return `aborted` (409). The bulk-read handler's current bounded scan differs from the older 50-item pagination test; do not treat its `more:false` as proof that every item in a larger inbox was visited.
 
 ## Admin workspace actions
 
