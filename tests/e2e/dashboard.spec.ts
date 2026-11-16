@@ -109,6 +109,10 @@ test('2027 November results remain available across all statistics sections', as
   await expect(page.locator('.detail-stats')).toContainText('04 Nov 2026');
   await page.locator('.company-source-details summary').click();
   await expect(page.locator('.company-source-details')).toContainText('27batch all placements till now.pdf');
+  await page.goto('/#2027/company/iks-health');
+  await expect(page.getByRole('heading',{name:'IKS Health',exact:true})).toBeVisible();
+  await expect(page.getByRole('cell',{name:/^(?:Role\s+)?Tech Engineer$/})).toHaveCount(4);
+  await expect(page.getByRole('cell',{name:/^(?:Role\s+)?Business Analyst$/})).toHaveCount(3);
   await page.goto('/#2027/candidates');
   await expect(page.locator('.result-count')).toHaveText('142 / 142');
   await page.getByRole('button',{name:'Next',exact:true}).click();

@@ -60,8 +60,13 @@ test('November source adds exactly eight results with distinct roles and origina
   ]);
   assert.ok(added.every(p => p.source.source_file === '27batch all placements till now.pdf'));
   const iks = added.find(p => p.company.normalized_name === 'iks-health')!;
-  assert.equal(iks.candidates.filter(c => c.role === 'Tech Engineer').length, 5);
-  assert.equal(iks.candidates.filter(c => c.role === 'Business Analyst').length, 2);
+  assert.equal(iks.candidates.filter(c => c.role === 'Tech Engineer').length, 4);
+  assert.equal(iks.candidates.filter(c => c.role === 'Business Analyst').length, 3);
+  assert.deepEqual(iks.candidates.map(c => c.role), ['Tech Engineer','Tech Engineer','Tech Engineer','Tech Engineer','Business Analyst','Business Analyst','Business Analyst']);
+  const manifest = data.metadata.source_manifest;
+  assert.ok(manifest && typeof manifest === 'object' && 'exported_at' in manifest && 'sha256' in manifest);
+  assert.equal(manifest.exported_at, '2026-11-16T08:38:32+05:30');
+  assert.equal(manifest.sha256, '4653e074dbc06c047a01fbc4fffdcd42983b1b95411c4e3a88173862cbb4ddd0');
   assert.equal(added.at(-1)!.source.email_sent_at, '2026-11-06T15:05:00+05:30');
   assert.equal(added.at(-1)!.result.declared_date, '2026-11-04');
   assert.equal(data.placements.filter(p => p.company.normalized_name === 'bizom').length, 2);

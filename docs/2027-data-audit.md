@@ -2,7 +2,25 @@
 
 > Current visibility: the maintainer re-enabled Class of 2027 on 15 November 2026. It appears in batch selection and all statistics routes. LIVE identifies the ongoing season, not automatic ingestion. Source changes require a separate immutable publication. See [features](features.md) and [operations](operations.md).
 
-## 15 November 2026 source update
+## 16 November 2026 source recheck
+
+The replacement PDF was exported on 16 November at 08:38:32 IST. Its SHA-256 is recorded in [the source manifest](../data/sources-2027/source-manifest.json), alongside the preserved 15 November and October export metadata. It still contains 30 messages across 21 image-based pages, ending with Framatome's 4 November result in the 6 November email. A new export date does not extend the underlying result coverage.
+
+Pages 16–21 were visually reviewed against all eight post-October announcements and their 21 candidate rows. The only transcription correction is IKS Health's merged role boundary on page 18: **rows 1–4 are Tech Engineer; rows 5–7 are Business Analyst**. Names, roll numbers, branches, dates and compensation remain as printed. The original 22-announcement prefix remains unchanged; no duplicate results are appended.
+
+Before this release, the production 2027 publication contained 22 announcements, 121 selections and 19 companies, ending on 6 October. The reviewed publication contains **30 announcements, 142 selections, 142 distinct students and 25 companies**, ending on 4 November. It therefore adds Bizom and ICICI Prudential AMC as well as Capgemini, IKS Health, Saint Gobain, Zeus Learning, Marsh and Framatome to that production snapshot. The table below lists their source values.
+
+Local validation: the builder and publication dry run reconcile all running counters; 85 unit tests and the production build pass. Six desktop/mobile dashboard checks passed after seeding and reconciling all three batches in isolated emulators, including the IKS role split, Framatome details, candidate pagination and year switching. The build retains the existing bundle-size warning. No 2025/2026 dataset, authentication rule, schema or metric-weighting policy is changed.
+
+### Production publication
+
+On 16 November, the verified target was `placement-stats-kjsce`, also confirmed in the deployed application's entry bundle. The existing immutable publication pipeline staged, reconciled and activated version `13eea4551e7d47c051ddd7b6b1111dec2529d45c8ccebe8a41d4671b0cb2c68a` using the exact prior active version `06ccee40145cf56043c04f7882c6c027a6c2ad1871622dd0974d77988cf1b42f` as the replacement guard. The previous publication was retained.
+
+Live verification reconciled every private source record, metadata document, public chunk, payload hash, metric and active-version pointer. A separate read-back confirmed 142 selections and the four/three IKS role split. The production site returned HTTP 200. This was a data publication; no frontend code or hosting configuration change was needed, and live Google sign-in was not exercised.
+
+The company directory was reconciled only for the eight reviewed employers: five missing entries were created, Capgemini gained 2027 membership, and Bizom/ICICI Prudential AMC already had it. Existing names, logos and other metadata were preserved, including Capgemini's 2025/2026 memberships. The scoped transaction checked the previewed fields before writing, saved an ignored local backup and verified all eight entries afterward. No fuzzy identity merges or broad catalog reseed were performed.
+
+## 15 November 2026 source update (historical)
 
 The supplied **27batch all placements till now.pdf** contains 21 image-based pages and 30 messages. PDF metadata records export at 19:15:27 IST on 15 November 2026. The latest included email is 6 November 2026 at 15:05 IST; its result was declared on 4 November. File hashes and the earlier export's provenance are retained in [the source manifest](../data/sources-2027/source-manifest.json).
 
@@ -19,7 +37,7 @@ The first 22 reviewed announcements are unchanged. Eight additional announcement
 | Marsh | 2 Nov | 2 | 7.50 | 20 | 140 |
 | Framatome | 4 Nov | 2 | 5.37 | 20–21 | 142 |
 
-Bizom's new Integration Coordinator result is separate from its earlier Growth Consultant Trainee result. IKS Health's merged role cells assign five rows to Tech Engineer and two to Business Analyst. Names, roll numbers, branch labels and unusual source spellings are preserved; roll-number prefixes are not used to infer a branch or year. No new campus route is inferred.
+Bizom's new Integration Coordinator result is separate from its earlier Growth Consultant Trainee result. The initial IKS Health transcription assigned five rows to Tech Engineer and two to Business Analyst; the 16 November visual recheck above supersedes that assignment with four and three. Names, roll numbers, branch labels and unusual source spellings are preserved; roll-number prefixes are not used to infer a branch or year. No new campus route is inferred.
 
 The registration denominator remains absent. The original three mixed-compensation announcements still exclude 52 selections from numerical compensation views; the eight additions all provide single-value CTC. The dataset now has 27 valued announcements. The highest recorded single-value announcement remains 31.79 LPA. No individual package is inferred from a mixed band.
 

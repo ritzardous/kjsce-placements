@@ -7,11 +7,19 @@
     "source_manifest": {
       "source_file": "27batch all placements till now.pdf",
       "pages": 21,
-      "sha256": "99e4e56eafdf781d30734344d4464fe8df18fe2f940afc20c8f5b9a2275b62b9",
-      "exported_at": "2026-11-15T19:15:27+05:30",
+      "sha256": "4653e074dbc06c047a01fbc4fffdcd42983b1b95411c4e3a88173862cbb4ddd0",
+      "exported_at": "2026-11-16T08:38:32+05:30",
       "latest_email_at": "2026-11-06T15:05:00+05:30",
       "messages": 30,
       "previous_sources": [
+        {
+          "source_file": "27batch all placements till now.pdf",
+          "pages": 21,
+          "sha256": "99e4e56eafdf781d30734344d4464fe8df18fe2f940afc20c8f5b9a2275b62b9",
+          "exported_at": "2026-11-15T19:15:27+05:30",
+          "latest_email_at": "2026-11-06T15:05:00+05:30",
+          "messages": 30
+        },
         {
           "source_file": "27batchemailthread.pdf",
           "pages": 16,
@@ -1783,7 +1791,7 @@
           "name": "Aditya - Manoj",
           "roll_number": "16014223005",
           "branch": "AI & DS",
-          "role": "Tech Engineer"
+          "role": "Business Analyst"
         },
         {
           "name": "Aryan Singh Thakur",
@@ -1808,7 +1816,7 @@
         "raw_announcement_text": null,
         "email_sent_at": "2026-10-21T16:26:00+05:30"
       },
-      "notes": null
+      "notes": "Role cells visually rechecked against the 16 November 2026 export, page 18: rows 1-4 are Tech Engineer and rows 5-7 are Business Analyst."
     },
     {
       "placement_id": "Y27-0027",
