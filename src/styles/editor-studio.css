@@ -1120,3 +1120,25 @@
 :is(#app,.portal-shell).writing-workspace .app-header .app-header-inner .home-control { display:none; }
 :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-composer .procedure-composer-heading { display:flex; flex-direction:row; justify-content:flex-end; align-items:center; padding:0; margin:0 0 12px; }
 :is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .procedure-composer-footer { background:transparent; }
+/* A visible invitation to add context, without competing with the document. */
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional {
+  border:1px solid var(--line-soft); border-radius:8px; background:var(--surface);
+}
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional>summary {
+  gap:6px; min-height:64px; padding:16px 44px 16px 18px;
+  background:color-mix(in srgb,var(--accent) 5%,var(--surface));
+}
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional>summary:hover {
+  background:color-mix(in srgb,var(--accent) 9%,var(--surface));
+}
+.studio-optional-title { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+.studio-optional-title>.app-icon { width:17px; height:17px; color:var(--accent); flex:none; }
+.studio-optional-badge { padding:3px 7px; border-radius:4px; background:var(--accent-soft); color:var(--accent); font-size:10px; font-weight:500; letter-spacing:.02em; }
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional>summary .studio-details-hint {
+  display:block; font-size:12px; line-height:1.5; color:var(--ink-soft);
+}
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional[open]>summary { border-bottom:1px solid var(--line-soft); }
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional-body { padding:8px 18px 20px; }
+:is(#app,.portal-shell) .procedure-ui .procedure-editor-page.studio.writing-document .studio-optional>summary:focus-visible {
+  outline:2px solid var(--focus-ring); outline-offset:-3px; border-radius:7px;
+}

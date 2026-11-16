@@ -23,3 +23,43 @@ test('Wissen profile supplies its logo, role and annual CTC without inventing ba
   await expect(page.locator('.writing-company-context')).toContainText('CTC not recorded for this role');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
+
+test('additional companies are searchable with honest salary context and accessible optional details',async({page},info)=>{
+  if(process.env.E2E_FIREBASE!=='true')throw new Error('Demo emulators required.');
+  const db=getFirestore(initializeApp({projectId:'demo-placementstats'},'community-additions-'+crypto.randomUUID()));
+  const rows=JSON.parse(readFileSync('data/company-profiles/community-additions-2026-11-16.json','utf8')) as {key:string;name:string;profile?:unknown}[];
+  for(const row of rows)await db.doc(`procedureCompanies/${row.key}`).set({name:row.name,years:[],source:'community',...(row.profile?{profile:row.profile}:{})});
+  await signInGoogle(page);await page.goto('/#procedures/contribute');
+  const picker=page.getByRole('combobox',{name:'Company',exact:true});
+  for(const row of rows){await picker.fill(row.name);await expect(page.getByRole('option',{name:new RegExp(row.name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'))})).toBeVisible();}
+  await picker.fill('InTrade Systems');await page.getByRole('option',{name:/InTrade Systems/}).click();
+  await expect(page.locator('.writing-company-context')).toContainText('Estimated ₹12–14 LPA');
+  await expect(page.locator('.writing-company-context')).toContainText('Role not specified');
+  await expect(page.getByLabel('Role',{exact:true})).toHaveValue('');
+  const optional=page.locator('.studio-optional'),summary=optional.locator('summary');
+  await expect(summary).toContainText('Optional details');await expect(summary).toContainText('Interview year');
+  await summary.focus();await page.keyboard.press('Enter');await expect(optional).toHaveAttribute('open','');
+  await expect(page.getByLabel('Year you appeared',{exact:true})).toBeVisible();
+  await expect(summary).toHaveCSS('outline-offset','-3px');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await optional.screenshot({path:`artifacts/company-completion/optional-details-${info.project.name}.png`});
+  await page.evaluate(()=>{document.documentElement.dataset.theme='dark';});
+  await optional.screenshot({path:`artifacts/company-completion/optional-details-dark-${info.project.name}.png`});
+  await page.goto('/#procedures/company?company=gracenote-nielsen');
+  await expect(page.locator('.procedure-company-hub')).toContainText('₹16 LPA');
+  await expect(page.locator('.procedure-company-hub')).not.toContainText('Estimated');
+  await expect(page.locator('.product-footer-brand')).toHaveJSProperty('tagName','SPAN');
+  await expect(page.locator('.product-footer-about')).toHaveAttribute('href','#about');
+});
+
+test('every 2027 company renders a bundled logo',async({page})=>{
+  if(process.env.E2E_FIREBASE!=='true')throw new Error('Demo emulators required.');
+  await signInGoogle(page);await page.goto('/#2027/companies');
+  await expect(page.locator('.result-count')).toHaveText('25 / 25');
+  const logos=page.locator('tbody .company-logo img');await expect(logos).toHaveCount(25);
+  await expect(page.locator('tbody .company-logo-initials')).toHaveCount(0);
+  for(const logo of await logos.all()){
+    await logo.scrollIntoViewIfNeeded();
+    await expect.poll(()=>logo.evaluate((image:HTMLImageElement)=>image.complete&&image.naturalWidth>0)).toBe(true);
+  }
+});
