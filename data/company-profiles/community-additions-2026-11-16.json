@@ -1,0 +1,14 @@
+[
+  {
+    "key":"gracenote-nielsen",
+    "name":"Gracenote (Nielsen)",
+    "profile":{"roles":[],"ctcMinLpa":16,"ctcMaxLpa":16,"currency":"INR","period":"year","source":"maintainer","logoPath":"/company-logos/gracenote.svg","website":"https://gracenote.com"}
+  },
+  {
+    "key":"intrade",
+    "name":"InTrade Systems",
+    "profile":{"roles":[],"ctcMinLpa":12,"ctcMaxLpa":14,"ctcEstimated":true,"currency":"INR","period":"year","source":"maintainer","logoPath":"/company-logos/intrade.svg","website":"https://www.intradets.com"}
+  },
+  {"key":"marico-limited","name":"Marico Limited"},
+  {"key":"morgan-stanley","name":"Morgan Stanley"}
+]

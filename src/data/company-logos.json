@@ -495,7 +495,8 @@
   {
     "id": "framatome",
     "aliases": [
-      "framatome-pvt-ltd"
+      "framatome-pvt-ltd",
+      "framatome"
     ],
     "file": "/company-logos/framatome.png",
     "website": "https://framatome.com",
@@ -565,6 +566,15 @@
     "file": "/company-logos/google.png",
     "website": "https://google.com",
     "source": "https://www.google.com/s2/favicons?domain_url=https%3A%2F%2Fgoogle.com&sz=128"
+  },
+  {
+    "id": "gracenote",
+    "aliases": [
+      "gracenote-nielsen"
+    ],
+    "file": "/company-logos/gracenote.svg",
+    "website": "https://gracenote.com",
+    "source": "https://gracenote.com/wp-content/uploads/2024/02/logo.svg"
   },
   {
     "id": "greylabs",
@@ -724,7 +734,8 @@
   {
     "id": "iks-health",
     "aliases": [
-      "iks"
+      "iks",
+      "iks-health"
     ],
     "file": "/company-logos/iks-health.png",
     "website": "https://ikshealth.com",
@@ -944,6 +955,25 @@
     "source": "https://www.google.com/s2/favicons?domain_url=https%3A%2F%2Fmahindra.com&sz=128"
   },
   {
+    "id": "marico",
+    "aliases": [
+      "marico-limited"
+    ],
+    "file": "/company-logos/marico.png",
+    "website": "https://marico.com",
+    "source": "https://marico.com/optimized/256x0/images/marico.png"
+  },
+  {
+    "id": "marsh",
+    "aliases": [
+      "marsh"
+    ],
+    "file": "/company-logos/marsh.svg",
+    "website": "https://marsh.com",
+    "source": "https://www.marsh.com/content/dam/marsh/Imagery/marsh-2/logos/marsh-logo-skyblue-v1.svg",
+    "background": "#0b184c"
+  },
+  {
     "id": "matrix-medicals",
     "aliases": [
       "matrix-medicals"
@@ -978,6 +1008,15 @@
     "file": "/company-logos/mondelez.png",
     "website": "https://mondelezinternational.com",
     "source": "https://www.google.com/s2/favicons?domain_url=https%3A%2F%2Fmondelezinternational.com&sz=128"
+  },
+  {
+    "id": "morgan-stanley",
+    "aliases": [
+      "morgan-stanley"
+    ],
+    "file": "/company-logos/morgan-stanley.svg",
+    "website": "https://morganstanley.com",
+    "source": "https://www.morganstanley.com/etc.clientlibs/msdotcomr5/clientlibs/components/site/resources/svg/logo/logo-dark.svg"
   },
   {
     "id": "morningstar",
@@ -1262,6 +1301,15 @@
     "file": "/company-logos/rsm.png",
     "website": "https://rsm.global",
     "source": "https://www.google.com/s2/favicons?domain_url=https%3A%2F%2Frsm.global&sz=128"
+  },
+  {
+    "id": "saint-gobain",
+    "aliases": [
+      "saint-gobain"
+    ],
+    "file": "/company-logos/saint-gobain.png",
+    "website": "https://saint-gobain.com",
+    "source": "https://www.saint-gobain.co.in/sites/saint-gobain.co.in/files/2026-01/saint-gobain-logo.png"
   },
   {
     "id": "sbi-general",
@@ -1554,6 +1602,15 @@
     "file": "/company-logos/yotta.png",
     "website": "https://yotta.com",
     "source": "https://www.google.com/s2/favicons?domain_url=https%3A%2F%2Fyotta.com&sz=128"
+  },
+  {
+    "id": "zeus-learning",
+    "aliases": [
+      "zeus-learning"
+    ],
+    "file": "/company-logos/zeus-learning.svg",
+    "website": "https://zeuslearning.com",
+    "source": "https://zeuslearning.com/favicon.svg"
   },
   {
     "id": "zs",

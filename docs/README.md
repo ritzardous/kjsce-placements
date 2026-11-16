@@ -19,6 +19,7 @@ Start with [Getting started](getting-started.md) to run the local beta, [Feature
 | [Development](development.md) | Repository map, scripts and test strategy |
 | [API reference](api-reference.md) | Envelopes, payloads, responses and errors |
 | [Database](database.md) | Firestore paths, indexes and publication lifecycle |
+| [Community company details](community-company-details.md) | Maintainer-supplied listing context, estimates and guarded catalog updates |
 | [Authentication](authentication.md) | Google access, sessions, administrator and owner boundaries |
 | [Access and navigation](access-structure.md) | Route access and release acceptance checks |
 
