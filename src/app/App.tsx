@@ -9,6 +9,7 @@ import { FetchLoader } from '../ui/FetchLoader';
 import { Component, lazy, Suspense, useEffect, type ReactNode } from 'react';
 import Dashboard from '../dashboard/Dashboard';
 import { analyticsNavigationKey, analyticsPage, trackPage } from '../lib/analytics';
+import { trackVercelPage } from '../lib/vercel-analytics';
 import { AuthProvider, useAuth } from '../lib/auth';
 import { Home, Landing, Account, PortalShell } from './Portal';
 import {rememberBatch,selectedBatch,batchHref} from './statistics-navigation';
@@ -30,6 +31,7 @@ function Application() {
         || (auth.allowed && statisticsPages.includes(route.page) && hiddenYears.has(route.year)),
     });
     trackPage(page, analyticsNavigationKey(route, page, location.hash));
+    trackVercelPage(page, analyticsNavigationKey(route, page, location.hash));
   }, [route.page, route.parameter, route.year, companyTarget, auth.ready, auth.allowed]);
   useEffect(()=>{if(!auth.allowed)return;if(statisticsPages.includes(route.page)&&hiddenYears.has(route.year)){location.replace('#home');return;}rememberBatch(route);if(route.page==='statistics'&&selectedBatch())location.replace(batchHref(selectedBatch()!));},[auth.allowed,route.page,route.year]);
   useEffect(() => {

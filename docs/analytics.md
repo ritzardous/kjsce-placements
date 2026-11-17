@@ -178,7 +178,32 @@ Verification for this revision: `npm test` passed 100 unit tests; `E2E_PORT=5187
 
 Unit and browser runtime checks cover route privacy/identity, event allowlists, campaign/referrer sanitization, current context, deduplication, consent and noise guards. Browser tests intercept Google traffic. Console setup, actual ingestion, signed-in production journeys and a production release require separate verification. Blockers, opt-outs and rate limits reduce counts.
 
-## References
+## Vercel Web Analytics
+
+The independent [Vercel adapter](../src/lib/vercel-analytics.ts) uses the official `@vercel/analytics` browser SDK from React's navigation effect. It deliberately uses `inject` and `pageview` rather than the automatic React component: this hash router needs explicit virtual views and deduplication across route-boundary remounts. No Next.js integration is used. Existing GA4 configuration, IDs and custom events are unchanged.
+
+Automatic tracking is disabled. The adapter reuses the GA4 route mapper and in-memory navigation identity: loading/redirect screens are skipped, query-only changes and repeated effects do not create views, while visiting a different company or article does. Only the fixed virtual path is transmitted, never the company/article ID, draft ID, search query, document title, student identity or private content. No Vercel custom events are added.
+
+The SDK's first internal manual view is cancelled before transport, then the real view is sent. This consumes its initial-referrer flag without transmitting `document.referrer`, which could contain sensitive external URL parameters. Thus Vercel external-referrer attribution is intentionally unavailable; existing GA4 acquisition reporting remains independent. The SDK still performs its standard privacy-preserving request processing; this adapter does not identify users or enable cookies.
+
+Collection runs only in production builds at `https://kjsce-placements.vercel.app`, outside Firebase emulators. Localhost, previews, DNT, GPC and the existing `placementStatsAnalyticsConsent = 'denied'` decision suppress it. The shared `placementstats:analytics-consent` event grants/revokes collection without changing GA4's implementation. The `beforeSend` gate also checks consent when queued views are processed. No new consent UI or policy is introduced. Google-specific disable flags and GA environment variables do not control Vercel.
+
+**Deployment:** no additional environment variables, Measurement ID, token, rules or backend changes are needed. Keep Web Analytics enabled for the existing Vercel project and deploy this release. The SDK uses the standard `/_vercel/insights/script.js` endpoint without proxies or blocker workarounds. A blocked script is not retried.
+
+**Production verification:**
+
+1. Use the canonical production site in a browser that permits analytics and has not denied consent. Open DevTools Network and filter `insights`.
+2. Confirm one JavaScript response for `/_vercel/insights/script.js`, with `data-disable-auto-track="1"` on its script element. A response containing HTML instead means the Analytics endpoint is not active for that deployment; verify project enablement and redeploy.
+3. Navigate through landing, Home, `#2027/overview`, companies, branches, career explorer and experiences. Inspect view requests: expect virtual paths such as `/2027/overview` and `/experiences/read`, without hash/query parameters or record IDs. The cancelled internal view produces no request.
+4. Repeated rendering and changing only search/draft parameters must not add views. A distinct company/article navigation does add a view, grouped under the same safe route.
+5. Check the project's **Analytics** dashboard after processing. Verify GA4 separately using the existing instructions above. Dashboard ingestion cannot be established by local tests.
+6. With DNT/GPC or pre-boot denial, expect no Vercel script. After runtime denial, expect no further views. Blockers and opt-outs legitimately reduce counts.
+
+Browser tests in [vercel-analytics.spec.ts](../tests/e2e/vercel-analytics.spec.ts) run the installed SDK with an intercepted transport; they send no live analytics. They verify manual tracking, privacy, deduplication, consent and blocked/development cases.
+
+See [Vercel's official SDK options](https://vercel.com/docs/analytics/package) and [privacy documentation](https://vercel.com/docs/analytics/privacy-policy).
+
+## GA4 references
 
 - [Google: `(other)` aggregation](https://support.google.com/analytics/answer/13331684)
 - [Google: Realtime limits](https://support.google.com/analytics/answer/9271392)
