@@ -1,4 +1,5 @@
 import { HomeExperienceCard } from '../procedures/HiringNow';
+import { MaintenanceNotice } from '../ui/MaintenanceNotice';
 import { SeasonStatus } from '../ui/SeasonStatus';
 import { ProductFooter } from '../ui/ProductFooter';
 import LandingPage from '../landing/LandingPage';
@@ -33,7 +34,7 @@ export function YearChoices() {
 }
 export function Home({ statisticsOnly = false }: { statisticsOnly?: boolean }) {
   const { user } = useAuth();
-  return <PortalShell active={statisticsOnly ? 'statistics' : 'home'}><section className="portal-welcome"><h1>{statisticsOnly ? 'Placement Stats' : `Welcome${user?.displayName ? `, ${user.displayName.split(' ')[0]}` : ''}.`}</h1></section><YearChoices />{!statisticsOnly && <HomeExperienceCard/>}</PortalShell>;
+  return <PortalShell active={statisticsOnly ? 'statistics' : 'home'}>{!statisticsOnly && <MaintenanceNotice />}<section className="portal-welcome"><h1>{statisticsOnly ? 'Placement Stats' : `Welcome${user?.displayName ? `, ${user.displayName.split(' ')[0]}` : ''}.`}</h1></section><YearChoices />{!statisticsOnly && <HomeExperienceCard/>}</PortalShell>;
 }
 export function Account() {
   const { user, admin, busy, error, profileError, logout } = useAuth();
