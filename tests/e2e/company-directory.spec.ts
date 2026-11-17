@@ -5,6 +5,18 @@ import {signInGoogle,awaitCompanyDirectory} from './auth-helper';
 import {initialProcedureDraft} from '../../shared/procedures';
 const db=getFirestore(initializeApp({projectId:'demo-placementstats'},'company-directory-tests'));
 const tag='Directory pagination fixture';
+
+test('directory uses its compact document instead of a full company collection query',async({page})=>{
+ const messages:string[]=[];
+ page.on('request',request=>{
+  if(!request.url().includes('Firestore/Listen/channel'))return;
+  try{messages.push(decodeURIComponent(request.postData()||''));}catch{/* Ignore non-text transport frames. */}
+ });
+ await signInGoogle(page);
+ await page.goto('/#procedures');
+ await expect.poll(()=>messages.some(text=>text.includes('/companyDirectory/current'))).toBe(true);
+ expect(messages.some(text=>text.includes('"collectionId":"procedureCompanies"'))).toBe(false);
+});
 test.beforeAll(async()=>{
  if(process.env.E2E_FIREBASE!=='true')throw new Error('Emulators required');
  const batch=db.batch();

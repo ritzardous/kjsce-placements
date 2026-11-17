@@ -12,6 +12,15 @@ const { doc, getDoc, setDoc, updateDoc, deleteDoc, collection, getDocs }: typeof
 
 let env: RulesTestEnvironment;
 let version: string;
+test('compact company directory requires verified Google access and denies every browser write and list',async()=>{
+  const reader=env.authenticatedContext('directory-reader',googleClaims).firestore();
+  await assertSucceeds(getDoc(doc(reader,'companyDirectory/current')));
+  await assertFails(getDocs(collection(reader,'companyDirectory')));
+  await assertFails(setDoc(doc(reader,'companyDirectory/current'),{companies:[]}));
+  await assertFails(getDoc(doc(env.unauthenticatedContext().firestore(),'companyDirectory/current')));
+  const unverified=env.authenticatedContext('directory-unverified',{...googleClaims,email_verified:false}).firestore();
+  await assertFails(getDoc(doc(unverified,'companyDirectory/current')));
+});
 before(async () => {
   if (process.env.FIRESTORE_EMULATOR_HOST !== '127.0.0.1:8080') throw new Error('Emulator-only rules test.');
   version = (await preparePublication()).version;

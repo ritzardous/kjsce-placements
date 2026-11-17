@@ -6,6 +6,24 @@ The company catalog also supports optional admin-owned `hiring` metadata for the
 
 Cloud Firestore is the runtime database. There is no implemented SQL schema, MongoDB service or ORM migration system. Firebase Auth is the identity store. Storage is unused and denied by [storage.rules](../storage.rules). Local ignored files/directories are not evidence of another supported backend.
 
+## Compact company directory
+
+[`companyDirectory/current`](../shared/company-directory.ts) stores `{schemaVersion:1,updatedAt,companies:[{key,name,years,profile?,hiring?}]}`. Only verified Google accounts passing suspension/revocation rules may get it. Collection listing and all browser writes are denied. It contains no student identities, drafts, creator IDs or creation audit records. Source company records remain authoritative for write validation and are retained for backward compatibility.
+
+The catalog is limited to 2,000 projected entries and 750,000 UTF-8 JSON bytes, below Firestore's document-size limit with headroom. Exceeding the limit aborts the coupled mutation; do not truncate entries. Plan sharding before approaching the limit. Each fresh directory subscription now reads one projection document rather than one document per company, excluding rule-dependent reads and subsequent updates. Other application queries still consume quota; this does not guarantee Spark capacity.
+
+Company creation, admin hiring changes, admin alias repair and the current profile/reviewed-alias maintenance commands update the existing publication in their transactions. Missing publications are not initialized partially by those actions. The company seed command rebuilds it after its merge. Legacy raw catalog scripts or external Admin SDK changes require an explicit rebuild afterward; avoid using them during launch.
+
+**Staged release:** deploy the added Firestore read rule first, deploy the updated API/client, then initialize the directory. These are separate production actions requiring maintainer authorization. Updated clients tolerate a missing publication or old rules by using the legacy catalog; malformed projections and quota failures surface errors instead of creating a read storm. Never publish first while older API instances still handle company mutations, since those instances cannot maintain the projection.
+
+Preview without writes (still reads the source catalog):
+
+```sh
+npx tsx scripts/publish-company-directory.ts --project YOUR_PROJECT_ID --allow-production --cli-auth
+```
+
+After reviewing the target/count/size, add `--apply` to publish transactionally. For isolated testing, use `--emulator` instead of the production flags. The command prints counts and byte size only, not catalog contents. It cannot overcome an exhausted read quota; wait for reset or obtain approved billing capacity. Verify company search, new-company creation and a live hiring change after rollout. If rolling back the API, remove the compact document before allowing further old-writer mutations so clients return to the legacy path; a later rebuild restores the projection. Do not alter placement publications for this feature.
+
 ## Placement publication schema
 
 ```mermaid

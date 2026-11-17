@@ -1,4 +1,5 @@
 import {createHash} from 'node:crypto';
+import {prepareDirectoryChange} from '../functions/src/company-directory.js';
 import {existsSync,mkdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {isDeepStrictEqual} from 'node:util';
 import {z} from 'zod';
@@ -33,12 +34,13 @@ try {
   if(apply){
     changed=await db.runTransaction(async tx=>{
       const current=await tx.getAll(...refs);let count=0;
+      const publish=await prepareDirectoryChange(db,tx,entries.map((row,i)=>({key:row.key,value:{...(current[i].data()??{name:row.name,years:[]}),...(row.profile?{profile:row.profile}:{})}})));
       for(const [i,row]of entries.entries()){
         if(current[i].exists!==snapshots[i].exists||(current[i].exists&&!current[i].updateTime!.isEqual(snapshots[i].updateTime!)))throw new Error('Company changed after preview; rerun the preview.');
         if(!current[i].exists){tx.create(refs[i],{name:row.name,years:[],source:'community',...(row.profile?{profile:row.profile}:{})});count++;}
         else if(row.profile&&!isDeepStrictEqual(current[i].get('profile'),row.profile)){tx.update(refs[i],{profile:row.profile});count++;}
       }
-      return count;
+      publish();return count;
     });
     const saved=await db.getAll(...refs);
     for(const [i,row]of entries.entries()){

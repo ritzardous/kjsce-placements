@@ -8,6 +8,7 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { adminApi } from '../../functions/src/admin.js';
 import type { Actor } from '../../functions/src/service.js';
 import type { CompanyHiring } from '../../shared/company-hiring.js';
+import { publishCompanyDirectory } from '../../functions/src/company-directory.js';
 
 test('hiring status is guarded, versioned, audited and separate from placement data', async t => {
   assert.equal(process.env.FIRESTORE_EMULATOR_HOST,'127.0.0.1:8080');
@@ -24,6 +25,8 @@ test('hiring status is guarded, versioned, audited and separate from placement d
   const company=db.doc('procedureCompanies/magellan');
   const original={name:'Magellan',years:[],profile:{untouched:true}};
   await company.set(original);
+  const publication=await publishCompanyDirectory(db);
+  assert.equal(publication.companies,1);
   const call=(payload:unknown,who=admin)=>adminApi(db,auth,who,{action:'setCompanyHiring',payload}) as Promise<{hiring:CompanyHiring;auditId:string|null}>;
   const update={companyKey:'magellan',status:'none',year:2027,expectedVersion:0};
   await assert.rejects(call(update,reader),{code:'permission-denied'});
@@ -33,6 +36,7 @@ test('hiring status is guarded, versioned, audited and separate from placement d
   assert.equal(result.hiring.status,'none'); assert.equal(result.hiring.version,1);
   assert.ok(result.auditId);
   const record=(await company.get()).data()!;
+  assert.equal((await db.doc('companyDirectory/current').get()).get('companies')[0].hiring.status,'none');
   assert.deepEqual(record.profile,original.profile); assert.deepEqual(record.years,[]); assert.equal(record.name,'Magellan');
   const audit=(await db.doc(`adminAudit/${result.auditId}`).get()).data()!;
   assert.equal(audit.action,'setCompanyHiring');assert.equal(audit.actorUid,admin.uid);assert.equal(audit.summary.before,'ongoing');assert.equal(audit.summary.after,'none');

@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { prepareDirectoryChange } from '../functions/src/company-directory.js';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { companyProfileSchema } from '../shared/company-profile.js';
 import { createAdminTarget, safeMigrationError } from './firebase-admin.js';
@@ -25,7 +26,8 @@ try {
       const current=await tx.get(ref);
       if(!current.updateTime?.isEqual(snapshot.updateTime!))throw new Error('Company changed after preview; rerun the preview.');
       if(current.get('profile')!==undefined&&JSON.stringify(companyProfileSchema.parse(current.get('profile')))===JSON.stringify(profile))return false;
-      tx.update(ref,{profile});return true;
+      const publish=await prepareDirectoryChange(target!.db,tx,[{key:ref.id,value:{...current.data(),profile}}]);
+      tx.update(ref,{profile});publish();return true;
     });
     const actual=await ref.get();
     if(JSON.stringify(companyProfileSchema.parse(actual.get('profile')))!==JSON.stringify(profile)||actual.get('name')!==before.name||JSON.stringify(actual.get('years'))!==JSON.stringify(before.years))throw new Error('Post-update verification differs; inspect the saved backup.');

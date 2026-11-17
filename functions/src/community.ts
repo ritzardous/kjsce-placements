@@ -1,4 +1,5 @@
 import { documentId } from '../../shared/document-id.js';
+import { prepareDirectoryChange } from './company-directory.js';
 import { createHash } from 'node:crypto';
 import { canonicalCompanyKey, canonicalCompanyName } from '../../shared/company-identity.js';
 import { notificationActions, notificationApi } from './notification-api.js';
@@ -88,9 +89,11 @@ export async function community(db: Firestore, actorValue: Actor | undefined, in
         }
         const stamp=await throttle(db,tx,actor.uid,'create-company');
         const row={name:canonicalCompanyName(key,data.name.replace(/\s+/g,' ')),years:[],source:'community',createdAt:Date.now()};
+        const publish = await prepareDirectoryChange(db,tx,[{key,value:row}]);
         tx.create(ref,row);
         tx.create(db.doc('procedureCompanyCreations/'+key),{createdBy:actor.uid,createdAt:row.createdAt});
         stamp();
+        publish();
         return {key,name:row.name,years:[]};
       });
       invalidateCompanyDiscovery(db);

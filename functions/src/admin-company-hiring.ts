@@ -4,6 +4,7 @@ import { companyHiringSchema, readCompanyHiring, updateCompanyHiringSchema } fro
 import { canonicalCompanyKey } from '../../shared/company-identity.js';
 import { audit, parse, requireValue, writeAudit } from './admin-common.js';
 import { HttpsError } from './service.js';
+import { prepareDirectoryChange } from './company-directory.js';
 
 // Called only after adminApi's current-account and current-claim verification.
 export async function setCompanyHiring(db: Firestore, actor: Actor, input: unknown) {
@@ -23,10 +24,12 @@ export async function setCompanyHiring(db: Firestore, actor: Actor, input: unkno
     const recent = prior && now - prior.startedAt < 60000;
     if (recent && prior.count >= 30) throw new HttpsError('resource-exhausted', 'Please wait a minute before updating more companies.');
     const hiring = { status: data.status, year: data.year, version: previous.version + 1, updatedAt: now };
+    const publish = await prepareDirectoryChange(db,tx,[{key:data.companyKey,value:{...company.data(),hiring}}]);
     const entry = audit(db, actor, 'setCompanyHiring', ref.path, `Set Class of 2027 hiring status to ${data.status}`, { before: previous.status, after: data.status, year: data.year });
     tx.update(ref, { hiring });
     tx.set(limiter, { startedAt: recent ? prior.startedAt : now, count: recent ? prior.count + 1 : 1 });
     writeAudit(tx, entry);
+    publish();
     return { hiring, auditId: entry.ref.id };
   });
 }

@@ -4,6 +4,8 @@
 
 ## Components
 
+Company directory consumers share one account-scoped realtime listener to `companyDirectory/current`. This compact, validated projection contains names, years and optional company profiles/hiring, never student or creator metadata. Company creation, hiring changes and supported catalog repairs update it atomically with their source records. The listener remains connected for two minutes after its last consumer leaves; account changes release the previous listener. Snapshots populate the picker's five-minute in-memory cache. Hiring updates remain live. During rollout only, missing publications or undeployed rules fall back to the original company collection. Quota failures do not trigger that expensive fallback. See [directory publication and rollout](database.md#compact-company-directory).
+
 This is a Vite React application with a trusted Firebase-backed service layer, not an Express server. `src/app/main.tsx` mounts the app; `src/app/App.tsx` composes theme, authentication, notification and recovery providers. Hash routing in `src/app/routing.ts` avoids individual server routes for dashboard pages.
 
 | Component | Responsibility | Source |

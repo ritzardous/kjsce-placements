@@ -4,6 +4,7 @@ import { getAuth } from 'firebase-admin/auth';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { readFileSync } from 'node:fs';
 import { signInGoogle } from './auth-helper';
+import { publishCompanyDirectory } from '../../functions/src/company-directory';
 
 const app=initializeApp({projectId:'demo-placementstats'},'hiring-support-browser'),db=getFirestore(app),auth=getAuth(app);
 test('support is public, optional, concise and reachable from Footer and About',async({page},info)=>{
@@ -39,6 +40,7 @@ test('admins control hiring focus and readers see changes without reloading',asy
     if(!(await ref.get()).exists)await ref.set({name,years:[]});
     await ref.update({hiring:FieldValue.delete()});
   }
+  await publishCompanyDirectory(db);
   await signInGoogle(page);
   await expect(page.locator('.home-hiring-preview')).toContainText('Magellan');
   await page.goto('/#procedures');

@@ -54,6 +54,7 @@ export function createAdminTarget(args = process.argv.slice(2)) {
 }
 export function safeMigrationError(error: unknown) {
   const code = typeof error === 'object' && error !== null && 'code' in error ? String(error.code) : '';
+  if (code === '8' || code.includes('resource-exhausted')) return 'Firestore quota exceeded. Wait for quota reset or enable billing before retrying; no quota repair can be performed by this command.';
   if (code === 'app/invalid-credential') return 'Firebase rejected the Admin SDK credential. Replace the private service-account credential with a valid key for this project, then retry.';
   if (code === 'auth/user-not-found') return 'This Google email has no Firebase account yet. Sign in to the app with Google once, then retry role assignment.';
   if (code === '7' || code.includes('permission-denied') || code.includes('permission_denied') || error instanceof Error && error.message === 'The caller does not have permission') return 'Firebase denied the service account access. Check Cloud Datastore User (data) and Firebase Rules Admin (rules) IAM roles; see 4amchanges.md.';

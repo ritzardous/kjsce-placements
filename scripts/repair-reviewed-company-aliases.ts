@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { prepareDirectoryChange } from '../functions/src/company-directory.js';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { createAdminTarget, safeMigrationError } from './firebase-admin.js';
 import { planReviewedAliases, reviewedAliasPairs, type CatalogFields } from './reviewed-company-aliases.js';
@@ -26,11 +27,12 @@ try {
       const current=await tx.getAll(...refs);
       if(current.some((doc,index)=>!doc.updateTime?.isEqual(snapshot[index].updateTime!)))throw new Error('A company changed after preview. Run a new dry run; no repair applied.');
       let count=0;
+      const publish=await prepareDirectoryChange(target!.db,tx,plan.map(entry=>({key:entry.key,value:{...current.find(row=>row.id===entry.key)!.data(),...entry.fields}})));
       for(const entry of plan){
         const doc=current.find(row=>row.id===entry.key)!;
         if(Object.entries(entry.fields).some(([key,value])=>JSON.stringify(doc.data()![key])!==JSON.stringify(value))){tx.update(doc.ref,entry.fields);count++;}
       }
-      return count;
+      publish();return count;
     });
     const checked=await target.db.getAll(...refs);
     for(const entry of plan){const row=checked.find(doc=>doc.id===entry.key)!.data()!;if(Object.entries(entry.fields).some(([key,value])=>JSON.stringify(row[key])!==JSON.stringify(value)))throw new Error('Repair committed but read-back differs. Inspect the saved backup before retrying.');}

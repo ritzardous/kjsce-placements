@@ -1,4 +1,5 @@
 import type {Firestore,DocumentData} from 'firebase-admin/firestore';
+import {prepareDirectoryChange} from './company-directory.js';
 import {canonicalCompanyKey,canonicalCompanyName} from '../../shared/company-identity.js';
 import {procedureDraftSchema} from '../../shared/procedures.js';
 import {requireValue,hash} from './admin-common.js';
@@ -38,7 +39,9 @@ export async function repairStep(db:Firestore,jobId:string,data:DocumentData) {
     const ref=db.doc(`procedureCompanies/${source}`),canonical=db.doc(`procedureCompanies/${target}`),backup=db.doc(`adminJobs/${jobId}/backups/directory`);
     await db.runTransaction(async tx=>{const [from,to,saved]=await Promise.all([tx.get(ref),tx.get(canonical),tx.get(backup)]);if(saved.exists)return;requireValue(from.exists&&Array.isArray(from.data()!.years),'Company alias is not available.');
       const before={source:from.data(),target:to.data()||null},after={name:canonicalCompanyName(target,from.data()!.name),years:[...new Set([...(to.data()?.years||[]),...from.data()!.years])].sort(),key:target};
+      const publish=await prepareDirectoryChange(db,tx,[{key:source,value:{...from.data(),aliasOf:target}},{key:target,value:{...to.data(),...after}}]);
       tx.create(backup,{source,target,before,after});tx.set(canonical,after,{merge:true});tx.update(ref,{aliasOf:target});
+      publish();
     });return {phase:1,cursor:null,progress:1,done:false};
   }
   const collection=data.phase===1?'procedureSubmissions':'procedurePosts',field=data.phase===1?'draft.companyKey':'companyKey';

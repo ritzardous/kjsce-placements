@@ -1,4 +1,5 @@
 import { mergeCompanyDirectory, canonicalCompanyKey } from '../../shared/company-identity';
+import { companyDirectoryPath, companyDirectorySchema } from '../../shared/company-directory';
 import { httpsCallable } from 'firebase/functions';
 import { collection, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, startAfter, where, type DocumentData, type QueryConstraint, type QueryDocumentSnapshot } from 'firebase/firestore';
 import { getFirebase } from '../lib/firebase';
@@ -27,7 +28,18 @@ const companyCache = new Map<string, {at:number;request:Promise<ProcedureCompany
 export function procedureCompanies():Promise<ProcedureCompany[]> {
   const {db,auth}=getFirebase(), key=auth.currentUser?.uid || '', cached=companyCache.get(key);
   if(cached && Date.now()-cached.at<300000) return cached.request;
-  const request=withTimeout(getDocs(query(collection(db,'procedureCompanies'),orderBy('name')))).then(result=>mergeCompanyDirectory(result.docs.map(d=>({...d.data(),key:d.id}) as ProcedureCompany)));
+  const request=(async()=>{
+    try {
+      const compact=await withTimeout(getDoc(doc(db,companyDirectoryPath)));
+      if(compact.exists())return companyDirectorySchema.parse(compact.data()).companies;
+    } catch(cause) {
+      if((cause as {code?:string})?.code!=='permission-denied')throw cause;
+      // Compatibility with deployments whose directory rules are not released yet.
+    }
+    const result=await withTimeout(getDocs(query(collection(db,'procedureCompanies'),orderBy('name'))));
+    const raw=result.docs.map(d=>({...d.data(),key:d.id}) as ProcedureCompany);
+    return mergeCompanyDirectory(raw).map(row=>({...row,hiring:raw.find(value=>value.key===row.key)?.hiring}));
+  })();
   const entry={at:Date.now(),request};companyCache.set(key,entry);
   while(companyCache.size>6)companyCache.delete(companyCache.keys().next().value!);
   void request.catch(()=>{if(companyCache.get(key)===entry)companyCache.delete(key);});
@@ -61,4 +73,8 @@ export async function loadProcedurePosts(filters: PostFilters, cursor?: QueryDoc
   return { rows, cursor: result.docs.at(-1), more: result.size === 12 };
 }
 
+export function rememberProcedureCompanies(rows: ProcedureCompany[]) {
+  const uid = getFirebase().auth.currentUser?.uid;
+  if (uid) companyCache.set(uid, {at:Date.now(),request:Promise.resolve(rows)});
+}
 export function invalidateCompanyDirectory() { companyCache.clear(); }
