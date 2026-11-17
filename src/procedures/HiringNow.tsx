@@ -1,4 +1,5 @@
 import { readCompanyHiring } from '../../shared/company-hiring';
+import {readConservation} from '../lib/read-conservation';
 import type { ProcedureCompany } from '../../shared/procedures';
 import { CompanyLogo } from '../dashboard/CompanyIdentity';
 import { AppIcon } from '../ui/AppIcon';
@@ -6,7 +7,7 @@ import { useCompanies } from './useCompanyDirectory';
 import '../styles/hiring-now.css';
 
 export function hiringCompanies(companies: ProcedureCompany[]) {
-  return companies.map(company => ({ ...company, hiring: readCompanyHiring(company.key, company.hiring) }))
+  return companies.filter(company=>!readConservation||company.hiring!==undefined).map(company => ({ ...company, hiring: readCompanyHiring(company.key, company.hiring) }))
     .filter(company => company.hiring.status !== 'none')
     .sort((a, b) => Number(a.hiring.status === 'upcoming') - Number(b.hiring.status === 'upcoming') || a.name.localeCompare(b.name));
 }

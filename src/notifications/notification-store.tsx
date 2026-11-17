@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useAuth } from '../lib/auth';
+import {readConservation} from '../lib/read-conservation';
 import { community, invalidateCommunityReads } from '../community/community-api';
 import { procedureError } from '../procedures/procedures-api';
 import { useBackgroundSync } from '../lib/background-sync';
@@ -91,9 +92,9 @@ function AccountNotifications({ children, enabled }: { children: ReactNode; enab
   const settleOpened = useCallback((ids: string[]) => Promise.allSettled(ids.map(id => openedReads.get(id))), [openedReads]);
   useBackgroundSync(refresh, 60000 + useRef(Math.floor(Math.random() * 5000)).current, enabled);
   useEffect(() => {
-    mounted.current = true; void refresh();
+    mounted.current = true; if(!readConservation)void refresh();
     const connection = () => setOnline(navigator.onLine);
-    const storage = (event: StorageEvent) => { if (enabled && event.key === `notification-invalidation:${user?.uid}`) { setRevision(value => value + 1); void refresh(); } };
+    const storage = (event: StorageEvent) => { if (enabled && event.key === `notification-invalidation:${user?.uid}`) { setRevision(value => value + 1); if(!readConservation)void refresh(); } };
     // Existing submission/editor events also invalidate the shared summary.
     const legacy = () => { setRevision(value => value + 1); channel.current?.postMessage('changed'); };
     window.addEventListener('online', connection); window.addEventListener('offline', connection);
@@ -101,7 +102,7 @@ function AccountNotifications({ children, enabled }: { children: ReactNode; enab
     window.addEventListener('procedure-notifications-changed', legacy);
     if (enabled && typeof BroadcastChannel !== 'undefined') {
       channel.current = new BroadcastChannel(`notifications:${user?.uid}`);
-      channel.current.onmessage = () => { setRevision(value => value + 1); void refresh(); };
+      channel.current.onmessage = () => { setRevision(value => value + 1); if(!readConservation)void refresh(); };
     }
     return () => { mounted.current = false; channel.current?.close(); channel.current = null; window.removeEventListener('online', connection); window.removeEventListener('offline', connection); window.removeEventListener('storage', storage); window.removeEventListener('procedure-notifications-changed', legacy); };
   }, [enabled, refresh, user?.uid]);

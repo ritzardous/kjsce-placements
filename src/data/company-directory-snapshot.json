@@ -1,0 +1,1282 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": 1794911718402,
+  "companies": [
+    {
+      "key": "360-one",
+      "name": "360 ONE",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "accelya-group",
+      "name": "Accelya Group",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "accenture",
+      "name": "Accenture",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "acg-inspection",
+      "name": "ACG Inspection",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "aci-worldwide",
+      "name": "ACI Worldwide",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "aegis-graham-bell-awards",
+      "name": "Aegis Graham Bell Awards",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "affinity-global-advertising-pvt-ltd",
+      "name": "Affinity Global Advertising Pvt. Ltd",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "affix-centre",
+      "name": "Affix Centre",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "akademika-lab-solutions",
+      "name": "Akademika Lab Solutions",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "all-home-bharat-platform-pvt-ltd",
+      "name": "All Home Bharat Platform Pvt. Ltd",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "amazon-india",
+      "name": "Amazon India",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "aptia",
+      "name": "Aptia",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "arcon",
+      "name": "Arcon",
+      "years": [
+        2025,
+        2027
+      ]
+    },
+    {
+      "key": "arora-technologies-p-limited",
+      "name": "Arora Technologies (P) Limited",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "astrico-ai",
+      "name": "Astrico AI",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "atrina-tech",
+      "name": "Atrina Tech",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "aurion-pro",
+      "name": "Aurion Pro",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "axis-asset-management-company-ltd",
+      "name": "Axis Asset Management Company Ltd.",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "bandhan-amc",
+      "name": "Bandhan AMC",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "barclays",
+      "name": "Barclays",
+      "years": [
+        2025,
+        2026,
+        2027
+      ]
+    },
+    {
+      "key": "beyond-automation-pvt-ltd",
+      "name": "Beyond Automation Pvt. Ltd.",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "bizom",
+      "name": "Bizom",
+      "years": [
+        2027
+      ]
+    },
+    {
+      "key": "bluestar",
+      "name": "Bluestar",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "browserstack",
+      "name": "BrowserStack",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "c-prav-labs-pvt-ltd",
+      "name": "C-Prav Labs pvt. ltd.",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "capgemini",
+      "name": "Capgemini",
+      "years": [
+        2025,
+        2026,
+        2027
+      ]
+    },
+    {
+      "key": "caratlane-a-tata-product",
+      "name": "CaratLane - A TATA Product",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "ccs-inc",
+      "name": "CCS INC",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "centiro-solutions-private-limited",
+      "name": "Centiro Solutions Private Limited.",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "cimpress",
+      "name": "Cimpress",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "citiustech",
+      "name": "CitiusTech",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "cityflo",
+      "name": "Cityflo",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "cogitate-technology",
+      "name": "Cogitate Technology",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "colgate",
+      "name": "Colgate",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "colgate-palmolive",
+      "name": "Colgate Palmolive",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "colourblind-ventures-private-limited-eighty-days",
+      "name": "COLOURBLIND VENTURES PRIVATE LIMITED (Eighty Days)",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "commtel",
+      "name": "Commtel",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "connectwise",
+      "name": "ConnectWise",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "deloitte-india",
+      "name": "Deloitte India",
+      "years": [
+        2025,
+        2026,
+        2027
+      ]
+    },
+    {
+      "key": "dhurin",
+      "name": "Dhurin",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "dolat-capital",
+      "name": "Dolat Capital",
+      "years": [
+        2025,
+        2027
+      ]
+    },
+    {
+      "key": "double-tick",
+      "name": "Double Tick",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "dp-world",
+      "name": "DP World",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "edelweiss-global-markets",
+      "name": "Edelweiss – Global Markets",
+      "years": [
+        2025,
+        2026,
+        2027
+      ]
+    },
+    {
+      "key": "edelweiss-insurance",
+      "name": "Edelweiss Insurance",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "edra-labs",
+      "name": "EDRA Labs",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "ericsson-india",
+      "name": "Ericsson India",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "eventstrat-labsprivatelimited",
+      "name": "Eventstrat LabsPrivateLimited",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "ey",
+      "name": "EY",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "fileago",
+      "name": "FileAgo",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "framatome",
+      "name": "Framatome",
+      "years": [
+        2027
+      ]
+    },
+    {
+      "key": "framatome-pvt-ltd",
+      "name": "Framatome Pvt. Ltd.",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "global-payex-technologies-pvt-ltd",
+      "name": "Global Payex Technologies Pvt. Ltd.",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "godrej-and-boyce",
+      "name": "Godrej & Boyce",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "godrej-capital",
+      "name": "Godrej Capital",
+      "years": [
+        2025,
+        2026,
+        2027
+      ]
+    },
+    {
+      "key": "godrej-consumer-products-limited",
+      "name": "Godrej Consumer Products Limited",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "godrej-industries-limited",
+      "name": "Godrej Industries Limited",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "google",
+      "name": "Google",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "gracenote-nielsen",
+      "name": "Gracenote (Nielsen)",
+      "years": [],
+      "profile": {
+        "roles": [],
+        "ctcMinLpa": 16,
+        "ctcMaxLpa": 16,
+        "currency": "INR",
+        "period": "year",
+        "source": "maintainer",
+        "logoPath": "/company-logos/gracenote.svg",
+        "website": "https://gracenote.com"
+      }
+    },
+    {
+      "key": "greylabs-ai",
+      "name": "GreyLabs AI",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "grindwell-norton-limited-saint-gobain-group",
+      "name": "Grindwell Norton Limited, Saint-Gobain Group",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "gupshup-technology",
+      "name": "Gupshup Technology",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "hansa-customer-equity-pvt-ltd",
+      "name": "Hansa Customer Equity Pvt. LTD.",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "hdfc-life",
+      "name": "HDFC Life",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "hike-education",
+      "name": "Hike Education",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "holcim-global-digital-hub",
+      "name": "Holcim Global Digital Hub",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "hsbc",
+      "name": "HSBC",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "hyperverge",
+      "name": "Hyperverge",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "ibm-india",
+      "name": "IBM India",
+      "years": [
+        2027
+      ]
+    },
+    {
+      "key": "icici-lombard",
+      "name": "ICICI Lombard",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "icici-prudential",
+      "name": "ICICI Prudential",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "icici-prudential-amc",
+      "name": "ICICI Prudential AMC",
+      "years": [
+        2026,
+        2027
+      ]
+    },
+    {
+      "key": "icici-prudential-life-insurance",
+      "name": "ICICI Prudential Life Insurance",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "ideaforge-technology-ltd",
+      "name": "IdeaForge Technology Ltd.",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "idfc-bank",
+      "name": "IDFC Bank",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "idfy",
+      "name": "IDFY",
+      "years": [
+        2025,
+        2026,
+        2027
+      ]
+    },
+    {
+      "key": "iks",
+      "name": "IKS",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "iks-health",
+      "name": "IKS Health",
+      "years": [
+        2027
+      ]
+    },
+    {
+      "key": "impactguru",
+      "name": "ImpactGuru",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "inbetween-innovation-ltd",
+      "name": "InBetween Innovation Ltd.",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "infytrix-ecom-pvt-ltd",
+      "name": "Infytrix Ecom Pvt. Ltd",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "interactive-brokers",
+      "name": "Interactive Brokers",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "intrade",
+      "name": "InTrade Systems",
+      "years": [],
+      "profile": {
+        "roles": [],
+        "ctcMinLpa": 12,
+        "ctcMaxLpa": 14,
+        "ctcEstimated": true,
+        "currency": "INR",
+        "period": "year",
+        "source": "maintainer",
+        "logoPath": "/company-logos/intrade.svg",
+        "website": "https://www.intradets.com"
+      }
+    },
+    {
+      "key": "ion",
+      "name": "ION",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "iqlytics-solutions-pvt-ltd",
+      "name": "IQlytics Solutions Pvt. Ltd",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "jaro-education",
+      "name": "Jaro Education",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "jpmc",
+      "name": "JPMorgan Chase & Co.",
+      "years": [
+        2025,
+        2026,
+        2027
+      ]
+    },
+    {
+      "key": "jsw",
+      "name": "JSW",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "kalki-fashion",
+      "name": "Kalki Fashion",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "kpmg",
+      "name": "KPMG",
+      "years": [
+        2025,
+        2026,
+        2027
+      ]
+    },
+    {
+      "key": "l-t-technology-services",
+      "name": "L&T Technology Services",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "leadsquared",
+      "name": "Leadsquared",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "lloyds-advance-defence-systems",
+      "name": "Lloyds Advance Defence Systems",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "loginext",
+      "name": "LogiNext",
+      "years": [
+        2027
+      ]
+    },
+    {
+      "key": "logisticsnow",
+      "name": "LogisticsNow",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "logixal",
+      "name": "Logixal",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "loylty-rewardz",
+      "name": "Loylty Rewardz",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "ltimindtree",
+      "name": "LTIMindTree",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "magellan",
+      "name": "Magellan",
+      "years": [],
+      "profile": {
+        "roles": [
+          "Full Stack Engineer"
+        ],
+        "ctcMinLpa": 6,
+        "ctcMaxLpa": 8,
+        "currency": "INR",
+        "period": "year",
+        "source": "maintainer",
+        "logoPath": "/company-logos/magellan.jpg",
+        "website": "https://www.linkedin.com/company/magellangroup/"
+      }
+    },
+    {
+      "key": "mahindra-mahindra",
+      "name": "Mahindra & Mahindra",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "marico-limited",
+      "name": "Marico Limited",
+      "years": []
+    },
+    {
+      "key": "marsh",
+      "name": "Marsh",
+      "years": [
+        2027
+      ]
+    },
+    {
+      "key": "matrix-medicals",
+      "name": "Matrix Medicals",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "mehery-soccom-pvt-ltd",
+      "name": "Mehery Soccom Pvt Ltd",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "mindgate-solutions-private-limited",
+      "name": "Mindgate Solutions Private limited",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "mondelez-digital-services",
+      "name": "Mondelez Digital Services",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "morgan-stanley",
+      "name": "Morgan Stanley",
+      "years": [],
+      "profile": {
+        "roles": [],
+        "ctcMinLpa": 25,
+        "ctcMaxLpa": 25,
+        "currency": "INR",
+        "period": "year",
+        "source": "maintainer",
+        "logoPath": "/company-logos/morgan-stanley.svg",
+        "website": "https://www.morganstanley.com"
+      }
+    },
+    {
+      "key": "morning-star",
+      "name": "Morning Star",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "mr-diy",
+      "name": "Mr DIY",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "mukand-ltd-bajaj-group",
+      "name": "Mukand Ltd. (Bajaj Group)",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "nagarro-software",
+      "name": "Nagarro Software",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "national-securities-depository-ltd",
+      "name": "National Securities Depository Ltd.",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "ncsi-technologies-india",
+      "name": "NCSI Technologies (India)",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "neebal-technology",
+      "name": "Neebal Technology",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "nilkamal",
+      "name": "Nilkamal",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "nouryon-chemicals",
+      "name": "Nouryon Chemicals",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "novel-jewels-aditya-birla-jewellery",
+      "name": "Novel Jewels (Aditya Birla Jewellery)",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "nstore-retech-pvt-ltd",
+      "name": "nStore Retech Pvt Ltd",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "nuvoco-vistas-corp-ltd",
+      "name": "Nuvoco Vistas Corp. Ltd.",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "oberoi-realty",
+      "name": "Oberoi Realty",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "odex-india-solutions-pvt-ltd",
+      "name": "Odex India Solutions Pvt. Ltd.",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "omnenest-technologies",
+      "name": "OmneNest Technologies",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "opus-technology",
+      "name": "Opus Technology",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "oracle",
+      "name": "Oracle",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "oracle-financial-software-services-ltd",
+      "name": "Oracle Financial Software Services Ltd.",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "orange-business",
+      "name": "Orange Business",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "piramal-pharma",
+      "name": "Piramal Pharma",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "pravaayu",
+      "name": "Pravaayu",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "purplle",
+      "name": "Purplle",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "quantanite",
+      "name": "Quantanite",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "quantum-data-engines",
+      "name": "Quantum Data Engines",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "r-k-control-instruments-pvt-ltd",
+      "name": "R.K.CONTROL INSTRUMENTS PVT.LTD",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "rapid7",
+      "name": "Rapid7",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "rbl-bank",
+      "name": "RBL bank",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "reliance-industries-limited",
+      "name": "Reliance Industries Limited.",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "reserve-bank-information-technology-pvt-ltd-rebit",
+      "name": "Reserve Bank Information Technology Pvt. Ltd. (ReBIT)",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "rmc-india",
+      "name": "RMC India",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "rsm-astute-consulting",
+      "name": "RSM Astute Consulting",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "s-p-global",
+      "name": "S&P Global.",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "saint-gobain",
+      "name": "Saint Gobain",
+      "years": [
+        2027
+      ]
+    },
+    {
+      "key": "sbi-general-insurance",
+      "name": "SBI General Insurance",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "seclore",
+      "name": "Seclore",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "segumento",
+      "name": "Segumento",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "sharekhan-limited",
+      "name": "Sharekhan limited",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "signpost-india-pvt-ltd",
+      "name": "Signpost India Pvt Ltd",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "smfg-india-credit",
+      "name": "SMFG India Credit",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "smowcode-private-limited",
+      "name": "Smowcode Private Limited",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "stonex",
+      "name": "Stonex",
+      "years": [
+        2025,
+        2026,
+        2027
+      ]
+    },
+    {
+      "key": "sumitomo",
+      "name": "Sumitomo",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "sunjewels-private-limited",
+      "name": "Sunjewels Private Limited",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "sure-financial",
+      "name": "Sure Financial",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "synergetics-it-services-india",
+      "name": "Synergetics IT Services India",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "taabi-mobility",
+      "name": "Taabi Mobility",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "tata-consultancy-services",
+      "name": "Tata Consultancy Services",
+      "years": [
+        2027
+      ]
+    },
+    {
+      "key": "tata-motors-insurance-broking-and-advisory-services-limited",
+      "name": "Tata Motors Insurance Broking And Advisory Services Limited",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "tata-power",
+      "name": "TATA Power",
+      "years": [
+        2025,
+        2026
+      ]
+    },
+    {
+      "key": "tcs-ninja",
+      "name": "TCS Ninja",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "the-digital-fifth",
+      "name": "The Digital Fifth",
+      "years": [
+        2027
+      ]
+    },
+    {
+      "key": "think-360",
+      "name": "Think 360",
+      "years": [
+        2026,
+        2027
+      ]
+    },
+    {
+      "key": "toshniwal-industries-pvt-ltd",
+      "name": "Toshniwal Industries PVT ltd.",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "toyo-engineering",
+      "name": "Toyo Engineering",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "transbnk-solutions",
+      "name": "TransBnk Solutions",
+      "years": [
+        2026,
+        2027
+      ]
+    },
+    {
+      "key": "transpure-solutions-pvt-ltd",
+      "name": "Transpure Solutions Pvt. Ltd.",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "tresvista",
+      "name": "Tresvista",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "wissen-technology",
+      "name": "Wissen Technology",
+      "years": [],
+      "profile": {
+        "roles": [
+          "Software Engineer"
+        ],
+        "ctcMinLpa": 11,
+        "ctcMaxLpa": 11,
+        "currency": "INR",
+        "period": "year",
+        "source": "maintainer",
+        "logoPath": "/company-logos/wissen-technology.png",
+        "website": "https://www.wissen.com"
+      }
+    },
+    {
+      "key": "worley",
+      "name": "Worley",
+      "years": [
+        2025
+      ]
+    },
+    {
+      "key": "yotta-data-services",
+      "name": "Yotta Data Services",
+      "years": [
+        2026
+      ]
+    },
+    {
+      "key": "zeus-learning",
+      "name": "Zeus Learning",
+      "years": [
+        2027
+      ]
+    },
+    {
+      "key": "zs-associates",
+      "name": "ZS Associates",
+      "years": [
+        2026,
+        2027
+      ]
+    }
+  ]
+}

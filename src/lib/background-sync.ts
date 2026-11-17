@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
+import {readConservation} from './read-conservation';
 
 /** One bounded refresh per mounted resource, only while the app is visible and online. */
 export function useBackgroundSync(refresh: () => Promise<boolean | void>, interval = 120000, enabled = true) {
   const latest = useRef(refresh);
   latest.current = refresh;
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || readConservation) return;
     let stopped = false, running = false, failures = 0, last = Date.now();
     let timer: ReturnType<typeof setTimeout> | undefined;
     const available = () => document.visibilityState === 'visible' && navigator.onLine;

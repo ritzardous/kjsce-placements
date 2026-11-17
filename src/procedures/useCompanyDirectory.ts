@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import {readConservation} from '../lib/read-conservation';
 import { collection, doc, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { companyDirectoryPath, companyDirectorySchema } from '../../shared/company-directory';
 import { mergeCompanyDirectory } from '../../shared/company-identity';
@@ -6,7 +7,7 @@ import type { ProcedureCompany } from '../../shared/procedures';
 import { getFirebase } from '../lib/firebase';
 import { useAuth } from '../lib/auth';
 import { useBackgroundSync } from '../lib/background-sync';
-import { procedureError, rememberProcedureCompanies } from './procedures-api';
+import { procedureCompanies, procedureError, rememberProcedureCompanies } from './procedures-api';
 
 type Consumer = { next: (rows: ProcedureCompany[]) => void; error: (cause: unknown) => void };
 const consumers = new Set<Consumer>();
@@ -51,7 +52,7 @@ function subscribeDirectory(uid: string, consumer: Consumer) {
 }
 
 export function useCompanies() {
-  const { user, allowed } = useAuth();
+  const { user, allowed, admin } = useAuth();
   const [companies, setCompanies] = useState<ProcedureCompany[]>([]);
   const [error, setError] = useState(''), [loading, setLoading] = useState(true), [attempt, setAttempt] = useState(0);
   const retry = () => setAttempt(value => value + 1);
@@ -59,12 +60,18 @@ export function useCompanies() {
   useEffect(() => {
     if (!allowed || !user) { setCompanies([]); setLoading(false); return; }
     setLoading(true); setError('');
+    if(readConservation&&!admin){
+      let active=true;
+      void procedureCompanies(attempt>0).then(values=>{if(active){setCompanies(values);setLoading(false);}})
+        .catch(cause=>{if(active){setError(procedureError(cause));setLoading(false);}});
+      return()=>{active=false;};
+    }
     try {
       return subscribeDirectory(user.uid, {
         next: values => { setCompanies(values); setError(''); setLoading(false); },
         error: cause => { setError(procedureError(cause)); setLoading(false); },
       });
     } catch (cause) { setError(procedureError(cause)); setLoading(false); }
-  }, [allowed, user?.uid, attempt]);
+  }, [allowed, user?.uid, admin, attempt]);
   return { companies, error, loading, retry };
 }

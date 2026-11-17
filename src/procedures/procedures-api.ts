@@ -1,4 +1,6 @@
 import { mergeCompanyDirectory, canonicalCompanyKey } from '../../shared/company-identity';
+import {readConservation} from '../lib/read-conservation';
+import {bundledCompanies} from './bundled-company-directory';
 import { companyDirectoryPath, companyDirectorySchema } from '../../shared/company-directory';
 import { httpsCallable } from 'firebase/functions';
 import { collection, doc, getDoc, getDocs, limit, onSnapshot, orderBy, query, startAfter, where, type DocumentData, type QueryConstraint, type QueryDocumentSnapshot } from 'firebase/firestore';
@@ -25,7 +27,8 @@ export async function callProcedure<T>(name: string, data: unknown): Promise<T> 
   return result.data;
 }
 const companyCache = new Map<string, {at:number;request:Promise<ProcedureCompany[]>}>();
-export function procedureCompanies():Promise<ProcedureCompany[]> {
+export function procedureCompanies(live=false):Promise<ProcedureCompany[]> {
+  if(readConservation&&!live)return Promise.resolve(bundledCompanies);
   const {db,auth}=getFirebase(), key=auth.currentUser?.uid || '', cached=companyCache.get(key);
   if(cached && Date.now()-cached.at<300000) return cached.request;
   const request=(async()=>{

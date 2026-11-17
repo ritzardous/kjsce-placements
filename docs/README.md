@@ -14,6 +14,7 @@ Start with [Getting started](getting-started.md) to run the local beta, [Feature
 | [Getting started](getting-started.md) | Local beta, prerequisites and cloud setup |
 | [Features](features.md) | User journeys, routes and limits |
 | [Analytics](analytics.md) | GA4 and Vercel Web Analytics, hash routing, privacy, consent and verification |
+| [Read conservation](read-conservation.md) | Temporary quota mitigation, static company metadata and rollout limits |
 | [Search visibility](search-visibility.md) | Public indexing surface, sitemap, metadata and boundaries |
 | [Architecture](architecture.md) | Components and execution flows |
 | [Configuration](configuration.md) | Public settings, server credentials and test controls |
