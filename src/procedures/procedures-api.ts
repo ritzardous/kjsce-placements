@@ -7,6 +7,7 @@ import { meaningfulBody, type ProcedureCompany, type ProcedureDraft, type Proced
 
 export function procedureError(cause: unknown) {
   const code = (cause as { code?: string })?.code ?? '';
+  if (code.includes('resource-exhausted')) return 'The service has reached a usage limit. Please try again later. Your saved writing has not been deleted.';
   if (code.includes('not-found') || code.includes('unavailable') || code.includes('internal')) return 'The community service is unavailable. Check your connection or ask the app owner to finish the beta setup, then retry.';
   if (code.includes('permission-denied')) return 'You do not have access to this action. Ask the app owner to check your role and the community setup.';
   return cause instanceof Error ? cause.message : 'Could not complete the request. Please retry.';

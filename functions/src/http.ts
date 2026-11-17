@@ -6,6 +6,7 @@ import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { HttpsError, authorize, saveDraft, submit, review, unpublish, deleteProcedure, vote, type Actor } from './service.js';
 import { community, adminCommunityActions } from './community.js';
+import { isDatabaseQuotaError } from './service-errors.js';
 
 let serverApp: App | undefined;
 export function configureProcedureApi(app: App) { serverApp = app; }
@@ -68,10 +69,13 @@ export default async function handler(req: Request, res: ServerResponse) {
     res.statusCode = 200; res.end(JSON.stringify({ data }));
   } catch (cause) {
     const known = cause instanceof HttpsError;
-    const code = known ? cause.code : 'unavailable';
-    if(authorized&&operation)await recordServiceFailure(getFirestore(app()),authorized.uid,operation,code);
+    const quota = !known && isDatabaseQuotaError(cause);
+    const code = quota ? 'resource-exhausted' : known ? cause.code : 'unavailable';
+    // Do not attempt another Firestore write when its quota is exhausted.
+    if(!quota&&authorized&&operation)await recordServiceFailure(getFirestore(app()),authorized.uid,operation,code);
+    if (quota) res.setHeader('Retry-After', '60');
     res.statusCode = statuses[code] ?? 500;
-    res.end(JSON.stringify({ error: { code, message: known ? cause.message : 'The community service could not complete the request. Retry or check its server configuration.' } }));
+    res.end(JSON.stringify({ error: { code, message: quota ? 'The database usage limit has been reached. Please try again later. Your saved writing has not been deleted.' : known ? cause.message : 'The community service could not complete the request. Retry or check its server configuration.' } }));
   }
 }
 

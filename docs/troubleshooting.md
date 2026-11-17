@@ -1,5 +1,11 @@
 # Troubleshooting
 
+## Firestore usage limit reached
+
+Firestore `RESOURCE_EXHAUSTED` (gRPC code 8) means a database resource quota was exceeded; it does not establish a concurrent-user limit. On 17 November 2026, read-only checks against `placement-stats-kjsce` reproduced this for contribution lists and impact counts. Inspect **Firebase Console → Firestore Database → Usage** and Google Cloud quotas to identify the exhausted resource. Development, imports, aggregation queries and refreshes can contribute independently of current visitor count.
+
+The trusted API maps database quota errors to HTTP 429 with a safe message and avoids writing failure telemetry back to the exhausted database. Authentication and ownership checks remain required. Waiting 60 seconds is not a promise of recovery: a daily quota may require its next reset. If launch timing requires more capacity, the maintainer must approve and configure billing/Blaze, review costs and budget alerts, and then recheck the failing requests. Budget alerts do not impose a spending cap. Do not reseed data or repeatedly retry to repair a quota failure.
+
 [Documentation index](README.md) · [Setup](getting-started.md) · [Operations](operations.md)
 
 These remedies follow checked-in guards and error paths. They are not claims that every failure was reproduced on every platform.
