@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { MaintenanceNotice } from "../ui/MaintenanceNotice";
 import { useAuth } from "../lib/auth";
 import { AppIcon } from "../ui/AppIcon";
 import { ArchiveIndex } from "./ArchiveIndex";
@@ -71,7 +70,6 @@ export default function LandingPage({ deepLink = false }: { deepLink?: boolean }
       </a>
       <LandingHeader />
       <main id="landing-content" className="lp-main" tabIndex={-1}>
-        <MaintenanceNotice />
         <section className="lp-hero" aria-labelledby="landing-title">
           <PathwayField />
           <div className="lp-hero-copy">

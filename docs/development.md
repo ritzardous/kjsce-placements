@@ -34,10 +34,6 @@ tests/e2e/            Desktop/mobile browser journeys
 
 ## Commands
 
-### Temporary maintenance notice (18 November 2026)
-
-The landing page and signed-in Home share [`MaintenanceNotice`](../src/ui/MaintenanceNotice.tsx). Set `showMaintenanceNotice` to `false` there to remove both placements during the planned rollback. The note is informational only: it adds no access restrictions, network requests or scheduled backend changes, and does not disappear automatically. Its stated return time is 1:30 PM IST on 18 November 2026. Deploying or rolling back this temporary change still requires explicit production approval.
-
 All named scripts below exist in [package.json](../package.json). Run from the root unless stated.
 
 | Command | Purpose / side effects |
